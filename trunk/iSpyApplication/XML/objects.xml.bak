@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objects xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <cameras/>
+  <microphones />
+  <floorplans />
+  <remotecommands>
+    <command id="0" name="cmd_Switch all on" command="ispy ALLON" smscommand="ALL ON" />
+    <command id="1" name="cmd_Switch all off" command="ispy ALLOFF" smscommand="ALL OFF" />
+    <command id="2" name="cmd_Apply schedule" command="ispy APPLYSCHEDULE" smscommand="APPLY SCHEDULE" />
+    <command id="3" name="cmd_Record on detect all" command="ispy RECORDONDETECTON" smscommand="RECORDONDETECTON" />
+    <command id="4" name="cmd_Record on alert all" command="ispy RECORDONALERTON" smscommand="RECORDONALERTON" />
+    <command id="5" name="cmd_Record off all" command="ispy RECORDOFF" smscommand="RECORDOFF" />
+    <command id="6" name="cmd_All alerts on" command="ispy ALERTON" smscommand="ALERTON" />
+    <command id="7" name="cmd_All alerts off" command="ispy ALERTOFF" smscommand="ALERTOFF" />
+    <command id="8" name="cmd_Record all start" command="ispy RECORD" smscommand="RECORD" />
+    <command id="9" name="cmd_Record all stop" command="ispy RECORDOFF" smscommand="RECORDOFF" />
+  </remotecommands>
+</objects>

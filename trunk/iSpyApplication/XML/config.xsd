@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="configuration">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="WSUsername" type="xs:string" />
+                <xs:element name="WSPassword" type="xs:string" />
+                <xs:element name="ServicesEnabled" type="xs:boolean" />
+                <xs:element name="ServerPort" type="xs:int" />
+                <xs:element name="motion_WSActivity_iSpy" type="xs:string" />
+                <xs:element name="Enable_Error_Reporting" type="xs:boolean" />
+                <xs:element name="Enable_Update_Check" type="xs:boolean" />
+                <xs:element name="Password_Protect_Password" type="xs:string" />
+                <xs:element name="Enable_Password_Protect" type="xs:boolean" />
+                <xs:element name="MJPEGURL" type="xs:string" />
+                <xs:element name="AVIFileName" type="xs:string" />
+                <xs:element name="RecentJPGList" type="xs:string" />
+                <xs:element name="RecentMJPGList" type="xs:string" />
+                <xs:element name="RecentFileList" type="xs:string" />
+                <xs:element name="NextCameraID" type="xs:int" />
+                <xs:element name="NextMicrophoneID" type="xs:int" />
+                <xs:element name="Subscribed" type="xs:boolean" />
+                <xs:element name="JPEGURL" type="xs:string" />
+                <xs:element name="ActivityColor" type="xs:string" />
+                <xs:element name="NoActivityColor" type="xs:string" />
+                <xs:element name="TrackingColor" type="xs:string" />
+                <xs:element name="VolumeLevelColor" type="xs:string" />
+                <xs:element name="MaxRecordingThreads" type="xs:int" default="4"/>
+                <xs:element name="MainColor" type="xs:string" />
+                <xs:element name="AreaColor" type="xs:string" />
+                <xs:element name="BackColor" type="xs:string" />
+                <xs:element name="MaxMediaFolderSizeMB" type="xs:int" />
+                <xs:element name="DeleteFilesOlderThanDays" type="xs:int" />
+                <xs:element name="ServerAddress" type="xs:string" />
+                <xs:element name="Enabled_ShowGettingStarted" type="xs:boolean" />
+                <xs:element name="Opacity" type="xs:int" />
+                <xs:element name="LANPort" type="xs:int" />
+                <xs:element name="Enable_Storage_Management" type="xs:boolean" />
+                <xs:element name="FFMPEG_Camera" type="xs:string" />
+                <xs:element name="FFMPEG_Microphone" type="xs:string" />
+                <xs:element name="TimestampColor" type="xs:string" />
+                <xs:element name="BorderHighlightColor" type="xs:string" />
+                <xs:element name="UseUPNP" type="xs:boolean" />
+                <xs:element name="NextFloorPlanID" type="xs:int" />
+                <xs:element name="YouTubeUsername" type="xs:string" />
+                <xs:element name="YouTubePassword" type="xs:string" />
+                <xs:element name="YouTubeAccount" type="xs:string" />
+                <xs:element name="YouTubeKey" type="xs:string" />
+                <xs:element name="YouTubeCategories" type="xs:string" />
+                <xs:element name="YouTubeDefaultCategory" type="xs:string" />
+                <xs:element name="CompressorOptions" type="xs:string" />
+                <xs:element name="NextCommandID" type="xs:int" />
+                <xs:element name="LogFFMPEGCommands" type="xs:boolean" />
+                <xs:element name="BalloonTips" type="xs:boolean" />
+                <xs:element name="TrayIconText" type="xs:string" />
+                <xs:element name="AutoLayout" type="xs:boolean" />
+                <xs:element name="UpnpDevice" type="xs:string" />
+                <xs:element name="IPMode" type="xs:string" />
+                <xs:element name="IPv4Address" type="xs:string" />
+                <xs:element name="IPv6Address" type="xs:string" />
+                <xs:element name="DHCPReroute" type="xs:boolean" />
+                <xs:element name="MediaDirectory" type="xs:string" />
+                <xs:element name="FFMPEG_SingleProcess" type="xs:boolean" />
+                <xs:element name="Loopback" type="xs:boolean" />
+                <xs:element name="ServerReceiveTimeout" type="xs:int" />
+                <xs:element name="IPCameraTimeout" type="xs:int" />
+                <xs:element name="ServerName" type="xs:string" />
+                <xs:element name="UploadedVideos" type="xs:string" />
+                <xs:element name="Language" type="xs:string" />
+                <xs:element name="RecentVLCList" type="xs:string" />
+                <xs:element name="VLCURL" type="xs:string" />
+                <xs:element name="AutoSchedule" type="xs:boolean" />
+                <xs:element name="Fullscreen" type="xs:boolean" />
+                <xs:element name="ShowStatus" type="xs:boolean" />
+                <xs:element name="ShowToolbar" type="xs:boolean" />
+                <xs:element name="ShowFileMenu" type="xs:boolean" />
+                <xs:element name="AlwaysOnTop" type="xs:boolean" />
+                <xs:element name="LogFileSizeKB" type="xs:int" />
+                <xs:element name="CPUMax" type="xs:int" default="90"/>
+                <xs:element name="AllowedIPList" type="xs:string" default=""/>
+                <xs:element name="Reseller" type="xs:string" default=""/>
+                <xs:element name="CreateAlertWindows" type="xs:boolean" default="true"/>
+                <xs:element name="MaxRedrawRate" type="xs:int" default="10"/>
+                <xs:element name="PreviewItems" type="xs:int" default="100"/>
+                <xs:element name="ShowOverlayControls" type="xs:boolean" default="true"/>
+                <xs:element name="ShowMediaPanel" type="xs:boolean" default="true"/>
+                <xs:element name="Priority" type="xs:int" default="3"/>
+                <xs:element name="Monitor" type="xs:boolean" default="true"/>
+                <xs:element name="RunTimes" type="xs:int" default="0"/>
+                <xs:element name="ScreensaverWakeup" type="xs:boolean" default="false"/>
+                <xs:element name="Vendor" type="xs:string" default=""/>
+                <xs:element name="TalkMic" type="xs:string" default=""/>
+                <xs:element name="PlaybackMode" type="xs:int" default="0"/>
+                <xs:element name="JPEGQuality" type="xs:int" default="75"/>
+                <xs:element name="StopSavingOnStorageLimit" type="xs:boolean" default="false"/>
+                <xs:element name="ViewController" type="xs:boolean" default="true"/>
+                <xs:element name="LayoutMode" type="xs:int" default="0"/>
+                <xs:element name="ShowPTZController" type="xs:boolean" default="false"/>
+                <xs:element name="BigButtons" type="xs:boolean" default="false"/>
+                <xs:element name="LockLayout" type="xs:boolean" default="false"/>
+                <xs:element name="MediaPanelSize" type="xs:string" default=""/>
+                <xs:element name="WebServer" type="xs:string" default="http://www.ispyconnect.com"/>
+                <xs:element name="MinimiseOnClose" type="xs:boolean" default="false"/>
+                <xs:element name="IPv6Disabled" type="xs:boolean" default="false"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
