@@ -1,0 +1,153 @@
+ImageRuntimeVersion: v4.0.30319
+Assembly AForge.Video.FFMPEG, Version=2.6.1.0, Culture=neutral, PublicKeyToken=03563089b1be05dd: 
+	hash=SHA1, flags=PublicKey
+Assembly mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly AForge.Video, Version=2.5.3.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401: 
+	hash=None, flags=None
+Assembly System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly Microsoft.VisualC, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089: 
+	hash=None, flags=None
+Assembly Microsoft.VisualC, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
+	hash=None, flags=None
+Struct AForge.Video.FFMPEG.AudioCodec: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Enum
+  Fields:
+    Int32 value__ : Public, SpecialName, RTSpecialName
+    AForge.Video.FFMPEG.AudioCodec M4A = 2 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.AudioCodec AAC = 1 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.AudioCodec MP3 = 0 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.AudioCodec None = -1 : Public, Static, Literal, HasDefault
+Class AForge.Video.FFMPEG.AudioFileReader: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Properties:
+    Boolean IsOpen 'get ' : 
+    System.String CodecName 'get ' : 
+    Int32 BitsPerSample 'get ' : 
+    Int32 Channels 'get ' : 
+    Int32 SampleRate 'get ' : 
+  Methods:
+    get_SampleRate(): PrivateScope, Public, HideBySig, SpecialName
+    get_Channels(): PrivateScope, Public, HideBySig, SpecialName
+    get_BitsPerSample(): PrivateScope, Public, HideBySig, SpecialName
+    get_CodecName(): PrivateScope, Public, HideBySig, SpecialName
+    get_IsOpen(): PrivateScope, Public, HideBySig, SpecialName
+    Open(String): PrivateScope, Public, HideBySig
+    ReadAudioFrame(): PrivateScope, Public, HideBySig
+    Close(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Class AForge.Video.FFMPEG.AudioFileWriter: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Properties:
+    Boolean IsOpen 'get ' : 
+    AForge.Video.FFMPEG.AudioCodec ACodec 'get ' : 
+  Methods:
+    get_ACodec(): PrivateScope, Public, HideBySig, SpecialName
+    get_IsOpen(): PrivateScope, Public, HideBySig, SpecialName
+    Open(String, AudioCodec, Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Open(String): PrivateScope, Public, HideBySig
+    WriteAudio(Byte*, Int32): PrivateScope, Public, HideBySig
+    Close(): PrivateScope, Public, HideBySig
+    Flush(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Class AForge.Video.FFMPEG.IMA_ADPCM: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Fields:
+    Int16 PredictedValue : Public
+    Byte StepIndex : Public
+  Methods:
+    EncodeInit(Int16, Int16): PrivateScope, Public, HideBySig
+    EncodeFoscam(Byte*, Int32, Byte*): PrivateScope, Public, HideBySig
+    Encode(Byte*, Int32, Int16*, UInt32): PrivateScope, Public, HideBySig
+    Encode(Int16): PrivateScope, Public, HideBySig
+    Decode(Int16*, Byte*, Int32, UInt32): PrivateScope, Public, HideBySig
+    Decode(UInt32): PrivateScope, Public, HideBySig
+Struct AForge.Video.FFMPEG.VideoCodec: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
+  :System.Enum
+  Fields:
+    Int32 value__ : Public, SpecialName, RTSpecialName
+    AForge.Video.FFMPEG.VideoCodec MJPEG = 10 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec H264 = 9 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec Raw = 8 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec MPEG2 = 7 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec FLV1 = 6 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec H263P = 5 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec MSMPEG4v3 = 4 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec MSMPEG4v2 = 3 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec WMV2 = 2 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec WMV1 = 1 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec MPEG4 = 0 : Public, Static, Literal, HasDefault
+    AForge.Video.FFMPEG.VideoCodec Default = -1 : Public, Static, Literal, HasDefault
+Class AForge.Video.FFMPEG.VideoFileReader: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Properties:
+    Boolean IsOpen 'get ' : 
+    System.String AudioCodecName 'get ' : 
+    System.String CodecName 'get ' : 
+    Int64 FrameCount 'get ' : 
+    Int32 FrameRate 'get ' : 
+    Int32 Height 'get ' : 
+    Int32 Width 'get ' : 
+    Int32 BitsPerSample 'get ' : 
+    Int32 Channels 'get ' : 
+    Int32 SampleRate 'get ' : 
+  Methods:
+    get_SampleRate(): PrivateScope, Public, HideBySig, SpecialName
+    get_Channels(): PrivateScope, Public, HideBySig, SpecialName
+    get_BitsPerSample(): PrivateScope, Public, HideBySig, SpecialName
+    get_Width(): PrivateScope, Public, HideBySig, SpecialName
+    get_Height(): PrivateScope, Public, HideBySig, SpecialName
+    get_FrameRate(): PrivateScope, Public, HideBySig, SpecialName
+    get_FrameCount(): PrivateScope, Public, HideBySig, SpecialName
+    get_CodecName(): PrivateScope, Public, HideBySig, SpecialName
+    get_AudioCodecName(): PrivateScope, Public, HideBySig, SpecialName
+    get_IsOpen(): PrivateScope, Public, HideBySig, SpecialName
+    Open(String): PrivateScope, Public, HideBySig
+    ReadVideoFrame(): PrivateScope, Public, HideBySig
+    ReadAudioFrame(): PrivateScope, Public, HideBySig
+    Close(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
+Class AForge.Video.FFMPEG.VideoFileWriter: AutoLayout, AnsiClass, Class, Public, BeforeFieldInit
+    Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
+  Interfaces:
+    System.IDisposable
+  Properties:
+    Boolean IsOpen 'get ' : 
+    AForge.Video.FFMPEG.AudioCodec ACodec 'get ' : 
+    AForge.Video.FFMPEG.VideoCodec Codec 'get ' : 
+    Int32 BitRate 'get ' : 
+    Int32 Height 'get ' : 
+    Int32 Width 'get ' : 
+  Methods:
+    get_Width(): PrivateScope, Public, HideBySig, SpecialName
+    get_Height(): PrivateScope, Public, HideBySig, SpecialName
+    get_BitRate(): PrivateScope, Public, HideBySig, SpecialName
+    get_Codec(): PrivateScope, Public, HideBySig, SpecialName
+    get_ACodec(): PrivateScope, Public, HideBySig, SpecialName
+    get_IsOpen(): PrivateScope, Public, HideBySig, SpecialName
+    Open(String, Int32, Int32, Boolean(HasFieldMarshal), VideoCodec, Int32, AudioCodec, Int32, Int32, Int32, Int32): PrivateScope, Public, HideBySig
+    Open(String, Int32, Int32, Boolean(HasFieldMarshal), VideoCodec, Int32, Int32): PrivateScope, Public, HideBySig
+    Open(String, Int32, Int32, Boolean(HasFieldMarshal), VideoCodec): PrivateScope, Public, HideBySig
+    Open(String, Int32, Int32): PrivateScope, Public, HideBySig
+    WriteVideoFrame(Bitmap, TimeSpan): PrivateScope, Public, HideBySig
+    WriteVideoFrame(Bitmap): PrivateScope, Public, HideBySig
+    WriteAudio(Byte*, Int32): PrivateScope, Public, HideBySig
+    AddAudioSamples(WriterPrivateData, Byte*, Int32): PrivateScope, Public, HideBySig
+    Close(): PrivateScope, Public, HideBySig
+    Flush(): PrivateScope, Public, HideBySig
+    Dispose(): PrivateScope, Public, Final, Virtual, HideBySig
