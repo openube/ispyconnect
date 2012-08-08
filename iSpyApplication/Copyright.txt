@@ -1,0 +1,10 @@
+iSpy Security and Surveillance Software
+http://www.ispyconnect.com
+==================================
+
+
+Copyright © DeveloperInABox.com, 2009-2011
+admin@developerinabox.com
+
+
+iSpy is opensource surveillance software based on the AForge.net framework.

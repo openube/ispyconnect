@@ -1,0 +1,1053 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F4799C73-DEE9-48F2-B626-32149CC30976}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>ispy.ico</ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>iSpy</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>iSpyApplication</RootNamespace>
+    <StartupObject>Program</StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <PublishUrl>ftp://216.119.95.247/hosting/ispy/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.3.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <FileAlignment>4096</FileAlignment>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\iSpy.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;c:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;c:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <Optimize>false</Optimize>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <BaseAddress>285212672</BaseAddress>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <FileAlignment>4096</FileAlignment>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\iSpy.exe.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;c:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;c:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>233F35CC31FF4D02C2C1B6729641FF7C82CFD2A3</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>iSpyApplication_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AForge, Version=2.2.3.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Controls, Version=2.2.3.0, Culture=neutral, PublicKeyToken=a8ac264d1dc6b9d9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Imaging, Version=2.2.3.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Imaging.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Imaging.Formats, Version=2.2.3.0, Culture=neutral, PublicKeyToken=8065ed5a639199a0, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Imaging.Formats.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Math, Version=2.2.3.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video">
+      <HintPath>DLLS\AForge.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.DirectShow, Version=2.5.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Video.DirectShow.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.Ximea, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5cdcd64958730f99, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Vision, Version=2.2.3.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Vision.dll</HintPath>
+    </Reference>
+    <Reference Include="Declarations, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Declarations.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Client, Version=1.8.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.GData.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Extensions, Version=1.8.0.0, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.GData.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.YouTube, Version=1.8.0.0, Culture=neutral, PublicKeyToken=af04a32718ae8833, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.GData.YouTube.dll</HintPath>
+    </Reference>
+    <Reference Include="Implementation, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Implementation.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.NATUPNPLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>DLLS\Interop.NATUPNPLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.NETCONLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>DLLS\Interop.NETCONLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.NetFwTypeLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>DLLS\Interop.NetFwTypeLib.dll</HintPath>
+    </Reference>
+    <Reference Include="LibVlcWrapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\LibVlcWrapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Kinect, Version=1.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files\Microsoft SDKs\Kinect\v1.5\Assemblies\Microsoft.Kinect.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NAudio, Version=1.5.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="NSpeex">
+      <HintPath>DLLS\NSpeex.dll</HintPath>
+    </Reference>
+    <Reference Include="Renderers">
+      <HintPath>DLLS\Renderers.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+    <Reference Include="Windows7ToolStripRenderer">
+      <HintPath>DLLS\Windows7ToolStripRenderer.dll</HintPath>
+    </Reference>
+    <Reference Include="xiApi.NET">
+      <HintPath>DLLS\xiApi.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddFloorPlan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddFloorPlan.Designer.cs">
+      <DependentUpon>AddFloorPlan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AngleSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\AngleSelector.designer.cs">
+      <DependentUpon>AngleSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AreaSelector.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\AreaSelector.Designer.cs">
+      <DependentUpon>AreaSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Audio\AudioEvents.cs" />
+    <Compile Include="Audio\CodecList.cs" />
+    <Compile Include="Audio\codecs\AcmChatCodec.cs" />
+    <Compile Include="Audio\codecs\ALawChatCodec.cs" />
+    <Compile Include="Audio\codecs\G722ChatCodec.cs" />
+    <Compile Include="Audio\codecs\Gsm610ChatCodec.cs" />
+    <Compile Include="Audio\codecs\INetworkChatCodec.cs" />
+    <Compile Include="Audio\codecs\MicrosoftAdpcmChatCodec.cs" />
+    <Compile Include="Audio\codecs\MuLawChatCodec.cs" />
+    <Compile Include="Audio\codecs\SpeexChatCodec.cs" />
+    <Compile Include="Audio\codecs\TrueSpeechChatCodec.cs" />
+    <Compile Include="Audio\codecs\UncompressedPcmChatCodec.cs" />
+    <Compile Include="Audio\streams\DirectStream.cs" />
+    <Compile Include="Audio\streams\TalkDeviceStream.cs" />
+    <Compile Include="Audio\streams\WebStream.cs" />
+    <Compile Include="Audio\talk\TalkAxis.cs" />
+    <Compile Include="Audio\g711audio.cs" />
+    <Compile Include="Audio\talk\TalkiSpyServer.cs" />
+    <Compile Include="Audio\talk\ITalkTarget.cs" />
+    <Compile Include="Audio\streams\FFMPEGStream.cs" />
+    <Compile Include="Audio\talk\TalkFoscam.cs" />
+    <Compile Include="Audio\streams\iSpyServerStream.cs" />
+    <Compile Include="Audio\streams\TalkHelperStream.cs" />
+    <Compile Include="Audio\streams\VLCStream.cs" />
+    <Compile Include="Audio\streams\IAudioSource.cs" />
+    <Compile Include="Audio\streams\LocalDeviceStream.cs" />
+    <Compile Include="CameraMicSource.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CameraMicSource.Designer.cs">
+      <DependentUpon>CameraMicSource.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureSeconds.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigureSeconds.Designer.cs">
+      <DependentUpon>ConfigureSeconds.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureProcessor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigureProcessor.Designer.cs">
+      <DependentUpon>ConfigureProcessor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureTimestamp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigureTimestamp.Designer.cs">
+      <DependentUpon>ConfigureTimestamp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureObjectCount.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigureObjectCount.Designer.cs">
+      <DependentUpon>ConfigureObjectCount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigureRepeat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigureRepeat.Designer.cs">
+      <DependentUpon>ConfigureRepeat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LayoutItem.cs" />
+    <Compile Include="MainForm_Commands.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm_Configuration.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm_Layout.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm_Logging.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm_Media.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PTZController.cs" />
+    <Compile Include="PTZTool.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PTZTool.Designer.cs">
+      <DependentUpon>PTZTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Video\AlertEvents.cs" />
+    <Compile Include="Video\ByteArrayUtils.cs" />
+    <Compile Include="Video\KinectNetworkStream.cs" />
+    <Compile Include="Video\KinectStream.cs" />
+    <Compile Include="Video\MJPEGStream2.cs" />
+    <Compile Include="Video\FFMPEGStream.cs" />
+    <Compile Include="Video\ScreenArea.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Video\ScreenArea.Designer.cs">
+      <DependentUpon>ScreenArea.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VolumeLevel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\VolumeLevel.Designer.cs">
+      <DependentUpon>VolumeLevel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FindCameras.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FindCameras.Designer.cs">
+      <DependentUpon>FindCameras.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GettingStarted.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GettingStarted.Designer.cs">
+      <DependentUpon>GettingStarted.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HSLFilteringForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\LayoutPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ListNetworkComputers.cs" />
+    <Compile Include="MCRemote.cs" />
+    <Compile Include="NativeCalls.cs" />
+    <Compile Include="NetworkTroubleshooter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NetworkTroubleshooter.Designer.cs">
+      <DependentUpon>NetworkTroubleshooter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Player.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Player.Designer.cs">
+      <DependentUpon>Player.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PreviewBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="QueueWithEvents.cs" />
+    <Compile Include="Screensaver.cs" />
+    <Compile Include="VideoNavigator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="VideoNavigator.Designer.cs">
+      <DependentUpon>VideoNavigator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewController.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewController.Designer.cs">
+      <DependentUpon>ViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ViewControllerPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Video\VLCHelper.cs" />
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ByteArrayUtils.cs" />
+    <Compile Include="C2BPProcessor.cs" />
+    <Compile Include="Camera.cs" />
+    <Compile Include="AddCamera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddCamera.Designer.cs">
+      <DependentUpon>AddCamera.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CameraWindow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="CheckPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CheckPassword.Designer.cs">
+      <DependentUpon>CheckPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddMicrophone.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddMicrophone.Designer.cs">
+      <DependentUpon>AddMicrophone.cs</DependentUpon>
+    </Compile>
+    <Compile Include="C2BPComparers.cs" />
+    <Compile Include="LocRM.cs" />
+    <Compile Include="Video\DesktopStream.cs" />
+    <Compile Include="ErrorReport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorReport.Designer.cs">
+      <DependentUpon>ErrorReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Firewall.cs" />
+    <Compile Include="Controls\FloorPlan.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\FloorPlan.Designer.cs">
+      <DependentUpon>FloorPlan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="extensions.cs" />
+    <Compile Include="ftp.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="InstallerClass.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="LocalServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LayoutEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutEditor.Designer.cs">
+      <DependentUpon>LayoutEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MicrophoneSource.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MicrophoneSource.Designer.cs">
+      <DependentUpon>MicrophoneSource.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NewVersion.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Enums.cs" />
+    <Compile Include="Controls\PersistForm.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="RemoteCommands.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RemoteCommands.Designer.cs">
+      <DependentUpon>RemoteCommands.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Translations.cs" />
+    <Compile Include="upnp.cs" />
+    <Compile Include="Video\VLCStream.cs" />
+    <Compile Include="VideoSource.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VideoSource.Designer.cs">
+      <DependentUpon>VideoSource.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Feedback.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Feedback.Designer.cs">
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\iSpyWS\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Reporting\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Webservices.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Webservices.Designer.cs">
+      <DependentUpon>Webservices.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="WinAPI.cs" />
+    <Compile Include="WSWrapper.cs" />
+    <Compile Include="XML\config.cs">
+      <DependentUpon>config.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XML\filelist.cs">
+      <DependentUpon>FileList.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XML\objects.cs">
+      <DependentUpon>objects.xsd</DependentUpon>
+      <SubType>code</SubType>
+    </Compile>
+    <Compile Include="XML\ptz2.cs">
+      <DependentUpon>PTZ2.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="XML\Sources.cs">
+      <DependentUpon>Sources.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="YouTubeUploader.cs" />
+    <None Include="backgrounds\circuitboard.jpg" />
+    <Content Include="backgrounds\FloorPlan_House.jpg" />
+    <Content Include="backgrounds\FloorPlan_House2.jpg" />
+    <Content Include="backgrounds\FloorPlan_Planet.jpg" />
+    <Content Include="backgrounds\iSpy.jpg" />
+    <Content Include="backgrounds\SolarBurstWallPaper.jpg" />
+    <None Include="chk.png" />
+    <Content Include="Copyright.txt" />
+    <Content Include="avcodec-53.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="avdevice-53.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="avfilter-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="avformat-53.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="avutil-51.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="postproc-51.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\phyxius.jpg" />
+    <None Include="Resources\bigdipper.jpg" />
+    <Content Include="swresample-0.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="swscale-2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lgpl-3.0.txt" />
+    <Content Include="license.txt" />
+    <Content Include="objects.xml" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\ispy.png" />
+    <None Include="Resources\VLC-logo.png" />
+    <None Include="Resources\listen.png" />
+    <None Include="Resources\Offline.bmp" />
+    <None Include="Resources\camoff.png" />
+    <None Include="Resources\camloading.png" />
+    <None Include="Resources\camoff.gif" />
+    <None Include="Resources\camloading.gif" />
+    <None Include="Resources\camremoved.gif" />
+    <None Include="Resources\camloading.jpg" />
+    <None Include="Resources\camoff.jpg" />
+    <None Include="Resources\camremoved.jpg" />
+    <None Include="Resources\remove.png" />
+    <None Include="Resources\reset.jpg" />
+    <None Include="Resources\restore.png" />
+    <None Include="Resources\fullscreen.png" />
+    <None Include="Resources\move.gif" />
+    <None Include="Resources\move.png" />
+    <None Include="Resources\schedule.png" />
+    <None Include="Resources\edit.png" />
+    <None Include="Resources\switchoff.jpg" />
+    <None Include="Resources\mobile.png" />
+    <None Include="Resources\switchoff.png" />
+    <None Include="Resources\switchon.gif" />
+    <None Include="Resources\icon_listen.png" />
+    <None Include="Resources\icon_off.png" />
+    <None Include="Resources\icon_on.png" />
+    <None Include="Resources\icon_record.png" />
+    <None Include="Resources\icon_recordoff.png" />
+    <None Include="Resources\icon_recordstop.png" />
+    <None Include="Resources\icon_settings.png" />
+    <None Include="Resources\icon_stoplisten.png" />
+    <None Include="Resources\icon_connect.png" />
+    <None Include="Resources\icon_listenoff.png" />
+    <None Include="Resources\icon_listenstop.png" />
+    <None Include="Resources\icon_photo.png" />
+    <Content Include="Plugins\Demo.dll" />
+    <None Include="Resources\ensidio.jpg" />
+    <None Include="Resources\ispylogo.png" />
+    <None Include="Resources\ispy1.png" />
+    <None Include="Resources\ipcam.png" />
+    <None Include="Resources\plugin.png" />
+    <None Include="Resources\TENVIS.jpg" />
+    <None Include="Resources\smartisp.png" />
+    <None Include="Resources\Addplus.png" />
+    <None Include="Resources\checkbox.png" />
+    <None Include="Resources\icons\01 Computer.png" />
+    <None Include="Resources\icons\02 Network.png" />
+    <None Include="Resources\icons\03 Control Panel.png" />
+    <None Include="Resources\icons\04 EMail.png" />
+    <None Include="Resources\icons\05 Folder.png" />
+    <None Include="Resources\icons\06 Picture.png" />
+    <None Include="Resources\icons\07 Video.png" />
+    <None Include="Resources\icons\08 Music.png" />
+    <None Include="Resources\icons\09 Hard Drive.png" />
+    <None Include="Resources\icons\10 Desktop.png" />
+    <None Include="Resources\icons\11 Trash Empty.png" />
+    <None Include="Resources\icons\12 Trash Full.png" />
+    <None Include="Resources\icons\13 Shut Down.png" />
+    <None Include="Resources\icons\14 Reboot.png" />
+    <None Include="Resources\icons\15 Firefox.png" />
+    <None Include="Resources\icons\16 Photoshop.png" />
+    <None Include="Resources\icons\17 ICQ.png" />
+    <None Include="Resources\icons\18 Steam.png" />
+    <None Include="Resources\icons\19 Download Program.png" />
+    <None Include="Resources\icons\20 Avast!.png" />
+    <None Include="Resources\icons\21 Darkfix.png" />
+    <None Include="Resources\icons\22 Help And Support.png" />
+    <None Include="Resources\icons\23 Default.png" />
+    <None Include="Resources\icons\24 Text Document.png" />
+    <None Include="Resources\icons\25 JetAudio.png" />
+    <None Include="Resources\icons\26 Custom.png" />
+    <None Include="Resources\icons\27 Run.png" />
+    <Content Include="Plugins\readme.txt" />
+    <None Include="Resources\foscam.jpg" />
+    <None Include="Resources\icon_pointer.png" />
+    <Content Include="readme.txt" />
+    <Content Include="sounds\airhorn.wav" />
+    <Content Include="sounds\alarm.wav" />
+    <Content Include="sounds\doorbell.wav" />
+    <Content Include="sounds\police.wav" />
+    <Content Include="sounds\pop.wav" />
+    <Content Include="sounds\wiggle.wav" />
+    <None Include="Web References\iSpyWS\ispysecure.disco" />
+    <Content Include="WebServerRoot\notfound.jpg" />
+    <Content Include="XML\config.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="XML\FileList.xml" />
+    <Content Include="XML\objects.xml" />
+    <Content Include="XML\PTZ2.xml" />
+    <Content Include="XML\Sources.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="XML\Translations.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="app.manifest" />
+    <None Include="Resources\PTZ_Controller.png" />
+    <None Include="Resources\listenoff.png" />
+    <None Include="Resources\youtube_icon_sm.png" />
+    <None Include="Resources\listen.gif" />
+    <None Include="Resources\listenoff.gif" />
+    <None Include="Resources\48_iphone.png" />
+    <None Include="Resources\command-prompt-icon.png" />
+    <None Include="Resources\terminal.png" />
+    <None Include="Resources\Command Prompt.png" />
+    <None Include="Resources\icon-layout-128.png" />
+    <None Include="Resources\video_icon.png" />
+    <None Include="Resources\video.png" />
+    <None Include="Resources\webpage.png" />
+    <None Include="Resources\snapshot.png" />
+    <None Include="Resources\Play-Normal-icon.png" />
+    <None Include="Resources\add.png" />
+    <None Include="Resources\network_mic.png" />
+    <Content Include="sounds\intruder.mp3" />
+    <Content Include="WebServerRoot\log.txt" />
+    <EmbeddedResource Include="AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddCamera.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AddCamera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddFloorPlan.resx">
+      <DependentUpon>AddFloorPlan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AngleSelector.resx">
+      <DependentUpon>AngleSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CameraMicSource.resx">
+      <DependentUpon>CameraMicSource.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CameraWindow.resx">
+      <DependentUpon>CameraWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CheckPassword.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>CheckPassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddMicrophone.resx">
+      <DependentUpon>AddMicrophone.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigureProcessor.resx">
+      <DependentUpon>ConfigureProcessor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigureTimestamp.resx">
+      <DependentUpon>ConfigureTimestamp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigureObjectCount.resx">
+      <DependentUpon>ConfigureObjectCount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigureRepeat.resx">
+      <DependentUpon>ConfigureRepeat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PTZTool.resx">
+      <DependentUpon>PTZTool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Video\ScreenArea.resx">
+      <DependentUpon>ScreenArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VolumeLevel.resx">
+      <DependentUpon>VolumeLevel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FindCameras.resx">
+      <DependentUpon>FindCameras.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GettingStarted.resx">
+      <DependentUpon>GettingStarted.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HSLFilteringForm.resx">
+      <DependentUpon>HSLFilteringForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NetworkTroubleshooter.resx">
+      <DependentUpon>NetworkTroubleshooter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErrorReport.resx">
+      <DependentUpon>ErrorReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FloorPlan.resx">
+      <DependentUpon>FloorPlan.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfigureSeconds.resx">
+      <DependentUpon>ConfigureSeconds.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayoutEditor.resx">
+      <DependentUpon>LayoutEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MicrophoneSource.resx">
+      <DependentUpon>MicrophoneSource.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Player.resx">
+      <DependentUpon>Player.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RemoteCommands.resx">
+      <DependentUpon>RemoteCommands.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VideoNavigator.resx">
+      <DependentUpon>VideoNavigator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ViewController.resx">
+      <DependentUpon>ViewController.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VideoSource.resx">
+      <DependentUpon>VideoSource.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Feedback.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Feedback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Webservices.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Webservices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <Content Include="App.ico" />
+    <Content Include="detected.png" />
+    <Content Include="ispy.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="nothing.png" />
+    <None Include="Web References\iSpyWS\ispysecure.wsdl" />
+    <None Include="Web References\Reporting\reporting.disco">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\config.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\FileList.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\objects.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\PTZ2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\Sources.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="WebServerRoot\data\mime.dat" />
+    <None Include="Resources\LAN.gif" />
+    <None Include="Resources\LAN.png" />
+    <None Include="Resources\startrec.png" />
+    <None Include="Resources\iphone-icon_256.png" />
+    <None Include="Resources\FloorPlan.bmp" />
+    <None Include="Resources\floorplan.jpg" />
+    <None Include="Resources\floorplan.png" />
+    <None Include="Resources\fp_cam_alert.png" />
+    <None Include="Resources\fp_cam_offline.png" />
+    <None Include="Resources\fp_cam_online.png" />
+    <None Include="Resources\fp_mic_alert.png" />
+    <None Include="Resources\fp_mic_offline.png" />
+    <None Include="Resources\fp_mic_online.png" />
+    <Content Include="WebServerRoot\favicon.ico" />
+    <Content Include="XML\Log.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="WebServerRoot\crossdomain.xml" />
+    <EmbeddedResource Include="Controls\AreaSelector.resx">
+      <DependentUpon>AreaSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewVersion.resx">
+      <DependentUpon>NewVersion.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\1.gif" />
+    <EmbeddedResource Include="Resources\2.gif" />
+    <EmbeddedResource Include="Resources\3.gif" />
+    <EmbeddedResource Include="Resources\4.gif" />
+    <EmbeddedResource Include="Resources\5.gif" />
+    <EmbeddedResource Include="Resources\6.gif" />
+    <EmbeddedResource Include="Resources\7.gif" />
+    <EmbeddedResource Include="Resources\8.gif" />
+    <EmbeddedResource Include="Resources\9.gif" />
+    <Content Include="Resources\active.gif" />
+    <None Include="Resources\unlock.gif" />
+    <None Include="Resources\camera.png" />
+    <None Include="Resources\Mic.png" />
+    <None Include="Resources\Connected.png" />
+    <None Include="Resources\Help.png" />
+    <None Include="Resources\settings.png" />
+    <None Include="Resources\logo.png" />
+    <None Include="Resources\mainback.png" />
+    <None Include="Resources\settings.gif" />
+    <None Include="Resources\inactive.gif" />
+    <None Include="Resources\help.gif" />
+    <None Include="Resources\files.gif" />
+    <None Include="Resources\edit.gif" />
+    <None Include="Resources\delete.gif" />
+    <None Include="Resources\addmic.gif" />
+    <None Include="Resources\addcam.gif" />
+    <None Include="Resources\web.gif" />
+    <None Include="Web References\iSpyWS\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Reporting\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\Reporting\reporting.wsdl">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="https://www.ispyconnect.com/webservices/ispysecure.asmx">
+      <UrlBehavior>Static</UrlBehavior>
+      <RelPath>Web References\iSpyWS\</RelPath>
+      <UpdateFromURL>https://www.ispyconnect.com/webservices/ispysecure.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>iSpy_iSpyWS_iSpy</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://www.ispyconnect.com/Webservices/reporting.asmx">
+      <UrlBehavior>Static</UrlBehavior>
+      <RelPath>Web References\Reporting\</RelPath>
+      <UpdateFromURL>http://www.ispyconnect.com/Webservices/reporting.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>motion_Reporting_Reporting</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\x86\" />
+    <Folder Include="DLLS\" />
+    <Folder Include="WebServerRoot\Media\Audio\" />
+    <Folder Include="WebServerRoot\Media\Video\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Video.FFMPEG\Video.FFMPEG.vcxproj">
+      <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
+      <Name>Video.FFMPEG</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)signing\iSpyApplication.bat"</PostBuildEvent>
+  </PropertyGroup>
+</Project>
