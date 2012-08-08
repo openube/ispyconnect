@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="objects">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="cameras">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="camera">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="settings">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="sourceindex" type="xs:int" />
+                                                    <xs:element name="codec" type="xs:string" />
+                                                    <xs:element name="videosourcestring" type="xs:string" />
+                                                    <xs:element name="login" type="xs:string" />
+                                                    <xs:element name="password" type="xs:string" />
+                                                    <xs:element name="useragent" type="xs:string" />
+                                                    <xs:element name="suppressnoise" type="xs:boolean" />
+                                                    <xs:element name="active" type="xs:boolean" />
+                                                    <xs:element name="notifyondisconnect" type="xs:boolean" />
+                                                    <xs:element name="frameinterval" type="xs:int"/>
+                                                    <xs:element name="framerate" type="xs:int"/>
+                                                    <xs:element name="smsnumber" type="xs:string"/>
+                                                    <xs:element name="emailaddress" type="xs:string"/>
+                                                    <xs:element name="ffmpeg" type="xs:string"/>
+                                                    <xs:element name="deleteavi" type="xs:boolean"/>
+                                                    <xs:element name="micpair" type="xs:int"/>
+                                                    <xs:element name="maskimage" type="xs:string"/>
+                                                    <xs:element name="timestampformatter" type="xs:string"/>
+                                                    <xs:element name="timestamplocation" type="xs:int"/>
+                                                    <xs:element name="desktopresizewidth" type="xs:int"/>
+                                                    <xs:element name="desktopresizeheight" type="xs:int"/>
+                                                    <xs:element name="desktoparea" type="xs:string"/>
+                                                    <xs:element name="desktopmouse" type="xs:boolean"/>
+                                                    <xs:element name="vlcargs" type="xs:string"/>
+                                                    <xs:element name="ptzflipx" type="xs:boolean" default="true"/>
+                                                    <xs:element name="ptzflipy" type="xs:boolean" default="true"/>
+                                                    <xs:element name="ptzrotate90" type="xs:boolean" default="true"/>
+                                                    <xs:element name="ptzurlbase" type="xs:string"/>
+                                                    <xs:element name="crossbarindex" type="xs:int" default="0"/>
+                                                    <xs:element name="namevaluesettings" type="xs:string" default=""/>
+                                                    <xs:element name="youtube">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element name="autoupload" type="xs:boolean" />
+                                                                <xs:element name="public" type="xs:boolean" />
+                                                                <xs:element name="tags" type="xs:string" />
+                                                                <xs:element name="category" type="xs:string" />
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="ftp">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="enabled" type="xs:boolean" />
+                                                    <xs:element name="server" type="xs:string" />
+                                                    <xs:element name="username" type="xs:string" />
+                                                    <xs:element name="password" type="xs:string" />
+                                                    <xs:element name="filename" type="xs:string" />
+                                                    <xs:element name="port" type="xs:int" />
+                                                    <xs:element name="interval" type="xs:int" />
+                                                    <xs:element name="ftpmode" type="xs:int" default="2"/>
+                                                    <xs:element name="ready" type="xs:boolean"/>
+                                                    <xs:element name="usepassive" type="xs:boolean"/>
+                                                    <xs:element name="text" type="xs:string" default="www.ispyconnect.com"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="detector">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="motionzones">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element maxOccurs="unbounded" name="zone">
+                                                                    <xs:complexType>
+                                                                        <xs:attribute name="left" type="xs:int" use="required" />
+                                                                        <xs:attribute name="top" type="xs:int" use="required" />
+                                                                        <xs:attribute name="width" type="xs:int" use="required" />
+                                                                        <xs:attribute name="height" type="xs:int" use="required" />
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="type" type="xs:string" use="required" />
+                                                <xs:attribute name="postprocessor" type="xs:string" use="required" />
+                                                <xs:attribute name="nomovementinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="movementinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="calibrationdelay" type="xs:int" use="required" />
+                                                <xs:attribute name="sensitivity" type="xs:double" use="required" />
+                                                <xs:attribute name="color" type="xs:string" use="required" />
+                                                <xs:attribute name="keepobjectedges" type="xs:boolean" use="required" />
+                                                <xs:attribute name="recordondetect" type="xs:boolean" use="required" />
+                                                <xs:attribute name="recordonalert" type="xs:boolean" use="required" />
+                                                <xs:attribute name="processeveryframe" type="xs:int" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="recorder">
+                                            <xs:complexType>
+                                                <xs:attribute name="bufferframes" type="xs:int" use="required" />
+                                                <xs:attribute name="inactiverecord" type="xs:int" use="required" />
+                                                <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
+                                                <xs:attribute name="timelapse" type="xs:int" use="required" />
+                                                <xs:attribute name="timelapseframes" type="xs:int" use="required" />
+                                                <xs:attribute name="timelapseenabled" type="xs:boolean" default="true" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="alerts">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="alertoptions" type="xs:string" />
+                                                    <xs:element name="executefile" type="xs:string" />
+                                                </xs:sequence>
+                                                <xs:attribute name="minimuminterval" type="xs:int" use="required" />
+                                                <xs:attribute name="objectcountalert" type="xs:int" use="required" />
+                                                <xs:attribute name="active" type="xs:boolean" use="required" />
+                                                <xs:attribute name="mode" type="xs:string" use="required" />
+                                                <xs:attribute name="numberplates" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="notifications">
+                                            <xs:complexType>
+                                                <xs:attribute name="emailgrabinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="sendemail" type="xs:boolean" use="required" />
+                                                <xs:attribute name="sendsms" type="xs:boolean" use="required" />
+                                                <xs:attribute name="sendmms" type="xs:boolean" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="schedule">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="entries">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element maxOccurs="unbounded" name="entry">
+                                                        <xs:complexType>
+                                                            <xs:attribute name="start" type="xs:string" use="required" />
+                                                            <xs:attribute name="stop" type="xs:string" use="required" />
+                                                            <xs:attribute name="daysofweek" type="xs:string" use="required" />
+                                                            <xs:attribute name="recordonstart" type="xs:boolean" />
+                                                            <xs:attribute name="active" type="xs:boolean" default="true" />
+                                                            <xs:attribute name="recordondetect" type="xs:boolean" default="true" />
+                                                            <xs:attribute name="recordonalert" type="xs:boolean" default="true" />
+                                                            <xs:attribute name="timelapseenabled" type="xs:boolean" default="true" />
+                                                            <xs:attribute name="alerts" type="xs:boolean" default="true" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                
+                                            </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="active" type="xs:boolean" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:int" use="required" />
+                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="description" use="required"/>
+                                    <xs:attribute name="directory" use="required"/>
+                                    <xs:attribute name="resize" type="xs:boolean" use="optional" />
+                                    <xs:attribute name="flipx" type="xs:boolean" use="required" />
+                                    <xs:attribute name="flipy" type="xs:boolean" use="required" />
+                                    <xs:attribute name="rotate90" type="xs:boolean" default="false" />
+                                    <xs:attribute name="x" type="xs:int" use="required" />
+                                    <xs:attribute name="y" type="xs:int" use="required" />
+                                    <xs:attribute name="width" type="xs:int" use="required" />
+                                    <xs:attribute name="height" type="xs:int" use="required" />
+                                    <xs:attribute name="resolution" type="xs:string" use="required" />
+                                    <xs:attribute name="ptz" type="xs:int" use="required" />
+                                    <xs:attribute name="newrecordingcount" type="xs:int" default="0"/>
+                                    <xs:attribute name="encodekey" type="xs:string"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="microphones">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="microphone">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="settings">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="sourceindex" type="xs:int" />
+                                                    <xs:element name="buffer" type="xs:int" />
+                                                    <xs:element name="samples" type="xs:int" />
+                                                    <xs:element name="bits" type="xs:int" />
+                                                    <xs:element name="channels" type="xs:int" />
+                                                    <xs:element name="active" type="xs:boolean" />
+                                                    <xs:element name="smsnumber" type="xs:string" />
+                                                    <xs:element name="emailaddress" type="xs:string"/>
+                                                    <xs:element name="sourcename" type="xs:string" />
+                                                    <xs:element name="typeindex" type="xs:int" />
+                                                    <xs:element name="volume" type="xs:int" default="50" />
+                                                    <xs:element name="username" type="xs:string" />
+                                                    <xs:element name="password" type="xs:string" />
+                                                    <xs:element name="ffmpeg" type="xs:string"/>
+                                                    <xs:element name="deletewav" type="xs:boolean"/>
+                                                    <xs:element name="decompress" type="xs:boolean"/>
+                                                    <xs:element name="notifyondisconnect" type="xs:boolean" />
+                                                    <xs:element name="vlcargs" type="xs:string"/>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="detector">
+                                            <xs:complexType>
+                                                <xs:attribute name="sensitivity" type="xs:int" use="required" />
+                                                <xs:attribute name="nosoundinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="soundinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="recordondetect" type="xs:boolean" use="required" />
+                                                <xs:attribute name="recordonalert" type="xs:boolean" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="recorder">
+                                            <xs:complexType>
+                                                <xs:attribute name="inactiverecord" type="xs:int" use="required" />
+                                                <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="alerts">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="alertoptions" type="xs:string" />
+                                                    <xs:element name="executefile" type="xs:string" />
+                                                </xs:sequence>
+                                                <xs:attribute name="minimuminterval" type="xs:int" use="required" />
+                                                <xs:attribute name="active" type="xs:boolean" use="required" />
+                                                <xs:attribute name="mode" type="xs:string" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="notifications">
+                                            <xs:complexType>
+                                                <xs:attribute name="sendemail" type="xs:boolean" use="required" />
+                                                <xs:attribute name="sendsms" type="xs:boolean" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="schedule">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="entries">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element maxOccurs="unbounded" name="entry">
+                                                                    <xs:complexType>
+                                                                        <xs:attribute name="start" type="xs:string" use="required" />
+                                                                        <xs:attribute name="stop" type="xs:string" use="required" />
+                                                                        <xs:attribute name="daysofweek" type="xs:string" use="required" />
+                                                                        <xs:attribute name="recordonstart" type="xs:boolean" />
+                                                                        <xs:attribute name="active" type="xs:boolean" default="true" />
+                                                                        <xs:attribute name="recordondetect" type="xs:boolean" default="true" />
+                                                                        <xs:attribute name="recordonalert" type="xs:boolean" default="true" />
+                                                                        <xs:attribute name="alerts" type="xs:boolean" default="true" />
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="active" type="xs:boolean" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:int" use="required" />
+                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="description" use="required"/>
+                                    <xs:attribute name="directory" use="required"/>
+                                    <xs:attribute name="x" type="xs:int" use="required" />
+                                    <xs:attribute name="y" type="xs:int" use="required" />
+                                    <xs:attribute name="width" type="xs:int" use="required" />
+                                    <xs:attribute name="height" type="xs:int" use="required" />
+                                    <xs:attribute name="newrecordingcount" type="xs:int" default="0"/>
+                                    <xs:attribute name="port" type="xs:int" default="257"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="floorplans">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="floorplan">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="objects">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="object">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:element maxOccurs="unbounded" name="entry">
+                                                                    <xs:complexType>
+                                                                        <xs:attribute name="type" type="xs:string" use="required" />
+                                                                        <xs:attribute name="id" type="xs:int" use="required" />
+                                                                        <xs:attribute name="x" type="xs:int" use="required" />
+                                                                        <xs:attribute name="y" type="xs:int" use="required" />
+                                                                        <xs:attribute name="angle" type="xs:int" default="0" />
+                                                                    </xs:complexType>
+                                                                </xs:element>
+                                                            </xs:sequence>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:int" use="required" />
+                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="x" type="xs:int" use="required" />
+                                    <xs:attribute name="y" type="xs:int" use="required" />
+                                    <xs:attribute name="width" type="xs:int" use="required" />
+                                    <xs:attribute name="height" type="xs:int" use="required" />
+                                    <xs:attribute name="image" type="xs:string" use="required" />
+                                    <xs:attribute name="fov" type="xs:int" default="90"/>
+                                    <xs:attribute name="radius" type="xs:int" default="80"/>
+                                    <xs:attribute name="needsupdate" type="xs:boolean" use="required" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="remotecommands">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="command">
+                                <xs:complexType>
+                                    <xs:attribute name="id" type="xs:int" use="required" />
+                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="command" type="xs:string" use="required" />
+                                    <xs:attribute name="smscommand" type="xs:string" use="required" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

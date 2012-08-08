@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PTZSettings>
+  <Camera Make="Foscam" Version="FI8918W" id="0">
+    <CommandURL>/decoder_control.cgi?command=</CommandURL>
+    <Commands>
+      <Center>25</Center>
+      <Left>6</Left>
+      <LeftUp>91</LeftUp>
+      <Right>4</Right>
+      <RightUp>90</RightUp>
+      <Up>0</Up>
+      <Down>2</Down>
+      <LeftDown>93</LeftDown>
+      <RightDown>92</RightDown>
+      <Stop>1</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+      <ExtendedCommands>
+                STOP|1,IR_ON|95,IR_OFF|94,H_Patrol|28,V_Patrol|26
+            </ExtendedCommands>
+    </Commands>
+  </Camera>
+</PTZSettings>

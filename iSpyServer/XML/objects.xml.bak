@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objects xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <cameras>
+    <camera id="0" name="Logitech QuickCam Express/Go" description="" directory="DQVGK" x="303" y="122" flipy="false" flipx="false" rotate90="false" width="322" height="266" resolution="320x240" ptz="-1" newrecordingcount="0">
+      <settings desktopresizewidth="640" desktopresizeheight="480">
+        <sourceindex>3</sourceindex>
+        <videosourcestring>@device:pnp:\\?\usb#vid_046d&amp;pid_092f#5&amp;fc8a69f&amp;0&amp;2#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\{9b365890-165f-11d0-a195-0020afd156e4}</videosourcestring>
+        <login />
+        <password />
+        <useragent>Mozilla/5.0</useragent>
+        <suppressnoise>true</suppressnoise>
+        <ptzflipx>false</ptzflipx>
+        <ptzflipy>false</ptzflipy>
+        <ptzrotate90>false</ptzrotate90>
+        <active>true</active>
+        <notifyondisconnect>false</notifyondisconnect>
+        <frameinterval>200</frameinterval>
+        <framerate>10</framerate>
+        <smsnumber />
+        <emailaddress />
+        <ffmpeg>-i "{filename}.avi" -an -r {framerate} -vcodec libx264 -f mp4 -fpre "{presetdir}libx264-slow.ffpreset" "{filename}.mp4"</ffmpeg>
+        <deleteavi>true</deleteavi>
+        <micpair>-1</micpair>
+        <timestampformatter>FPS: {FPS} {0:G} </timestampformatter>
+        <timestamplocation>0</timestamplocation>
+        <youtube>
+          <autoupload>false</autoupload>
+          <public>true</public>
+          <tags>iSpy, Motion Detection, Surveillance</tags>
+          <category>People</category>
+        </youtube>
+      </settings>
+      <ftp>
+        <enabled>false</enabled>
+        <server>ftp://</server>
+        <text>www.ispyconnect.com</text>
+        <filename>mylivecamerafeed.jpg</filename>
+        <port>21</port>
+        <interval>30</interval>
+        <mode>0</mode>
+        <ready>true</ready>
+        <usepassive>false</usepassive>
+      </ftp>
+      <detector type="None" postprocessor="None" nomovementinterval="0" movementinterval="0" calibrationdelay="15" sensitivity="80" color="Blue" keepobjectedges="false" recordondetect="true" recordonalert="false" processeveryframe="1">
+        <motionzones />
+      </detector>
+      <recorder bufferframes="30" inactiverecord="3" maxrecordtime="180" timelapse="0" timelapseframes="0" timelapseenabled="false" />
+      <alerts minimuminterval="180" objectcountalert="1" active="false" mode="movement">
+        <alertoptions>false,false</alertoptions>
+      </alerts>
+      <notifications emailgrabinterval="60" sendemail="false" sendsms="false" sendmms="false" />
+      <schedule active="false">
+        <entries />
+      </schedule>
+    </camera>
+  </cameras>
+  <microphones />
+</objects>
