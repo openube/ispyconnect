@@ -16,27 +16,15 @@ namespace iSpyApplication.Video
 
     public class KinectNetworkStream : IVideoSource, IAudioSource
     {
-        // URL for MJPEG stream
         private string _source;
-        // login and password for HTTP authentication
         private string _login;
         private string _password;
-        // proxy information
         private IWebProxy _proxy;
-        // received frames count
         private int _framesReceived;
-        // recieved byte count
         private long _bytesReceived;
-        // use separate HTTP connection group or use default
         private bool _useSeparateConnectionGroup = true;
-        // timeout value for web request
         private int _requestTimeout = 10000;
-        // if we should use basic authentication when connecting to the video source
-        private bool _forceBasicAuthentication;
-
-        // buffer size used to download MJPEG stream
         private const int BufSize = 1024 * 1024*2;
-        // size of portion to read at once
         private const int ReadSize = 1024;
         private bool _usehttp10;
 
@@ -325,24 +313,6 @@ namespace iSpyApplication.Video
         }
 
         /// <summary>
-        /// Force using of basic authentication when connecting to the video source.
-        /// </summary>
-        /// 
-        /// <remarks><para>For some IP cameras (TrendNET IP cameras, for example) using standard .NET's authentication via credentials
-        /// does not seem to be working (seems like camera does not request for authentication, but expects corresponding headers to be
-        /// present on connection request). So this property allows to force basic authentication by adding required HTTP headers when
-        /// request is sent.</para>
-        /// 
-        /// <para>Default value is set to <see langword="false"/>.</para>
-        /// </remarks>
-        /// 
-        public bool ForceBasicAuthentication
-        {
-            get { return _forceBasicAuthentication; }
-            set { _forceBasicAuthentication = value; }
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="MJPEGStream"/> class.
         /// </summary>
         /// 
@@ -469,10 +439,6 @@ namespace iSpyApplication.Video
         {
             // buffer to read stream
             var buffer = new byte[BufSize];
-            // JPEG magic number
-            var jpegMagic = new byte[] { 0xFF, 0xD8, 0xFF };
-
-
             var encoding = new ASCIIEncoding();
 
             while (!_stopEvent.WaitOne(0, false))
@@ -511,7 +477,6 @@ namespace iSpyApplication.Video
                     // set timeout value for the request
                     request.Timeout = _requestTimeout;
                     request.AllowAutoRedirect = true;
-                    ServicePointManager.ServerCertificateValidationCallback += Certificates.ValidateRemoteCertificate;
 
                     // set login and password
                     if ((_login != null) && (_password != null) && (_login != string.Empty))
@@ -519,13 +484,6 @@ namespace iSpyApplication.Video
                     // set connection group name
                     if (_useSeparateConnectionGroup)
                         request.ConnectionGroupName = GetHashCode().ToString();
-                    // force basic authentication through extra headers if required
-                    if (_forceBasicAuthentication)
-                    {
-                        string authInfo = string.Format("{0}:{1}", _login, _password);
-                        authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
-                        request.Headers["Authorization"] = "Basic " + authInfo;
-                    }
                     // get response
                     response = request.GetResponse();
 

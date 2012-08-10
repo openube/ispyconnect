@@ -49,8 +49,8 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.linkLabel3 = new System.Windows.Forms.LinkLabel();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.lblCommand = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.gpbSubscriber.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -73,7 +73,7 @@
             this.button3.Location = new System.Drawing.Point(279, 31);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(40, 23);
-            this.button3.TabIndex = 80;
+            this.button3.TabIndex = 5;
             this.button3.Text = "...";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Button3Click);
@@ -85,8 +85,8 @@
             this.label82.Location = new System.Drawing.Point(3, 0);
             this.label82.Name = "label82";
             this.label82.Padding = new System.Windows.Forms.Padding(3);
-            this.label82.Size = new System.Drawing.Size(430, 19);
-            this.label82.TabIndex = 79;
+            this.label82.Size = new System.Drawing.Size(432, 19);
+            this.label82.TabIndex = 0;
             this.label82.Text = "You can trigger remote commands manually from the iSpy website or from mobile dev" +
     "ices.";
             // 
@@ -106,7 +106,7 @@
             this.lbManualAlerts.Location = new System.Drawing.Point(3, 22);
             this.lbManualAlerts.Name = "lbManualAlerts";
             this.lbManualAlerts.Size = new System.Drawing.Size(290, 134);
-            this.lbManualAlerts.TabIndex = 84;
+            this.lbManualAlerts.TabIndex = 0;
             this.lbManualAlerts.SelectedIndexChanged += new System.EventHandler(this.lbManualAlerts_SelectedIndexChanged);
             // 
             // btnDelete
@@ -114,7 +114,7 @@
             this.btnDelete.Location = new System.Drawing.Point(3, 3);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(75, 23);
-            this.btnDelete.TabIndex = 85;
+            this.btnDelete.TabIndex = 1;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.BtnDeleteClick);
@@ -154,7 +154,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 11F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(601, 88);
-            this.tableLayoutPanel2.TabIndex = 92;
+            this.tableLayoutPanel2.TabIndex = 0;
             // 
             // linkLabel2
             // 
@@ -162,7 +162,7 @@
             this.linkLabel2.Location = new System.Drawing.Point(351, 63);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(52, 13);
-            this.linkLabel2.TabIndex = 91;
+            this.linkLabel2.TabIndex = 8;
             this.linkLabel2.TabStop = true;
             this.linkLabel2.Text = "Examples";
             this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
@@ -182,7 +182,7 @@
             this.linkLabel1.Location = new System.Drawing.Point(279, 63);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(28, 13);
-            this.linkLabel1.TabIndex = 85;
+            this.linkLabel1.TabIndex = 7;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "Test";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked);
@@ -192,14 +192,14 @@
             this.txtExecute.Location = new System.Drawing.Point(84, 31);
             this.txtExecute.Name = "txtExecute";
             this.txtExecute.Size = new System.Drawing.Size(139, 20);
-            this.txtExecute.TabIndex = 90;
+            this.txtExecute.TabIndex = 4;
             // 
             // btnAddCommand
             // 
             this.btnAddCommand.Location = new System.Drawing.Point(84, 66);
             this.btnAddCommand.Name = "btnAddCommand";
             this.btnAddCommand.Size = new System.Drawing.Size(60, 19);
-            this.btnAddCommand.TabIndex = 84;
+            this.btnAddCommand.TabIndex = 6;
             this.btnAddCommand.Text = "Add";
             this.btnAddCommand.UseVisualStyleBackColor = true;
             this.btnAddCommand.Click += new System.EventHandler(this.BtnAddCommandClick);
@@ -209,7 +209,7 @@
             this.txtName.Location = new System.Drawing.Point(84, 3);
             this.txtName.Name = "txtName";
             this.txtName.Size = new System.Drawing.Size(139, 20);
-            this.txtName.TabIndex = 83;
+            this.txtName.TabIndex = 3;
             // 
             // button1
             // 
@@ -218,7 +218,7 @@
             this.button1.Location = new System.Drawing.Point(264, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(44, 23);
-            this.button1.TabIndex = 86;
+            this.button1.TabIndex = 10;
             this.button1.Text = "Finish";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.Button1Click);
@@ -229,7 +229,7 @@
             this.linkLabel4.Location = new System.Drawing.Point(3, 4);
             this.linkLabel4.Name = "linkLabel4";
             this.linkLabel4.Size = new System.Drawing.Size(272, 13);
-            this.linkLabel4.TabIndex = 89;
+            this.linkLabel4.TabIndex = 0;
             this.linkLabel4.TabStop = true;
             this.linkLabel4.Text = "You need an active subscription to enable these options";
             this.linkLabel4.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel4LinkClicked);
@@ -241,7 +241,7 @@
             this.llblHelp.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.llblHelp.Name = "llblHelp";
             this.llblHelp.Size = new System.Drawing.Size(29, 13);
-            this.llblHelp.TabIndex = 90;
+            this.llblHelp.TabIndex = 9;
             this.llblHelp.TabStop = true;
             this.llblHelp.Text = "Help";
             this.llblHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblHelp_LinkClicked);
@@ -298,19 +298,10 @@
             this.linkLabel3.Margin = new System.Windows.Forms.Padding(6);
             this.linkLabel3.Name = "linkLabel3";
             this.linkLabel3.Size = new System.Drawing.Size(35, 13);
-            this.linkLabel3.TabIndex = 88;
+            this.linkLabel3.TabIndex = 2;
             this.linkLabel3.TabStop = true;
             this.linkLabel3.Text = "Reset";
             this.linkLabel3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel3_LinkClicked);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.linkLabel4);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(6, 6);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(613, 28);
-            this.panel1.TabIndex = 92;
             // 
             // lblCommand
             // 
@@ -321,6 +312,15 @@
             this.lblCommand.Size = new System.Drawing.Size(66, 25);
             this.lblCommand.TabIndex = 90;
             this.lblCommand.Text = "Command";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.linkLabel4);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(6, 6);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(613, 28);
+            this.panel1.TabIndex = 92;
             // 
             // RemoteCommands
             // 

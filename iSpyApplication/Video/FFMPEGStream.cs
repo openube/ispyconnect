@@ -13,7 +13,6 @@ namespace iSpyApplication.Video
 {
     public class FFMPEGStream : IVideoSource, IAudioSource
     {
-        // recieved byte count
         private int _framesReceived;
         private ManualResetEvent _stopEvent;
         private Thread _thread;

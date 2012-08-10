@@ -1331,7 +1331,7 @@ namespace iSpyApplication
             }
         }
 
-        private static void ProcessCommandInternal(string command)
+        internal static void ProcessCommandInternal(string command)
         {
             //parse command into new format
             string[] cfg = command.Split(',');
