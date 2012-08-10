@@ -9,9 +9,7 @@ namespace iSpyApplication.Video
 {
     public class DesktopStream : IVideoSource
     {
-        // recieved byte count
         private long _bytesReceived;
-
         private int _frameInterval;
         private int _framesReceived;
         private int _screenindex;

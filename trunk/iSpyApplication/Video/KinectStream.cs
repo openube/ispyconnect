@@ -23,7 +23,7 @@ namespace iSpyApplication.Video
         private const int JointThickness = 3;
         private KinectSensor _sensor;
         private readonly bool _skeleton;
-        private readonly bool _bound;
+        //private readonly bool _bound;
         private ManualResetEvent _stopEvent;
         private DateTime _lastFrameTimeStamp = DateTime.Now;
 
@@ -125,6 +125,26 @@ namespace iSpyApplication.Video
             _skeleton = skeleton;
             //_depth = depth;
 
+        }
+
+        public int Tilt
+        {
+            get
+            {
+                if (_sensor != null)
+                {
+                    return _sensor.ElevationAngle;
+                }
+                return 0;
+            }
+            set
+            {
+                if (_sensor != null)
+                {
+                    if (value < _sensor.MaxElevationAngle && value > _sensor.MinElevationAngle)
+                        _sensor.ElevationAngle = value;
+                }
+            }
         }
 
         #region IVideoSource Members

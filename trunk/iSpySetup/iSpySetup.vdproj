@@ -237,12 +237,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7FA1FB6218A248DC834506FA420A3D14"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_802AAB4C13730FBB676BC086EF10DFCE"
         "OwnerKey" = "8:_EB90ACAF7ADA5FBA12855CBFD602ADD7"
         "MsmSig" = "8:_UNDEFINED"
@@ -1490,26 +1484,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7FA1FB6218A248DC834506FA420A3D14"
-            {
-            "SourcePath" = "8:..\\iSpyApplication\\backgrounds\\iSpy.jpg"
-            "TargetName" = "8:iSpy.jpg"
-            "Tag" = "8:"
-            "Folder" = "8:_9EDE3E418B044643936399EB49EE3FC9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_802AAB4C13730FBB676BC086EF10DFCE"
             {
             "AssemblyRegister" = "3:1"
@@ -2555,15 +2529,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{598B1DF5-55B0-4C7C-B2FF-5C9377BDF3B5}"
-        "PackageCode" = "8:{55C0ECB1-C146-4DFC-9A26-C99A8590DEF9}"
+        "ProductCode" = "8:{4102F34B-A317-4D81-806E-4C7B8920B10D}"
+        "PackageCode" = "8:{99057A81-6F18-4AD5-8A77-2B173AA0BAAE}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.4.3"
+        "ProductVersion" = "8:4.4.4"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"

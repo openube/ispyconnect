@@ -109,7 +109,9 @@ namespace iSpyApplication
         {
             string execute = txtExecute.Text.Trim();
             if (execute != "")
-                Process.Start(execute);
+            {
+                ((MainForm) Owner).RunCommand(execute);
+            }
         }
 
         private void Button1Click(object sender, EventArgs e)

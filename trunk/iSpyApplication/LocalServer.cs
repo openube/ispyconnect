@@ -15,6 +15,7 @@ using System.Threading;
 using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
+using iSpyApplication.Video;
 using NAudio.Wave;
 using ThreadState = System.Threading.ThreadState;
 
@@ -1109,9 +1110,9 @@ namespace iSpyApplication
                     {
                         try
                         {
-                            if (oc.command.StartsWith("ispy "))
+                            if (oc.command.StartsWith("ispy ") || oc.command.StartsWith("ispy.exe "))
                             {
-                                string cmd2 = oc.command.Substring(5).ToLower();
+                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ")+1).ToLower();
                                 ProcessCommandInternal(cmd2);
                             }
                             else
@@ -1195,6 +1196,41 @@ namespace iSpyApplication
                     string email = GetVar(sRequest, "email");
                     string message = GetVar(sRequest, "message").Replace("%20"," ");
                     resp = YouTubeUploader.AddUpload(oid, fn, true, email, message) + ",OK";
+                    break;
+                case "kinect_tilt_up":
+                    {
+                        var c = _parent.GetCameraWindow(oid);
+                        if (c != null)
+                        {
+                            try
+                            {
+                                ((KinectStream) c.Camera.VideoSource).Tilt += 4;
+                            }
+                            catch (Exception ex)
+                            {
+                                MainForm.LogExceptionToFile(ex);
+                            }
+                        }
+
+                        resp = "OK";
+                    }
+                    break;
+                case "kinect_tilt_down":
+                    {
+                        var c = _parent.GetCameraWindow(oid);
+                        if (c != null)
+                        {
+                            try
+                            {
+                                ((KinectStream) c.Camera.VideoSource).Tilt -= 4;
+                            }
+                            catch (Exception ex)
+                            {
+                                MainForm.LogExceptionToFile(ex);
+                            }
+                        }
+                        resp = "OK";
+                    }
                     break;
                 case "removeobject":
                     if (otid == 1)

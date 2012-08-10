@@ -16,41 +16,6 @@ using ReasonToFinishPlaying = AForge.Video.ReasonToFinishPlaying;
 
 namespace iSpyApplication.Video
 {
-    // for registry access
-
-    /// <summary>
-    /// VLCvideo source.
-    /// </summary>
-    /// 
-    /// <remarks><para>The video source downloads JPEG images from the specified URL, which represents
-    /// VLCstream.</para>
-    /// 
-    /// <para>Sample usage:</para>
-    /// <code>
-    /// // create VLCvideo source
-    /// MJPEGStream stream = new MJPEGStream( "some url" );
-    /// // set event handlers
-    /// stream.NewFrame += new NewFrameEventHandler( video_NewFrame );
-    /// // start the video source
-    /// stream.Start( );
-    /// // ...
-    /// </code>
-    /// 
-    /// <para><note>Some cameras produce HTTP header, which does not conform strictly to
-    /// standard, what leads to .NET exception. To avoid this exception the <b>useUnsafeHeaderParsing</b>
-    /// configuration option of <b>httpWebRequest</b> should be set, what may be done using application
-    /// configuration file.</note></para>
-    /// <code>
-    /// &lt;configuration&gt;
-    /// 	&lt;system.net&gt;
-    /// 		&lt;settings&gt;
-    /// 			&lt;httpWebRequest useUnsafeHeaderParsing="true" /&gt;
-    /// 		&lt;/settings&gt;
-    /// 	&lt;/system.net&gt;
-    /// &lt;/configuration&gt;
-    /// </code>
-    /// </remarks>
-    /// 
     public class VlcStream : IVideoSource, IAudioSource
     {
         public int FormatWidth = 320, FormatHeight = 240;

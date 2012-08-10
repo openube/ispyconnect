@@ -230,21 +230,41 @@ namespace iSpyApplication
 
             if (oc != null)
             {
-                try
-                {
-                    if (oc.command.StartsWith("ispy "))
-                    {
-                        string cmd2 = oc.command.Substring(5).ToLower();
-                        ProcessCommandInternal(cmd2);
-                    }
-                    else
-                        Process.Start(oc.command);
-                }
-                catch (Exception ex)
-                {
-                    LogExceptionToFile(ex);
-                }
+                RunCommand(oc.command);
             }
+        }
+
+        internal void RunCommand(string command)
+        {
+            try
+            {
+                if (command.ToLower().StartsWith("ispy ") || command.ToLower().StartsWith("ispy.exe "))
+                {
+                    string cmd2 = command.Substring(command.IndexOf(" ") + 1).ToLower().Trim();
+                    if (cmd2.StartsWith("commands "))
+                        cmd2 = cmd2.Substring(cmd2.IndexOf(" ") + 1).Trim();
+
+                    string cmd = cmd2.Trim('"');
+                    string[] commands = cmd.Split('|');
+                    foreach (string command2 in commands)
+                    {
+                        if (command2 != "")
+                        {
+                            if (InvokeRequired)
+                                Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
+                            else
+                                ProcessCommandInternal(command2.Trim('"'));
+                        }
+                    }
+                }
+                else
+                    Process.Start(command);
+            }
+            catch (Exception ex)
+            {
+                LogExceptionToFile(ex);
+            }
+
         }
 
         public void ProcessKey(string keycommand)
