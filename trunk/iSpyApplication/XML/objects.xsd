@@ -173,6 +173,7 @@
                                                 <xs:attribute name="processmode" type="xs:string" default="continuous"/>
                                                 <xs:attribute name="maximise" type="xs:boolean"/>
                                                 <xs:attribute name="trigger" type="xs:string" default=""/>
+                                                <xs:attribute name="playsound" type="xs:string" default=""/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="notifications">

@@ -260,6 +260,7 @@ namespace iSpyApplication
             chkMaximise.Checked = CameraControl.Camobject.alerts.maximise;
             txtPTZChannel.Text = CameraControl.Camobject.settings.ptzchannel;
             chkReverseTracking.Checked = CameraControl.Camobject.settings.ptzautotrackreverse;
+            txtSound.Text = CameraControl.Camobject.alerts.playsound;
             ShowSchedule(-1);
 
             chkActive.Checked = CameraControl.Camobject.settings.active;
@@ -938,6 +939,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.ftp.localfilename = txtLocalFilename.Text.Trim();
                 CameraControl.Camobject.alerts.maximise = chkMaximise.Checked;
                 CameraControl.Camobject.ptzschedule.suspend = chkSuspendOnMovement.Checked;
+                CameraControl.Camobject.alerts.playsound = txtSound.Text;
                 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -1063,7 +1065,8 @@ namespace iSpyApplication
         private void BtnDetectMovementClick(object sender, EventArgs e)
         {
             ofdDetect.FileName = "";
-            var initpath = Program.AppPath + @"sounds\";
+            ofdDetect.Filter = "";
+            var initpath = "";
             if (txtExecuteMovement.Text.Trim()!="")
             {
                 try
@@ -2532,6 +2535,29 @@ namespace iSpyApplication
         private void txtPTZPassword_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            ofdDetect.FileName = "";
+            ofdDetect.Filter = "Sound Files|*.wav";
+            var initpath = Program.AppPath + @"sounds\";
+            if (txtSound.Text.Trim() != "")
+            {
+                try
+                {
+                    var fi = new FileInfo(txtSound.Text);
+                    initpath = fi.DirectoryName;
+                }
+                catch { }
+            }
+            ofdDetect.InitialDirectory = initpath;
+            
+            ofdDetect.ShowDialog(this);
+            if (ofdDetect.FileName != "")
+            {
+                txtSound.Text = ofdDetect.FileName;
+            }
         }
     }
 }

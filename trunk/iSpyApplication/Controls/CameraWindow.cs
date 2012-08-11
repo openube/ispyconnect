@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -2566,6 +2567,21 @@ namespace iSpyApplication
             }
             if (Convert.ToBoolean(alertOptions[1]))
                 RemoteCommand(this, new ThreadSafeCommand("show"));
+
+            if (!String.IsNullOrEmpty(Camobject.alerts.playsound))
+            {
+                try
+                {
+                    using (var sp = new SoundPlayer(Camobject.alerts.playsound))
+                    {
+                        sp.Play();
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+            }
 
             using (var imageStream = new MemoryStream())    {
                 Image screengrab = null;
