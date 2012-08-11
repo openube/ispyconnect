@@ -2088,7 +2088,14 @@ public partial class objectsCameraAlerts {
 
     private string triggerField;
 
+    private string playsoundField;
 
+    public string playsound
+    {
+        get { return this.playsoundField; }
+        set { this.playsoundField = value; }
+    }
+    
     public string trigger
     {
         get { return this.triggerField; }
