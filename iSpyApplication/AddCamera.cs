@@ -425,6 +425,8 @@ namespace iSpyApplication
             if (ddlTriggerRecording.SelectedIndex == -1)
                 ddlTriggerRecording.SelectedIndex = 0;
 
+
+            dtpSchedulePTZ.Value = new DateTime(2012,1,1,0,0,0,0);
             _loaded = true;
         }
 
