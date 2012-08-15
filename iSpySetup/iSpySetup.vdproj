@@ -87,6 +87,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2EA62D0065A14093BCC9E0CBD71037F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_318EB6A6FE6B47DA9A0A9603A7CD8BD0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -183,7 +189,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5905C2F21E424E45B0BCB281A2317591"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5A64A53776CB4ED689EAB99BE262AEDC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5B75161D307648A9A80382404438E4EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -327,6 +345,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9D0F9113F4F64BE99750CCDEA2BA5FA0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A216588BD52849AEA767F97D96C261A4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -339,7 +363,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A462A689F69B4D2E97DDBE5795CBC50F"
+        "MsmKey" = "8:_A609E3BCD6BC4D79BF65587BF31A5A1F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1087,6 +1111,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2EA62D0065A14093BCC9E0CBD71037F2"
+            {
+            "SourcePath" = "8:..\\iSpyApplication\\sounds\\cairnterrierbark.wav"
+            "TargetName" = "8:cairnterrierbark.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_8318631FE56245588DDBD1BF1541716C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_318EB6A6FE6B47DA9A0A9603A7CD8BD0"
             {
             "SourcePath" = "8:..\\iSpyApplication\\swresample-0.dll"
@@ -1291,6 +1335,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5905C2F21E424E45B0BCB281A2317591"
+            {
+            "SourcePath" = "8:..\\iSpyApplication\\sounds\\rottweiler_bark.wav"
+            "TargetName" = "8:rottweiler_bark.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_8318631FE56245588DDBD1BF1541716C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_5A64A53776CB4ED689EAB99BE262AEDC"
             {
             "AssemblyRegister" = "3:1"
@@ -1308,6 +1372,26 @@
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5B75161D307648A9A80382404438E4EA"
+            {
+            "SourcePath" = "8:..\\iSpyApplication\\sounds\\alsationxsiberian_bark.wav"
+            "TargetName" = "8:alsationxsiberian_bark.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_8318631FE56245588DDBD1BF1541716C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1759,6 +1843,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D0F9113F4F64BE99750CCDEA2BA5FA0"
+            {
+            "SourcePath" = "8:..\\iSpyApplication\\sounds\\spanielgrowlbark.wav"
+            "TargetName" = "8:spanielgrowlbark.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_8318631FE56245588DDBD1BF1541716C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A216588BD52849AEA767F97D96C261A4"
             {
             "AssemblyRegister" = "3:1"
@@ -1810,10 +1914,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A462A689F69B4D2E97DDBE5795CBC50F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A609E3BCD6BC4D79BF65587BF31A5A1F"
             {
-            "SourcePath" = "8:..\\iSpyApplication\\sounds\\intruder.mp3"
-            "TargetName" = "8:intruder.mp3"
+            "SourcePath" = "8:..\\iSpyApplication\\sounds\\alsation_bark.wav"
+            "TargetName" = "8:alsation_bark.wav"
             "Tag" = "8:"
             "Folder" = "8:_8318631FE56245588DDBD1BF1541716C"
             "Condition" = "8:"
@@ -2529,15 +2633,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{4102F34B-A317-4D81-806E-4C7B8920B10D}"
-        "PackageCode" = "8:{99057A81-6F18-4AD5-8A77-2B173AA0BAAE}"
+        "ProductCode" = "8:{D7C7F1EE-E0D9-4366-9875-FAD1A315BD86}"
+        "PackageCode" = "8:{B543FEDD-9018-4C80-85CB-44FE66572F2E}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.4.4"
+        "ProductVersion" = "8:4.4.5"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
@@ -3173,7 +3277,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0EF428F9CB93474EB5E2B849BCF54454"
             {
-            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Release\\iSpy.exe"
+            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Debug\\iSpy.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -3201,7 +3305,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5C5CCCBDCC3C4080A717F6665E95BD4D"
             {
-            "SourcePath" = "8:..\\iSpyServerSetup\\Release\\iSpyServerSetup.msi"
+            "SourcePath" = "8:..\\iSpyServerSetup\\Debug\\iSpyServerSetup.msi"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_91FF0471C59346029346D9D314477277"
@@ -3229,7 +3333,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DBA7E4641307477C8E9706D504556C48"
             {
-            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Release\\iSpyMonitor.exe"
+            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Debug\\iSpyMonitor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
