@@ -3251,6 +3251,9 @@ namespace iSpyApplication
                     }
                     m.settings.buffer = Camobject.recorder.bufferseconds;
                     m.settings.bits = 16;
+                    m.alerts.active = false;
+                    m.detector.recordonalert = false;
+                    m.detector.recordondetect = false;
                 }
                 vl.Enable();
             }

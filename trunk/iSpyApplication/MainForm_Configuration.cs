@@ -1019,6 +1019,7 @@ namespace iSpyApplication
             cameraControl.RemoteCommand -= CameraControlRemoteCommand;
             cameraControl.Notification -= ControlNotification;
             cameraControl.Disable();
+            cameraControl.SaveFileList();
 
             if (cameraControl.VolumeControl!=null)
                 RemoveMicrophone(cameraControl.VolumeControl,false);
@@ -1067,6 +1068,7 @@ namespace iSpyApplication
             volumeControl.Notification -= ControlNotification;
 
             volumeControl.Disable();
+            volumeControl.SaveFileList();
 
             if (InvokeRequired)
                 Invoke(new MicrophoneCommandDelegate(RemoveMicrophonePanel), volumeControl);
@@ -1661,7 +1663,7 @@ namespace iSpyApplication
                     oc.height = occ.Height;
                     oc.x = occ.Location.X;
                     oc.y = occ.Location.Y;
-                    occ.SaveFileList();
+                    //occ.SaveFileList();
                 }
             }
             c.cameras = Cameras.ToArray();
@@ -1674,7 +1676,7 @@ namespace iSpyApplication
                     om.height = omc.Height;
                     om.x = omc.Location.X;
                     om.y = omc.Location.Y;
-                    omc.SaveFileList();
+                    //omc.SaveFileList();
                 }
             }
             c.microphones = Microphones.ToArray();

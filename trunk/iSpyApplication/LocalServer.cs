@@ -1112,11 +1112,25 @@ namespace iSpyApplication
                         {
                             if (oc.command.StartsWith("ispy ") || oc.command.StartsWith("ispy.exe "))
                             {
-                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ")+1).ToLower();
-                                ProcessCommandInternal(cmd2);
+                                int k = oc.command.ToLower().IndexOf("commands ");
+                                if (k != -1)
+                                {
+                                    string cmd2 = oc.command.Substring(k + 9).Trim('"');
+                                    string[] commands = cmd2.Split('|');
+                                    foreach (string command2 in commands)
+                                    {
+                                        if (!String.IsNullOrEmpty(command2))
+                                        {
+                                            MainForm.ProcessCommandInternal(command2.Trim('"'));
+                                        }
+                                    }
+                                }
                             }
                             else
+                            {
                                 Process.Start(oc.command);
+                            }
+                                
                             resp = "Command Executed.,OK";
                         }
                         catch (Exception ex)
