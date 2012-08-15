@@ -673,9 +673,8 @@ namespace iSpyApplication
                             CameraControl.Camobject.settings.ptzurlbase = MainForm.PTZs.Single(p=>p.id==e.Id).CommandURL;
                     }
                 }
-
-                
-                
+                if (ddlPTZ.SelectedIndex == -1)
+                    ddlPTZ.SelectedIndex = 0;
             }
         }
 
@@ -1617,9 +1616,20 @@ namespace iSpyApplication
 
         private void DdlPtzSelectedIndexChanged(object sender, EventArgs e)
         {
-            var entry = (PTZEntry) ddlPTZ.SelectedItem;
-            CameraControl.Camobject.ptz = entry.Id;
-            CameraControl.Camobject.ptzentryindex = entry.Index;
+
+            PTZEntry entry;
+            if (ddlPTZ.SelectedIndex > 0)
+            {
+                entry = (PTZEntry) ddlPTZ.SelectedItem;
+                CameraControl.Camobject.ptz = entry.Id;
+                CameraControl.Camobject.ptzentryindex = entry.Index;
+            }
+            else
+            {
+                CameraControl.Camobject.ptz = -1;
+                CameraControl.Camobject.ptzentryindex = -1;
+            }
+           
 
             lbExtended.Items.Clear();
             ddlScheduleCommand.Items.Clear();
@@ -2492,18 +2502,11 @@ namespace iSpyApplication
                 var cr = new ConfigureRepeat {Interval = 60, Until = si.time};
                 if (cr.ShowDialog(this)== DialogResult.OK)
                 {
-                    var dtCurrent = si.time;
-                    while (true)
+                    var dtCurrent = si.time.AddSeconds(cr.Interval);
+                    while (dtCurrent.TimeOfDay < cr.Until.TimeOfDay)
                     {
+                        s.Add(new objectsCameraPtzscheduleEntry { command = si.command, time = dtCurrent });
                         dtCurrent = dtCurrent.AddSeconds(cr.Interval);
-                        if (dtCurrent.TimeOfDay < cr.Until.TimeOfDay && dtCurrent.TimeOfDay > si.time.TimeOfDay && dtCurrent.DayOfYear == si.time.DayOfYear)
-                        {
-                            s.Add(new objectsCameraPtzscheduleEntry { command = si.command, time = dtCurrent });
-                        }
-                        else
-                        {
-                            break;
-                        }
                     }
                 }
                 cr.Dispose();

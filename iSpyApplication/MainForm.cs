@@ -1308,13 +1308,14 @@ namespace iSpyApplication
                     else
                         LoadObjectList(command.Substring(5).Trim('"'));
                 }
-                if (command.ToLower().StartsWith("commands "))
+                int i = command.ToLower().IndexOf("commands ");
+                if (i!=-1)
                 {
-                    string cmd = command.Substring(9).Trim('"');
+                    string cmd = command.Substring(i+9).Trim('"');
                     string[] commands = cmd.Split('|');
                     foreach (string command2 in commands)
                     {
-                        if (command2 != "")
+                        if (!String.IsNullOrEmpty(command2))
                         {
                             if (InvokeRequired)
                                 Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
@@ -1569,6 +1570,7 @@ namespace iSpyApplication
                 }
             }
             _closing = true;
+
             try
             {
                 SaveObjects("");
@@ -1576,8 +1578,8 @@ namespace iSpyApplication
             catch (Exception ex)
             {
                 LogExceptionToFile(ex);
-            }
-
+            } 
+            
             try
             {
                 SaveConfig();

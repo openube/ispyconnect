@@ -516,9 +516,11 @@ namespace iSpyApplication.Video
         {
             // Convert point to depth space.  
             // We are not using depth directly, but we do want the points in our 640x480 output resolution.
+            
             DepthImagePoint depthPoint = _sensor.MapSkeletonPointToDepth(
-                                                                             skelpoint,
-                                                                             DepthImageFormat.Resolution640x480Fps30);
+                skelpoint,
+                DepthImageFormat.Resolution640x480Fps30);
+
             return new Point(depthPoint.X, depthPoint.Y);
         }
 

@@ -629,6 +629,11 @@
     </Content>
     <None Include="Resources\phyxius.jpg" />
     <None Include="Resources\bigdipper.jpg" />
+    <Content Include="sounds\alsationxsiberian_bark.wav" />
+    <Content Include="sounds\alsation_bark.wav" />
+    <Content Include="sounds\cairnterrierbark.wav" />
+    <Content Include="sounds\rottweiler_bark.wav" />
+    <Content Include="sounds\spanielgrowlbark.wav" />
     <Content Include="swresample-0.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -756,7 +761,6 @@
     <None Include="Resources\Play-Normal-icon.png" />
     <None Include="Resources\add.png" />
     <None Include="Resources\network_mic.png" />
-    <Content Include="sounds\intruder.mp3" />
     <Content Include="WebServerRoot\log.txt" />
     <EmbeddedResource Include="AboutForm.resx">
       <DependentUpon>AboutForm.cs</DependentUpon>
