@@ -176,13 +176,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\iSpyApplication\DLLS\AForge.Math.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Video, Version=2.5.1.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="AForge.Video">
       <HintPath>..\iSpyApplication\DLLS\AForge.Video.dll</HintPath>
-    </Reference>
-    <Reference Include="AForge.Video.DirectShow, Version=2.5.4.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\iSpyApplication\DLLS\AForge.Video.DirectShow.dll</HintPath>
     </Reference>
     <Reference Include="CodeVendor.Controls">
       <HintPath>..\iSpyApplication\DLLS\CodeVendor.Controls.dll</HintPath>
@@ -598,10 +593,16 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Video.DirectShow\Video.DirectShow.csproj">
+      <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
+      <Name>Video.DirectShow</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>call "$(SolutionDir)signing\iSpyServer.bat"</PostBuildEvent>
+    <PostBuildEvent>call "c:\projects\ispy\signing\iSpyServer.bat"</PostBuildEvent>
   </PropertyGroup>
 </Project>

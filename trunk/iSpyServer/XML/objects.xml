@@ -55,7 +55,7 @@
         <entries />
       </schedule>
     </camera>
-    <camera encodekey="" id="1" name="cam 1" description="" directory="BFMIG" x="162" y="314" flipy="false" flipx="false" rotate90="false" width="432" height="324" resolution="320x240" ptz="-1" newrecordingcount="0">
+    <camera encodekey="" id="1" name="cam 1" description="" directory="BFMIG" x="164" y="59" flipy="false" flipx="false" rotate90="false" width="432" height="324" resolution="320x240" ptz="-1" newrecordingcount="0">
       <settings resize="false" desktopresizewidth="640" desktopresizeheight="480" desktoparea="217,244,704,480">
         <desktopmouse>true</desktopmouse>
         <crossbarindex>0</crossbarindex>
@@ -109,7 +109,7 @@
         <entries />
       </schedule>
     </camera>
-    <camera encodekey="" id="2" name="blah" description="" directory="RTCKV" x="725" y="72" flipy="false" flipx="false" rotate90="false" width="569" height="416" resolution="320x240" ptz="-1" newrecordingcount="0">
+    <camera encodekey="" id="2" name="blah" description="" directory="RTCKV" x="158" y="292" flipy="false" flipx="false" rotate90="false" width="569" height="416" resolution="320x240" ptz="-1" newrecordingcount="0">
       <settings namevaluesettings="type=kinect,UniqueKinectId=USB\VID_045E&amp;PID_02AE\A00362D00946121A,KinectSkeleton=True" resize="false" desktopresizewidth="640" desktopresizeheight="480">
         <desktopmouse>false</desktopmouse>
         <crossbarindex>0</crossbarindex>
