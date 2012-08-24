@@ -445,6 +445,7 @@ namespace iSpyServer
                     byte[] dec;
                     ALawDecoder.ALawDecode(bBuffer, i, out dec);
                     bwp.AddSamples(dec, 0, dec.Length);
+                    Thread.Sleep(100);
                 }
             }
             catch(Exception ex)
