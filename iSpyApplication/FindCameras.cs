@@ -32,6 +32,7 @@ namespace iSpyApplication
         public string Password = "";
         public string AudioModel = "";
         public string Flags = "";
+        public string Cookies = "";
         public static List<String> DnsEntries = new List<string>();
 
         public FindCameras()
@@ -748,6 +749,7 @@ namespace iSpyApplication
                 addr = addr.Substring(7);
             addr = addr.Trim('/');
             Flags = s.flags;
+            Cookies = s.cookies;
 
             var nPort = (int)numPort.Value;
 

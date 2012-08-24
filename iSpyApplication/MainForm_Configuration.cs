@@ -1166,7 +1166,7 @@ namespace iSpyApplication
         {
             CameraWindow cw = NewCameraWindow(videoSourceIndex);
             TopMost = false;
-            var ac = new AddCamera { CameraControl = cw, StartWizard = startWizard };
+            var ac = new AddCamera { CameraControl = cw, StartWizard = startWizard, IsNew = true };
             ac.ShowDialog(this);
             if (ac.DialogResult == DialogResult.OK)
             {
@@ -1271,7 +1271,7 @@ namespace iSpyApplication
             oc.settings.ffmpeg = Conf.FFMPEG_Camera;
             oc.settings.emailaddress = EmailAddress;
             oc.settings.smsnumber = MobileNumber;
-            oc.settings.suppressnoise = false;
+            oc.settings.suppressnoise = true;
             oc.settings.login = "";
             oc.settings.password = "";
             oc.settings.useragent = "Mozilla/5.0";

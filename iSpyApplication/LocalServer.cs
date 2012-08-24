@@ -1112,17 +1112,20 @@ namespace iSpyApplication
                         {
                             if (oc.command.StartsWith("ispy ") || oc.command.StartsWith("ispy.exe "))
                             {
-                                int k = oc.command.ToLower().IndexOf("commands ");
+                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ")+1).Trim();
+
+                                int k = cmd2.ToLower().IndexOf("commands ");
                                 if (k != -1)
                                 {
-                                    string cmd2 = oc.command.Substring(k + 9).Trim('"');
-                                    string[] commands = cmd2.Split('|');
-                                    foreach (string command2 in commands)
+                                    cmd2 = cmd2.Substring(k + 9);
+                                }
+                                cmd2 = cmd2.Trim('"');
+                                string[] commands = cmd2.Split('|');
+                                foreach (string command2 in commands)
+                                {
+                                    if (!String.IsNullOrEmpty(command2))
                                     {
-                                        if (!String.IsNullOrEmpty(command2))
-                                        {
-                                            MainForm.ProcessCommandInternal(command2.Trim('"'));
-                                        }
+                                        MainForm.ProcessCommandInternal(command2.Trim('"'));
                                     }
                                 }
                             }
@@ -2971,6 +2974,9 @@ namespace iSpyApplication
                 case "Axis":
                     talkTarget = new TalkAxis(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport, cw.Camobject.settings.audiousername, cw.Camobject.settings.audiopassword, ws);
                     break;
+                case "NetworkKinect":
+                    talkTarget = new TalkNetworkKinect(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport, ws);
+                    break;
             }
             if (talkTarget != null)
             {
@@ -3031,6 +3037,11 @@ namespace iSpyApplication
                             talkTarget = new TalkFoscam(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport,
                                                         cw.Camobject.settings.audiousername,
                                                         cw.Camobject.settings.audiopassword, ds);
+                            break;
+                        case "NetworkKinect":
+                            ds.Interval = 40;
+                            ds.PacketSize = 882;
+                            talkTarget = new TalkNetworkKinect(cw.Camobject.settings.audioip,cw.Camobject.settings.audioport,ds);
                             break;
                         case "iSpyServer":
                             ds.Interval = 40;

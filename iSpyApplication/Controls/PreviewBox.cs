@@ -199,7 +199,15 @@ namespace iSpyApplication
                         ((MainForm) TopLevelControl).Play(movie,Convert.ToInt32(id));
                     break;
                 case 2:
-                    Process.Start(movie);
+                    try
+                    {
+                        Process.Start(movie);
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                        MessageBox.Show("Could not find a player for this file. Try using iSpyConnect or install VLC and use that instead ("+ex.Message+")");
+                    }
                     break;
             }
         }

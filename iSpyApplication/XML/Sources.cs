@@ -98,11 +98,27 @@ public partial class ManufacturersManufacturerUrl {
     private string flagsField;
 
     private int portField;
+
+    private string cookiesField;
     
     public ManufacturersManufacturerUrl() {
         this.fixedField = false;
     }
 
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string cookies
+    {
+        get
+        {
+            return this.cookiesField;
+        }
+        set
+        {
+            this.cookiesField = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     public string flags

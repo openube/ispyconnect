@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using iSpyApplication.Pelco;
 
 namespace iSpyApplication
 {
@@ -126,8 +127,10 @@ namespace iSpyApplication
 
         public void SendPTZCommand(Enums.PtzCommand command, bool wait)
         {
+            if (_cameraControl.Camera == null)
+                return;
             PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
-            bool d = ptz == null;
+            bool d = (ptz == null || ptz.Commands == null);
 
             if (!d)
             {
@@ -391,15 +394,43 @@ namespace iSpyApplication
             _request.AllowAutoRedirect = true;
             _request.KeepAlive = true;
             _request.SendChunked = false;
+            _request.Method = "POST";
             _request.AllowWriteStreamBuffering = true;
             _request.UserAgent = _cameraControl.Camobject.settings.useragent;
             //get credentials
 
             // set login and password
-            if (!String.IsNullOrEmpty(un))
-                SetBasicAuthHeader(_request, un, pwd);
 
+            string authInfo = "";
+            if (!String.IsNullOrEmpty(un))
+            {
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(un + ":" + pwd));
+                _request.Headers["Authorization"] = "Basic " + authInfo;
+            }
             
+            string ckies = _cameraControl.Camobject.settings.cookies ?? "";
+            if (!String.IsNullOrEmpty(ckies))
+            {
+                ckies = ckies.Replace("[USERNAME]", _cameraControl.Camobject.settings.login);
+                ckies = ckies.Replace("[PASSWORD]", _cameraControl.Camobject.settings.password);
+                ckies = ckies.Replace("[CHANNEL]", _cameraControl.Camobject.settings.ptzchannel);
+                ckies = ckies.Replace("[AUTH]", authInfo);
+                var myContainer = new CookieContainer();
+                string[] coll = ckies.Split(';');
+                foreach (var ckie in coll)
+                {
+                    if (!String.IsNullOrEmpty(ckie))
+                    {
+                        string[] nv = ckie.Split('=');
+                        if (nv.Length == 2)
+                        {
+                            var cookie = new Cookie(nv[0].Trim(), nv[1].Trim());
+                            myContainer.Add(new Uri(_request.RequestUri.ToString()), cookie);
+                        }
+                    }
+                }
+                _request.CookieContainer = myContainer;
+            }
 
             var myRequestState = new RequestState {Request = _request};
             _request.BeginGetResponse(FinishPTZRequest, myRequestState);
@@ -428,13 +459,6 @@ namespace iSpyApplication
                 _nextcommand = "";
                 SendPTZCommand(nc);
             }
-        }
-
-        public void SetBasicAuthHeader(WebRequest req, String userName, String userPassword)
-        {
-            string authInfo = userName + ":" + userPassword;
-            authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
-            req.Headers["Authorization"] = "Basic " + authInfo;
         }
 
         #region Nested type: RequestState

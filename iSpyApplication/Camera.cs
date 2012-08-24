@@ -76,7 +76,6 @@ namespace iSpyApplication
         {
             get
             {
-
                 int newWidth = Convert.ToInt32(Width / ZFactor);
                 int newHeight = Convert.ToInt32(Height / ZFactor);
 
@@ -130,10 +129,46 @@ namespace iSpyApplication
                             {
                                 try
                                 {
-                                    _plugin.GetType().GetProperty("Configuration").SetValue(_plugin,
-                                                                                            CW.Camobject.alerts.
-                                                                                                pluginconfig,
-                                                                                            null);
+                                    try
+                                    {
+                                        _plugin.GetType().GetProperty("VideoSource").SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
+                                    }
+                                    catch { }
+
+                                    _plugin.GetType().GetProperty("Configuration").SetValue(_plugin,CW.Camobject.alerts.pluginconfig,null);
+                                    try
+                                    {
+                                        //used for plugins that store their configuration elsewhere
+                                        _plugin.GetType().GetMethod("LoadConfiguration").Invoke(_plugin, null);
+                                    }
+                                    catch { }
+                                    
+                                    try
+                                    {
+                                        //used for network kinect setting syncing
+                                        string dl = "";
+                                        foreach(var oc in MainForm.Cameras)
+                                        {
+                                            string s = oc.settings.namevaluesettings;
+                                            if (!String.IsNullOrEmpty(s))
+                                            {
+                                                if (s.ToLower().IndexOf("kinect")!=-1)
+                                                {
+                                                    dl += oc.name.Replace("*","").Replace("|","") + "|" + oc.id + "|" + oc.settings.videosourcestring + "*";
+                                                }
+                                            }
+                                        }
+                                        if (dl!="")
+                                            _plugin.GetType().GetProperty("DeviceList").SetValue(_plugin, dl, null);
+                                    }
+                                    catch { }
+                                    
+                                    
+                                    try
+                                    {
+                                        _plugin.GetType().GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
+                                    }
+                                    catch { }
                                 }
                                 catch (Exception)
                                 {

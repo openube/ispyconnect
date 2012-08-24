@@ -3365,6 +3365,9 @@ namespace iSpyApplication
                 case "iSpyServer":
                     _talkTarget = new TalkiSpyServer(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport, _talkSource);
                     break;
+                case "NetworkKinect":
+                    _talkTarget = new TalkNetworkKinect(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport, _talkSource);
+                    break;
                 case "Axis":
                     _talkTarget = new TalkAxis(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport, cw.Camobject.settings.audiousername, cw.Camobject.settings.audiopassword, _talkSource);
                     break;

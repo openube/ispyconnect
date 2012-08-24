@@ -62,6 +62,7 @@ namespace iSpyApplication.Video
         private int _requestTimeout = 10000;
         // if we should use basic authentication when connecting to the video source
         private bool _forceBasicAuthentication;
+        private string _cookies = "";
 
         // buffer size used to download MJPEG stream
         private const int BufSize = 1024 * 1024;
@@ -300,6 +301,16 @@ namespace iSpyApplication.Video
             set { _forceBasicAuthentication = value; }
         }
 
+        public string Cookies
+        {
+            get { return _cookies; }
+            set
+            {
+                _cookies = value;
+
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MJPEGStream"/> class.
         /// </summary>
@@ -489,11 +500,33 @@ namespace iSpyApplication.Video
                     if (_useSeparateConnectionGroup)
                         request.ConnectionGroupName = GetHashCode().ToString();
                     // force basic authentication through extra headers if required
-                    if (_forceBasicAuthentication)
+                    
+                    var authInfo = "";
+                    if (!String.IsNullOrEmpty(_login))
                     {
-                        string authInfo = string.Format("{0}:{1}", _login, _password);
-                        authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(authInfo));
+                        authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(_login + ":" + _password));
                         request.Headers["Authorization"] = "Basic " + authInfo;
+                    }
+
+
+                    if (!String.IsNullOrEmpty(_cookies))
+                    {
+                        _cookies = _cookies.Replace("[AUTH]", authInfo);
+                        var myContainer = new CookieContainer();
+                        string[] coll = _cookies.Split(';');
+                        foreach (var ckie in coll)
+                        {
+                            if (!String.IsNullOrEmpty(ckie))
+                            {
+                                string[] nv = ckie.Split('=');
+                                if (nv.Length == 2)
+                                {
+                                    var cookie = new Cookie(nv[0].Trim(), nv[1].Trim());
+                                    myContainer.Add(new Uri(request.RequestUri.ToString()), cookie);
+                                }
+                            }
+                        }
+                        request.CookieContainer = myContainer;
                     }
                     // get response
                     response = request.GetResponse();
@@ -720,7 +753,11 @@ namespace iSpyApplication.Video
                     // abort request
                     if (request != null)
                     {
-                        request.Abort();
+                        try
+                        {
+                            request.Abort();
+                        }
+                        catch {}
                         request = null;
                     }
                     // close response stream

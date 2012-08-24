@@ -107,7 +107,7 @@ namespace iSpyApplication
                     MainForm.NeedsRedraw = true;
                 }
             }
-            if (vl!=CameraControl.VolumeControl)
+            if (vl!=null && vl!=CameraControl.VolumeControl)
             {
                 vl.IsEdit = false;
             }

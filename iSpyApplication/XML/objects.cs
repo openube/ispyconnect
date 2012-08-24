@@ -633,6 +633,21 @@ public partial class objectsCameraSettings {
 
     private bool desktopmouseField;
 
+    private string cookiesField;
+
+    /// <remarks/>
+    public string cookies
+    {
+        get
+        {
+            return this.cookiesField;
+        }
+        set
+        {
+            this.cookiesField = value;
+        }
+    }
+
     /// <remarks/>
     public int crossbarindex
     {
