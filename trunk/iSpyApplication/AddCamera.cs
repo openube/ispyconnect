@@ -26,6 +26,7 @@ namespace iSpyApplication
 
         public CameraWindow CameraControl;
         public bool StartWizard;
+        public bool IsNew;
         private HSLFilteringForm _filterForm;
         private bool _loaded;
 
@@ -197,14 +198,6 @@ namespace iSpyApplication
                     iMode = iCount;
                 }
             }
-
-            ddlAlertMode.Items.Add("Kinect Stream");
-            if ("Kinect Stream" == CameraControl.Camobject.alerts.mode)
-            {
-                iMode = iCount;
-            }
-            iCount++;
-
 
             foreach (String plugin in MainForm.Plugins)
             {
@@ -917,6 +910,21 @@ namespace iSpyApplication
                 CameraControl.Camobject.detector.type = _detectortypes[ddlMotionDetector.SelectedIndex];
                 CameraControl.Camobject.detector.postprocessor = _processortypes[ddlProcessor.SelectedIndex];
                 CameraControl.Camobject.name = txtCameraName.Text.Trim();
+
+                //update to plugin if connected and supported
+                if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
+                {
+                    try
+                    {
+                        var plugin = CameraControl.Camera.Plugin;
+                        plugin.GetType().GetProperty("CameraName").SetValue(plugin, CameraControl.Camobject.name, null);
+                    }
+                    catch
+                    {
+                    }
+                }
+
+
                 CameraControl.Camobject.alerts.active = chkMovement.Checked;
                 CameraControl.Camobject.alerts.executefile = txtExecuteMovement.Text;
                 CameraControl.Camobject.alerts.alertoptions = chkBeep.Checked + "," + chkRestore.Checked;
@@ -1046,6 +1054,7 @@ namespace iSpyApplication
 
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
+                IsNew = false;
                 Close();
                 return;
             }
@@ -1146,6 +1155,17 @@ namespace iSpyApplication
 
         private void AddCameraFormClosing(object sender, FormClosingEventArgs e)
         {
+            if (IsNew)
+            {
+                if (MessageBox.Show(this, "Discard this camera?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+                if (CameraControl.VolumeControl!=null)
+                    ((MainForm)Owner).RemoveMicrophone(CameraControl.VolumeControl, false);
+                    
+            }
             if (CameraControl.Camera != null)
                 CameraControl.Camera.NewFrame -= CameraNewFrame;
             AreaControl.Dispose();
@@ -2478,7 +2498,7 @@ namespace iSpyApplication
 
         private void PopulateCodecsCombo()
         {
-            string[] models = new string[] {"None", "Axis", "Foscam", "iSpyServer"};
+            string[] models = new string[] {"None", "Axis", "Foscam", "iSpyServer", "NetworkKinect"};
             foreach(string m in models)
             {
                 ddlTalkModel.Items.Add(m);

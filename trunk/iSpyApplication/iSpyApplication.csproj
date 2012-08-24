@@ -180,10 +180,6 @@
     <Reference Include="AForge.Video">
       <HintPath>DLLS\AForge.Video.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Video.DirectShow, Version=2.5.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLS\AForge.Video.DirectShow.dll</HintPath>
-    </Reference>
     <Reference Include="AForge.Video.Ximea, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5cdcd64958730f99, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
@@ -285,6 +281,7 @@
     <Compile Include="AddFloorPlan.Designer.cs">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
     </Compile>
+    <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Controls\AngleSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -375,6 +372,8 @@
     <Compile Include="MainForm_Media.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Pelco\D.cs" />
+    <Compile Include="Pelco\P.cs" />
     <Compile Include="PTZController.cs" />
     <Compile Include="PTZTool.cs">
       <SubType>Form</SubType>
@@ -384,6 +383,7 @@
     </Compile>
     <Compile Include="Video\AlertEvents.cs" />
     <Compile Include="Video\ByteArrayUtils.cs" />
+    <Compile Include="Video\JPEGStream2.cs" />
     <Compile Include="Video\KinectNetworkStream.cs" />
     <Compile Include="Video\KinectStream.cs" />
     <Compile Include="Video\MJPEGStream2.cs" />
@@ -632,6 +632,7 @@
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />
+    <Content Include="sounds\intruder.mp3" />
     <Content Include="sounds\rottweiler_bark.wav" />
     <Content Include="sounds\spanielgrowlbark.wav" />
     <Content Include="swresample-0.dll">
@@ -1043,6 +1044,10 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Video.DirectShow\Video.DirectShow.csproj">
+      <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
+      <Name>Video.DirectShow</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Video.FFMPEG\Video.FFMPEG.vcxproj">
       <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
       <Name>Video.FFMPEG</Name>

@@ -1833,12 +1833,9 @@ namespace iSpyApplication
                             body = LocRm.GetString("MicrophoneAlertBodySound").Replace("[TIME]",
                                                                                         DateTime.Now.ToLongTimeString());
 
-                            if (Micobject.detector.recordondetect)
+                            if (Recording)
                             {
-                                if (!MainForm.StopRecordingFlag)
-                                    body += " " + LocRm.GetString("AudioCaptured");
-                                else
-                                    body += " " + LocRm.GetString("AudioNotCaptured");
+                                body += " " + LocRm.GetString("AudioCaptured");
                             }
                             else
                                 body += " " + LocRm.GetString("AudioNotCaptured");
@@ -1872,7 +1869,7 @@ namespace iSpyApplication
                     {
                         case "sound":
                             message += LocRm.GetString("SMSAudioDetected");
-                            message = message.Replace("[RECORDED]", Micobject.detector.recordondetect ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
+                            message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
                             break;
                         case "nosound":
                             int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval/60);

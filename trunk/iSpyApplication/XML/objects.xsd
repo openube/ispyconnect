@@ -66,6 +66,7 @@
                                                     <xs:element name="accessgroups" type="xs:string" default=""/>
                                                     <xs:element name="forcebasic" type="xs:boolean" default="true"/>
                                                     <xs:element name="crossbarindex" type="xs:int" default="0"/>
+                                                    <xs:element name="cookies" type="xs:string" default=""/>
                                                     <xs:element name="youtube">
                                                         <xs:complexType>
                                                             <xs:sequence>

@@ -17,6 +17,7 @@
                                     <xs:attribute name="AudioModel" type="xs:string" use="optional" />
                                     <xs:attribute name="flags" type="xs:string" use="optional"/>
                                     <xs:attribute name="port" type="xs:integer" use="optional"/>
+                                    <xs:attribute name="cookies" type="xs:string" use="optional"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
 using AForge.Video.Ximea;
-//using AForge.Video.Kinect;
 using Declarations;
 using Declarations.Events;
 using Declarations.Media;
@@ -170,7 +169,7 @@ namespace iSpyApplication
             txtResizeWidth.Value = CameraControl.Camobject.settings.desktopresizewidth;
             txtResizeHeight.Value = CameraControl.Camobject.settings.desktopresizeheight;
             chkNoResize.Checked = !CameraControl.Camobject.settings.resize;
-            chkUseHttp10.Checked = CameraControl.Camobject.settings.usehttp10;
+            chkUseHttp10.Checked = chkUseHttp102.Checked = CameraControl.Camobject.settings.usehttp10;
 
             VideoSourceString = CameraControl.Camobject.settings.videosourcestring;
             
@@ -185,6 +184,8 @@ namespace iSpyApplication
             chkForceBasic1.Checked = chkForceBasic.Checked = CameraControl.Camobject.settings.forcebasic;
             txtVLCArgs.Text = CameraControl.Camobject.settings.vlcargs.Replace("\r\n","\n").Replace("\n\n","\n").Replace("\n", Environment.NewLine);
             txtReconnect.Value = CameraControl.Camobject.settings.reconnectinterval;
+            txtCookies.Text = txtCookies1.Text = CameraControl.Camobject.settings.cookies;
+
             ddlCustomProvider.SelectedIndex = 0;
             switch (SourceIndex)
             {
@@ -484,6 +485,7 @@ namespace iSpyApplication
                     CameraControl.Camobject.settings.usehttp10 = chkUseHttp10.Checked;
                     FriendlyName = VideoSourceString;
                     ForceBasic = chkForceBasic.Checked;
+                    CameraControl.Camobject.settings.cookies = txtCookies1.Text;
                     break;
                 case 1:
                     url = cmbMJPEGURL.Text.Trim();
@@ -498,7 +500,9 @@ namespace iSpyApplication
                     CameraPassword = txtPassword2.Text;
                     UserAgent = txtUserAgent2.Text;
                     ForceBasic = chkForceBasic1.Checked;
+                    CameraControl.Camobject.settings.usehttp10 = chkUseHttp102.Checked;
                     CameraControl.Camobject.decodekey = txtDecodeKey.Text;
+                    CameraControl.Camobject.settings.cookies = txtCookies.Text;
                     break;
                 case 2:
                     url = cmbFile.Text.Trim();
@@ -628,6 +632,20 @@ namespace iSpyApplication
                     VideoSourceString = txtCustomURL.Text;
                     nv = "custom=" + ddlCustomProvider.SelectedItem;
                     CameraControl.Camobject.settings.namevaluesettings = nv;
+                    CameraControl.Camobject.alerts.mode = "KinectPlugin";
+                    CameraControl.Camobject.detector.recordonalert = true;
+                    CameraControl.Camobject.alerts.minimuminterval = 10;
+                    CameraControl.Camobject.detector.recordondetect = false;
+                    CameraControl.Camobject.detector.type = "None";
+                    CameraControl.Camobject.settings.audiomodel = "NetworkKinect";
+                    var uri = new Uri(VideoSourceString);
+                    if (!String.IsNullOrEmpty(uri.DnsSafeHost))
+                    {
+                        CameraControl.Camobject.settings.audioip = uri.DnsSafeHost;
+                    }
+                    CameraControl.Camobject.settings.audioport = uri.Port;
+                    CameraControl.Camobject.settings.audiousername = "";
+                    CameraControl.Camobject.settings.audiopassword = "";
                     break;
             }
 
@@ -1038,11 +1056,13 @@ namespace iSpyApplication
                         cmbJPEGURL.Text = fc.FinalUrl;
                         txtLogin.Text = fc.Username;
                         txtPassword.Text = fc.Password;
+                        txtCookies1.Text = fc.Cookies;
                         break;
                     case 1:
                         cmbMJPEGURL.Text = fc.FinalUrl;
                         txtLogin2.Text = fc.Username;
                         txtPassword2.Text = fc.Password;
+                        txtCookies.Text = fc.Cookies;
                         break;
                     case 2:
                         cmbFile.Text = fc.FinalUrl;
@@ -1272,6 +1292,11 @@ namespace iSpyApplication
         private void label42_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnConfigure_Click(object sender, EventArgs e)
+        {
+            
         }
 
     }

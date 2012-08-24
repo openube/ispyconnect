@@ -2636,21 +2636,16 @@ namespace iSpyApplication
                                 body = LocRm.GetString("CameraAlertBodyMovement").Replace("[TIME]",
                                                                                           DateTime.Now.ToLongTimeString());
 
-                                if (Camobject.detector.recordondetect)
+                                if (Recording)
                                 {
-                                    if (!MainForm.StopRecordingFlag)
-                                        body += " " + LocRm.GetString("VideoCaptured");
-                                    else
-                                        body += " " + LocRm.GetString("VideoNotCaptured");
+                                    body += " " + LocRm.GetString("VideoCaptured");
                                 }
                                 else
                                     body += " " + LocRm.GetString("VideoNotCaptured");
                                 break;
                         }
 
-                        message = message.Replace("[BODY]",
-                                                  body +
-                                                  "<br/><a href=\"http://www.ispyconnect.com\">http://www.ispyconnect.com</a>");
+                        message = message.Replace("[BODY]", body + "<br/><a href=\"http://www.ispyconnect.com\">http://www.ispyconnect.com</a>");
 
 
                         if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
@@ -2679,10 +2674,7 @@ namespace iSpyApplication
                                 break;
                             default:
                                 message += LocRm.GetString("SMSMovementDetected");
-                                if (Camobject.detector.recordondetect)
-                                    message = message.Replace("[RECORDED]", LocRm.GetString("VideoCaptured"));
-                                else
-                                    message = message.Replace("[RECORDED]", LocRm.GetString("VideoNotCaptured"));
+                                message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("VideoCaptured") : LocRm.GetString("VideoNotCaptured"));
                                 break;
                         }
                         if (msg != "")
@@ -2943,23 +2935,37 @@ namespace iSpyApplication
             }
             
             IsEnabled = true;
+            string ckies;
             switch (Camobject.settings.sourceindex)
             {
                 case 0:
-                    var jpegSource = new JPEGStream(Camobject.settings.videosourcestring);
+                    ckies = Camobject.settings.cookies ?? "";
+                    ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
+                    ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
+                    ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+                    var jpegSource = new JPEGStream2(Camobject.settings.videosourcestring)
+                                         {
+                                             Login = Camobject.settings.login,
+                                             Password = Camobject.settings.password,
+                                             ForceBasicAuthentication = Camobject.settings.forcebasic,
+                                             RequestTimeout = MainForm.Conf.IPCameraTimeout,
+                                             UseHTTP10 = Camobject.settings.usehttp10,
+                                             HttpUserAgent = Camobject.settings.useragent,
+                                             Cookies = ckies
+                                         };
+
+                    OpenVideoSource(jpegSource, true);
+
                     if (Camobject.settings.frameinterval != 0)
                         jpegSource.FrameInterval = Camobject.settings.frameinterval;
-                    if (Camobject.settings.login != "")
-                    {
-                        jpegSource.Login = Camobject.settings.login;
-                        jpegSource.Password = Camobject.settings.password;
-                    }
-                    jpegSource.ForceBasicAuthentication = Camobject.settings.forcebasic;
-                    jpegSource.RequestTimeout = MainForm.Conf.IPCameraTimeout;
-                    jpegSource.UseHTTP10 = Camobject.settings.usehttp10;
-                    OpenVideoSource(jpegSource, true);
+
                     break;
                 case 1:
+                    ckies = Camobject.settings.cookies ?? "";
+                    ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
+                    ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
+                    ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+
                     var mjpegSource = new MJPEGStream2(Camobject.settings.videosourcestring)
                                             {
                                                 Login = Camobject.settings.login,
@@ -2967,7 +2973,8 @@ namespace iSpyApplication
                                                 ForceBasicAuthentication = Camobject.settings.forcebasic,
                                                 RequestTimeout = MainForm.Conf.IPCameraTimeout,
                                                 HttpUserAgent = Camobject.settings.useragent,
-                                                DecodeKey = Camobject.decodekey
+                                                DecodeKey = Camobject.decodekey,
+                                                Cookies = ckies
                                             };
                     OpenVideoSource(mjpegSource, true);
                     break;
@@ -3362,7 +3369,21 @@ namespace iSpyApplication
 
         void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)
         {
-            CameraAlarm(eventArgs.Description, EventArgs.Empty);
+            if (Camera.Plugin != null)
+            {
+                var action = (String) Camera.Plugin.GetType().GetMethod("ProcessAlert").Invoke(Camera.Plugin, new object[] { eventArgs.Description });
+                switch (action)
+                {
+                    case "alarm":
+                        CameraAlarm(eventArgs.Description, EventArgs.Empty);
+                        break;
+                    case "flash":
+                        FlashCounter = 10;
+                        break;
+                }
+
+            }
+            
         }
 
         public void StopSaving()
