@@ -3371,17 +3371,27 @@ namespace iSpyApplication
         {
             if (Camera.Plugin != null)
             {
-                var action = (String) Camera.Plugin.GetType().GetMethod("ProcessAlert").Invoke(Camera.Plugin, new object[] { eventArgs.Description });
-                switch (action)
+                var a = (String) Camera.Plugin.GetType().GetMethod("ProcessAlert").Invoke(Camera.Plugin, new object[] { eventArgs.Description });
+                if (!String.IsNullOrEmpty(a))
                 {
-                    case "alarm":
-                        CameraAlarm(eventArgs.Description, EventArgs.Empty);
-                        break;
-                    case "flash":
-                        FlashCounter = 10;
-                        break;
-                }
+                    string[] actions = a.ToLower().Split(',');
+                    foreach (var action in actions)
+                    {
+                        if (!String.IsNullOrEmpty(action))
+                        {
+                            switch (action)
+                            {
+                                case "alarm":
+                                    CameraAlarm(eventArgs.Description, EventArgs.Empty);
+                                    break;
 
+                                case "flash":
+                                    FlashCounter = 10;
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
             
         }

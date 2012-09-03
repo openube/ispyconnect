@@ -394,7 +394,7 @@ namespace iSpyApplication
             _request.AllowAutoRedirect = true;
             _request.KeepAlive = true;
             _request.SendChunked = false;
-            _request.Method = "POST";
+            //_request.Method = "POST";
             _request.AllowWriteStreamBuffering = true;
             _request.UserAgent = _cameraControl.Camobject.settings.useragent;
             //get credentials
@@ -446,8 +446,9 @@ namespace iSpyApplication
                 myRequestState.Response = myWebRequest.EndGetResponse(result);
                 myRequestState.Response.Close();
             }
-            catch
+            catch(Exception ex)
             {
+                MainForm.LogExceptionToFile(ex);
             }
             myRequestState.Response = null;
                 myRequestState.Request = null;

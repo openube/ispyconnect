@@ -1000,7 +1000,7 @@
     </Camera>
     <Camera id="29">
         <Makes>
-            <Make Name="X10" Model=""/>
+            <Make Name="X10" Model="AirSight"/>
         </Makes>
         <CommandURL>/cgi-bin/decoder_control.cgi?user=[USERNAME]&amp;pwd=[PASSWORD]</CommandURL>
         <Commands>
@@ -1016,8 +1016,6 @@
             <Stop>type=0&amp;cmd=10</Stop>
             <ZoomIn>type=0&amp;cmd=6</ZoomIn>
             <ZoomOut>type=0&amp;cmd=7</ZoomOut>
-            
-
         </Commands><ExtendedCommands>
                 <Command Name="Start VPatrol">type=0&amp;cmd=18</Command>
                 <Command Name="Stop VPatrol">type=0&amp;cmd=20</Command>
@@ -2093,7 +2091,6 @@
             <Make Name="Tenvis" Model="PT7131W"/>
             <Make Name="Vonnic" Model="C907IP"/>
             <Make Name="Wansview" Model="NC541"/>
-            <Make Name="X10" Model="AirSight"/>
             <Make Name="Zmodo" Model="CM-I11123BK"/>
         </Makes>
         <CommandURL>/decoder_control.cgi</CommandURL>
@@ -3992,4 +3989,41 @@
         </ExtendedCommands>
     </Camera>
 
+    <Camera id="165">
+        <Makes>
+            <Make Name="Foscam" Model="FI8608W" />
+        </Makes>
+        <CommandURL>/cgi-bin/hi3510/</CommandURL>
+        <Commands>
+            <Center>ptzctrl.cgi?-step=0&amp;-act=home</Center>
+            <Left>ptzctrl.cgi?-step=1&amp;-act=left</Left>
+            <Right>ptzctrl.cgi?-step=1&amp;-act=right</Right>
+            <Up>ptzctrl.cgi?-step=1&amp;-act=up</Up>
+            <Down>ptzctrl.cgi?-step=1&amp;-act=down</Down>
+            <Stop>ptzctrl.cgi?-step=0&amp;-act=stop</Stop>
+            <ZoomIn></ZoomIn>
+            <ZoomOut></ZoomOut>
+        </Commands>
+        <ExtendedCommands>
+            <Command Name="Stop">ptzctrl.cgi?-step=0&amp;-act=stop</Command>
+            <Command Name="H Patrol">ptzctrl.cgi?-step=0&amp;-act=hscan</Command>
+            <Command Name="V Patrol">ptzctrl.cgi?-step=0&amp;-act=vscan</Command>
+            <Command Name="Set Preset 1">preset.cgi?-act=set&amp;-status=1&amp;-number=0</Command>
+            <Command Name="Go Preset 1">preset.cgi?-act=goto&amp;-number=0</Command>
+            <Command Name="Set Preset 2">preset.cgi?-act=set&amp;-status=1&amp;-number=1</Command>
+            <Command Name="Go Preset 2">preset.cgi?-act=goto&amp;-number=1</Command>
+            <Command Name="Set Preset 3">preset.cgi?-act=set&amp;-status=1&amp;-number=2</Command>
+            <Command Name="Go Preset 3">preset.cgi?-act=goto&amp;-number=2</Command>
+            <Command Name="Set Preset 4">preset.cgi?-act=set&amp;-status=1&amp;-number=3</Command>
+            <Command Name="Go Preset 4">preset.cgi?-act=goto&amp;-number=3</Command>
+            <Command Name="Set Preset 5">preset.cgi?-act=set&amp;-status=1&amp;-number=4</Command>
+            <Command Name="Go Preset 5">preset.cgi?-act=goto&amp;-number=4</Command>
+            <Command Name="Set Preset 6">preset.cgi?-act=set&amp;-status=1&amp;-number=5</Command>
+            <Command Name="Go Preset 6">preset.cgi?-act=goto&amp;-number=5</Command>
+            <Command Name="Set Preset 7">preset.cgi?-act=set&amp;-status=1&amp;-number=6</Command>
+            <Command Name="Go Preset 7">preset.cgi?-act=goto&amp;-number=6</Command>
+            <Command Name="Set Preset 8">preset.cgi?-act=set&amp;-status=1&amp;-number=7</Command>
+            <Command Name="Go Preset 8">preset.cgi?-act=goto&amp;-number=7</Command>
+        </ExtendedCommands>
+    </Camera>
 </PTZSettings2>
