@@ -56,42 +56,49 @@ namespace OffLine.Installer
             //Process.Start(appPath + @"\iSpy.exe","-firstrun");
 
             //copy across xml files
-            string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\";
-            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\iSpy\";
-
-            if (!Directory.Exists(appDataPath))
+            try
             {
-                Directory.CreateDirectory(appDataPath);
-            }
-            if (!Directory.Exists(appDataPath + @"XML"))
-            {
-                Directory.CreateDirectory(appDataPath + @"XML");
-            }
+                string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\";
+                string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\iSpy\";
 
-            var didest = new DirectoryInfo(appDataPath + @"XML\");
-            var disource = new DirectoryInfo(appPath + @"XML\");
-           
-            TryCopy(disource + @"PTZ2.xml", didest + @"PTZ2.xml", false); //may have been customised
-            TryCopy(disource + @"Translations.xml", didest + @"Translations.xml", true);
-            TryCopy(disource + @"Sources.xml", didest + @"Sources.xml", true);
+                if (!Directory.Exists(appDataPath))
+                {
+                    Directory.CreateDirectory(appDataPath);
+                }
+                if (!Directory.Exists(appDataPath + @"XML"))
+                {
+                    Directory.CreateDirectory(appDataPath + @"XML");
+                }
 
-            if (!File.Exists(didest + @"objects.xml"))
-            {
-                TryCopy(disource + @"objects.xml", didest + @"objects.xml", true);
-            }
+                var didest = new DirectoryInfo(appDataPath + @"XML\");
+                var disource = new DirectoryInfo(appPath + @"XML\");
 
-            if (!File.Exists(didest + @"config.xml"))
-            {
-                TryCopy(disource + @"config.xml", didest + @"config.xml", true);
-            }
+                TryCopy(disource + @"PTZ2.xml", didest + @"PTZ2.xml", false); //may have been customised
+                TryCopy(disource + @"Translations.xml", didest + @"Translations.xml", true);
+                TryCopy(disource + @"Sources.xml", didest + @"Sources.xml", true);
 
-            if (!Directory.Exists(appDataPath + @"WebServerRoot"))
-            {
-                Directory.CreateDirectory(appDataPath + @"WebServerRoot");
+                if (!File.Exists(didest + @"objects.xml"))
+                {
+                    TryCopy(disource + @"objects.xml", didest + @"objects.xml", true);
+                }
+
+                if (!File.Exists(didest + @"config.xml"))
+                {
+                    TryCopy(disource + @"config.xml", didest + @"config.xml", true);
+                }
+
+                if (!Directory.Exists(appDataPath + @"WebServerRoot"))
+                {
+                    Directory.CreateDirectory(appDataPath + @"WebServerRoot");
+                }
+                didest = new DirectoryInfo(appDataPath + @"WebServerRoot");
+                disource = new DirectoryInfo(appPath + @"WebServerRoot");
+                CopyAll(disource, didest);
             }
-            didest = new DirectoryInfo(appDataPath + @"WebServerRoot");
-            disource = new DirectoryInfo(appPath + @"WebServerRoot");
-            CopyAll(disource, didest);
+            catch
+            {
+                //let it install anyway, it'll rebuild on start
+            }
         }
 
         private static void CopyAll(DirectoryInfo source, DirectoryInfo target)

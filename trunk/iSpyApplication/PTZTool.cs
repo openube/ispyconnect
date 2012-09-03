@@ -91,6 +91,8 @@ namespace iSpyApplication
 
         private void ProcessPtzInput(Point p)
         {
+            if (CameraControl.Camera == null)
+                return;
             bool d = MainForm.PTZs.SingleOrDefault(q => q.id == CameraControl.Camobject.ptz) == null;
             Enums.PtzCommand comm = Enums.PtzCommand.Center;
             if (p.X < 60 && p.Y > 60 && p.Y < 106)
