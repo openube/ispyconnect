@@ -1751,7 +1751,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.1.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.2.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_8939CDAD1A52A90BDCEB852BF74E54B3"
@@ -2659,15 +2659,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{DBB3FF8B-A3D7-459F-8ED1-D877A9D50AD2}"
-        "PackageCode" = "8:{042CDD39-BF5F-40FD-A90C-AEC381C49410}"
+        "ProductCode" = "8:{9D4B9F93-A0DA-4FDF-B75C-0C43E68B5598}"
+        "PackageCode" = "8:{0304F9A9-8519-45F2-A077-111A4355B17E}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.4.9"
+        "ProductVersion" = "8:4.5.3"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
@@ -3303,7 +3303,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0EF428F9CB93474EB5E2B849BCF54454"
             {
-            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Release\\iSpy.exe"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
