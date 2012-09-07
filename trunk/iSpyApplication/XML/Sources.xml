@@ -1607,6 +1607,7 @@
         <url version="BL-C131A" confirmed="false" prefix="http://" Source="MJPEG" url="nphMotionJpeg?Resolution=320x240&amp;Quality=Motion" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="MJPEG" url="cgi-bin/nphContinuousServerPush" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="MJPEG" url="cgi-bin/camera" AudioModel="" port="" flags="" cookies=""/>
+        <url version="BL-C1A" confirmed="false" prefix="http://" Source="MJPEG" url="nphMotionJpeg?Resolution=640x480&amp;Quality=Standard" AudioModel="" port="" flags="" cookies=""/>
         <url version="BB-HCM531A" confirmed="false" prefix="rtsp://" Source="VLC" url="nphMpeg4/g726-640x48" AudioModel="" port="" flags="" cookies=""/>
         <url version="BL-C10A" confirmed="false" prefix="rtsp://" Source="VLC" url="nphMpeg4/g726-640x48" AudioModel="" port="" flags="" cookies=""/>
         <url version="BL-C111A" confirmed="false" prefix="rtsp://" Source="VLC" url="nphMpeg4/g726-640x48" AudioModel="" port="" flags="" cookies=""/>
@@ -2441,6 +2442,9 @@
         <url version="S Range" confirmed="false" prefix="http://" Source="MJPEG" url="stream.jpg" AudioModel="" port="" flags="" cookies=""/>
         <url version="Bullet Range" confirmed="false" prefix="http://" Source="MJPEG" url="stream.jpg" AudioModel="" port="" flags="" cookies=""/>
         <url version="Dome Range" confirmed="false" prefix="http://" Source="MJPEG" url="stream.jpg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="Bullet HD 1080" confirmed="false" prefix="rtsp://" Source="VLC" url="v01" AudioModel="" port="" flags="" cookies=""/>
+        <url version="Bullet HD 1080" confirmed="false" prefix="rtsp://" Source="VLC" url="v02" AudioModel="" port="" flags="" cookies=""/>
+        <url version="Bullet HD 1080" confirmed="false" prefix="rtsp://" Source="VLC" url="v03" AudioModel="" port="" flags="" cookies=""/>
     </Manufacturer>
     <Manufacturer name="Yoics">
         <url version="Server" confirmed="false" prefix="http://" Source="JPEG" url="usr/yoics[CHANNEL].jpg" AudioModel="" port="" flags="" cookies=""/>
@@ -2493,4 +2497,5 @@
         <url version="IPC36xx/46xx" confirmed="false" prefix="http://" Source="MJPEG" url="mjpegStreamer.cgi" AudioModel="" port="" flags="" cookies=""/>
         <url version="IPC-4605N" confirmed="false" prefix="rtsp://" Source="VLC" url="medias2" AudioModel="" port="" flags="" cookies=""/>
     </Manufacturer>
+
 </Manufacturers>

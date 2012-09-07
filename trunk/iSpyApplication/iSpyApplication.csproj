@@ -737,7 +737,9 @@
     </Content>
     <Content Include="XML\FileList.xml" />
     <Content Include="XML\objects.xml" />
-    <Content Include="XML\PTZ2.xml" />
+    <Content Include="XML\PTZ2.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="XML\Sources.xml">
       <SubType>Designer</SubType>
     </Content>

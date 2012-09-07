@@ -637,6 +637,7 @@ namespace iSpyApplication
             {
                 if (ddlMake.SelectedIndex == 0)
                 {
+                    MessageBox.Show(this, "Please choose a make");
                     return;
                 }
                 ShowPanel(pnlFindNetwork);
@@ -644,10 +645,20 @@ namespace iSpyApplication
             }
             if (pnlFindNetwork.Visible)
             {
-                if (txtIPAddress.Text.Trim() == "")
+                string addr = txtIPAddress.Text.Trim();
+                if (addr == "")
                 {
+                    MessageBox.Show(this, "Please select or enter an IP address");
                     return;
                 }
+                IPAddress ip;
+                if (!IPAddress.TryParse(addr, out ip))
+                {
+                    MessageBox.Show(this, "Please enter an IP address only (excluding http://)");
+                    return;
+                }
+
+
                 AddConnections();
                 return;
             }
@@ -744,16 +755,14 @@ namespace iSpyApplication
             Username = txtUsername.Text.Trim();
             Password = txtPassword.Text.Trim();
             Channel = txtChannel.Text.Trim();
+
             string addr = txtIPAddress.Text.Trim();
-            if (addr.ToLower().StartsWith("http://"))
-                addr = addr.Substring(7);
-            addr = addr.Trim('/');
             Flags = s.flags;
             Cookies = s.cookies;
 
             var nPort = (int)numPort.Value;
 
-            if (s.Port == 0 && s.prefix == "rtsp")
+            if (s.Port == 0 && s.prefix == "rtsp://")
                 s.Port = 554;
 
             if (s.Port > 0)

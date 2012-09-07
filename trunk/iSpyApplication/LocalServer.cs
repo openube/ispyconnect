@@ -504,6 +504,8 @@ namespace iSpyApplication
                                     case "loadclip.mp3":
                                     case "loadclip.mp4":
                                         SendClip(sPhysicalFilePath, sBuffer, sHttpVersion, ref mySocket);
+                                        Debug.WriteLine("REQUEST:");
+                                        Debug.WriteLine(sBuffer);
                                         break;
                                     default:
                                         if (sPhysicalFilePath.IndexOf('?') != -1)
@@ -637,9 +639,14 @@ namespace iSpyApplication
             {
                 SendHeaderWithRange(sHttpVersion, sMimeType, iStartBytes, iEndBytes, iTotBytes, " 206 Partial Content",
                                     20, mySocket);
+                Debug.WriteLine("**** Sent Partial Content "+iStartBytes+" to "+iEndBytes);
             }
             else
+            {
                 SendHeader(sHttpVersion, sMimeType, iTotBytes, " 200 OK", 20, ref mySocket);
+                Debug.WriteLine("**** Sent Full Content " + iTotBytes);
+            }
+                
 
 
             SendToBrowser(bytes, mySocket);
@@ -2672,45 +2679,52 @@ namespace iSpyApplication
             sResponse += "Pragma: no-cache\r\n";
             sResponse += "Content-Type: multipart/x-mixed-replace;boundary=--myboundary";
 
-            while (cw!=null && cw.Camera!=null && cw.Camobject.settings.active && mySocket.Connected)
+            try
             {
-                if (!cw.Camera.LastFrameNull)
+                while (cw != null && cw.Camera != null && cw.Camobject.settings.active && mySocket.Connected)
                 {
-                    Bitmap b = cw.Camera.LastFrame;
-                    using (var imageStream = new MemoryStream())
+                    if (!cw.Camera.LastFrameNull)
                     {
-
-                        if (w > 0 && h > 0)
+                        Bitmap b = cw.Camera.LastFrame;
+                        using (var imageStream = new MemoryStream())
                         {
-                            Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
-                            Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
 
-                            // put the image into the memory stream
+                            if (w > 0 && h > 0)
+                            {
+                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
+                                Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
 
-                            myThumbnail.Save(imageStream, ImageFormat.Jpeg);
-                            myThumbnail.Dispose();
+                                // put the image into the memory stream
+
+                                myThumbnail.Save(imageStream, ImageFormat.Jpeg);
+                                myThumbnail.Dispose();
+                            }
+                            else
+                            {
+                                b.Save(imageStream, ImageFormat.Jpeg);
+                            }
+
+                            imageStream.Position = 0;
+                            // load the byte array with the image             
+                            b.Dispose();
+                            Byte[] imageArray = imageStream.GetBuffer();
+                            sResponse += "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
+                                         imageArray.Length + "\r\n\r\n";
+
+                            Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
+
+                            SendToBrowser(bSendData, mySocket);
+                            sResponse = "";
+                            SendToBrowser(imageArray, mySocket);
+                            imageStream.Close();
                         }
-                        else
-                        {
-                            b.Save(imageStream, ImageFormat.Jpeg);
-                        }
-
-                        imageStream.Position = 0;
-                        // load the byte array with the image             
-                        b.Dispose();
-                        Byte[] imageArray = imageStream.GetBuffer();
-                        sResponse += "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
-                                     imageArray.Length + "\r\n\r\n";
-
-                        Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
-
-                        SendToBrowser(bSendData, mySocket);
-                        sResponse = "";
-                        SendToBrowser(imageArray, mySocket);
-                        imageStream.Close();
+                        Thread.Sleep(200);
                     }
-                    Thread.Sleep(200);
                 }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
             }
             if (mySocket.Connected)
             {

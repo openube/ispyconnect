@@ -3286,7 +3286,7 @@
             <Right>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=right&amp;para=1</Right>
             <Up>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=up&amp;para=1</Up>
             <Down>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=down&amp;para=1</Down>
-            <Stop>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=zoomin&amp;para=1</Stop>
+            <Stop>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=stop&amp;para=1</Stop>
             <ZoomIn></ZoomIn>
             <ZoomOut></ZoomOut>
         </Commands>
@@ -4024,6 +4024,25 @@
             <Command Name="Go Preset 7">preset.cgi?-act=goto&amp;-number=6</Command>
             <Command Name="Set Preset 8">preset.cgi?-act=set&amp;-status=1&amp;-number=7</Command>
             <Command Name="Go Preset 8">preset.cgi?-act=goto&amp;-number=7</Command>
+        </ExtendedCommands>
+    </Camera>
+
+    <Camera id="166">
+        <Makes>
+            <Make Name="Shixin" Model="IP-109H.264" />
+        </Makes>
+        <CommandURL>
+        </CommandURL>
+        <Commands>
+            <Left>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=left&amp;para=1</Left>
+            <Right>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=right&amp;para=1</Right>
+            <Up>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=up&amp;para=1</Up>
+            <Down>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=down&amp;para=1</Down>
+            <Stop>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=stop&amp;para=1</Stop>
+            <ZoomIn>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=zoomin</ZoomIn>
+            <ZoomOut>/ptzctrl?username=[USERNAME]&amp;userpwd=[PASSWORD]&amp;act=zoomout</ZoomOut>
+        </Commands>
+        <ExtendedCommands>
         </ExtendedCommands>
     </Camera>
 </PTZSettings2>
