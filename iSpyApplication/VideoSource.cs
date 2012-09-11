@@ -11,6 +11,7 @@ using Declarations.Events;
 using Declarations.Media;
 using Declarations.Players;
 using Implementation;
+using iSpyApplication.Controls;
 using iSpyApplication.Video;
 using Microsoft.Kinect;
 using FilterInfo = AForge.Video.DirectShow.FilterInfo;

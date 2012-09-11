@@ -26,5 +26,11 @@ namespace iSpyApplication
             IsInList = 0,
             NotInList = 1
         } ;
+
+        public enum AudioStreamMode
+        {
+            PCM,
+            MP3
+        }
     }
 }

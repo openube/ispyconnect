@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using AForge.Video.DirectShow;
+using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
 
@@ -590,10 +591,6 @@ namespace iSpyApplication
                 }
                 if (bAlertVlc)
                     MessageBox.Show(LocRm.GetString("CamerasNotLoadedVLC"), LocRm.GetString("Message"));
-                Conf.NextCameraID = camid;
-                Conf.NextMicrophoneID = micid;
-                Conf.NextFloorPlanID = fpid;
-                Conf.NextCommandID = rcid;
 
                 NeedsSync = true;
             }
@@ -605,11 +602,46 @@ namespace iSpyApplication
                 _microphones = new List<objectsMicrophone>();
                 _remotecommands = new List<objectsCommand>();
                 _floorplans = new List<objectsFloorplan>();
+            }
+        }
 
-                Conf.NextCameraID = 1;
-                Conf.NextMicrophoneID = 1;
-                Conf.NextFloorPlanID = 1;
-                Conf.NextCommandID = 1;
+        internal static int NextCameraId
+        {
+            get
+            {
+                if (Cameras!=null && Cameras.Count>0)
+                    return Cameras.Max(p => p.id) + 1;
+                return 1;
+            }
+        }
+
+        internal static int NextMicrophoneId
+        {
+            get
+            {
+                if (Microphones != null && Microphones.Count > 0)
+                    return Microphones.Max(p => p.id) + 1;
+                return 1;
+            }
+        }
+
+        internal static int NextFloorPlanId
+        {
+            get
+            {
+                if (FloorPlans != null && FloorPlans.Count > 0)
+                    return FloorPlans.Max(p => p.id) + 1;
+                return 1;
+            }
+        }
+
+        internal static int NextCommandId
+        {
+            get
+            {
+                if (RemoteCommands != null && RemoteCommands.Count > 0)
+                    return RemoteCommands.Max(p => p.id) + 1;
+                return 1;
             }
         }
 
@@ -1182,8 +1214,6 @@ namespace iSpyApplication
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
 
-                Conf.NextCameraID++;
-
                 SetNewStartPosition();
                 if (cw.VolumeControl != null && !cw.VolumeControl.IsEnabled)
                     cw.VolumeControl.Enable();
@@ -1204,25 +1234,25 @@ namespace iSpyApplication
         private CameraWindow NewCameraWindow(int videoSourceIndex)
         {
             var oc = new objectsCamera
-            {
-                alerts = new objectsCameraAlerts(),
-                detector = new objectsCameraDetector
-                {
-                    motionzones =
-                        new objectsCameraDetectorZone
-                        [0]
-                },
-                notifications = new objectsCameraNotifications(),
-                recorder = new objectsCameraRecorder(),
-                schedule = new objectsCameraSchedule { entries = new objectsCameraScheduleEntry[0] },
-                settings = new objectsCameraSettings(),
-                ftp = new objectsCameraFtp(),
-                id = -1,
-                directory = RandomString(5),
-                ptz = -1,
-                x = Convert.ToInt32(Random.NextDouble() * 100),
-                y = Convert.ToInt32(Random.NextDouble() * 100),
-                name = LocRm.GetString("Camera") + " " + Conf.NextCameraID
+                         {
+                             alerts = new objectsCameraAlerts(),
+                             detector = new objectsCameraDetector
+                                            {
+                                                motionzones =
+                                                    new objectsCameraDetectorZone
+                                                    [0]
+                                            },
+                             notifications = new objectsCameraNotifications(),
+                             recorder = new objectsCameraRecorder(),
+                             schedule = new objectsCameraSchedule {entries = new objectsCameraScheduleEntry[0]},
+                             settings = new objectsCameraSettings(),
+                             ftp = new objectsCameraFtp(),
+                             id = -1,
+                             directory = RandomString(5),
+                             ptz = -1,
+                             x = Convert.ToInt32(Random.NextDouble()*100),
+                             y = Convert.ToInt32(Random.NextDouble()*100),
+                             name = LocRm.GetString("Camera") + " " + NextCameraId
             };
             oc.ptzschedule = new objectsCameraPtzschedule
             {
@@ -1365,8 +1395,7 @@ namespace iSpyApplication
             if (am.DialogResult == DialogResult.OK)
             {
                 UnlockLayout();
-                micid = am.VolumeLevel.Micobject.id = Conf.NextMicrophoneID;
-                Conf.NextMicrophoneID++;
+                micid = am.VolumeLevel.Micobject.id = NextMicrophoneId;
                 Microphones.Add(vl.Micobject);
                 string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
                 if (!Directory.Exists(path))
@@ -1395,24 +1424,24 @@ namespace iSpyApplication
                 notifications = new objectsMicrophoneNotifications(),
                 recorder = new objectsMicrophoneRecorder(),
                 schedule = new objectsMicrophoneSchedule
-                {
-                    entries
-                        =
-                        new objectsMicrophoneScheduleEntry
-                        [
-                        0
-                        ]
-                },
+                            {
+                                entries
+                                    =
+                                    new objectsMicrophoneScheduleEntry
+                                    [
+                                    0
+                                    ]
+                            },
                 settings = new objectsMicrophoneSettings(),
                 id = -1,
                 directory = RandomString(5),
-                x = Convert.ToInt32(Random.NextDouble() * 100),
-                y = Convert.ToInt32(Random.NextDouble() * 100),
+                x = Convert.ToInt32(Random.NextDouble()*100),
+                y = Convert.ToInt32(Random.NextDouble()*100),
                 width = 160,
                 height = 40,
                 description = "",
                 newrecordingcount = 0,
-                name = LocRm.GetString("Microphone") + " " + Conf.NextMicrophoneID
+                name = LocRm.GetString("Microphone") + " " + NextMicrophoneId
             };
 
             om.settings.typeindex = audioSourceIndex;
@@ -1509,7 +1538,7 @@ namespace iSpyApplication
                 width = 640,
                 x = Convert.ToInt32(Random.NextDouble() * 100),
                 y = Convert.ToInt32(Random.NextDouble() * 100),
-                name = LocRm.GetString("FloorPlan") + " " + Conf.NextFloorPlanID
+                name = LocRm.GetString("FloorPlan") + " " + MainForm.NextFloorPlanId
             };
 
             var fpc = new FloorPlanControl(ofp, this) { BackColor = Conf.BackColor.ToColor() };
@@ -1525,9 +1554,8 @@ namespace iSpyApplication
             if (afp.DialogResult == DialogResult.OK)
             {
                 UnlockLayout();
-                afp.Fpc.Fpobject.id = Conf.NextFloorPlanID;
+                afp.Fpc.Fpobject.id = NextFloorPlanId;
                 FloorPlans.Add(ofp);
-                Conf.NextFloorPlanID++;
                 SetFloorPlanEvents(fpc);
                 SetNewStartPosition();
                 fpc.Invalidate();
@@ -1784,7 +1812,7 @@ namespace iSpyApplication
 
             cw.Camobject.settings.videosourcestring = url;
 
-            cw.Camobject.id = Conf.NextCameraID;
+            cw.Camobject.id = NextCameraId;
             Cameras.Add(cw.Camobject);
             string path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\";
             if (!Directory.Exists(path))
@@ -1800,7 +1828,6 @@ namespace iSpyApplication
             cw.Camobject.settings.accessgroups = "";
 
 
-            Conf.NextCameraID++;
             SetNewStartPosition();
             cw.Enable();
             cw.NeedSizeUpdate = true;
@@ -1812,31 +1839,31 @@ namespace iSpyApplication
             vl.Micobject.name = name;
             vl.Micobject.settings.sourcename = url;
 
-            vl.Micobject.id = Conf.NextMicrophoneID;
+            vl.Micobject.id = NextMicrophoneId;
             Microphones.Add(vl.Micobject);
             string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
             vl.Micobject.settings.accessgroups = "";
-            Conf.NextMicrophoneID++;
             SetNewStartPosition();
             vl.Enable();
         }
 
         internal VolumeLevel AddCameraMicrophone(int cameraid, string name)
         {
+            if (cameraid == -1)
+                cameraid = NextCameraId;
             VolumeLevel vl = NewVolumeLevel(4);
             vl.Micobject.name = name;
             vl.Micobject.settings.sourcename = cameraid.ToString();
-            vl.Micobject.id = Conf.NextMicrophoneID;
+            vl.Micobject.id = NextMicrophoneId;
             Microphones.Add(vl.Micobject);
             string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
             vl.Micobject.settings.accessgroups = "";
-            Conf.NextMicrophoneID++;
             SetNewStartPosition();
             vl.Enable();
             return vl;

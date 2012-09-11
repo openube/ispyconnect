@@ -1,4 +1,4 @@
-namespace AngleAltitudeControls
+namespace iSpyApplication.Controls
 {
     partial class AngleSelector
     {

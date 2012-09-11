@@ -1,4 +1,4 @@
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     sealed partial class VolumeLevel
     {

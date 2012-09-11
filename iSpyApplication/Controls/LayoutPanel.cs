@@ -2,8 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     public class LayoutPanel:Panel
     {

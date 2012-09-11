@@ -51,11 +51,7 @@ public partial class configuration {
     private string recentMJPGListField;
     
     private string recentFileListField;
-    
-    private int nextCameraIDField;
-    
-    private int nextMicrophoneIDField;
-    
+       
     private bool subscribedField;
     
     private string jPEGURLField;
@@ -95,9 +91,7 @@ public partial class configuration {
     private string timestampColorField;
     
     private bool useUPNPField;
-    
-    private int nextFloorPlanIDField;
-    
+       
     private string youTubeUsernameField;
     
     private string youTubePasswordField;
@@ -111,9 +105,7 @@ public partial class configuration {
     private string youTubeDefaultCategoryField;
     
     private string compressorOptionsField;
-    
-    private int nextCommandIDField;
-    
+       
     private bool logFFMPEGCommandsField;
     
     private bool balloonTipsField;
@@ -700,27 +692,7 @@ public partial class configuration {
             this.recentFileListField = value;
         }
     }
-    
-    /// <remarks/>
-    public int NextCameraID {
-        get {
-            return this.nextCameraIDField;
-        }
-        set {
-            this.nextCameraIDField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public int NextMicrophoneID {
-        get {
-            return this.nextMicrophoneIDField;
-        }
-        set {
-            this.nextMicrophoneIDField = value;
-        }
-    }
-    
+       
     /// <remarks/>
     public bool Subscribed {
         get {
@@ -931,17 +903,7 @@ public partial class configuration {
             this.useUPNPField = value;
         }
     }
-    
-    /// <remarks/>
-    public int NextFloorPlanID {
-        get {
-            return this.nextFloorPlanIDField;
-        }
-        set {
-            this.nextFloorPlanIDField = value;
-        }
-    }
-    
+       
     /// <remarks/>
     public string YouTubeUsername {
         get {
@@ -1011,17 +973,7 @@ public partial class configuration {
             this.compressorOptionsField = value;
         }
     }
-    
-    /// <remarks/>
-    public int NextCommandID {
-        get {
-            return this.nextCommandIDField;
-        }
-        set {
-            this.nextCommandIDField = value;
-        }
-    }
-    
+       
     /// <remarks/>
     public bool LogFFMPEGCommands {
         get {

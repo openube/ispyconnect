@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {

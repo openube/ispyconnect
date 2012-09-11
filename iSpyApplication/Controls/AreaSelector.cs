@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Threading;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     public sealed partial class AreaSelector : Panel
     {

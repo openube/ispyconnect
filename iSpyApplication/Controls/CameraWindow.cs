@@ -20,7 +20,7 @@ using xiApi.NET;
 using Encoder = System.Drawing.Imaging.Encoder;
 using PictureBox = AForge.Controls.PictureBox;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     /// <summary>
     /// Summary description for CameraWindow.

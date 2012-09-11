@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     class PreviewBox: AForge.Controls.PictureBox
     {

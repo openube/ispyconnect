@@ -82,10 +82,8 @@ namespace iSpyApplication
                 return;
             }
 
-            var oc = new objectsCommand {name = name, command = execute, id = MainForm.Conf.NextCommandID};
+            var oc = new objectsCommand { name = name, command = execute, id = MainForm.NextCommandId };
             
-            MainForm.Conf.NextCommandID++;
-
             MainForm.RemoteCommands.Add(oc);
             RenderCommands();
         }

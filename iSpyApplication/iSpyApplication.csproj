@@ -372,6 +372,18 @@
     <Compile Include="MainForm_Media.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MP3Stream\AudioWriters.cs" />
+    <Compile Include="MP3Stream\Lame.cs" />
+    <Compile Include="MP3Stream\Mp3Writer.cs" />
+    <Compile Include="MP3Stream\Mp3WriterConfig.cs" />
+    <Compile Include="MP3Stream\WaveFormat.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MP3Stream\WaveStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MP3Stream\WaveWriter.cs" />
+    <Compile Include="MP3Stream\WriterConfig.cs" />
     <Compile Include="Pelco\D.cs" />
     <Compile Include="Pelco\P.cs" />
     <Compile Include="PTZController.cs" />
@@ -624,11 +636,15 @@
     <Content Include="avutil-51.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="lame_enc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="postproc-51.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Resources\phyxius.jpg" />
     <None Include="Resources\bigdipper.jpg" />
+    <None Include="Resources\ALLNET.jpg" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />

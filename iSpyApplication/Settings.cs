@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using System.Xml;
 using Google.GData.Client;
 using Google.GData.YouTube;
-using Google.YouTube;
 using Microsoft.Win32;
 using NAudio.Wave;
 
@@ -118,7 +117,10 @@ namespace iSpyApplication
             MainForm.Conf.PreviewItems = (int)numMediaPanelItems.Value;
             MainForm.Conf.BigButtons = chkBigButtons.Checked;
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
-            MainForm.Conf.TalkMic = ddlTalkMic.Enabled ? ddlTalkMic.SelectedItem.ToString() : "";
+            if (ddlTalkMic.Items.Count == 0)
+                MainForm.Conf.TalkMic = "";
+            else
+                MainForm.Conf.TalkMic = ddlTalkMic.Enabled  ? ddlTalkMic.SelectedItem.ToString() : "";
             MainForm.Conf.MinimiseOnClose = chkMinimise.Checked;
             MainForm.Conf.JPEGQuality = (int) numJPEGQuality.Value;
             MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;

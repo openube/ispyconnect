@@ -15,9 +15,12 @@ using System.Threading;
 using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
+using iSpyApplication.Controls;
+using iSpyApplication.MP3Stream;
 using iSpyApplication.Video;
 using NAudio.Wave;
 using ThreadState = System.Threading.ThreadState;
+using WaveFormat = NAudio.Wave.WaveFormat;
 
 namespace iSpyApplication
 {
@@ -45,10 +48,9 @@ namespace iSpyApplication
         public string ServerRoot;
         private Hashtable _mimetypes;
         private TcpListener _myListener;
-        private static readonly WaveFormat WfOut = new WaveFormat(8000, 16, 1);
         public int NumErr;
         private Thread _th;
-
+        
         //The constructor which make the TcpListener start listening on the
         //given port. It also calls a Thread on the method StartListen(). 
         public LocalServer(MainForm parent)
@@ -443,16 +445,19 @@ namespace iSpyApplication
                             }
                             catch (Exception ex)
                             {
+                                //Debug.WriteLine("error: "+sBuffer);
                                 goto Finish;
                             }
-
+                            
                             if (!bServe)
                             {
+                                //Debug.WriteLine("ignored: " + sBuffer);
                                 resp = "Access this server locally through http://www.ispyconnect.com";
                                 SendHeader(sHttpVersion, "text/html", resp.Length, " 200 OK", 0, ref mySocket);
                                 SendToBrowser(resp, mySocket);
                                 goto Finish;
                             }
+                            //Debug.WriteLine("accepted: " + sBuffer);
 
                             resp = ProcessCommandInternal(sRequest);
 
@@ -490,8 +495,11 @@ namespace iSpyApplication
                                     case "floorplanfeed":
                                         SendFloorPlanFeed(sPhysicalFilePath, sHttpVersion, ref mySocket);
                                         break;
-                                    case "audiofeed":
-                                        SendAudioFeed(sBuffer, sPhysicalFilePath, ref mySocket);
+                                    case "audiofeed.mp3":
+                                        SendAudioFeed(Enums.AudioStreamMode.MP3, sBuffer, sPhysicalFilePath, ref mySocket);
+                                        break;
+                                    case "audiofeed.wav":
+                                        SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, ref mySocket);
                                         break;
                                     case "video.mjpg":
                                     case "video.cgi":
@@ -2742,10 +2750,9 @@ namespace iSpyApplication
 
         }
 
-        private void SendAudioFeed(String sBuffer, String sPhysicalFilePath, ref Socket mySocket)
+        private void SendAudioFeed(Enums.AudioStreamMode StreamMode, String sBuffer, String sPhysicalFilePath, ref Socket mySocket)
         {
-            string t = sPhysicalFilePath.Substring(sPhysicalFilePath.IndexOf("micid=") + 6);
-            string micId = t.Substring(0, t.IndexOf("&"));
+            string micId = GetVar(sPhysicalFilePath, "micid");
             try
             {
                 VolumeLevel vl = _parent.GetVolumeLevel(Convert.ToInt32(micId));
@@ -2804,11 +2811,23 @@ namespace iSpyApplication
                         }
                     }
 
-
-                    sResponse += "Content-Type: audio/x-wav\r\n";
-                    sResponse += "Transfer-Encoding: chunked\r\n";
-                    sResponse += "Connection: close\r\n";
-                    sResponse += "\r\n";
+                    switch (StreamMode)
+                    {
+                        case Enums.AudioStreamMode.PCM:
+                            sResponse += "Content-Type: audio/x-wav\r\n";
+                            sResponse += "Transfer-Encoding: chunked\r\n";
+                            sResponse += "Connection: close\r\n";
+                            sResponse += "\r\n";
+                            break;
+                        case Enums.AudioStreamMode.MP3:
+                            sResponse += "Content-Type: audio/mpeg\r\n";
+                            sResponse += "Transfer-Encoding: chunked\r\n";
+                            sResponse += "Connection: close\r\n";
+                            sResponse += "\r\n";
+                            break;
+                    }
+                    
+                    
 
                     Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
 
@@ -2826,7 +2845,24 @@ namespace iSpyApplication
                         vl.DataAvailable -= VlDataAvailable;
 
                         vl.OutStream = new MemoryStream();
-                        vl.OutWriter = new WaveFileWriter(vl.OutStream, WfOut);
+                        vl.AudioStreamMode = StreamMode;
+
+                        switch (StreamMode)
+                        {
+                            case Enums.AudioStreamMode.PCM:
+                                vl.AudioStreamFormat = new WaveFormat(8000, 16, 1);
+                                vl.OutWriter = new WaveFileWriter(vl.OutStream, vl.AudioStreamFormat );
+                                
+                                break;
+                            case Enums.AudioStreamMode.MP3:
+                                vl.AudioStreamFormat = new WaveFormat(22050, 16, vl.Micobject.settings.channels);
+
+                                var wf = new MP3Stream.WaveFormat(vl.AudioStreamFormat.SampleRate, vl.AudioStreamFormat.BitsPerSample, vl.AudioStreamFormat.Channels);
+                                //var bcfg = new BE_CONFIG(wf, 128, LAME_QUALITY_PRESET.LQP_FAST_EXTREME);
+
+                                vl.Mp3Writer = new Mp3Writer(vl.OutStream, wf, false);// bcfg, false);
+                                break; 
+                        }
 
                         vl.DataAvailable += VlDataAvailable;
                     }
@@ -2838,7 +2874,7 @@ namespace iSpyApplication
                 MainForm.LogExceptionToFile(ex);
             }
         }
-        
+
         private void VlDataAvailable(object sender, NewDataAvailableArgs eventArgs)
         {
             var vl = (VolumeLevel) sender;
@@ -2846,33 +2882,50 @@ namespace iSpyApplication
             {
                 byte[] bSrc = eventArgs.DecodedData;
                 int totBytes = bSrc.Length;
-
+                
+                byte[] bResampled = new byte[25000];
                 var ws = new TalkHelperStream(bSrc, totBytes, vl.AudioSource.RecordingFormat);
-                var helpStm = new WaveFormatConversionStream(WfOut, ws);
-                totBytes = helpStm.Read(bSrc, 0, 25000);
+                var helpStm = new WaveFormatConversionStream(vl.AudioStreamFormat, ws);
+                totBytes = helpStm.Read(bResampled, 0, 25000);
 
                 ws.Close();
                 ws.Dispose();
                 helpStm.Close();
-                helpStm.Dispose();
+                helpStm.Dispose();             
+
+                switch (vl.AudioStreamMode)
+                {
+                    case Enums.AudioStreamMode.MP3:
+                        vl.Mp3Writer.Write(bResampled, 0, totBytes);
+                        break;
+                    case Enums.AudioStreamMode.PCM:
+
+                        vl.OutWriter.Write(bResampled, 0, totBytes);
+                        break;
+                }
 
 
-                vl.OutWriter.Write(bSrc, 0, totBytes);
-                var bout = new byte[(int) vl.OutStream.Length];
+                if (vl.OutStream.Length == 0)
+                    return;
+
+                byte[] bout;
+
+                bout = new byte[(int)vl.OutStream.Length];
 
                 vl.OutStream.Seek(0, SeekOrigin.Begin);
-                vl.OutStream.Read(bout, 0, (int) vl.OutStream.Length);
+                vl.OutStream.Read(bout, 0, (int)vl.OutStream.Length);
 
                 vl.OutStream.SetLength(0);
-                vl.OutStream.Seek(0, SeekOrigin.Begin);
-
+                vl.OutStream.Seek(0, SeekOrigin.Begin);               
+               
                 Byte[] bSendData = Encoding.ASCII.GetBytes(bout.Length.ToString("X") + "\r\n");
-
+                
                 SendToBrowser(bSendData, vl.OutSocket);
                 SendToBrowser(bout, vl.OutSocket);
 
                 bSendData = Encoding.ASCII.GetBytes("\r\n");
                 SendToBrowser(bSendData, vl.OutSocket);
+
                 if (vl.CloseStream)
                 {
                     vl.CloseStream = false;
@@ -2898,9 +2951,20 @@ namespace iSpyApplication
             {
                 vl.DataAvailable -= VlDataAvailable;
                 vl.OutSocket.Close();
-                vl.OutWriter.Close();
-                vl.OutStream.Dispose();
-                vl.OutWriter.Dispose();
+                switch (vl.AudioStreamMode)
+                {
+                    case Enums.AudioStreamMode.MP3:
+                        vl.Mp3Writer.Close();
+                        vl.OutStream.Dispose();
+                        vl.Mp3Writer.Dispose();
+                        break;
+                    case Enums.AudioStreamMode.PCM:
+                        vl.OutWriter.Close();
+                        vl.OutStream.Dispose();
+                        vl.OutWriter.Dispose();
+                        break;
+                }
+                
                 vl.OutStream = null;
             }
         }
@@ -2941,7 +3005,7 @@ namespace iSpyApplication
                         resp += "2," + oc.id + "," + onlinestatus.ToString().ToLower() + "," +
                                 oc.name.Replace(",", "&comma;") + "," + GetStatus(onlinestatus) + "," +
                                 oc.description.Replace(",", "&comma;").Replace("\n", " ") + "," +
-                                oc.settings.accessgroups.Replace(",", "&comma;").Replace("\n", " ") + "," + oc.ptz + "," + talkconfigured.ToString().ToLower()+ Environment.NewLine;
+                                oc.settings.accessgroups.Replace(",", "&comma;").Replace("\n", " ") + "," + oc.ptz + "," + talkconfigured.ToString().ToLower() +"," + oc.settings.micpair + Environment.NewLine;
                     }
                 }
             }

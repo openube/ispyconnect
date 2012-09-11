@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Text;
+using iSpyApplication.Controls;
 using iSpyApplication.Pelco;
 
 namespace iSpyApplication

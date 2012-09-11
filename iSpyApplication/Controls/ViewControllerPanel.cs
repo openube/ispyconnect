@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using PictureBox = AForge.Controls.PictureBox;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     class ViewControllerPanel : PictureBox
     {
