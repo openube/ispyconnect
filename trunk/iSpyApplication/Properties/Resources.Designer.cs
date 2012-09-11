@@ -102,6 +102,13 @@ namespace iSpyApplication.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap ALLNET {
+            get {
+                object obj = ResourceManager.GetObject("ALLNET", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Avast {
             get {
                 object obj = ResourceManager.GetObject("Avast", resourceCulture);

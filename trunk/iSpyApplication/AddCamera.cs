@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Xml;
 using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
+using iSpyApplication.Controls;
 using iSpyApplication.Video;
 
 
@@ -122,8 +123,12 @@ namespace iSpyApplication
         private void AddAudioStream()
         {
             var m = MainForm.Microphones.SingleOrDefault(p => p.id == CameraControl.Camobject.settings.micpair);
+            
             if (m!=null)
+            {
                 lblMicSource.Text = m.name;
+            }
+                
         }
 
         private void AddCameraLoad(object sender, EventArgs e)
@@ -138,7 +143,7 @@ namespace iSpyApplication
             }
             if (CameraControl.Camobject.id == -1)
             {
-                CameraControl.Camobject.id = MainForm.Conf.NextCameraID;
+                CameraControl.Camobject.id = MainForm.NextCameraId;
                 MainForm.Cameras.Add(CameraControl.Camobject);
             }
             _loaded = false;

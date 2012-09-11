@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using AForge.Imaging.Filters;
 using PictureBox = AForge.Controls.PictureBox;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     public sealed partial class FloorPlanControl : PictureBox
     {

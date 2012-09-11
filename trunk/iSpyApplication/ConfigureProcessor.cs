@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using AForge.Vision.Motion;
+using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {

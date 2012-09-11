@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using C2BP;
+using iSpyApplication.Controls;
 using PictureBox = AForge.Controls.PictureBox;
 
 namespace iSpyApplication

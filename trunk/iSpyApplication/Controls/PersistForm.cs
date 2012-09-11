@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     public class PersistWindowState : Component
     {

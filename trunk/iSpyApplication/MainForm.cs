@@ -15,6 +15,7 @@ using System.Timers;
 using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
+using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
 using Microsoft.Win32;
@@ -764,6 +765,10 @@ namespace iSpyApplication
                         break;
                     case "bigdipper":
                         pb.Image = Resources.bigdipper;
+                        break;
+                    case "allnet gmbh":
+                        pb.Image = Resources.ALLNET;
+                        PurchaseLink = "http://www.allnet.de/";
                         break;
 
                 }
@@ -3584,7 +3589,7 @@ namespace iSpyApplication
             this.llblDelete = new System.Windows.Forms.LinkLabel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this._pnlCameras = new iSpyApplication.LayoutPanel();
+            this._pnlCameras = new LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();

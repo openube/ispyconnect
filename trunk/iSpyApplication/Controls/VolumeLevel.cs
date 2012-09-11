@@ -13,13 +13,15 @@ using System.Xml.Serialization;
 using AForge.Video;
 using iSpyApplication.Audio;
 using iSpyApplication.Audio.streams;
+using iSpyApplication.MP3Stream;
 using iSpyApplication.Video;
 using NAudio.Wave;
 using AForge.Video.FFMPEG;
 using PictureBox = AForge.Controls.PictureBox;
 using ReasonToFinishPlaying = iSpyApplication.Audio.ReasonToFinishPlaying;
+using WaveFormat = NAudio.Wave.WaveFormat;
 
-namespace iSpyApplication
+namespace iSpyApplication.Controls
 {
     public sealed partial class VolumeLevel : PictureBox
     {
@@ -113,6 +115,9 @@ namespace iSpyApplication
         public Socket OutSocket;
         public Stream OutStream;
         public WaveFileWriter OutWriter;
+        public Mp3Writer Mp3Writer;
+        public Enums.AudioStreamMode AudioStreamMode;
+        public WaveFormat AudioStreamFormat;
         public bool CloseStream;
         public Rectangle RestoreRect = Rectangle.Empty;
         public int FlashCounter;

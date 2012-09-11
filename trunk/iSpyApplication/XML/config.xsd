@@ -18,8 +18,6 @@
                 <xs:element name="RecentJPGList" type="xs:string" />
                 <xs:element name="RecentMJPGList" type="xs:string" />
                 <xs:element name="RecentFileList" type="xs:string" />
-                <xs:element name="NextCameraID" type="xs:int" />
-                <xs:element name="NextMicrophoneID" type="xs:int" />
                 <xs:element name="Subscribed" type="xs:boolean" />
                 <xs:element name="JPEGURL" type="xs:string" />
                 <xs:element name="ActivityColor" type="xs:string" />
@@ -42,7 +40,6 @@
                 <xs:element name="TimestampColor" type="xs:string" />
                 <xs:element name="BorderHighlightColor" type="xs:string" />
                 <xs:element name="UseUPNP" type="xs:boolean" />
-                <xs:element name="NextFloorPlanID" type="xs:int" />
                 <xs:element name="YouTubeUsername" type="xs:string" />
                 <xs:element name="YouTubePassword" type="xs:string" />
                 <xs:element name="YouTubeAccount" type="xs:string" />
@@ -50,7 +47,6 @@
                 <xs:element name="YouTubeCategories" type="xs:string" />
                 <xs:element name="YouTubeDefaultCategory" type="xs:string" />
                 <xs:element name="CompressorOptions" type="xs:string" />
-                <xs:element name="NextCommandID" type="xs:int" />
                 <xs:element name="LogFFMPEGCommands" type="xs:boolean" />
                 <xs:element name="BalloonTips" type="xs:boolean" />
                 <xs:element name="TrayIconText" type="xs:string" />

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using AForge.Imaging.Filters;
 using System.Linq;
+using iSpyApplication.Controls;
 using PictureBox = AForge.Controls.PictureBox;
 
 namespace iSpyApplication
@@ -196,7 +197,7 @@ namespace iSpyApplication
                 Fpc.NeedSizeUpdate = true;
                 Fpc.NeedsRefresh = true;
                 if (txtName.Text.Trim() == "")
-                    txtName.Text = "Plan " + (MainForm.Conf.NextFloorPlanID+1);
+                    txtName.Text = "Plan " + MainForm.NextFloorPlanId;
                 _pnlPlan.Invalidate();
             }
             ofd.Dispose();

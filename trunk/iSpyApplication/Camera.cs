@@ -9,7 +9,7 @@ using AForge.Imaging;
 using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Vision.Motion;
-
+using iSpyApplication.Controls;
 using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
+using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
