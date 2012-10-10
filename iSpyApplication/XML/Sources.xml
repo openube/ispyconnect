@@ -153,17 +153,30 @@
         <url version="" confirmed="false" prefix="rtsp://" Source="VLC" url="[CHANNEL]/1:1/main" AudioModel="" port="555" flags="" cookies=""/>
     </Manufacturer>
     <Manufacturer name="Allnet">
-        <url version="2205" confirmed="false" prefix="http://" Source="JPEG" url="jpg/image.jpg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2298" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2296V2" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2295V2" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2288V2" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2205" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="video.h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2272" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="video.h264" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2281" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="mpeg4" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2282" confirmed="false" prefix="rtsp://" Source="FFMPEG" url="mpeg4" AudioModel="" port="" flags="" cookies=""/>
         <url version="ALL2297" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/guest/Video.cgi?media=JPEG" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/video.jpg" AudioModel="" port="" flags="" cookies=""/>
         <url version="ALL2295" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/jpg/image.cgi" AudioModel="" port="" flags="" cookies=""/>
-        <url version="2250" confirmed="false" prefix="http://" Source="JPEG" url="img/snapshot.cgi?size=3" AudioModel="" port="" flags="" cookies=""/>
-        <url version="2281" confirmed="false" prefix="http://" Source="JPEG" url="cgi/jpg/image.cgi" AudioModel="" port="" flags="" cookies=""/>
-        <url version="2250" confirmed="false" prefix="http://" Source="MJPEG" url="img/video.mjpeg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2250" confirmed="false" prefix="http://" Source="JPEG" url="img/snapshot.cgi?size=3" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2250" confirmed="false" prefix="http://" Source="MJPEG" url="img/video.mjpeg" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="MJPEG" url="img/mjpeg.cgi" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="MJPEG" url="live/mjpeg" AudioModel="" port="" flags="" cookies=""/>
         <url version="" confirmed="false" prefix="http://" Source="MJPEG" url="cgi/mjpg/mjpeg.cgi" AudioModel="" port="" flags="" cookies=""/>
-        <url version="2205" confirmed="false" prefix="http://" Source="MJPEG" url="video.mjpg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2288V2" confirmed="false" prefix="http://" Source="MJPEG" url="" AudioModel="" port="8008" flags="" cookies=""/>
+        <url version="ALL2295V2" confirmed="false" prefix="http://" Source="MJPEG" url="" AudioModel="" port="8008" flags="" cookies=""/>
+        <url version="ALL2296V2" confirmed="false" prefix="http://" Source="MJPEG" url="" AudioModel="" port="8008" flags="" cookies=""/>
+        <url version="ALL2298" confirmed="false" prefix="http://" Source="MJPEG" url="" AudioModel="" port="8008" flags="" cookies=""/>
+        <url version="ALL2272" confirmed="false" prefix="http://" Source="MJPEG" url="video.mjpg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2205" confirmed="false" prefix="http://" Source="MJPEG" url="video.mjpg" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2282" confirmed="false" prefix="http://" Source="MJPEG" url="cgi/mjpg/mjpeg.cgi" AudioModel="" port="" flags="" cookies=""/>
+        <url version="ALL2281" confirmed="false" prefix="http://" Source="MJPEG" url="cgi/mjpg/mjpeg.cgi" AudioModel="" port="" flags="" cookies=""/>
     </Manufacturer>
     <Manufacturer name="A-MTK">
         <url version="" confirmed="false" prefix="rtsp://" Source="VLC" url="media/media.amp" AudioModel="" port="" flags="" cookies=""/>
@@ -2308,6 +2321,7 @@
         <url version="VTC-C770DNIP2" confirmed="false" prefix="rtsp://" Source="VLC" url="ch[CHANNEL].sdp" AudioModel="" port="" flags="" cookies=""/>
     </Manufacturer>
     <Manufacturer name="Vivotek">
+        <url version="IP7361" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/viewer/video.jpg?resolution=640x480" AudioModel="" port="" flags="" cookies=""/>
         <url version="IP7160" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/viewer/video.jpg?resolution=[WIDTH]x[HEIGHT]" AudioModel="" port="" flags="" cookies=""/>
         <url version="8161" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/viewer/video.jpg?resolution=[WIDTH]x[HEIGHT]" AudioModel="" port="" flags="" cookies=""/>
         <url version="SD81x1" confirmed="false" prefix="http://" Source="JPEG" url="cgi-bin/viewer/video.jpg?resolution=[WIDTH]x[HEIGHT]" AudioModel="" port="" flags="" cookies=""/>
@@ -2497,5 +2511,4 @@
         <url version="IPC36xx/46xx" confirmed="false" prefix="http://" Source="MJPEG" url="mjpegStreamer.cgi" AudioModel="" port="" flags="" cookies=""/>
         <url version="IPC-4605N" confirmed="false" prefix="rtsp://" Source="VLC" url="medias2" AudioModel="" port="" flags="" cookies=""/>
     </Manufacturer>
-
 </Manufacturers>

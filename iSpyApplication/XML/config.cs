@@ -214,7 +214,22 @@ public partial class configuration {
 
     private bool IPv6DisabledField;
 
+    private bool DeleteToRecycleBinField;
+    
     /// <remarks/>
+    public bool DeleteToRecycleBin
+    {
+        get
+        {
+            return this.DeleteToRecycleBinField;
+        }
+        set
+        {
+            this.DeleteToRecycleBinField = value;
+        }
+    }
+        
+        /// <remarks/>
     public bool MinimiseOnClose
     {
         get

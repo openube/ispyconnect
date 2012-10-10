@@ -56,7 +56,7 @@ namespace iSpyApplication
         public static string IPPASS = "";
         public static string IPTYPE = "";
         public static string EmailAddress = "", MobileNumber = "";
-        public static double ThrottleFramerate = 40;
+        public static int ThrottleFramerate = 40;
         public static int CpuUsage, CpuTotal;
         public static int RecordingThreads;
         public object ContextTarget;
@@ -289,7 +289,13 @@ namespace iSpyApplication
         private ToolStripMenuItem videoFileToolStripMenuItem;
         private ToolStripMenuItem uploadToYouTubeToolStripMenuItem;
         private ToolStripMenuItem uploadToYouTubePublicToolStripMenuItem;
+        private ToolStripMenuItem saveToToolStripMenuItem;
         private static List<LayoutItem> SavedLayout = new List<LayoutItem>();
+        private FolderBrowserDialog fbdSaveTo = new FolderBrowserDialog()
+        {
+            ShowNewFolderButton = true,
+            Description = "Select a folder to copy the file to"
+        };
 
         public MainForm(bool silent, string command)
         {
@@ -404,6 +410,8 @@ namespace iSpyApplication
                     _houseKeepingTimer.Dispose();
                 if (_fsw != null)
                     _fsw.Dispose();
+                if (fbdSaveTo!=null)
+                    fbdSaveTo.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -492,7 +500,7 @@ namespace iSpyApplication
             {
                 fi = new FileInfo(s);
                 if (fi.CreationTime < DateTime.Now.AddDays(-5))
-                    File.Delete(s);
+                    FileOperations.Delete(s);
             }
             NextLog = Zeropad(logdate.Day) + Zeropad(logdate.Month) + logdate.Year;
             int i = 1;
@@ -554,14 +562,14 @@ namespace iSpyApplication
 
             if (!VlcHelper.VlcInstalled)
             {
-                LogWarningToFile("VLC not installed - install VLC for extra connectivity and inbuilt video playback.");
+                LogWarningToFile("VLC not installed - install VLC (x86) for extra connectivity and inbuilt video playback.");
             }
             else
             {
                 var v = VlcHelper.VlcVersion;
                 if (v.CompareTo(VlcHelper.VMin) < 0)
                 {
-                    LogWarningToFile("Old VLC installed - update VLC for extra connectivity and inbuilt video playback.");
+                    LogWarningToFile("Old VLC installed - update VLC (x86) for extra connectivity and inbuilt video playback.");
                 }
                 else
                 {
@@ -1825,9 +1833,6 @@ namespace iSpyApplication
             ShowSettings(0);
         }
 
-
-        
-
         public static void GoSubscribe()
         {
             OpenUrl(Website + "/subscribe.aspx");
@@ -2009,7 +2014,7 @@ namespace iSpyApplication
                     try
                     {
 
-                        File.Delete(t);
+                        FileOperations.Delete(t);
                     }
                     catch
                     {
@@ -2024,7 +2029,7 @@ namespace iSpyApplication
                 {
                     try
                     {
-                        File.Delete(t);
+                        FileOperations.Delete(t);
                     }
                     catch
                     {
@@ -2209,8 +2214,8 @@ namespace iSpyApplication
             string id;
             if (ContextTarget.GetType() == typeof (CameraWindow))
             {
-                id = ((CameraWindow) ContextTarget).Camobject.id.ToString();
-                string url = Webserver + "/watch.aspx?tab=1&obj=2_" + id + "_" + Conf.ServerPort;
+                //id = ((CameraWindow) ContextTarget).Camobject.id.ToString();
+                string url = Webserver + "/watch_new.aspx";
                 if (WsWrapper.WebsiteLive && Conf.ServicesEnabled)
                 {
                     OpenUrl(url);
@@ -2222,8 +2227,8 @@ namespace iSpyApplication
             {
                 if (ContextTarget.GetType() == typeof (VolumeLevel))
                 {
-                    id = ((VolumeLevel) ContextTarget).Micobject.id.ToString();
-                    string url = Webserver + "/watch.aspx?tab=1&obj=1_" + id + "_" + Conf.ServerPort;
+                    //id = ((VolumeLevel) ContextTarget).Micobject.id.ToString();
+                    string url = Webserver + "/watch_new.aspx";
                     if (WsWrapper.WebsiteLive && Conf.ServicesEnabled)
                     {
                         OpenUrl(url);
@@ -2235,7 +2240,7 @@ namespace iSpyApplication
                 {
                     if (ContextTarget.GetType() == typeof (FloorPlanControl))
                     {
-                        string url = Webserver + "/watch.aspx?tab=2";
+                        string url = Webserver + "/watch_new";
                         if (WsWrapper.WebsiteLive && Conf.ServicesEnabled)
                         {
                             OpenUrl(url);
@@ -2249,7 +2254,7 @@ namespace iSpyApplication
 
         public void Connect(bool silent)
         {
-            Connect(Webserver + "/watch.aspx", silent);
+            Connect(Webserver + "/watch_new.aspx", silent);
         }
 
         public void Connect(string successUrl, bool silent)
@@ -2562,8 +2567,10 @@ namespace iSpyApplication
             if (ContextTarget.GetType() == typeof (CameraWindow))
             {
                 var cameraControl = ((CameraWindow) ContextTarget);
-                OpenUrl("http://" + IPAddress + ":" + Conf.LANPort + "/livefeed?oid=" +
-                        cameraControl.Camobject.id + "&r=" + Random.NextDouble() + "&full=1&auth=" + Identifier);
+                string fn = cameraControl.SaveFrame();
+                if (fn != "")
+                    OpenUrl(fn);
+                //OpenUrl("http://" + IPAddress + ":" + Conf.LANPort + "/livefeed?oid=" + cameraControl.Camobject.id + "&r=" + Random.NextDouble() + "&full=1&auth=" + Identifier);
             }
         }
 
@@ -2575,7 +2582,7 @@ namespace iSpyApplication
         {
             if (WsWrapper.WebsiteLive && Conf.ServicesEnabled)
             {
-                OpenUrl(Webserver + "/watch.aspx");
+                OpenUrl(Webserver + "/watch_new.aspx");
             }
             else
                 WebConnect();
@@ -3589,7 +3596,7 @@ namespace iSpyApplication
             this.llblDelete = new System.Windows.Forms.LinkLabel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this._pnlCameras = new LayoutPanel();
+            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();
@@ -3599,9 +3606,10 @@ namespace iSpyApplication
             this.defaultPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.websiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showInFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uploadToYouTubeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uploadToYouTubePublicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -5030,44 +5038,38 @@ namespace iSpyApplication
             this.showInFolderToolStripMenuItem,
             this.uploadToYouTubeToolStripMenuItem,
             this.uploadToYouTubePublicToolStripMenuItem,
+            this.saveToToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.ctxtPlayer.Name = "ctxPlayer";
-            this.ctxtPlayer.Size = new System.Drawing.Size(225, 180);
+            this.ctxtPlayer.Size = new System.Drawing.Size(225, 202);
             // 
             // iSpyToolStripMenuItem
             // 
             this.iSpyToolStripMenuItem.Name = "iSpyToolStripMenuItem";
-            this.iSpyToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.iSpyToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.iSpyToolStripMenuItem.Text = "Play in iSpy";
             this.iSpyToolStripMenuItem.Click += new System.EventHandler(this.iSpyToolStripMenuItem_Click);
             // 
             // defaultPlayerToolStripMenuItem
             // 
             this.defaultPlayerToolStripMenuItem.Name = "defaultPlayerToolStripMenuItem";
-            this.defaultPlayerToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.defaultPlayerToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.defaultPlayerToolStripMenuItem.Text = "Play in Default Player";
             this.defaultPlayerToolStripMenuItem.Click += new System.EventHandler(this.defaultPlayerToolStripMenuItem_Click);
             // 
             // websiteToolStripMenuItem
             // 
             this.websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
-            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.websiteToolStripMenuItem.Text = "Play on Website";
             this.websiteToolStripMenuItem.Click += new System.EventHandler(this.websiteToolStripMenuItem_Click);
             // 
             // showInFolderToolStripMenuItem
             // 
             this.showInFolderToolStripMenuItem.Name = "showInFolderToolStripMenuItem";
-            this.showInFolderToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.showInFolderToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.showInFolderToolStripMenuItem.Text = "Show in Folder";
             this.showInFolderToolStripMenuItem.Click += new System.EventHandler(this.showInFolderToolStripMenuItem_Click);
-            // 
-            // deleteToolStripMenuItem
-            // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
-            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // uploadToYouTubeToolStripMenuItem
             // 
@@ -5082,6 +5084,20 @@ namespace iSpyApplication
             this.uploadToYouTubePublicToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.uploadToYouTubePublicToolStripMenuItem.Text = "Upload to YouTube (Public)";
             this.uploadToYouTubePublicToolStripMenuItem.Click += new System.EventHandler(this.uploadToYouTubePublicToolStripMenuItem_Click);
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // saveToToolStripMenuItem
+            // 
+            this.saveToToolStripMenuItem.Name = "saveToToolStripMenuItem";
+            this.saveToToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.saveToToolStripMenuItem.Text = "Save to...";
+            this.saveToToolStripMenuItem.Click += new System.EventHandler(this.saveToToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -5200,6 +5216,25 @@ namespace iSpyApplication
         {
             ((PreviewBox)ContextTarget).Upload(true);
             
+        }
+
+        
+        private void saveToToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var pb = ((PreviewBox)ContextTarget);
+                var fi = new FileInfo(pb.FileName);
+
+                if (fbdSaveTo.ShowDialog(this) == DialogResult.OK)
+                {
+                    File.Copy(pb.FileName, fbdSaveTo.SelectedPath + @"\" + fi.Name);                
+                }
+            }
+            catch (Exception ex)
+            {
+                LogExceptionToFile(ex);
+            }
         }      
 
         

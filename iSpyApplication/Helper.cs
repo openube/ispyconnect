@@ -24,10 +24,10 @@ namespace iSpyApplication
         public static string GetMotionDataPoints(StringBuilder  motionData)
         {
             var elements = motionData.ToString().Trim(',').Split(',');
-            if (elements.Length <= 3600)
+            if (elements.Length <= 1200)
                 return String.Join(",", elements);
             
-            var interval = (elements.Length / 3600d);
+            var interval = (elements.Length / 1200d);
             var newdata = new StringBuilder(motionData.Length);
             var iIndex = 0;
             double dMax = 0;
@@ -45,9 +45,10 @@ namespace iSpyApplication
                 if (i>target)
                 {
                     newdata.Append(elements[iIndex]+",");
+                    tMult++;
                     target = tMult*interval;
                     dMax = 0;
-                    tMult++;
+                    
                 }
             }
             string r = newdata.ToString().Trim(',');
@@ -72,7 +73,7 @@ namespace iSpyApplication
                 {
                     try
                     {
-                        File.Delete(fi.FullName);
+                        FileOperations.Delete(fi.FullName);
                     }
                     catch
                     {
@@ -94,7 +95,7 @@ namespace iSpyApplication
                 {
                     try
                     {
-                        File.Delete(fi.FullName);
+                        FileOperations.Delete(fi.FullName);
                     }
                     catch
                     {
@@ -106,7 +107,7 @@ namespace iSpyApplication
                                               {
                                                   try
                                                   {
-                                                      File.Delete(path);
+                                                      FileOperations.Delete(path);
                                                   }
                                                   catch
                                                   {

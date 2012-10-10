@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using iSpyApplication.Audio.streams;
 using NAudio.Wave;
@@ -45,6 +46,11 @@ namespace iSpyApplication.Audio.talk
         public void Stop()
         {
             StopTalk();
+        }
+
+        public bool Connected
+        {
+            get { return (_avstream != null); }
         }
 
         public event TalkStoppedEventHandler TalkStopped;
@@ -110,6 +116,7 @@ namespace iSpyApplication.Audio.talk
 
                         try {
                             _avstream.Write(enc, 0, enc.Length);
+                            _avstream.Flush();
                         }
                         catch (SocketException)
                         {

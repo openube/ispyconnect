@@ -601,6 +601,7 @@ namespace iSpyApplication
                 _cameras = new List<objectsCamera>();
                 _microphones = new List<objectsMicrophone>();
                 _remotecommands = new List<objectsCommand>();
+                InitRemoteCommands();
                 _floorplans = new List<objectsFloorplan>();
             }
         }
@@ -828,7 +829,7 @@ namespace iSpyApplication
                     {
                         try
                         {
-                            File.Delete(name);
+                            FileOperations.Delete(name);
                             fileschanged = true;
                             b -= fi.Length;
 
@@ -2186,8 +2187,15 @@ namespace iSpyApplication
             }
             else
             {
-                if (cam.settings.active)
-                    cameraControl.Enable();
+                try
+                {
+                    if (cam.settings.active)
+                        cameraControl.Enable();
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex);
+                }
             }
 
             string path = Conf.MediaDirectory + "video\\" + cam.directory + "\\";

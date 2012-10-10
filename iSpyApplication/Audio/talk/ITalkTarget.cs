@@ -22,8 +22,9 @@ namespace iSpyApplication.Audio.talk
         /// </summary>
         void Stop();
 
-        event TalkStoppedEventHandler TalkStopped;
+        bool Connected { get; }
 
+        event TalkStoppedEventHandler TalkStopped;
 
     }
 

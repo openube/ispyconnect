@@ -83,7 +83,12 @@ namespace iSpyApplication.Audio.talk
                 }
             }
         }
-        
+
+        public bool Connected
+        {
+            get { return (_avstream != null); }
+        }
+
         private void AudioSourceDataAvailable(object sender, DataAvailableEventArgs e)
         {
             try
