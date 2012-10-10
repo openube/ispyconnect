@@ -42,7 +42,7 @@ namespace iSpyApplication.Controls
         private QueueWithEvents<FrameAction> _writerBuffer;
         private DateTime _errorTime = DateTime.MinValue;
         private DateTime _reconnectTime = DateTime.MinValue;
-        
+        private bool _firstFrame = true;
         private readonly AutoResetEvent _newRecordingFrame = new AutoResetEvent(false);
         private Thread _recordingThread;
         private bool _isTrigger;
@@ -646,10 +646,7 @@ namespace iSpyApplication.Controls
                                         {
                                             if (x < (ButtonWidth + ButtonOffset) * 4)
                                             {
-                                                string url = MainForm.Webserver + "/watch.aspx?tab=1&obj=2_" +
-                                                             Camobject.id +
-                                                             "_" +
-                                                             MainForm.Conf.ServerPort;
+                                                string url = MainForm.Webserver + "/watch_new.aspx";// "?tab=1&obj=2_" +Camobject.id +"_" +MainForm.Conf.ServerPort;
                                                 if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                                                 {
                                                     MainForm.OpenUrl(url);
@@ -1478,10 +1475,15 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void SaveFrame()
+        internal string SaveFrame()
         {
+            if (_camera == null || !_camera.IsRunning)
+                return "";
+
             Image myThumbnail = null;
             Graphics g = null;
+            string filename = "";
+            string fullpath = "";
             var strFormat = new StringFormat();
             try
             {
@@ -1501,7 +1503,7 @@ namespace iSpyApplication.Controls
                         Directory.CreateDirectory(folder + @"grabs\");
 
                     int i = 0;
-                    string filename = Camobject.ftp.localfilename;
+                    filename = Camobject.ftp.localfilename;
                     while (filename.IndexOf("{") != -1 && i < 20)
                     {
                         filename = String.Format(System.Globalization.CultureInfo.InvariantCulture, filename, DateTime.Now);
@@ -1510,7 +1512,8 @@ namespace iSpyApplication.Controls
 
 
                     //  Set the quality
-                    myThumbnail.Save(folder + @"grabs\" + filename, MainForm.Encoder, MainForm.EncoderParams);
+                    fullpath = folder + @"grabs\" + filename;
+                    myThumbnail.Save(fullpath, MainForm.Encoder, MainForm.EncoderParams);
                 }
 
             }
@@ -1524,6 +1527,7 @@ namespace iSpyApplication.Controls
             strFormat.Dispose();
             if (myThumbnail != null)
                 myThumbnail.Dispose();
+            return fullpath;
         }
 
         private void FtpFrame()
@@ -1996,6 +2000,11 @@ namespace iSpyApplication.Controls
         {            
             try
             {
+                if (_firstFrame)
+                {
+                    Camobject.resolution = _camera.LastFrame.Width + "x" + _camera.LastFrame.Height;
+                }
+                _firstFrame = false;
                 if (_writerBuffer == null)
                 {
                     var dt = DateTime.Now.AddSeconds(0 - Camobject.recorder.bufferseconds);
@@ -2032,8 +2041,6 @@ namespace iSpyApplication.Controls
 
         public void StartSaving()
         {
-            Console.WriteLine("StartSaving");
-
             if (Recording || MainForm.StopRecordingFlag || IsEdit)
                 return;
 
@@ -2042,7 +2049,7 @@ namespace iSpyApplication.Controls
                 MainForm.LogMessageToFile("Skipped recording - maximum recording thread limit hit. See settings to modify the limit.");
                 return;
             }
-
+            Console.WriteLine("StartSaving");
             _recordingThread = new Thread(Record) { Name = "Recording Thread (" + Camobject.id + ")", IsBackground = false, Priority = ThreadPriority.Normal };
             _recordingThread.Start();
         }
@@ -2322,7 +2329,7 @@ namespace iSpyApplication.Controls
                 {
                     try
                     {
-                        File.Delete(filename + CodecExtension);
+                        FileOperations.Delete(filename + CodecExtension);
                     }
                     catch
                     {
@@ -3194,6 +3201,13 @@ namespace iSpyApplication.Controls
             ReconnectCount = 0;
             _dtPTZLastCheck = DateTime.Now;
             _movementLastDetected = DateTime.MinValue;
+            _firstFrame = true;
+            
+            if (_videoBuffer != null)
+            {
+                _videoBuffer.Clear();
+            }
+
             if (Camera != null)
             {
                 Camera.ZFactor = 1;
@@ -3201,11 +3215,7 @@ namespace iSpyApplication.Controls
             }
             Invalidate();
 
-            if (_videoBuffer != null)
-            {
-                _videoBuffer.Clear();
-            }
-
+            
             if (VolumeControl != null)
                 VolumeControl.Enable();
             _processing = false;

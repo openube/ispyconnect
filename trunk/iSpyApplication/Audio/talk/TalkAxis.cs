@@ -91,6 +91,11 @@ namespace iSpyApplication.Audio.talk
             _bTalking = true;
         }
 
+        public bool Connected
+        {
+            get { return (_client != null); }
+        }
+
         private void StopTalk()
         {
             if (_bTalking)

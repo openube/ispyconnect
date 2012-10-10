@@ -1275,7 +1275,7 @@ namespace iSpyApplication
             this.lblInstallVLC.Size = new System.Drawing.Size(448, 52);
             this.lblInstallVLC.TabIndex = 54;
             this.lblInstallVLC.Text = "You can use VLC to connect to many different sources including .asf, .mp4, rtsp s" +
-    "treams, udp streams and many more.\r\n\r\nPlease install VLC and restart iSpy to ena" +
+    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy to ena" +
     "ble this functionality";
             this.lblInstallVLC.Click += new System.EventHandler(this.lblInstallVLC_Click);
             // 

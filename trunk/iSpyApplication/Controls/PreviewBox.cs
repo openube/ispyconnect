@@ -148,7 +148,7 @@ namespace iSpyApplication.Controls
                 MainForm.Conf.PlaybackMode = 0;
             if (!VlcHelper.VlcInstalled && Mode == 1)
             {
-                MessageBox.Show(this, "VLC player is not installed ("+VlcHelper.VMin+" or greater required). Using the web player instead. Install VLC and then see settings to enable ispy local playback.");
+                MessageBox.Show(this, "VLC player is not installed ("+VlcHelper.VMin+" or greater required). Using the web player instead. Install VLC (x86) and then see settings to enable ispy local playback.");
                 MainForm.Conf.PlaybackMode = Mode = 0;
             }
 
@@ -206,7 +206,7 @@ namespace iSpyApplication.Controls
                     catch (Exception ex)
                     {
                         MainForm.LogExceptionToFile(ex);
-                        MessageBox.Show("Could not find a player for this file. Try using iSpyConnect or install VLC and use that instead ("+ex.Message+")");
+                        MessageBox.Show("Could not find a player for this file. Try using iSpyConnect or install VLC (x86) and use that instead ("+ex.Message+")");
                     }
                     break;
             }

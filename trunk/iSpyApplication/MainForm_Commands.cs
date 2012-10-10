@@ -67,6 +67,19 @@ namespace iSpyApplication
             }
         }
 
+        public void SnapshotAll()
+        {
+            foreach (Control c in _pnlCameras.Controls)
+            {
+                if (c is CameraWindow)
+                {
+                    var cameraControl = (CameraWindow)c;
+                    if (cameraControl.Camobject.settings.active)
+                        cameraControl.SaveFrame();
+                }
+            }
+        }
+
         public void RecordOnAlert(bool on)
         {
             foreach (Control c in _pnlCameras.Controls)
@@ -221,6 +234,15 @@ namespace iSpyApplication
                 id = 9,
                 name = "cmd_RecordAllStop",
                 smscommand = "RECORDSTOP"
+            };
+            _remotecommands.Add(cmd);
+
+            cmd = new objectsCommand
+            {
+                command = "ispy SNAPSHOT",
+                id = 10,
+                name = "cmd_SnapshotAll",
+                smscommand = "SNAPSHOT"
             };
             _remotecommands.Add(cmd);
         }

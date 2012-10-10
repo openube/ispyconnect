@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Moah;
@@ -290,7 +284,7 @@ namespace iSpyApplication
                                     " or check if your antivirus protection (eset, zonealarm etc) is blocking iSpy. ");
                             }
                         }
-                        UISync.Execute(() => rtbOutput.Text += NL+NL+"If you still cannot get it working, please copy and paste this information into http://www.ispyconnect.com/contact.aspx");
+                        UISync.Execute(() => rtbOutput.Text += NL + NL + "If you still cannot get it working, please see the troubleshooting section here: http://www.ispyconnect.com/userguide-remote-access-troubleshooting.aspx");
                     }
                     else
                     {

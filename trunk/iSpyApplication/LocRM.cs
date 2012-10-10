@@ -10,6 +10,7 @@ namespace iSpyApplication
     {
         private static Translations _translationsList;
         public static TranslationsTranslationSet CurrentSet;
+        private static Dictionary<string, string> Res = new Dictionary<string, string>();
 
         public static List<TranslationsTranslationSet> TranslationSets
         {
@@ -65,21 +66,16 @@ namespace iSpyApplication
             
             if (CurrentSet == null)
             {
+                Res.Clear();
                 CurrentSet = TranslationSets.FirstOrDefault(p => p.CultureCode == lang);
                 foreach (TranslationsTranslationSetTranslation tran in CurrentSet.Translation)
                 {
-                    tran.Value = tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ",");
+                    Res.Add(tran.Token,tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ","));
                 }
             }
             try
             {
-                TranslationsTranslationSetTranslation t =
-                    CurrentSet.Translation.FirstOrDefault(p => p.Token == identifier);
-                if (t != null)
-                {
-                    return t.Value;
-                    //.Replace("&amp;", "&").Replace(@"\n", Environment.NewLine).Replace("&lt;", "<").Replace("&gt;", ">");
-                }
+                return Res[identifier];
             }
             catch
             {

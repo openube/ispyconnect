@@ -386,7 +386,7 @@
             this.llblDownloadVLC.Size = new System.Drawing.Size(164, 13);
             this.llblDownloadVLC.TabIndex = 2;
             this.llblDownloadVLC.TabStop = true;
-            this.llblDownloadVLC.Text = "Install VLC to enable VLC options";
+            this.llblDownloadVLC.Text = "Install VLC (x86) to enable VLC options";
             this.llblDownloadVLC.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDownloadVLC_LinkClicked);
             // 
             // pnlOptions

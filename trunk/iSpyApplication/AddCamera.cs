@@ -1359,6 +1359,15 @@ namespace iSpyApplication
 
         private bool ConfigureSchedule(objectsCameraScheduleEntry sched)
         {
+            if (ddlHourStart.SelectedItem.ToString() != "-" && ddlMinuteStart.SelectedItem.ToString() == "-")
+            {
+                ddlMinuteStart.SelectedIndex = 1;
+            }
+            if (ddlHourEnd.SelectedItem.ToString() != "-" && ddlMinuteEnd.SelectedItem.ToString() == "-")
+            {
+                ddlMinuteEnd.SelectedIndex = 1;
+            }
+
             if (ddlHourStart.SelectedItem.ToString() == "-" || ddlMinuteStart.SelectedItem.ToString() == "-")
             {
                 sched.start = "-:-";

@@ -73,11 +73,18 @@ namespace iSpyApplication.Controls
         private volatile bool _isReconnect;
         private delegate void SwitchDelegate();
         private readonly StringBuilder _soundData = new StringBuilder(100000);
-        public volatile bool IsEnabled;
-        public bool AudioSourceErrorState;
+
+        //private AudioStreamer _as = null;
+        private WaveFormat _audioStreamFormat;
+        private Mp3Writer _mp3Writer;
+        private readonly MemoryStream _outStream = new MemoryStream();
+        private readonly byte[] _bResampled = new byte[25000];
+
         #endregion
 
         #region Public
+        public volatile bool IsEnabled;
+        public bool AudioSourceErrorState;
         public bool Paired
         {
             get { return Micobject != null && MainForm.Cameras.FirstOrDefault(p => p.settings.micpair == Micobject.id) != null; }
@@ -112,13 +119,8 @@ namespace iSpyApplication.Controls
         public QueueWithEvents<AudioAction> WriterBuffer;
         public bool Alerted;
         public string AudioFileName = "";
-        public Socket OutSocket;
-        public Stream OutStream;
-        public WaveFileWriter OutWriter;
-        public Mp3Writer Mp3Writer;
         public Enums.AudioStreamMode AudioStreamMode;
-        public WaveFormat AudioStreamFormat;
-        public bool CloseStream;
+       
         public Rectangle RestoreRect = Rectangle.Empty;
         public int FlashCounter;
         public bool ForcedRecording;
@@ -132,6 +134,15 @@ namespace iSpyApplication.Controls
         public double SoundCount;
         public IWavePlayer WaveOut;
         public IAudioSource AudioSource;
+
+        public List<Socket> OutSockets = new List<Socket>();
+        
+        //public Mp3Writer Mp3Writer;
+        //public Socket OutSocket;
+        //public MemoryStream OutStream;
+        //public bool CloseStream;
+        //public WaveFileWriter OutWriter;
+        //public WaveFormat AudioStreamFormat;
 
         public bool Recording
         {
@@ -405,10 +416,7 @@ namespace iSpyApplication.Controls
                                         {
                                             if (x < (ButtonWidth + ButtonOffset)*4)
                                             {
-                                                string url = MainForm.Webserver + "/watch.aspx?tab=1&obj=1_" +
-                                                             Micobject.id +
-                                                             "_" +
-                                                             MainForm.Conf.ServerPort;
+                                                string url = MainForm.Webserver + "/watch_new.aspx";// "?tab=1&obj=1_" +Micobject.id +"_" +MainForm.Conf.ServerPort;
                                                 if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                                                 {
                                                     MainForm.OpenUrl(url);
@@ -1614,11 +1622,11 @@ namespace iSpyApplication.Controls
                 {
                     var dt = DateTime.Now.AddSeconds(0 - Micobject.settings.buffer);
                     AudioBuffer.RemoveAll(p => p.TimeStamp < dt);
-                    AudioBuffer.Add(new AudioAction((byte[])e.RawData.Clone(), Levels.Max(), DateTime.Now));
+                    AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
                 }
                 else
                 {
-                    WriterBuffer.Enqueue(new AudioAction((byte[])e.RawData.Clone(), Levels.Max(), DateTime.Now));
+                    WriterBuffer.Enqueue(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
                 }
 
 
@@ -1628,6 +1636,98 @@ namespace iSpyApplication.Controls
                     Micobject.settings.channels = AudioSource.RecordingFormat.Channels;
                     Micobject.settings.needsupdate = false;
                 }
+
+                OutSockets.RemoveAll(p => p.Connected == false);
+                if (OutSockets.Count>0)
+                {
+                    if (_mp3Writer == null)
+                    {
+                        //_as = new AudioStreamer();
+                        //_as.Open(AudioCodec.AAC, AudioSource.RecordingFormat.BitsPerSample * AudioSource.RecordingFormat.SampleRate * AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate, AudioSource.RecordingFormat.Channels);
+
+                        _audioStreamFormat = new WaveFormat(22050, 16, Micobject.settings.channels);
+                        var wf = new MP3Stream.WaveFormat(_audioStreamFormat.SampleRate, _audioStreamFormat.BitsPerSample, _audioStreamFormat.Channels);
+                        _mp3Writer = new Mp3Writer(_outStream, wf, false);
+                    }
+                    //unsafe
+                    //{
+                    //    fixed (byte* p = e.RawData)
+                    //    {
+                    //        int byteLength = 0;
+                    //        int* l = &byteLength;
+                    //        byte* outStream = _as.WriteAudio(p, e.RawData.Length,  l);
+                    //        byteLength = *l;
+
+                    //        if (byteLength > 0)
+                    //        {
+                    //            var toSend = new byte[byteLength];
+                    //            for (var i = 0; i < byteLength;i++ )
+                    //            {
+                    //                if (i==0)
+                    //                    Debug.Write(toSend[0]);
+                    //                toSend[i] = *(outStream + i);
+                                    
+                    //            }
+                            
+                    //            foreach (Socket s in OutSockets)
+                    //            {
+                    //                s.Send(Encoding.ASCII.GetBytes(byteLength.ToString("X") + "\r\n"));
+                    //                s.Send(toSend);
+                    //                s.Send(Encoding.ASCII.GetBytes("\r\n"));
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    byte[] bSrc = e.RawData;
+                    int totBytes = bSrc.Length;
+
+                    var ws = new TalkHelperStream(bSrc, totBytes, AudioSource.RecordingFormat);
+                    var helpStm = new WaveFormatConversionStream(_audioStreamFormat, ws);
+                    totBytes = helpStm.Read(_bResampled, 0, 25000);
+
+                    ws.Close();
+                    ws.Dispose();
+                    helpStm.Close();
+                    helpStm.Dispose();
+
+                    _mp3Writer.Write(_bResampled, 0, totBytes);
+
+
+                    if (_outStream.Length > 0)
+                    {
+                        var bout = new byte[(int) _outStream.Length];
+
+                        _outStream.Seek(0, SeekOrigin.Begin);
+                        _outStream.Read(bout, 0, (int) _outStream.Length);
+
+                        _outStream.SetLength(0);
+                        _outStream.Seek(0, SeekOrigin.Begin);
+
+                        foreach (Socket s in OutSockets)
+                        {
+                            s.Send(Encoding.ASCII.GetBytes(bout.Length.ToString("X") + "\r\n"));
+                            s.Send(bout);
+                            s.Send(Encoding.ASCII.GetBytes("\r\n"));
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (_mp3Writer != null)
+                    {
+                        _mp3Writer.Close();
+                        _mp3Writer = null;
+                    }
+
+                    //if (_as!=null)
+                    //{
+                    //    _as.Close();
+                    //    _as.Dispose();
+                    //    _as = null;
+                    //}
+                }
+
 
                 if (DataAvailable != null)
                 {

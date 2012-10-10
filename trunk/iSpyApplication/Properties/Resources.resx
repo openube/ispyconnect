@@ -127,9 +127,6 @@
   <data name="plugin" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\plugin.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="camremoved" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\camremoved.jpg;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="smartisp" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\smartisp.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -168,9 +165,6 @@
   </data>
   <data name="snapshot" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\snapshot.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="camloading" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\camloading.jpg;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="icon_record" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icon_record.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -276,9 +270,6 @@
   </data>
   <data name="active" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\active.gif;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="camoff" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\camoff.jpg;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="LAN1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\LAN.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -408,5 +399,14 @@
   </data>
   <data name="ALLNET" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ALLNET.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cam_connecting" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cam_connecting.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cam_offline" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cam_offline.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cam_removed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\cam_removed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

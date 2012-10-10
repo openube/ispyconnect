@@ -271,8 +271,9 @@ namespace iSpyApplication.Video
                 var thread = new Thread(AudioThread) { Name = "kinect audio" };
                 thread.Start();
             }
-            catch (IOException)
+            catch (Exception ex)//IOException)
             {
+                MainForm.LogExceptionToFile(ex);
                 _sensor = null;
                 _isrunning = false;
             }

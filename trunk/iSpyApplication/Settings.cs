@@ -116,6 +116,8 @@ namespace iSpyApplication
             MainForm.Conf.PlaybackMode = ddlPlayback.SelectedIndex;
             MainForm.Conf.PreviewItems = (int)numMediaPanelItems.Value;
             MainForm.Conf.BigButtons = chkBigButtons.Checked;
+            MainForm.Conf.DeleteToRecycleBin = chkRecycle.Checked;
+
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             if (ddlTalkMic.Items.Count == 0)
                 MainForm.Conf.TalkMic = "";
@@ -256,6 +258,7 @@ namespace iSpyApplication
             ddlPriority.SelectedIndex = MainForm.Conf.Priority - 1;
             chkInterrupt.Checked = MainForm.Conf.ScreensaverWakeup;
             chkEnableIPv6.Checked = !MainForm.Conf.IPv6Disabled;
+            chkRecycle.Checked = MainForm.Conf.DeleteToRecycleBin;
             var pbModes = LocRm.GetString("PlaybackModes").Split(',');
             foreach (var s in pbModes)
                 ddlPlayback.Items.Add(s.Trim());
@@ -360,7 +363,6 @@ namespace iSpyApplication
             tabPage4.Text = LocRm.GetString("Timeouts");
             tabPage6.Text = LocRm.GetString("options");
             tabPage7.Text = LocRm.GetString("IPAccess");
-            groupBox1.Text = LocRm.GetString("Language");
             linkLabel1.Text = LocRm.GetString("GetLatestList");
             Text = LocRm.GetString("settings");
             linkLabel2.Text = LocRm.GetString("HelpTranslateISpy");
@@ -374,6 +376,7 @@ namespace iSpyApplication
             label17.Text = LocRm.GetString("IPAccessExplainer");
             chkStopRecording.Text = LocRm.GetString("StopRecordingOnLimit");
             label24.Text = LocRm.GetString("MediaPanelItems");
+            //chkRecycle.Text = LocRm.GetString("DeleteToRecycleBin");
         }
 
 

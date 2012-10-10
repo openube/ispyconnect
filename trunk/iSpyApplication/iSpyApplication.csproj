@@ -281,6 +281,7 @@
     <Compile Include="AddFloorPlan.Designer.cs">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
     </Compile>
+    <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Controls\AngleSelector.cs">
       <SubType>UserControl</SubType>
@@ -356,6 +357,7 @@
     <Compile Include="ConfigureRepeat.Designer.cs">
       <DependentUpon>ConfigureRepeat.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileOperations.cs" />
     <Compile Include="LayoutItem.cs" />
     <Compile Include="MainForm_Commands.cs">
       <SubType>Form</SubType>
@@ -471,7 +473,7 @@
     </Compile>
     <Compile Include="ByteArrayUtils.cs" />
     <Compile Include="C2BPProcessor.cs" />
-    <Compile Include="Camera.cs" />
+    <Compile Include="Controls\Camera.cs" />
     <Compile Include="AddCamera.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -645,6 +647,12 @@
     <None Include="Resources\phyxius.jpg" />
     <None Include="Resources\bigdipper.jpg" />
     <None Include="Resources\ALLNET.jpg" />
+    <None Include="Resources\cam_connecting.jpg" />
+    <None Include="Resources\cam_offline.jpg" />
+    <None Include="Resources\cam_removed.jpg" />
+    <None Include="Resources\cam_connecting.png" />
+    <None Include="Resources\cam_offline.png" />
+    <None Include="Resources\cam_removed.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />
@@ -694,7 +702,6 @@
     <None Include="Resources\icon_recordoff.png" />
     <None Include="Resources\icon_recordstop.png" />
     <None Include="Resources\icon_settings.png" />
-    <None Include="Resources\icon_stoplisten.png" />
     <None Include="Resources\icon_connect.png" />
     <None Include="Resources\icon_listenoff.png" />
     <None Include="Resources\icon_listenstop.png" />

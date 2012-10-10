@@ -87,7 +87,7 @@ namespace iSpyApplication
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.label83 = new System.Windows.Forms.Label();
-            this.AreaControl = new AreaSelector();
+            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label12 = new System.Windows.Forms.Label();

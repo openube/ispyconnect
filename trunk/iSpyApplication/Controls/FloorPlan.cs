@@ -48,6 +48,7 @@ namespace iSpyApplication.Controls
                 }
             }
         }
+
         public Image ImgView
         {
              get
@@ -55,6 +56,7 @@ namespace iSpyApplication.Controls
                  return _imgview;
              }  
         }
+
         public MainForm Owner;
         public bool NeedsRefresh = true, RefreshImage = true;
 
@@ -159,7 +161,7 @@ namespace iSpyApplication.Controls
                             }
                             else
                             {
-                                string url = MainForm.Webserver + "/watch.aspx?tab=2";
+                                string url = MainForm.Webserver + "/watch_new.aspx";// "?tab=2";
                                 if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                                 {
                                     MainForm.OpenUrl(url);
@@ -430,7 +432,7 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
         }
 
-        private int ImageWidth
+        public int ImageWidth
         {
             get
             {
@@ -440,7 +442,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private int ImageHeight
+        public int ImageHeight
         {
             get
             {

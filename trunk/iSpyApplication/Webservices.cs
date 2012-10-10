@@ -27,7 +27,7 @@ namespace iSpyApplication
 
         private bool SetupNetwork(out int port, out int localport, out string error)
         {
-            port = Convert.ToInt32(ddlPort.Text);
+            port = Convert.ToInt32(txtWANPort.Value);
             localport = (int)txtLANPort.Value;
             if (tcIPMode.SelectedIndex==1)
             {
@@ -238,18 +238,7 @@ namespace iSpyApplication
 
         private void WebservicesLoad(object sender, EventArgs e)
         {
-            var ports = new[] {"21", "25", "80", "110", "143", "443", "587", "8889", "1433", "3306", "8080", "11433"};
-            foreach (string port in ports)
-            {
-                ddlPort.Items.Add(port);
-            }
-            for (int i = 23010; i <= 23110; i++)
-            {
-                ddlPort.Items.Add(i.ToString());
-            }
-            ddlPort.SelectedItem = MainForm.Conf.ServerPort.ToString();
-
-
+            txtWANPort.Value = MainForm.Conf.ServerPort;
             txtUsername.Text = MainForm.Conf.WSUsername;
             txtPassword.Text = MainForm.Conf.WSPassword;
             txtLANPort.Text = MainForm.Conf.LANPort.ToString();

@@ -3278,6 +3278,7 @@
     <Camera id="135">
         <Makes>
             <Make Name="EasyN" Model="H7 Series"/>
+            <Make Name="TENVIS" Model="IPRobot3"/>
             <Make Name="SmartIndustry" Model="DOZ27 RTSP"/>
         </Makes>
         <CommandURL></CommandURL>

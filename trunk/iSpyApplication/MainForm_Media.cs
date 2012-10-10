@@ -76,7 +76,7 @@ namespace iSpyApplication
             try
             {
                 //movie
-                File.Delete(pb.FileName);
+                FileOperations.Delete(pb.FileName);
                 GetCameraWindow(Convert.ToInt32(id)).FileList.RemoveAll(p => p.Filename == fn);
                 MasterFileList.RemoveAll(p => p.Filename == fn);
 
@@ -84,10 +84,10 @@ namespace iSpyApplication
                 string dir = pb.FileName.Substring(0, pb.FileName.LastIndexOf("\\"));
 
                 var lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".")) + "_large.jpg";
-                File.Delete(lthumb);
+                FileOperations.Delete(lthumb);
 
                 lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".")) + ".jpg";
-                File.Delete(lthumb);
+                FileOperations.Delete(lthumb);
             }
             catch (Exception ex)
             {

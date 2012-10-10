@@ -99,6 +99,7 @@
                 <xs:element name="WebServer" type="xs:string" default="http://www.ispyconnect.com"/>
                 <xs:element name="MinimiseOnClose" type="xs:boolean" default="false"/>
                 <xs:element name="IPv6Disabled" type="xs:boolean" default="false"/>
+                <xs:element name="DeleteToRecycleBin" type="xs:boolean" default="false"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

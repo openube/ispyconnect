@@ -49,7 +49,6 @@ namespace iSpyApplication
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.txtLANPort = new System.Windows.Forms.NumericUpDown();
-            this.ddlPort = new System.Windows.Forms.ComboBox();
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkuPNP = new System.Windows.Forms.CheckBox();
@@ -63,6 +62,7 @@ namespace iSpyApplication
             this.btnTroubleshooting = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.txtWANPort = new System.Windows.Forms.NumericUpDown();
             this.tcIPMode.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -73,6 +73,7 @@ namespace iSpyApplication
             ((System.ComponentModel.ISupportInitialize)(this.txtPort)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWANPort)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -176,7 +177,7 @@ namespace iSpyApplication
             this.tableLayoutPanel2.SetColumnSpan(this.lbIPv4Address, 4);
             this.lbIPv4Address.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbIPv4Address.FormattingEnabled = true;
-            this.lbIPv4Address.Location = new System.Drawing.Point(3, 30);
+            this.lbIPv4Address.Location = new System.Drawing.Point(3, 29);
             this.lbIPv4Address.Name = "lbIPv4Address";
             this.lbIPv4Address.Size = new System.Drawing.Size(848, 56);
             this.lbIPv4Address.TabIndex = 44;
@@ -279,9 +280,9 @@ namespace iSpyApplication
             this.tableLayoutPanel2.Controls.Add(this.txtLANPort, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.lbIPv4Address, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.label3, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.ddlPort, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.linkLabel2, 2, 4);
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel2, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.txtWANPort, 3, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(6, 6);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -291,6 +292,7 @@ namespace iSpyApplication
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(357, 157);
             this.tableLayoutPanel2.TabIndex = 51;
@@ -317,21 +319,11 @@ namespace iSpyApplication
             0,
             0});
             // 
-            // ddlPort
-            // 
-            this.ddlPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlPort.FormattingEnabled = true;
-            this.ddlPort.Location = new System.Drawing.Point(200, 3);
-            this.ddlPort.Name = "ddlPort";
-            this.ddlPort.Size = new System.Drawing.Size(82, 21);
-            this.ddlPort.TabIndex = 32;
-            this.ddlPort.SelectedIndexChanged += new System.EventHandler(this.ddlPort_SelectedIndexChanged);
-            // 
             // linkLabel2
             // 
             this.linkLabel2.AutoSize = true;
             this.tableLayoutPanel2.SetColumnSpan(this.linkLabel2, 4);
-            this.linkLabel2.Location = new System.Drawing.Point(3, 118);
+            this.linkLabel2.Location = new System.Drawing.Point(3, 117);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(172, 13);
             this.linkLabel2.TabIndex = 42;
@@ -345,7 +337,7 @@ namespace iSpyApplication
             this.flowLayoutPanel2.Controls.Add(this.chkuPNP);
             this.flowLayoutPanel2.Controls.Add(this.chkReroute);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 92);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 91);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
             this.flowLayoutPanel2.Size = new System.Drawing.Size(848, 23);
             this.flowLayoutPanel2.TabIndex = 51;
@@ -518,6 +510,18 @@ namespace iSpyApplication
             this.flowLayoutPanel1.Size = new System.Drawing.Size(383, 37);
             this.flowLayoutPanel1.TabIndex = 46;
             // 
+            // txtWANPort
+            // 
+            this.txtWANPort.Location = new System.Drawing.Point(200, 3);
+            this.txtWANPort.Maximum = new decimal(new int[] {
+            65535,
+            0,
+            0,
+            0});
+            this.txtWANPort.Name = "txtWANPort";
+            this.txtWANPort.Size = new System.Drawing.Size(71, 20);
+            this.txtWANPort.TabIndex = 52;
+            // 
             // Webservices
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -549,6 +553,7 @@ namespace iSpyApplication
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtWANPort)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -583,12 +588,12 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown txtLANPort;
         private System.Windows.Forms.NumericUpDown txtPort;
-        private System.Windows.Forms.ComboBox ddlPort;
         private System.Windows.Forms.Button btnTroubleshooting;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
+        private System.Windows.Forms.NumericUpDown txtWANPort;
     }
 }

@@ -123,30 +123,30 @@ namespace iSpyApplication.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap cam_connecting {
+            get {
+                object obj = ResourceManager.GetObject("cam_connecting", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap cam_offline {
+            get {
+                object obj = ResourceManager.GetObject("cam_offline", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap cam_removed {
+            get {
+                object obj = ResourceManager.GetObject("cam_removed", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap camera {
             get {
                 object obj = ResourceManager.GetObject("camera", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap camloading {
-            get {
-                object obj = ResourceManager.GetObject("camloading", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap camoff {
-            get {
-                object obj = ResourceManager.GetObject("camoff", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        internal static System.Drawing.Bitmap camremoved {
-            get {
-                object obj = ResourceManager.GetObject("camremoved", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
