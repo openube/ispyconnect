@@ -1314,6 +1314,7 @@ namespace iSpyApplication.Controls
 
 
                         string[] fnpath = (filename + ".mp3").Split('\\');
+                        string fn = fnpath[fnpath.Length - 1];
                         var fi = new FileInfo(filename + ".mp3");
                         var dSeconds = Convert.ToInt32((DateTime.Now - recordingStart).TotalSeconds);
 
@@ -1328,9 +1329,15 @@ namespace iSpyApplication.Controls
                         ff.TriggerLevel = Micobject.detector.sensitivity;
 
                         if (newfile)
+                        {
                             FileList.Insert(0, ff);
+                            if (MainForm.MasterFileList.Where(p => p.Filename.EndsWith(fn)).Count() == 0)
+                            {
+                                MainForm.MasterFileList.Add(new FilePreview(fn, dSeconds, Micobject.name, DateTime.Now.Ticks, 1,Micobject.id, ff.MaxAlarm));
+                            }
+                        }
 
- 
+
                     }
                     catch (Exception ex)
                     {
@@ -2036,37 +2043,40 @@ namespace iSpyApplication.Controls
 
             foreach (objectsMicrophoneScheduleEntry entry in Micobject.schedule.entries)
             {
-                string[] dows = entry.daysofweek.Split(',');
-                foreach (string dayofweek in dows)
+                if (entry.active)
                 {
-                    int dow = Convert.ToInt32(dayofweek);
-                    //when did this last fire?
-                    if (entry.start.IndexOf("-") == -1)
+                    string[] dows = entry.daysofweek.Split(',');
+                    foreach (string dayofweek in dows)
                     {
-                        string[] start = entry.start.Split(':');
-                        var dtstart = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(start[0]),
-                                                    Convert.ToInt32(start[1]), 0);
-                        while ((int) dtstart.DayOfWeek != dow || dtstart > dNow)
-                            dtstart = dtstart.AddDays(-1);
-                        if (dNow - dtstart < shortest)
+                        int dow = Convert.ToInt32(dayofweek);
+                        //when did this last fire?
+                        if (entry.start.IndexOf("-") == -1)
                         {
-                            shortest = dNow - dtstart;
-                            mostrecent = entry;
-                            isstart = true;
+                            string[] start = entry.start.Split(':');
+                            var dtstart = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(start[0]),
+                                                       Convert.ToInt32(start[1]), 0);
+                            while ((int) dtstart.DayOfWeek != dow || dtstart > dNow)
+                                dtstart = dtstart.AddDays(-1);
+                            if (dNow - dtstart < shortest)
+                            {
+                                shortest = dNow - dtstart;
+                                mostrecent = entry;
+                                isstart = true;
+                            }
                         }
-                    }
-                    if (entry.stop.IndexOf("-") == -1)
-                    {
-                        string[] stop = entry.stop.Split(':');
-                        var dtstop = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(stop[0]),
-                                                   Convert.ToInt32(stop[1]), 0);
-                        while ((int) dtstop.DayOfWeek != dow || dtstop > dNow)
-                            dtstop = dtstop.AddDays(-1);
-                        if (dNow - dtstop < shortest)
+                        if (entry.stop.IndexOf("-") == -1)
                         {
-                            shortest = dNow - dtstop;
-                            mostrecent = entry;
-                            isstart = false;
+                            string[] stop = entry.stop.Split(':');
+                            var dtstop = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(stop[0]),
+                                                      Convert.ToInt32(stop[1]), 0);
+                            while ((int) dtstop.DayOfWeek != dow || dtstop > dNow)
+                                dtstop = dtstop.AddDays(-1);
+                            if (dNow - dtstop < shortest)
+                            {
+                                shortest = dNow - dtstop;
+                                mostrecent = entry;
+                                isstart = false;
+                            }
                         }
                     }
                 }

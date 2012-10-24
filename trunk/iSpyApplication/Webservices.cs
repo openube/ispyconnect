@@ -113,7 +113,7 @@ namespace iSpyApplication
 
                 if (!failed)
                 {
-                    if (result[0] == "OK")
+                    if (result.Length>0 && result[0] == "OK")
                     {
                         EmailAddress = result[2];
                         MobileNumber = result[4];
@@ -203,13 +203,13 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        if (result[0].ToLower().IndexOf("login") == -1)
+                        if (result.Length>0 && result[0].ToLower().IndexOf("login") == -1)
                         {
                             MessageBox.Show(result[0], LocRm.GetString("Error"));
                         }
                         else
                         {
-                            MessageBox.Show(result[0], LocRm.GetString("ConnectFailed"));
+                            MessageBox.Show("No response", LocRm.GetString("ConnectFailed"));
                         }
                     }
                 }

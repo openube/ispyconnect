@@ -357,7 +357,28 @@
     <Compile Include="ConfigureRepeat.Designer.cs">
       <DependentUpon>ConfigureRepeat.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\GridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FileOperations.cs" />
+    <Compile Include="GridView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridView.Designer.cs">
+      <DependentUpon>GridView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridViewCamera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridViewCamera.Designer.cs">
+      <DependentUpon>GridViewCamera.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridViewCustom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridViewCustom.Designer.cs">
+      <DependentUpon>GridViewCustom.cs</DependentUpon>
+    </Compile>
     <Compile Include="LayoutItem.cs" />
     <Compile Include="MainForm_Commands.cs">
       <SubType>Form</SubType>
@@ -616,13 +637,6 @@
     </Compile>
     <Compile Include="YouTubeUploader.cs" />
     <None Include="backgrounds\circuitboard.jpg" />
-    <Content Include="backgrounds\FloorPlan_House.jpg" />
-    <Content Include="backgrounds\FloorPlan_House2.jpg" />
-    <Content Include="backgrounds\FloorPlan_Planet.jpg" />
-    <Content Include="backgrounds\iSpy.jpg" />
-    <Content Include="backgrounds\SolarBurstWallPaper.jpg" />
-    <None Include="chk.png" />
-    <Content Include="Copyright.txt" />
     <Content Include="avcodec-53.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -638,6 +652,13 @@
     <Content Include="avutil-51.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="backgrounds\FloorPlan_House.jpg" />
+    <Content Include="backgrounds\FloorPlan_House2.jpg" />
+    <Content Include="backgrounds\FloorPlan_Planet.jpg" />
+    <Content Include="backgrounds\iSpy.jpg" />
+    <Content Include="backgrounds\SolarBurstWallPaper.jpg" />
+    <None Include="chk.png" />
+    <Content Include="Copyright.txt" />
     <Content Include="lame_enc.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -828,6 +849,19 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConfigureRepeat.resx">
       <DependentUpon>ConfigureRepeat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\GridView.resx">
+      <DependentUpon>GridView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridView.resx">
+      <DependentUpon>GridView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewCamera.resx">
+      <DependentUpon>GridViewCamera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewCustom.resx">
+      <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PTZTool.resx">
       <DependentUpon>PTZTool.cs</DependentUpon>

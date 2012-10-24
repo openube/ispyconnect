@@ -2324,6 +2324,23 @@ namespace iSpyApplication
             }
         }
 
+        public struct ListItem2
+        {
+            private readonly string _name;
+            internal readonly int Value;
+
+            public ListItem2(string name, int value)
+            {
+                _name = name;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return _name;
+            }
+        }
+
         #endregion
 
         #region Nested type: MicrophoneCommandDelegate
@@ -2360,7 +2377,9 @@ namespace iSpyApplication
         public long CreatedDateTicks;
         public int ObjectTypeId;
         public int ObjectId;
-        public FilePreview(string filename, int duration, string name, long createdDateTicks, int objectTypeId, int objectId)
+        public double MaxAlarm;
+
+        public FilePreview(string filename, int duration, string name, long createdDateTicks, int objectTypeId, int objectId, double maxAlarm)
         {
             Filename = filename;
             Duration = duration;
@@ -2368,6 +2387,7 @@ namespace iSpyApplication
             ObjectTypeId = objectTypeId;
             ObjectId = objectId;
             CreatedDateTicks = createdDateTicks;
+            MaxAlarm = maxAlarm;
         }
     }
 }

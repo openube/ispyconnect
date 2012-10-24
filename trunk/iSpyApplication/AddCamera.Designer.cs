@@ -1018,8 +1018,8 @@ namespace iSpyApplication
             "{0:T}",
             "{CAMERA} {0:G}",
             "{REC} {0:G}",
-            "{0:MM MMM yy hh:mm:sstt}",
-            "{0:MM MMM yy HH:mm:sstt}",
+            "{0:dd MMM yy hh:mm:sstt}",
+            "{0:dd MMM yy HH:mm:sstt}",
             "{CAMERA} {0:MM/dd HH:mm:ss}"});
             this.ddlTimestamp.Location = new System.Drawing.Point(126, 185);
             this.ddlTimestamp.Margin = new System.Windows.Forms.Padding(6);

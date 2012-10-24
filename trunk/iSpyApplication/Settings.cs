@@ -559,7 +559,7 @@ namespace iSpyApplication
             bool success = false;
             try
             {
-                var httpRequest = (HttpWebRequest)WebRequest.Create(MainForm.Website + "/admin/translations.xml");
+                var httpRequest = (HttpWebRequest)WebRequest.Create(MainForm.Website + "/getcontent.aspx?name=translations");
 
                 httpRequest.Timeout = 100000;     // 100 secs
 

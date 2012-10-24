@@ -16,9 +16,8 @@ using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
 using iSpyApplication.Controls;
-using iSpyApplication.MP3Stream;
 using iSpyApplication.Video;
-using NAudio.Wave;
+
 using ThreadState = System.Threading.ThreadState;
 using WaveFormat = NAudio.Wave.WaveFormat;
 
@@ -1733,53 +1732,88 @@ namespace iSpyApplication
                     resp = "OK";
                     break;
                 case "graphall":
-                    List<FilesFile> ffs = null;
-                    switch (otid)
                     {
-                        case 1:
-                            VolumeLevel vl = _parent.GetVolumeLevel(oid);
-                            if (vl != null)
-                            {
-                                ffs = vl.FileList.ToList();
-                            }
-                            break;
-                        case 2:
-                            CameraWindow cw = _parent.GetCameraWindow(oid);
-                            if (cw != null)
-                            {
-                                ffs = cw.FileList.ToList();
-                            }
-                            break;
-                    }
-                    if (ffs != null)
-                    {
+                        List<FilesFile> ffs = null;
+                        switch (otid)
+                        {
+                            case 1:
+                                VolumeLevel vl = _parent.GetVolumeLevel(oid);
+                                if (vl != null)
+                                {
+                                    ffs = vl.FileList.ToList();
+                                }
+                                break;
+                            case 2:
+                                CameraWindow cw = _parent.GetCameraWindow(oid);
+                                if (cw != null)
+                                {
+                                    ffs = cw.FileList.ToList();
+                                }
+                                break;
+                        }
+                        if (ffs != null)
+                        {
 
+                            sd = GetVar(sRequest, "startdate");
+                            ed = GetVar(sRequest, "enddate");
+
+                            if (sd != "")
+                                sdl = Convert.ToInt64(sd);
+                            if (ed != "")
+                                edl = Convert.ToInt64(ed);
+
+                            if (sdl > 0)
+                                ffs = ffs.FindAll(f => f.CreatedDateTicks > sdl).ToList();
+                            if (edl > 0)
+                                ffs = ffs.FindAll(f => f.CreatedDateTicks < edl).ToList();
+
+                            foreach (FilesFile f in ffs)
+                            {
+                                temp += (long) (f.CreatedDateTicks.UnixTicks()) + "|" +
+                                        String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                                                      f.MaxAlarm) + "|" + f.DurationSeconds + "|" + f.Filename + ",";
+                            }
+                            func = func.Replace("data", "\"" + temp.Trim(',') + "\"");
+
+                        }
+                        else
+                        {
+                            func = func.Replace("data", "\"\"");
+
+                        }
+                        resp = "OK";
+                    }
+                    break;
+                case "getevents":
+                    {
+                        string num = GetVar(sRequest, "num");
+                        if (num == "")
+                            num = "500";
+                        int n = Convert.ToInt32(num);
+
+
+                        List<FilePreview> ffs =
+                            MainForm.MasterFileList.OrderByDescending(p => p.CreatedDateTicks).ToList();
+                        
                         sd = GetVar(sRequest, "startdate");
                         ed = GetVar(sRequest, "enddate");
 
-                        if (sd != "")
-                            sdl = Convert.ToInt64(sd);
-                        if (ed != "")
-                            edl = Convert.ToInt64(ed);
+                        sdl = sd != "" ? Convert.ToInt64(sd) : 0;
+                        edl = ed != "" ? Convert.ToInt64(ed) : long.MaxValue;
 
                         if (sdl > 0)
                             ffs = ffs.FindAll(f => f.CreatedDateTicks > sdl).ToList();
                         if (edl > 0)
                             ffs = ffs.FindAll(f => f.CreatedDateTicks < edl).ToList();
 
-                        foreach (FilesFile f in ffs)
-                        {
-                            temp += (long) (f.CreatedDateTicks.UnixTicks()) + "|" +
-                                    String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
-                                                  f.MaxAlarm) + "|" + f.DurationSeconds + "|" + f.Filename + ",";
-                        }
-                        func = func.Replace("data", "\"" + temp.Trim(',') + "\"");
 
-                    }
-                    else
-                    {
-                        func = func.Replace("data", "\"\"");
+                        //return max of 1000 at a time
+                        ffs = ffs.Take(n).ToList();
 
+                        temp = ffs.Aggregate("[", (current, f) => current + ("{ot:" + f.ObjectTypeId + ",oid:" + f.ObjectId + ",created:" + ((long) (f.CreatedDateTicks.UnixTicks())) + ",maxalarm:" + String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}", f.MaxAlarm) + ",duration: " + f.Duration + ",filename:\"" + f.Filename + "\"},"));
+                        temp = temp.Trim(',');
+                        temp += "]";
+                        func = func.Replace("data", temp);
                     }
                     resp = "OK";
                     break;
@@ -1972,11 +2006,11 @@ namespace iSpyApplication
                             {
                             }
                         }
+                        string filename1 = fn3;
                         if (otid==1)
                         {
                             if (vlUpdate != null)
                             {
-                                string filename1 = fn3;
                                 vlUpdate.FileList.RemoveAll(p => p.Filename == filename1);
                             }
                         }
@@ -1984,11 +2018,10 @@ namespace iSpyApplication
                         {
                             if (cwUpdate != null)
                             {
-                                string filename1 = fn3;
                                 cwUpdate.FileList.RemoveAll(p => p.Filename == filename1);
                             }
-                            
                         }
+                        MainForm.MasterFileList.RemoveAll(p => p.Filename == filename1);
                     }
                     if (otid == 2)
                         _parent.LoadPreviews();
@@ -2437,7 +2470,71 @@ namespace iSpyApplication
 
             SendHeader(sHttpVersion, "text/html", iTotBytes, " 200 OK", 20, ref mySocket);
             SendToBrowser(bytes, mySocket);
-        }       
+        }
+        
+        private static byte[] _cameraRemoved;
+        private static byte[] CameraRemoved
+        {
+            get
+            {
+                if (_cameraRemoved == null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
+                        _cameraRemoved = new Byte[ms.Length];
+                        ms.Position = 0;
+                        // load the byte array with the image
+                        ms.Read(_cameraRemoved, 0, (int)ms.Length);
+                        ms.Close();
+                    }
+                }
+                return _cameraRemoved;
+            }   
+        }
+
+            
+        private static byte[] _cameraConnecting;
+        private static byte[] CameraConnecting
+        {
+            get
+            {
+                if (_cameraConnecting == null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        Properties.Resources.cam_connecting.Save(ms, ImageFormat.Jpeg);
+                        _cameraConnecting = new Byte[ms.Length];
+                        ms.Position = 0;
+                        // load the byte array with the image
+                        ms.Read(_cameraConnecting, 0, (int) ms.Length);
+                        ms.Close();
+                    }
+                }
+                return _cameraConnecting;
+            }   
+        }
+
+        private static byte[] _cameraOffline;
+        private static byte[] CameraOffline
+        {
+            get
+            {
+                if (_cameraOffline == null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        Properties.Resources.cam_offline.Save(ms, ImageFormat.Jpeg);
+                        _cameraOffline = new Byte[ms.Length];
+                        ms.Position = 0;
+                        // load the byte array with the image
+                        ms.Read(_cameraOffline, 0, (int)ms.Length);
+                        ms.Close();
+                    }
+                }
+                return _cameraOffline;
+            }
+        }
 
         private void SendLiveFeed(String sPhysicalFilePath, string sHttpVersion, ref Socket mySocket)
         {
@@ -2448,65 +2545,26 @@ namespace iSpyApplication
                 CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(cameraId));
                 if (cw == null)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
-                        var imageContent = new Byte[ms.Length];
-                        ms.Position = 0;
-                        // load the byte array with the image
-                        ms.Read(imageContent, 0, (int) ms.Length);
-
-                        // rewind the memory stream
-                        SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 0, ref mySocket);
-
-                        SendToBrowser(imageContent, mySocket);
-                        ms.Close();
-                    }
-
+                    SendHeader(sHttpVersion, "image/jpeg", CameraRemoved.Length, " 200 OK", 0, ref mySocket);
+                    SendToBrowser(CameraRemoved, mySocket);
                 }
                 else
                 {
                     if (!cw.Camobject.settings.active)
                     {
-                        using (var ms = new MemoryStream())
-                        {
-                            Properties.Resources.cam_offline.Save(ms, ImageFormat.Jpeg);
-                            var imageContent = new Byte[ms.Length];
-                            ms.Position = 0;
-                            // load the byte array with the image
-                            ms.Read(imageContent, 0, (int) ms.Length);
-
-                            // rewind the memory stream
-                            SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 0, ref mySocket);
-
-                            SendToBrowser(imageContent, mySocket);
-                            ms.Close();
-                        }
+                        SendHeader(sHttpVersion, "image/jpeg", CameraOffline.Length, " 200 OK", 0, ref mySocket);
+                        SendToBrowser(CameraOffline, mySocket);
                     }
                     else
                     {
                         if (cw.Camera.LastFrameNull)
                         {
-                            using (var ms = new MemoryStream())
-                            {
-                                Properties.Resources.cam_connecting.Save(ms, ImageFormat.Jpeg);
-                                var imageContent = new Byte[ms.Length];
-                                ms.Position = 0;
-                                // load the byte array with the image
-                                ms.Read(imageContent, 0, (int) ms.Length);
-
-                                // rewind the memory stream
-                                SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 0,
-                                            ref mySocket);
-
-                                SendToBrowser(imageContent, mySocket);
-                                ms.Close();
-                            }
+                            SendHeader(sHttpVersion, "image/jpeg", CameraConnecting.Length, " 200 OK", 0, ref mySocket);
+                            SendToBrowser(CameraConnecting, mySocket);
                         }
                         else
                         {
                             Bitmap b = cw.Camera.LastFrame;
-
                             using (var imageStream = new MemoryStream())
                             {
 
@@ -2590,20 +2648,8 @@ namespace iSpyApplication
                 CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(oid));
                 if (cw == null)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
-                        var imageContent = new Byte[ms.Length];
-                        ms.Position = 0;
-                        // load the byte array with the image
-                        ms.Read(imageContent, 0, (int) ms.Length);
-
-                        // rewind the memory stream
-                        SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 30, ref mySocket);
-
-                        SendToBrowser(imageContent, mySocket);
-                        ms.Close();
-                    }
+                    SendHeader(sHttpVersion, "image/jpeg", CameraRemoved.Length, " 200 OK", 0, ref mySocket);
+                    SendToBrowser(CameraRemoved, mySocket);
                 }
                 else
                 {
@@ -2681,20 +2727,8 @@ namespace iSpyApplication
                 CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(oid));
                 if (cw == null)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
-                        var imageContent = new Byte[ms.Length];
-                        ms.Position = 0;
-                        // load the byte array with the image
-                        ms.Read(imageContent, 0, (int) ms.Length);
-
-                        // rewind the memory stream
-                        SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 30, ref mySocket);
-
-                        SendToBrowser(imageContent, mySocket);
-                        ms.Close();
-                    }
+                    SendHeader(sHttpVersion, "image/jpeg", CameraRemoved.Length, " 200 OK", 0, ref mySocket);
+                    SendToBrowser(CameraRemoved, mySocket);
                 }
                 else
                 {
@@ -2771,40 +2805,16 @@ namespace iSpyApplication
                 FloorPlanControl fpc = _parent.GetFloorPlan(Convert.ToInt32(floorplanid));
                 if (fpc == null)
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
-                        var imageContent = new Byte[ms.Length];
-                        ms.Position = 0;
-                        // load the byte array with the image
-                        ms.Read(imageContent, 0, (int) ms.Length);
-
-                        // rewind the memory stream
-                        SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 30, ref mySocket);
-
-                        SendToBrowser(imageContent, mySocket);
-                        ms.Close();
-                    }
+                    SendHeader(sHttpVersion, "image/jpeg", CameraRemoved.Length, " 200 OK", 0, ref mySocket);
+                    SendToBrowser(CameraRemoved, mySocket);
 
                 }
                 else
                 {
                     if (fpc.ImgPlan==null)
                     {
-                        using (var ms = new MemoryStream())
-                        {
-                            Properties.Resources.cam_connecting.Save(ms, ImageFormat.Jpeg);
-                            var imageContent = new Byte[ms.Length];
-                            ms.Position = 0;
-                            // load the byte array with the image
-                            ms.Read(imageContent, 0, (int) ms.Length);
-
-                            // rewind the memory stream
-                            SendHeader(sHttpVersion, "image/jpeg", imageContent.Length, " 200 OK", 0, ref mySocket);
-
-                            SendToBrowser(imageContent, mySocket);
-                            ms.Close();
-                        }
+                        SendHeader(sHttpVersion, "image/jpeg", CameraConnecting.Length, " 200 OK", 0, ref mySocket);
+                        SendToBrowser(CameraConnecting, mySocket);
                     }
                     else
                     {
@@ -2888,7 +2898,7 @@ namespace iSpyApplication
             if (GetVar(sPhysicalFilePath, "basicct") != "")
                 basicCt = true; //basic content type - fix for chrome
             int w = 320, h = 240;
-            int camid = 0;
+            int camid;
             int.TryParse(scamid, out camid);
             if (size != "")
             {
@@ -3027,7 +3037,7 @@ namespace iSpyApplication
             }
         }
 
-        private void SendAudioFeed(Enums.AudioStreamMode StreamMode, String sBuffer, String sPhysicalFilePath, Socket mySocket)
+        private void SendAudioFeed(Enums.AudioStreamMode streamMode, String sBuffer, String sPhysicalFilePath, Socket mySocket)
         {
             string micId = GetVar(sPhysicalFilePath, "micid");
             try
@@ -3062,7 +3072,7 @@ namespace iSpyApplication
                         sendend = true;
                     }
 
-                    switch (StreamMode)
+                    switch (streamMode)
                     {
                         case Enums.AudioStreamMode.PCM:
                             sResponse += "Content-Type: audio/x-wav\r\n";
@@ -3292,7 +3302,7 @@ namespace iSpyApplication
             CameraWindow cw = _parent.GetCameraWindow(cameraId);
 
             ITalkTarget talkTarget = null;
-            var ds = new AudioInStream() { RecordingFormat = new WaveFormat(22050, 16, 1) };
+            var ds = new AudioInStream { RecordingFormat = new WaveFormat(22050, 16, 1) };
 
             switch (cw.Camobject.settings.audiomodel)
             {
@@ -3333,10 +3343,9 @@ namespace iSpyApplication
                 try
                 {
                     int j = 0;
-                    int total = 0;
                     //DateTime dtStart = DateTime.Now;
                     bool pktComplete = false;
-                    DateTime _dt = DateTime.Now;
+                    DateTime dt = DateTime.Now;
                     while (mySocket.Connected) // && talkTarget.Connected)
                     {
                         while (!pktComplete && mySocket.Connected)
@@ -3349,13 +3358,13 @@ namespace iSpyApplication
                             j += i;
                             while (j >= ds.PacketSize)
                             {
-                                byte[] data = new byte[ds.PacketSize];
+                                var data = new byte[ds.PacketSize];
                                 Buffer.BlockCopy(bBuffer, 0, data, 0, ds.PacketSize);
                                 ds.AddSamples(data);
-                                int ms = Convert.ToInt32((DateTime.Now - _dt).TotalMilliseconds);
+                                int ms = Convert.ToInt32((DateTime.Now - dt).TotalMilliseconds);
                                 if (ms < 40)
                                     Thread.Sleep(40 - ms);
-                                _dt = DateTime.Now;
+                                dt = DateTime.Now;
                                 pktComplete = true;
                                 Buffer.BlockCopy(bBuffer, ds.PacketSize, bBuffer, 0, j - ds.PacketSize);
                                 j = j - ds.PacketSize;
@@ -3367,7 +3376,7 @@ namespace iSpyApplication
                         //Thread.Sleep(50);
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     
                 }

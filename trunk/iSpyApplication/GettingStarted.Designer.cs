@@ -63,10 +63,10 @@
             // 
             this._ddlLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this._ddlLanguage.FormattingEnabled = true;
-            this._ddlLanguage.Location = new System.Drawing.Point(436, 3);
+            this._ddlLanguage.Location = new System.Drawing.Point(410, 3);
             this._ddlLanguage.Name = "_ddlLanguage";
             this._ddlLanguage.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this._ddlLanguage.Size = new System.Drawing.Size(104, 21);
+            this._ddlLanguage.Size = new System.Drawing.Size(130, 21);
             this._ddlLanguage.TabIndex = 52;
             this._ddlLanguage.SelectedIndexChanged += new System.EventHandler(this._ddlLanguage_SelectedIndexChanged);
             // 

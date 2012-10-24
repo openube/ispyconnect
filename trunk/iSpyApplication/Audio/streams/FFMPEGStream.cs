@@ -209,16 +209,20 @@ namespace iSpyApplication.Audio.streams
             _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
             byte[] data;
-            double brat = (1000d/Convert.ToDouble(afr.SampleRate*afr.Channels*4));
-
+            int mult = afr.BitsPerSample/8;
+            double btrg = Convert.ToDouble(afr.SampleRate*mult*afr.Channels);
+            DateTime lastPacket = DateTime.Now;
+            bool realTime = _source.IndexOf("://") != -1;
+            
             try
             {
+                DateTime req = DateTime.Now;
                 while (!_stopEvent.WaitOne(0, false))
                 {
-                    DateTime start = DateTime.Now;
                     data = afr.ReadAudioFrame();
                     if (data.Length>0)
                     {
+                        lastPacket = DateTime.Now;
                         if (DataAvailable != null)
                         {
                             //forces processing of volume level without piping it out
@@ -235,22 +239,36 @@ namespace iSpyApplication.Audio.streams
                             DataAvailable(this, da);
                         }
 
-
-
-
-                        int interval = Convert.ToInt32(Convert.ToDouble(data.Length)*brat);
-                        if (interval > 0)
+                        if (realTime)
                         {
-                            var span = DateTime.Now.Subtract(start);
-
-                            int msec = interval - (int) span.TotalMilliseconds;
-                            if ((msec > 0) && (_stopEvent.WaitOne(msec, false)))
+                            if (_stopEvent.WaitOne(10, false))
                                 break;
                         }
-
-                        
+                        else
+                        {
+                            double f = (data.Length/btrg)*1000;
+                            if (f > 0)
+                            {
+                                var span = DateTime.Now.Subtract(req);
+                                var msec = Convert.ToInt32(f - (int) span.TotalMilliseconds);
+                                if ((msec > 0) && (_stopEvent.WaitOne(msec, false)))
+                                    break;
+                                req = DateTime.Now;
+                            }
+                        }
                     }
-
+                    else
+                    {
+                        if ((DateTime.Now - lastPacket).TotalMilliseconds > 5000)
+                        {
+                            afr.Close();
+                            Stop();
+                            throw new Exception("Audio source timeout");
+                        }
+                        if (_stopEvent.WaitOne(30, false))
+                            break;
+                    }
+                    
                 }
 
                 if (AudioFinished != null)
@@ -281,8 +299,9 @@ namespace iSpyApplication.Audio.streams
         {
             if (IsRunning)
             {
+
                 _stopEvent.Set();
-                _thread.Join();
+                _thread.Join(4000);
 
                 Free();
             }
@@ -297,7 +316,8 @@ namespace iSpyApplication.Audio.streams
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent!=null)
+                _stopEvent.Close();
             _stopEvent = null;
         }
 
