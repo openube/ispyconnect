@@ -674,7 +674,7 @@ void add_video_stream( WriterPrivateData^ data,  int width, int height, bool crf
 		codecContex->flags|=CODEC_FLAG_LOOP_FILTER;
 		codecContex->profile=FF_PROFILE_H264_BASELINE; //Baselinev
 		codecContex->scenechange_threshold = 40; 
-        codecContex->gop_size=8;
+        codecContex->gop_size=250;//8 - broken on android
         codecContex->max_b_frames=0;
         codecContex->max_qdiff=4;
 		codecContex->me_method=7;
@@ -684,7 +684,7 @@ void add_video_stream( WriterPrivateData^ data,  int width, int height, bool crf
         codecContex->qmin=10;
         codecContex->qmax=51;
         codecContex->qcompress=0.6f;
-        codecContex->keyint_min=5;
+        codecContex->keyint_min=25; //5 - broken on android
         codecContex->trellis=0;
         codecContex->level=13; //Level 1.3
 		codecContex->refs = 1;
