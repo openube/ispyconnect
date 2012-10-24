@@ -785,7 +785,10 @@ namespace iSpyApplication
                         pb.Image = Resources.ALLNET;
                         PurchaseLink = "http://www.allnet.de/";
                         break;
-
+                    case "eos":
+                        pb.Image = Resources.EOSLogo;
+                        PurchaseLink = "http://nowyoucansee.com/";
+                        break;
                 }
                 pb.Width = pb.Image.Width;
                 pb.Height = pb.Image.Height;

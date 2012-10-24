@@ -249,6 +249,13 @@ namespace iSpyApplication.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap EOSLogo {
+            get {
+                object obj = ResourceManager.GetObject("EOSLogo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap files {
             get {
                 object obj = ResourceManager.GetObject("files", resourceCulture);

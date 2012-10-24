@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
@@ -13,6 +14,7 @@ using Google.GData.Client;
 using Google.GData.YouTube;
 using Microsoft.Win32;
 using NAudio.Wave;
+using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace iSpyApplication
 {
@@ -550,7 +552,7 @@ namespace iSpyApplication
         private void LinkLabel1LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
         {
             linkLabel1.Enabled = false;
-            Thread t = new Thread(()=>DownloadResources());
+            var t = new Thread(()=>DownloadResources());
             t.Start();
         }
 
@@ -566,7 +568,7 @@ namespace iSpyApplication
                 var webResponse = (HttpWebResponse)httpRequest.GetResponse();
 
                 var doc = new XmlDocument();
-                using (var sr = new StreamReader(webResponse.GetResponseStream(), true))
+                using (var sr = new StreamReader(webResponse.GetResponseStream(), Encoding.Unicode, true))
                 {
                     doc.Load(sr);
                 }

@@ -1504,6 +1504,11 @@ namespace iSpyApplication.Controls
 
                     int i = 0;
                     filename = Camobject.ftp.localfilename;
+                    filename = filename.Replace("{C}", Camobject.ftp.counter.ToString());
+                    Camobject.ftp.counter++;
+                    if (Camobject.ftp.counter > Camobject.ftp.countermax)
+                        Camobject.ftp.counter = 0;
+
                     while (filename.IndexOf("{") != -1 && i < 20)
                     {
                         filename = String.Format(System.Globalization.CultureInfo.InvariantCulture, filename, DateTime.Now);
@@ -1562,7 +1567,10 @@ namespace iSpyApplication.Controls
                                                  new FTPTask(Camobject.ftp.server + ":" + Camobject.ftp.port,
                                                              Camobject.ftp.usepassive, Camobject.ftp.username,
                                                              Camobject.ftp.password, Camobject.ftp.filename,
-                                                             imageStream.ToArray(), Camobject.id));
+                                                             imageStream.ToArray(), Camobject.id, Camobject.ftp.counter));
+                    Camobject.ftp.counter++;
+                    if (Camobject.ftp.counter > Camobject.ftp.countermax)
+                        Camobject.ftp.counter = 0;
                 }
                 catch (Exception ex)
                 {

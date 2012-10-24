@@ -90,6 +90,8 @@
                                                     <xs:element name="filename" type="xs:string" />
                                                     <xs:element name="port" type="xs:int" />
                                                     <xs:element name="interval" type="xs:int" />
+                                                    <xs:element name="counter" type="xs:int" />
+                                                    <xs:element name="countermax" type="xs:int" />
                                                     <xs:element name="ftpmode" type="xs:int" default="2"/>
                                                     <xs:element name="ready" type="xs:boolean"/>
                                                     <xs:element name="usepassive" type="xs:boolean"/>

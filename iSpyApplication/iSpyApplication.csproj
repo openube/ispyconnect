@@ -668,12 +668,10 @@
     <None Include="Resources\phyxius.jpg" />
     <None Include="Resources\bigdipper.jpg" />
     <None Include="Resources\ALLNET.jpg" />
-    <None Include="Resources\cam_connecting.jpg" />
-    <None Include="Resources\cam_offline.jpg" />
-    <None Include="Resources\cam_removed.jpg" />
     <None Include="Resources\cam_connecting.png" />
     <None Include="Resources\cam_offline.png" />
     <None Include="Resources\cam_removed.png" />
+    <None Include="Resources\EOSLogo.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />
