@@ -924,6 +924,7 @@ namespace iSpyApplication
             this.label4.Size = new System.Drawing.Size(491, 110);
             this.label4.TabIndex = 25;
             this.label4.Text = resources.GetString("label4.Text");
+            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // tabPage4
             // 
@@ -1275,8 +1276,8 @@ namespace iSpyApplication
             this.lblInstallVLC.Size = new System.Drawing.Size(448, 52);
             this.lblInstallVLC.TabIndex = 54;
             this.lblInstallVLC.Text = "You can use VLC to connect to many different sources including .asf, .mp4, rtsp s" +
-    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy to ena" +
-    "ble this functionality";
+    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy " +
+    "to enable this functionality";
             this.lblInstallVLC.Click += new System.EventHandler(this.lblInstallVLC_Click);
             // 
             // flowLayoutPanel11

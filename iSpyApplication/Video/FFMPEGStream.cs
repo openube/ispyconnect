@@ -392,6 +392,9 @@ namespace iSpyApplication.Video
             if (IsRunning)
             {
                 _stopEvent.Set();
+                _thread.Join(4000);
+
+                Free();
             }
         }
         #endregion

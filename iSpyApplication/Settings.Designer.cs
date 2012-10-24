@@ -43,6 +43,9 @@ namespace iSpyApplication
             this.tcTabs = new System.Windows.Forms.TabControl();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.ddlLanguage = new System.Windows.Forms.ComboBox();
             this.txtTrayIcon = new System.Windows.Forms.TextBox();
             this.txtServerName = new System.Windows.Forms.TextBox();
             this.chkMinimise = new System.Windows.Forms.CheckBox();
@@ -73,9 +76,7 @@ namespace iSpyApplication
             this.chkMonitor = new System.Windows.Forms.CheckBox();
             this.chkBigButtons = new System.Windows.Forms.CheckBox();
             this.chkEnableIPv6 = new System.Windows.Forms.CheckBox();
-            this.ddlLanguage = new System.Windows.Forms.ComboBox();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.chkRecycle = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnDetectColor = new System.Windows.Forms.Button();
@@ -134,7 +135,6 @@ namespace iSpyApplication
             this.button1 = new System.Windows.Forms.Button();
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkRecycle = new System.Windows.Forms.CheckBox();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -365,6 +365,41 @@ namespace iSpyApplication
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(626, 485);
             this.tableLayoutPanel1.TabIndex = 65;
+            // 
+            // linkLabel2
+            // 
+            this.linkLabel2.AutoSize = true;
+            this.linkLabel2.Location = new System.Drawing.Point(407, 6);
+            this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
+            this.linkLabel2.Name = "linkLabel2";
+            this.linkLabel2.Size = new System.Drawing.Size(99, 13);
+            this.linkLabel2.TabIndex = 54;
+            this.linkLabel2.TabStop = true;
+            this.linkLabel2.Text = "Help Translate iSpy";
+            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel2LinkClicked1);
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(274, 6);
+            this.linkLabel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(56, 13);
+            this.linkLabel1.TabIndex = 53;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "Get Latest";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked1);
+            // 
+            // ddlLanguage
+            // 
+            this.ddlLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlLanguage.FormattingEnabled = true;
+            this.ddlLanguage.Location = new System.Drawing.Point(6, 6);
+            this.ddlLanguage.Margin = new System.Windows.Forms.Padding(6);
+            this.ddlLanguage.Name = "ddlLanguage";
+            this.ddlLanguage.Size = new System.Drawing.Size(206, 21);
+            this.ddlLanguage.TabIndex = 52;
+            this.ddlLanguage.SelectedIndexChanged += new System.EventHandler(this.ddlLanguage_SelectedIndexChanged);
             // 
             // txtTrayIcon
             // 
@@ -736,40 +771,15 @@ namespace iSpyApplication
             this.chkEnableIPv6.Text = "Enable IPv6 Support";
             this.chkEnableIPv6.UseVisualStyleBackColor = true;
             // 
-            // ddlLanguage
+            // chkRecycle
             // 
-            this.ddlLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlLanguage.FormattingEnabled = true;
-            this.ddlLanguage.Location = new System.Drawing.Point(6, 6);
-            this.ddlLanguage.Margin = new System.Windows.Forms.Padding(6);
-            this.ddlLanguage.Name = "ddlLanguage";
-            this.ddlLanguage.Size = new System.Drawing.Size(127, 21);
-            this.ddlLanguage.TabIndex = 52;
-            this.ddlLanguage.SelectedIndexChanged += new System.EventHandler(this.ddlLanguage_SelectedIndexChanged);
-            // 
-            // linkLabel1
-            // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(274, 6);
-            this.linkLabel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(56, 13);
-            this.linkLabel1.TabIndex = 53;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "Get Latest";
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel1LinkClicked1);
-            // 
-            // linkLabel2
-            // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(407, 6);
-            this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(99, 13);
-            this.linkLabel2.TabIndex = 54;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "Help Translate iSpy";
-            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel2LinkClicked1);
+            this.chkRecycle.AutoSize = true;
+            this.chkRecycle.Location = new System.Drawing.Point(3, 408);
+            this.chkRecycle.Name = "chkRecycle";
+            this.chkRecycle.Size = new System.Drawing.Size(129, 17);
+            this.chkRecycle.TabIndex = 78;
+            this.chkRecycle.Text = "Delete to Recycle Bin";
+            this.chkRecycle.UseVisualStyleBackColor = true;
             // 
             // tabPage1
             // 
@@ -1488,16 +1498,6 @@ namespace iSpyApplication
             this.flowLayoutPanel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.flowLayoutPanel2.Size = new System.Drawing.Size(646, 40);
             this.flowLayoutPanel2.TabIndex = 92;
-            // 
-            // chkRecycle
-            // 
-            this.chkRecycle.AutoSize = true;
-            this.chkRecycle.Location = new System.Drawing.Point(3, 408);
-            this.chkRecycle.Name = "chkRecycle";
-            this.chkRecycle.Size = new System.Drawing.Size(129, 17);
-            this.chkRecycle.TabIndex = 78;
-            this.chkRecycle.Text = "Delete to Recycle Bin";
-            this.chkRecycle.UseVisualStyleBackColor = true;
             // 
             // Settings
             // 

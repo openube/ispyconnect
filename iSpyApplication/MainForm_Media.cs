@@ -131,7 +131,21 @@ namespace iSpyApplication
                             foreach (FilesFile ff in ffs)
                             {
                                 MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
-                                                                   ff.CreatedDateTicks, 2, cw.Camobject.id));
+                                                                   ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm));
+                            }
+                        }
+                        if (c is VolumeLevel)
+                        {
+                            var cw = ((VolumeLevel)c);
+                            List<FilesFile> ffs;
+                            lock (cw.FileList)
+                            {
+                                ffs = cw.FileList.ToList();
+                            }
+                            foreach (FilesFile ff in ffs)
+                            {
+                                MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Micobject.name,
+                                                                   ff.CreatedDateTicks, 1, cw.Micobject.id, ff.MaxAlarm));
                             }
                         }
                     }
@@ -140,9 +154,9 @@ namespace iSpyApplication
                         
                     }
                 }
-                MasterFileList =
-                    MasterFileList.OrderByDescending(p => p.CreatedDateTicks).Take(Conf.PreviewItems).ToList();
-                foreach (FilePreview fp in MasterFileList)
+                var displayList =
+                    MasterFileList.OrderByDescending(p => p.CreatedDateTicks).Where(p=>p.ObjectTypeId==2).Take(Conf.PreviewItems).ToList();
+                foreach (FilePreview fp in displayList)
                 {
                     FilePreview fp1 = fp;
                     var filename = Conf.MediaDirectory + "video\\" + Cameras.Single(p => p.id == fp1.ObjectId).directory +
@@ -150,6 +164,7 @@ namespace iSpyApplication
                     FilePreview fp2 = fp;
                     var thumb = Conf.MediaDirectory + "video\\" + Cameras.Single(p => p.id == fp2.ObjectId).directory +
                                 "\\thumbs\\" + fp.Filename.Substring(0, fp.Filename.LastIndexOf(".")) + ".jpg";
+
                     AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), false);
                 }
             }
