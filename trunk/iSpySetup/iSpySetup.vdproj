@@ -316,13 +316,19 @@
         "Entry"
         {
         "MsmKey" = "8:_8939CDAD1A52A90BDCEB852BF74E54B3"
-        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_92ABD0A314E94DC7851A89A72F4A99BC"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_939C05549F13BAF9B87E030C925AE467"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -459,12 +465,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_CA1FFFF4F8E542A8DA77DEDD0735D34A"
-        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_D3336A94B40F4B1F9E161C0A6687D3E2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -545,6 +545,12 @@
         {
         "MsmKey" = "8:_FF22408F8D3E304F74E3B23788183375"
         "OwnerKey" = "8:_A216588BD52849AEA767F97D96C261A4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -706,7 +712,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CA1FFFF4F8E542A8DA77DEDD0735D34A"
+        "OwnerKey" = "8:_939C05549F13BAF9B87E030C925AE467"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -1757,7 +1763,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.2.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.4.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_8939CDAD1A52A90BDCEB852BF74E54B3"
@@ -1802,6 +1808,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_939C05549F13BAF9B87E030C925AE467"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Microsoft.Kinect, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_939C05549F13BAF9B87E030C925AE467"
+                    {
+                    "Name" = "8:Microsoft.Kinect.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Microsoft.Kinect.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95D134B598404F3C8FF9A05F49185D47"
@@ -2153,37 +2190,6 @@
                     }
                 }
             "SourcePath" = "8:Windows7ToolStripRenderer.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_CA1FFFF4F8E542A8DA77DEDD0735D34A"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.Kinect, Version=1.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_CA1FFFF4F8E542A8DA77DEDD0735D34A"
-                    {
-                    "Name" = "8:Microsoft.Kinect.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.Kinect.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -2685,15 +2691,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{9D4B9F93-A0DA-4FDF-B75C-0C43E68B5598}"
-        "PackageCode" = "8:{18283907-4ADE-440E-9475-4CB372A599F2}"
+        "ProductCode" = "8:{BC075608-C68F-4909-B93B-C197DDD20243}"
+        "PackageCode" = "8:{BBFA1ADF-AFF7-4829-9096-A1740BB6F390}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.5.3"
+        "ProductVersion" = "8:4.6.3"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
