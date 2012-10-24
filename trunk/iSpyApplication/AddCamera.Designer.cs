@@ -87,7 +87,6 @@ namespace iSpyApplication
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.label83 = new System.Windows.Forms.Label();
-            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label12 = new System.Windows.Forms.Label();
@@ -386,6 +385,7 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -1198,21 +1198,6 @@ namespace iSpyApplication
             this.label83.Size = new System.Drawing.Size(106, 244);
             this.label83.TabIndex = 47;
             this.label83.Text = "* Click and drag to draw out rectangles";
-            // 
-            // AreaControl
-            // 
-            this.AreaControl.BackColor = System.Drawing.Color.Black;
-            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.AreaControl.Location = new System.Drawing.Point(118, 0);
-            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
-            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
-            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
-            this.AreaControl.Name = "AreaControl";
-            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
-            this.tableLayoutPanel6.SetRowSpan(this.AreaControl, 2);
-            this.AreaControl.Size = new System.Drawing.Size(320, 240);
-            this.AreaControl.TabIndex = 48;
             // 
             // groupBox5
             // 
@@ -3441,6 +3426,7 @@ namespace iSpyApplication
             this.tabPage7.AutoScroll = true;
             this.tabPage7.Controls.Add(this.groupBox7);
             this.tabPage7.Controls.Add(this.gbLocal);
+            this.tabPage7.Controls.Add(this.label81);
             this.tabPage7.Controls.Add(this.gbFTP);
             this.tabPage7.Controls.Add(this.panel6);
             this.tabPage7.Location = new System.Drawing.Point(4, 22);
@@ -3456,7 +3442,7 @@ namespace iSpyApplication
             // 
             this.groupBox7.Controls.Add(this.tableLayoutPanel21);
             this.groupBox7.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox7.Location = new System.Drawing.Point(6, 412);
+            this.groupBox7.Location = new System.Drawing.Point(6, 409);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(593, 149);
             this.groupBox7.TabIndex = 3;
@@ -3602,7 +3588,7 @@ namespace iSpyApplication
             // 
             this.gbLocal.Controls.Add(this.tableLayoutPanel1);
             this.gbLocal.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbLocal.Location = new System.Drawing.Point(6, 355);
+            this.gbLocal.Location = new System.Drawing.Point(6, 352);
             this.gbLocal.Name = "gbLocal";
             this.gbLocal.Size = new System.Drawing.Size(593, 57);
             this.gbLocal.TabIndex = 4;
@@ -3651,7 +3637,7 @@ namespace iSpyApplication
             this.gbFTP.Margin = new System.Windows.Forms.Padding(6);
             this.gbFTP.Name = "gbFTP";
             this.gbFTP.Padding = new System.Windows.Forms.Padding(6);
-            this.gbFTP.Size = new System.Drawing.Size(593, 308);
+            this.gbFTP.Size = new System.Drawing.Size(593, 269);
             this.gbFTP.TabIndex = 1;
             this.gbFTP.TabStop = false;
             this.gbFTP.Text = "FTP Details";
@@ -3663,7 +3649,7 @@ namespace iSpyApplication
             this.panel1.Location = new System.Drawing.Point(6, 19);
             this.panel1.Margin = new System.Windows.Forms.Padding(6);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(581, 283);
+            this.panel1.Size = new System.Drawing.Size(581, 244);
             this.panel1.TabIndex = 22;
             // 
             // tableLayoutPanel14
@@ -3680,7 +3666,6 @@ namespace iSpyApplication
             this.tableLayoutPanel14.Controls.Add(this.label52, 0, 0);
             this.tableLayoutPanel14.Controls.Add(this.label53, 0, 1);
             this.tableLayoutPanel14.Controls.Add(this.btnSaveFTP, 1, 11);
-            this.tableLayoutPanel14.Controls.Add(this.label81, 1, 9);
             this.tableLayoutPanel14.Controls.Add(this.label54, 0, 2);
             this.tableLayoutPanel14.Controls.Add(this.label55, 0, 3);
             this.tableLayoutPanel14.Controls.Add(this.txtFTPServer, 1, 0);
@@ -3705,7 +3690,7 @@ namespace iSpyApplication
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel14.Size = new System.Drawing.Size(581, 283);
+            this.tableLayoutPanel14.Size = new System.Drawing.Size(581, 244);
             this.tableLayoutPanel14.TabIndex = 23;
             // 
             // txtFTPFilename
@@ -3720,7 +3705,7 @@ namespace iSpyApplication
             // 
             this.tbFTPQuality.BackColor = System.Drawing.SystemColors.Window;
             this.tableLayoutPanel14.SetColumnSpan(this.tbFTPQuality, 2);
-            this.tbFTPQuality.Location = new System.Drawing.Point(73, 191);
+            this.tbFTPQuality.Location = new System.Drawing.Point(73, 160);
             this.tbFTPQuality.Margin = new System.Windows.Forms.Padding(6);
             this.tbFTPQuality.Maximum = 100;
             this.tbFTPQuality.Minimum = 20;
@@ -3744,7 +3729,7 @@ namespace iSpyApplication
             // linkLabel2
             // 
             this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(225, 250);
+            this.linkLabel2.Location = new System.Drawing.Point(225, 219);
             this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.linkLabel2.Name = "linkLabel2";
             this.linkLabel2.Size = new System.Drawing.Size(285, 13);
@@ -3756,7 +3741,7 @@ namespace iSpyApplication
             // lblQuality2
             // 
             this.lblQuality2.AutoSize = true;
-            this.lblQuality2.Location = new System.Drawing.Point(6, 193);
+            this.lblQuality2.Location = new System.Drawing.Point(6, 162);
             this.lblQuality2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.lblQuality2.Name = "lblQuality2";
             this.lblQuality2.Size = new System.Drawing.Size(39, 13);
@@ -3787,7 +3772,7 @@ namespace iSpyApplication
             // 
             this.btnSaveFTP.AutoSize = true;
             this.btnSaveFTP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnSaveFTP.Location = new System.Drawing.Point(73, 248);
+            this.btnSaveFTP.Location = new System.Drawing.Point(73, 217);
             this.btnSaveFTP.Margin = new System.Windows.Forms.Padding(6);
             this.btnSaveFTP.Name = "btnSaveFTP";
             this.btnSaveFTP.Size = new System.Drawing.Size(38, 23);
@@ -3798,14 +3783,16 @@ namespace iSpyApplication
             // 
             // label81
             // 
-            this.tableLayoutPanel14.SetColumnSpan(this.label81, 2);
-            this.label81.Location = new System.Drawing.Point(73, 162);
+            this.label81.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label81.Location = new System.Drawing.Point(6, 316);
             this.label81.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label81.Name = "label81";
-            this.label81.Size = new System.Drawing.Size(487, 23);
+            this.label81.Size = new System.Drawing.Size(593, 36);
             this.label81.TabIndex = 17;
             this.label81.Text = "Tip: use a date string format to generate unique files, eg: \"/gallery/cam_{0:hh-m" +
-    "m-ss}.jpg\"";
+    "m-ss}.jpg\". \r\nYou can also use {C} to adding an automatically increasing counter" +
+    " (resets at 20).\r\n";
+            this.label81.Click += new System.EventHandler(this.label81_Click);
             // 
             // label54
             // 
@@ -5006,6 +4993,21 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Size = new System.Drawing.Size(385, 41);
             this.flowLayoutPanel3.TabIndex = 48;
+            // 
+            // AreaControl
+            // 
+            this.AreaControl.BackColor = System.Drawing.Color.Black;
+            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.AreaControl.Location = new System.Drawing.Point(118, 0);
+            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
+            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
+            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
+            this.AreaControl.Name = "AreaControl";
+            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
+            this.tableLayoutPanel6.SetRowSpan(this.AreaControl, 2);
+            this.AreaControl.Size = new System.Drawing.Size(320, 240);
+            this.AreaControl.TabIndex = 48;
             // 
             // AddCamera
             // 

@@ -1809,10 +1809,27 @@ namespace iSpyApplication
 
                         //return max of 1000 at a time
                         ffs = ffs.Take(n).ToList();
-
-                        temp = ffs.Aggregate("[", (current, f) => current + ("{ot:" + f.ObjectTypeId + ",oid:" + f.ObjectId + ",created:" + ((long) (f.CreatedDateTicks.UnixTicks())) + ",maxalarm:" + String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}", f.MaxAlarm) + ",duration: " + f.Duration + ",filename:\"" + f.Filename + "\"},"));
-                        temp = temp.Trim(',');
-                        temp += "]";
+                        var sb = new StringBuilder();
+                        sb.Append("[");
+                        foreach(var f in ffs)
+                        {
+                            sb.Append("{ot:");
+                            sb.Append(f.ObjectTypeId);
+                            sb.Append(",oid:");
+                            sb.Append(f.ObjectId);
+                            sb.Append(",created:");
+                            sb.Append(f.CreatedDateTicks.UnixTicks());
+                            sb.Append(",maxalarm:");
+                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                                                    f.MaxAlarm));
+                            sb.Append(",duration: ");
+                            sb.Append(f.Duration);
+                            sb.Append(",filename:\"");
+                            sb.Append(f.Filename);
+                            sb.Append("\"},");
+                        }
+                        temp = sb.ToString().Trim(',') + "]";
+                        sb = null;
                         func = func.Replace("data", temp);
                     }
                     resp = "OK";
@@ -1883,7 +1900,7 @@ namespace iSpyApplication
                     if (ed != "")
                         edl = Convert.ToInt64(ed);
 
-                    string grablist = "";
+                    StringBuilder grablist = new StringBuilder("");
                     var ocgrab = MainForm.Cameras.Where(p => p.id == oid).FirstOrDefault();
                     if (ocgrab != null)
                     {
@@ -1902,7 +1919,8 @@ namespace iSpyApplication
                         {
                             foreach (var f in lFi)
                             {
-                                grablist += f.Name + ",";
+                                grablist.Append(f.Name);
+                                grablist.Append(",");
                                 max--;
                                 if (max == 0)
                                     break;
@@ -1910,7 +1928,7 @@ namespace iSpyApplication
                         }
 
                     }
-                    func = func.Replace("data", "\"" + grablist.Trim(',') + "\"");
+                    func = func.Replace("data", "\"" + grablist.ToString().Trim(',') + "\"");
                     resp = "OK";
                     break;
                 case "getptzcommands":

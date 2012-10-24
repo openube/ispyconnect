@@ -1385,6 +1385,10 @@ public partial class objectsCameraFtp {
     
     private int intervalField;
 
+    private int counterField;
+
+    private int countermaxField;
+
     private int modeField;
     
     private bool readyField;
@@ -1516,6 +1520,32 @@ public partial class objectsCameraFtp {
         }
         set {
             this.intervalField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int counter
+    {
+        get
+        {
+            return this.counterField;
+        }
+        set
+        {
+            this.counterField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int countermax
+    {
+        get
+        {
+            return this.countermaxField;
+        }
+        set
+        {
+            this.countermaxField = value;
         }
     }
 

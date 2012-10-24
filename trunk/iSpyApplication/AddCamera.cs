@@ -567,7 +567,7 @@ namespace iSpyApplication
             label79.Text = LocRm.GetString("TipYouCanSelectivelyUploa");
             label8.Text = LocRm.GetString("chars_3801146");
             label80.Text = LocRm.GetString("TipToCreateAScheduleOvern");
-            label81.Text = LocRm.GetString("tipUseADateStringFormatTo");
+            //label81.Text = LocRm.GetString("tipUseADateStringFormatTo");
             label82.Text = LocRm.GetString("YourSmsNumber");
             label83.Text = LocRm.GetString("ClickAndDragTodraw");
             label84.Text = LocRm.GetString("MaskImage");
@@ -1503,7 +1503,7 @@ namespace iSpyApplication
                                               DateTime.Now);
                     if ((new AsynchronousFtpUpLoader()).FTP(txtFTPServer.Text + ":" + txtFTPPort.Text,
                                                             chkUsePassive.Checked,
-                                                            txtFTPUsername.Text, txtFTPPassword.Text, fn,
+                                                            txtFTPUsername.Text, txtFTPPassword.Text, fn,0,
                                                             imageStream.ToArray(), out error))
                     {
                         MessageBox.Show(LocRm.GetString("ImageUploaded"), LocRm.GetString("Success"));
@@ -2597,6 +2597,11 @@ namespace iSpyApplication
             {
                 txtSound.Text = ofdDetect.FileName;
             }
+        }
+
+        private void label81_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

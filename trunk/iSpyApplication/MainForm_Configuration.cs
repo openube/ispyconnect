@@ -518,6 +518,9 @@ namespace iSpyApplication
                     if (cam.ftp.quality == 0)
                         cam.ftp.quality = 75;
 
+                    if (cam.ftp.countermax == 0)
+                        cam.ftp.countermax = 20;
+
                     if (cam.settings.audiousername == null)
                     {
                         cam.settings.audiousername = "";

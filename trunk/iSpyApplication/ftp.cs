@@ -7,14 +7,15 @@ namespace iSpyApplication
 {
     public class AsynchronousFtpUpLoader
     {
-        public bool FTP(string server, bool passive, string username, string password, string filename, byte[] contents,
-                        out string error)
+        public bool FTP(string server, bool passive, string username, string password, string filename, int counter, byte[] contents, out string error)
         {
             bool failed = false;
             try
             {
                 var target = new Uri(server);
                 int i = 0;
+                filename = filename.Replace("{C}", counter.ToString());
+
                 while (filename.IndexOf("{") != -1 && i < 20)
                 {
                     filename = String.Format(System.Globalization.CultureInfo.InvariantCulture, filename, DateTime.Now);
@@ -81,7 +82,7 @@ namespace iSpyApplication
                 i++;
             }
             string error;
-            FTP(task.Server, task.UsePassive, task.Username, task.Password, task.FileName, task.Contents, out error);
+            FTP(task.Server, task.UsePassive, task.Username, task.Password, task.FileName,task.Counter, task.Contents, out error);
 
             if (error!="")
             {
@@ -107,9 +108,10 @@ namespace iSpyApplication
         public string Server;
         public bool UsePassive;
         public string Username;
+        public int Counter;
 
         public FTPTask(string server, bool usePassive, string username, string password, string fileName,
-                       byte[] contents, int cameraId)
+                       byte[] contents, int cameraId, int counter)
         {
             Server = server;
             UsePassive = usePassive;
@@ -119,6 +121,7 @@ namespace iSpyApplication
             Contents = contents;
             CameraId = cameraId;
             IsError = false;
+            Counter = counter;
         }
     }
 }
