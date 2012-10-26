@@ -36,19 +36,27 @@ namespace iSpyApplication
 
             for(var i=0;i<elements.Length;i++)
             {
-                var dTemp = Convert.ToDouble(elements[i]);
-                if (dTemp > dMax)
+                try
                 {
-                    dMax = dTemp;
-                    iIndex = i;
+                    var dTemp = Convert.ToDouble(elements[i]);
+                    if (dTemp > dMax)
+                    {
+                        dMax = dTemp;
+                        iIndex = i;
+                    }
+                    if (i > target)
+                    {
+                        newdata.Append(elements[iIndex] + ",");
+                        tMult++;
+                        target = tMult*interval;
+                        dMax = 0;
+
+                    }
                 }
-                if (i>target)
+                catch (Exception)
                 {
-                    newdata.Append(elements[iIndex]+",");
-                    tMult++;
-                    target = tMult*interval;
-                    dMax = 0;
-                    
+                    //extremely long recordings can break
+                    break;
                 }
             }
             string r = newdata.ToString().Trim(',');

@@ -294,6 +294,7 @@ namespace iSpyApplication.Controls
                 lFi.AddRange(dirinfo.GetFiles());
                 lFi = lFi.FindAll(f => f.Extension.ToLower() == ".avi" || f.Extension.ToLower() == ".mp4");
                 lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
+
                 //sanity check existing data
                 foreach (FileInfo fi in lFi)
                 {
@@ -1703,7 +1704,7 @@ namespace iSpyApplication.Controls
             var fi = new FileInfo(fpath);
             var dSeconds = Convert.ToInt32((DateTime.Now - TimelapseStart).TotalSeconds);
 
-            FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(fpath));
+            FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(TimeLapseVideoFileName + CodecExtension));
             bool newfile = false;
             if (ff == null)
             {
@@ -2362,7 +2363,7 @@ namespace iSpyApplication.Controls
                 var fi = new FileInfo(path + CodecExtension);
                 var dSeconds = Convert.ToInt32((DateTime.Now - recordingStart).TotalSeconds);
 
-                FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(path + CodecExtension));
+                FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
                 bool newfile = false;
                 if (ff == null)
                 {
@@ -2371,7 +2372,7 @@ namespace iSpyApplication.Controls
                 }
 
                 ff.CreatedDateTicks = DateTime.Now.Ticks;
-                ff.Filename = fnpath[fnpath.Length - 1];
+                ff.Filename = fn;
                 ff.MaxAlarm = Math.Min(maxAlarm * 1000, 100);
                 ff.SizeBytes = fi.Length;
                 ff.DurationSeconds = dSeconds;

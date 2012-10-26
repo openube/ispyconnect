@@ -136,16 +136,16 @@ namespace iSpyApplication
                         }
                         if (c is VolumeLevel)
                         {
-                            var cw = ((VolumeLevel)c);
+                            var vl = ((VolumeLevel)c);
                             List<FilesFile> ffs;
-                            lock (cw.FileList)
+                            lock (vl.FileList)
                             {
-                                ffs = cw.FileList.ToList();
+                                ffs = vl.FileList.ToList();
                             }
                             foreach (FilesFile ff in ffs)
                             {
-                                MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Micobject.name,
-                                                                   ff.CreatedDateTicks, 1, cw.Micobject.id, ff.MaxAlarm));
+                                MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
+                                                                   ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
                             }
                         }
                     }

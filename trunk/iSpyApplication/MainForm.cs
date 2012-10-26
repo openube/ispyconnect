@@ -2088,7 +2088,7 @@ namespace iSpyApplication
 
         private void Minimize(object obj, bool tocontents)
         {
-            if (obj == null)
+            if (obj == null || Conf.LockLayout)
                 return;
             if (obj.GetType() == typeof (CameraWindow))
             {

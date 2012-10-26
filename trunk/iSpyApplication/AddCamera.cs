@@ -437,7 +437,7 @@ namespace iSpyApplication
             var s = CameraControl.Camobject.ptzschedule.entries.ToList().OrderBy(p => p.time).ToList();
             foreach (var ptzs in s)
             {
-                lbPTZSchedule.Items.Add(ptzs.time.ToString("hh:mm:ss")+" " + ptzs.command);
+                lbPTZSchedule.Items.Add(ptzs.time.ToString("hh:mm:ss tt")+" " + ptzs.command);
             }
         }
 
