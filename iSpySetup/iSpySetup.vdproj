@@ -183,6 +183,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4BD952C8E1BD44EEAAA8165A00AE30DF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4F3854DB78006EDA549D290000419E86"
         "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
@@ -316,7 +322,7 @@
         "Entry"
         {
         "MsmKey" = "8:_8939CDAD1A52A90BDCEB852BF74E54B3"
-        "OwnerKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -341,12 +347,6 @@
         {
         "MsmKey" = "8:_98B9955192597D21FE828DBCCED97C01"
         "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9A8B802268014A86AEF08389758192DD"
-        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -545,12 +545,6 @@
         {
         "MsmKey" = "8:_FF22408F8D3E304F74E3B23788183375"
         "OwnerKey" = "8:_A216588BD52849AEA767F97D96C261A4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2691,15 +2685,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{BC075608-C68F-4909-B93B-C197DDD20243}"
-        "PackageCode" = "8:{BBFA1ADF-AFF7-4829-9096-A1740BB6F390}"
+        "ProductCode" = "8:{F75E4632-0DDB-4EFA-B170-0F01B9441CE9}"
+        "PackageCode" = "8:{B822FE39-6946-476A-904C-79DB9056336E}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.6.3"
+        "ProductVersion" = "8:4.6.6"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
@@ -3316,11 +3310,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9A8B802268014A86AEF08389758192DD"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4BD952C8E1BD44EEAAA8165A00AE30DF"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:c:\\program files (x86)\\common files\\merge modules\\microsoft_vc100_crt_x86.msm"
+            "SourcePath" = "8:C:\\Program Files (x86)\\Common Files\\Merge Modules\\Microsoft_VC100_CRT_x86.msm"
                 "Properties"
                 {
                 }
