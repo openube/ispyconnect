@@ -283,6 +283,7 @@ namespace iSpyApplication
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.txtLocalFilename = new System.Windows.Forms.TextBox();
             this.label56 = new System.Windows.Forms.Label();
+            this.label81 = new System.Windows.Forms.Label();
             this.gbFTP = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel14 = new System.Windows.Forms.TableLayoutPanel();
@@ -294,7 +295,6 @@ namespace iSpyApplication
             this.label52 = new System.Windows.Forms.Label();
             this.label53 = new System.Windows.Forms.Label();
             this.btnSaveFTP = new System.Windows.Forms.Button();
-            this.label81 = new System.Windows.Forms.Label();
             this.label54 = new System.Windows.Forms.Label();
             this.label55 = new System.Windows.Forms.Label();
             this.txtFTPServer = new System.Windows.Forms.TextBox();
@@ -2455,14 +2455,24 @@ namespace iSpyApplication
             this.txtMaxRecordTime.Location = new System.Drawing.Point(444, 37);
             this.txtMaxRecordTime.Margin = new System.Windows.Forms.Padding(6);
             this.txtMaxRecordTime.Maximum = new decimal(new int[] {
-            1215752191,
-            23,
+            999999,
+            0,
+            0,
+            0});
+            this.txtMaxRecordTime.Minimum = new decimal(new int[] {
+            1,
+            0,
             0,
             0});
             this.txtMaxRecordTime.Name = "txtMaxRecordTime";
             this.txtMaxRecordTime.Size = new System.Drawing.Size(59, 20);
             this.txtMaxRecordTime.TabIndex = 74;
             this.toolTip1.SetToolTip(this.txtMaxRecordTime, "The maximum duration to record to a single file.");
+            this.txtMaxRecordTime.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // label27
             // 
@@ -3629,6 +3639,19 @@ namespace iSpyApplication
             this.label56.TabIndex = 10;
             this.label56.Text = "Filename";
             // 
+            // label81
+            // 
+            this.label81.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label81.Location = new System.Drawing.Point(6, 316);
+            this.label81.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label81.Name = "label81";
+            this.label81.Size = new System.Drawing.Size(593, 36);
+            this.label81.TabIndex = 17;
+            this.label81.Text = "Tip: use a date string format to generate unique files, eg: \"/gallery/cam_{0:hh-m" +
+    "m-ss}.jpg\". \r\nYou can also use {C} to adding an automatically increasing counter" +
+    " (resets at 20).\r\n";
+            this.label81.Click += new System.EventHandler(this.label81_Click);
+            // 
             // gbFTP
             // 
             this.gbFTP.Controls.Add(this.panel1);
@@ -3780,19 +3803,6 @@ namespace iSpyApplication
             this.btnSaveFTP.Text = "Test";
             this.btnSaveFTP.UseVisualStyleBackColor = true;
             this.btnSaveFTP.Click += new System.EventHandler(this.BtnSaveFtpClick);
-            // 
-            // label81
-            // 
-            this.label81.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label81.Location = new System.Drawing.Point(6, 316);
-            this.label81.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label81.Name = "label81";
-            this.label81.Size = new System.Drawing.Size(593, 36);
-            this.label81.TabIndex = 17;
-            this.label81.Text = "Tip: use a date string format to generate unique files, eg: \"/gallery/cam_{0:hh-m" +
-    "m-ss}.jpg\". \r\nYou can also use {C} to adding an automatically increasing counter" +
-    " (resets at 20).\r\n";
-            this.label81.Click += new System.EventHandler(this.label81_Click);
             // 
             // label54
             // 

@@ -1,7 +1,7 @@
 .avi; video/avi
 .flv; video/x-flv
 .wav; audio/wav
-.txt; text/html
+.txt; text/text
 .jpg; image/jpeg
 .png; image/png
 .js;  text/javascript

@@ -199,7 +199,7 @@ namespace iSpyApplication
 
         public void Maximise(object obj, bool minimiseIfMaximised)
         {
-            if (obj == null)
+            if (obj == null || Conf.LockLayout)
                 return;
             if (obj.GetType() == typeof(CameraWindow))
             {

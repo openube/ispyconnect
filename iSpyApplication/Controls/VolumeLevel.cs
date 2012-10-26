@@ -1303,8 +1303,8 @@ namespace iSpyApplication.Controls
                             _newRecordingFrame.WaitOne(200);
                         }
 
-                        
-                        FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(@"\" + filename + ".mp3"));
+
+                        FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(AudioFileName + ".mp3"));
                         bool newfile = false;
                         if (ff == null)
                         {

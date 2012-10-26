@@ -1818,9 +1818,10 @@ namespace iSpyApplication
                             sb.Append(",oid:");
                             sb.Append(f.ObjectId);
                             sb.Append(",created:");
-                            sb.Append(f.CreatedDateTicks.UnixTicks());
+                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.00}",
+                                                    f.CreatedDateTicks.UnixTicks()));
                             sb.Append(",maxalarm:");
-                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}",
                                                     f.MaxAlarm));
                             sb.Append(",duration: ");
                             sb.Append(f.Duration);
