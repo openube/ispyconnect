@@ -226,9 +226,9 @@ namespace iSpyApplication
             {
                 sMimeType = MimeTypes[sFileExt].ToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MainForm.LogErrorToFile("No mime type for request " + sRequestedFile);
+                MainForm.LogErrorToFile("No mime type for request " + sRequestedFile+" ("+ex.Message+")");
             }
 
 
@@ -463,8 +463,8 @@ namespace iSpyApplication
                             if (!bServe)
                             {
                                 //Debug.WriteLine("ignored: " + sBuffer);
-                                resp = "Access this server locally through http://www.ispyconnect.com";
-                                SendHeader(sHttpVersion, "text/html", resp.Length, " 200 OK", 0, ref mySocket);
+                                resp = "//Access this server locally through http://www.ispyconnect.com"+Environment.NewLine+"try{Denied();} catch(e){}";
+                                SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
                                 SendToBrowser(resp, mySocket);
                                 goto Finish;
                             }
@@ -523,6 +523,7 @@ namespace iSpyApplication
                                     case "video.mjpg":
                                     case "video.cgi":
                                     case "video.mjpeg":
+                                    case "video.jpg":
                                     case "mjpegfeed":
                                         SendMJPEGFeed(sPhysicalFilePath, mySocket);
                                         break;
@@ -1317,8 +1318,7 @@ namespace iSpyApplication
                             _parent.RemoveCamera(cw, false);
                         }
                     }
-                    WsWrapper.ForceSync();
-                    MainForm.NeedsSync = false;
+                    MainForm.NeedsSync = true;
                     resp = "OK";
                     break;
                 case "addobject":
@@ -1328,8 +1328,7 @@ namespace iSpyApplication
                     string name = GetVar(sRequest, "name");
                     string url = GetVar(sRequest, "url").Replace("\\", "/");
                     _parent.AddObjectExternal(otid, sourceIndex, width, height, name, url);
-                    WsWrapper.ForceSync();
-                    MainForm.NeedsSync = false;
+                    MainForm.NeedsSync = true;
                     resp = "OK";
                     break;
                 case "synthtocam":
@@ -2984,8 +2983,14 @@ namespace iSpyApplication
                         using (var imageStream = new MemoryStream())
                         {
 
-                            if (w > 0 && h > 0)
+                            if (w > 0)
                             {
+                                //resize
+                                if (h == 0)
+                                {
+                                    var r = b.Width/w;
+                                    h = b.Height/r;
+                                }
                                 Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
                                 Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
 

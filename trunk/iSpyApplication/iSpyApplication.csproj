@@ -208,20 +208,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\Implementation.dll</HintPath>
     </Reference>
-    <Reference Include="Interop.NATUPNPLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>DLLS\Interop.NATUPNPLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.NETCONLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>DLLS\Interop.NETCONLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Interop.NetFwTypeLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+    <Reference Include="Interop.NetFwTypeLib">
       <HintPath>DLLS\Interop.NetFwTypeLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="LibVlcWrapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -261,6 +250,7 @@
     <Reference Include="System.Windows.Forms">
       <Name>System.Windows.Forms</Name>
     </Reference>
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
@@ -275,12 +265,14 @@
     <Compile Include="AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ActionPreset.cs" />
     <Compile Include="AddFloorPlan.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="AddFloorPlan.Designer.cs">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
     </Compile>
+    <Compile Include="Audio\SpeechStreamer.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Controls\AngleSelector.cs">
@@ -356,6 +348,18 @@
     </Compile>
     <Compile Include="ConfigureRepeat.Designer.cs">
       <DependentUpon>ConfigureRepeat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ClipboardTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ClipboardTextBox.Designer.cs">
+      <DependentUpon>ClipboardTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Ranger.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Ranger.designer.cs">
+      <DependentUpon>Ranger.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\GridView.cs">
       <SubType>Component</SubType>
@@ -593,6 +597,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Vision\CustomFrameColorDifferenceDetector.cs" />
+    <Compile Include="Vision\SimpleColorBackgroundModelingDetector.cs" />
+    <Compile Include="Vision\Tools.cs" />
+    <Compile Include="Vision\TwoFramesColorDifferenceDetector.cs" />
     <Compile Include="Web References\iSpyWS\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -636,7 +644,6 @@
       <DependentUpon>Sources.xsd</DependentUpon>
     </Compile>
     <Compile Include="YouTubeUploader.cs" />
-    <None Include="backgrounds\circuitboard.jpg" />
     <Content Include="avcodec-53.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -652,11 +659,10 @@
     <Content Include="avutil-51.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="backgrounds\demo_mask.png" />
     <Content Include="backgrounds\FloorPlan_House.jpg" />
     <Content Include="backgrounds\FloorPlan_House2.jpg" />
     <Content Include="backgrounds\FloorPlan_Planet.jpg" />
-    <Content Include="backgrounds\iSpy.jpg" />
-    <Content Include="backgrounds\SolarBurstWallPaper.jpg" />
     <None Include="chk.png" />
     <Content Include="Copyright.txt" />
     <Content Include="lame_enc.dll">
@@ -785,6 +791,7 @@
     <Content Include="XML\Sources.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="XML\test.xml" />
     <Content Include="XML\Translations.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -847,6 +854,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ConfigureRepeat.resx">
       <DependentUpon>ConfigureRepeat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Ranger.resx">
+      <DependentUpon>Ranger.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\GridView.resx">
       <DependentUpon>GridView.cs</DependentUpon>
@@ -1109,6 +1119,26 @@
       <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
       <Name>Video.FFMPEG</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="NATUPNPLib">
+      <Guid>{1C565858-F302-471E-B409-F180AA4ABEC6}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="NETCONLib">
+      <Guid>{43E734CA-043D-4A70-9A2C-A8F254063D91}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

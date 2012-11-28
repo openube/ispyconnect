@@ -22,6 +22,7 @@
   <NoActivityColor>101,132,139</NoActivityColor>
   <TrackingColor>41,176,211</TrackingColor>
   <VolumeLevelColor>41,176,211</VolumeLevelColor>
+  <FloorPlanHighlightColor>0,217,0</FloorPlanHighlightColor>
   <MaxRecordingThreads>20</MaxRecordingThreads>
   <MainColor>153,153,153</MainColor>
   <AreaColor>255,255,255</AreaColor>
@@ -98,4 +99,5 @@
   <MediaPanelSize></MediaPanelSize>
   <WebServer>http://www.ispyconnect.com</WebServer>
   <IPv6_Support_Disabled>false</IPv6_Support_Disabled>
+  <SpeechRecognition>false</SpeechRecognition>
 </configuration>

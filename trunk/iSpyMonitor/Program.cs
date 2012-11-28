@@ -29,14 +29,18 @@ namespace iSpyMonitor
                 AppPath += @"\";
 
 
-            ProgramName = args[0];
-            AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\"+ProgramName+@"\";
-            bool firstInstance;
-            var mutex = new Mutex(false, "iSpyMonitor", out firstInstance);
-            if (firstInstance)
-                Application.Run(new Monitor());
-            mutex.Close();
-            mutex.Dispose();
+            if (args.Length > 0)
+            {
+                ProgramName = args[0];
+                AppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\" + ProgramName +
+                              @"\";
+                bool firstInstance;
+                var mutex = new Mutex(false, "iSpyMonitor", out firstInstance);
+                if (firstInstance)
+                    Application.Run(new Monitor());
+                mutex.Close();
+                mutex.Dispose();
+            }
         }
     }
 }

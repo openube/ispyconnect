@@ -1295,14 +1295,21 @@ namespace iSpyApplication
 
         }
 
-        private void btnConfigure_Click(object sender, EventArgs e)
-        {
-            
-        }
-
         private void label4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void txtVLCArgs_PastedText(object sender, ClipboardTextBoxExample.ClipboardEventArgs e)
+        {
+            //reformat VLC local arguments to input arguments
+            Clipboard.SetText(e.ClipboardText.Trim().Replace(":", Environment.NewLine+"-").Trim());
+
+        }
+
+        private void linkLabel5_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.OpenUrl(MainForm.Website+"/userguide-vlc.aspx");
         }
 
     }

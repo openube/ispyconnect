@@ -65,7 +65,6 @@ namespace iSpyApplication
             this.numJPEGQuality = new System.Windows.Forms.NumericUpDown();
             this.chkShowGettingStarted = new System.Windows.Forms.CheckBox();
             this.chkAlertWindows = new System.Windows.Forms.CheckBox();
-            this.chkBalloon = new System.Windows.Forms.CheckBox();
             this.chkInterrupt = new System.Windows.Forms.CheckBox();
             this.chkAutoSchedule = new System.Windows.Forms.CheckBox();
             this.chkOverlay = new System.Windows.Forms.CheckBox();
@@ -76,6 +75,7 @@ namespace iSpyApplication
             this.chkMonitor = new System.Windows.Forms.CheckBox();
             this.chkBigButtons = new System.Windows.Forms.CheckBox();
             this.chkEnableIPv6 = new System.Windows.Forms.CheckBox();
+            this.chkBalloon = new System.Windows.Forms.CheckBox();
             this.chkRecycle = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
@@ -135,6 +135,7 @@ namespace iSpyApplication
             this.button1 = new System.Windows.Forms.Button();
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkSpeechRecognition = new System.Windows.Forms.CheckBox();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -328,8 +329,6 @@ namespace iSpyApplication
             this.tableLayoutPanel1.Controls.Add(this.numJPEGQuality, 2, 11);
             this.tableLayoutPanel1.Controls.Add(this.chkShowGettingStarted, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.chkAlertWindows, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.chkStartup, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.chkBalloon, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.chkInterrupt, 0, 9);
             this.tableLayoutPanel1.Controls.Add(this.chkAutoSchedule, 0, 11);
             this.tableLayoutPanel1.Controls.Add(this.chkOverlay, 0, 12);
@@ -341,6 +340,8 @@ namespace iSpyApplication
             this.tableLayoutPanel1.Controls.Add(this.chkBigButtons, 0, 13);
             this.tableLayoutPanel1.Controls.Add(this.chkPasswordProtect, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.chkEnableIPv6, 1, 14);
+            this.tableLayoutPanel1.Controls.Add(this.chkStartup, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.chkBalloon, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.chkRecycle, 0, 15);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(6, 6);
@@ -363,7 +364,8 @@ namespace iSpyApplication
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(626, 485);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(626, 491);
             this.tableLayoutPanel1.TabIndex = 65;
             // 
             // linkLabel2
@@ -636,17 +638,6 @@ namespace iSpyApplication
             this.chkAlertWindows.Text = "Create alert windows";
             this.chkAlertWindows.UseVisualStyleBackColor = true;
             // 
-            // chkBalloon
-            // 
-            this.chkBalloon.AutoSize = true;
-            this.chkBalloon.Location = new System.Drawing.Point(6, 228);
-            this.chkBalloon.Margin = new System.Windows.Forms.Padding(6);
-            this.chkBalloon.Name = "chkBalloon";
-            this.chkBalloon.Size = new System.Drawing.Size(109, 17);
-            this.chkBalloon.TabIndex = 45;
-            this.chkBalloon.Text = "Show balloon tips";
-            this.chkBalloon.UseVisualStyleBackColor = true;
-            // 
             // chkInterrupt
             // 
             this.chkInterrupt.AutoSize = true;
@@ -683,7 +674,7 @@ namespace iSpyApplication
             // tbOpacity
             // 
             this.tableLayoutPanel1.SetColumnSpan(this.tbOpacity, 2);
-            this.tbOpacity.Location = new System.Drawing.Point(274, 434);
+            this.tbOpacity.Location = new System.Drawing.Point(274, 440);
             this.tbOpacity.Margin = new System.Windows.Forms.Padding(6);
             this.tbOpacity.Maximum = 100;
             this.tbOpacity.Minimum = 5;
@@ -696,7 +687,7 @@ namespace iSpyApplication
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(6, 436);
+            this.label16.Location = new System.Drawing.Point(6, 442);
             this.label16.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(206, 13);
@@ -771,10 +762,23 @@ namespace iSpyApplication
             this.chkEnableIPv6.Text = "Enable IPv6 Support";
             this.chkEnableIPv6.UseVisualStyleBackColor = true;
             // 
+            // chkBalloon
+            // 
+            this.chkBalloon.AutoSize = true;
+            this.chkBalloon.Location = new System.Drawing.Point(6, 228);
+            this.chkBalloon.Margin = new System.Windows.Forms.Padding(6);
+            this.chkBalloon.Name = "chkBalloon";
+            this.chkBalloon.Size = new System.Drawing.Size(109, 17);
+            this.chkBalloon.TabIndex = 45;
+            this.chkBalloon.Text = "Show balloon tips";
+            this.chkBalloon.UseVisualStyleBackColor = true;
+            // 
             // chkRecycle
             // 
             this.chkRecycle.AutoSize = true;
-            this.chkRecycle.Location = new System.Drawing.Point(3, 408);
+            this.tableLayoutPanel1.SetColumnSpan(this.chkRecycle, 2);
+            this.chkRecycle.Location = new System.Drawing.Point(6, 411);
+            this.chkRecycle.Margin = new System.Windows.Forms.Padding(6);
             this.chkRecycle.Name = "chkRecycle";
             this.chkRecycle.Size = new System.Drawing.Size(129, 17);
             this.chkRecycle.TabIndex = 78;
@@ -1368,7 +1372,7 @@ namespace iSpyApplication
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(9, 212);
+            this.label25.Location = new System.Drawing.Point(11, 194);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(206, 13);
             this.label25.TabIndex = 3;
@@ -1420,6 +1424,7 @@ namespace iSpyApplication
             this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 82.60188F));
             this.tableLayoutPanel6.Controls.Add(this.Microphone, 0, 0);
             this.tableLayoutPanel6.Controls.Add(this.ddlTalkMic, 1, 0);
+            this.tableLayoutPanel6.Controls.Add(this.chkSpeechRecognition, 1, 1);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
@@ -1498,6 +1503,17 @@ namespace iSpyApplication
             this.flowLayoutPanel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.flowLayoutPanel2.Size = new System.Drawing.Size(646, 40);
             this.flowLayoutPanel2.TabIndex = 92;
+            // 
+            // chkSpeechRecognition
+            // 
+            this.chkSpeechRecognition.AutoSize = true;
+            this.chkSpeechRecognition.Location = new System.Drawing.Point(115, 56);
+            this.chkSpeechRecognition.Margin = new System.Windows.Forms.Padding(6);
+            this.chkSpeechRecognition.Name = "chkSpeechRecognition";
+            this.chkSpeechRecognition.Size = new System.Drawing.Size(159, 17);
+            this.chkSpeechRecognition.TabIndex = 2;
+            this.chkSpeechRecognition.Text = "Enable Speech Recognition";
+            this.chkSpeechRecognition.UseVisualStyleBackColor = true;
             // 
             // Settings
             // 
@@ -1671,5 +1687,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkMinimise;
         private System.Windows.Forms.CheckBox chkEnableIPv6;
         private System.Windows.Forms.CheckBox chkRecycle;
+        private System.Windows.Forms.CheckBox chkSpeechRecognition;
     }
 }

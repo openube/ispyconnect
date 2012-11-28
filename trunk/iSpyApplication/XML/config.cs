@@ -63,6 +63,8 @@ public partial class configuration {
     private string trackingColorField;
     
     private string volumeLevelColorField;
+
+    private string floorPlanHighlightColorField;
     
     private string mainColorField;
     
@@ -215,6 +217,21 @@ public partial class configuration {
     private bool IPv6DisabledField;
 
     private bool DeleteToRecycleBinField;
+
+    private bool SpeechRecognitionField;
+
+    /// <remarks/>
+    public bool SpeechRecognition
+    {
+        get
+        {
+            return this.SpeechRecognitionField;
+        }
+        set
+        {
+            this.SpeechRecognitionField = value;
+        }
+    }
     
     /// <remarks/>
     public bool DeleteToRecycleBin
@@ -747,7 +764,20 @@ public partial class configuration {
             this.noActivityColorField = value;
         }
     }
+
+    /// <remarks/>
+    public string FloorPlanHighlightColor
+    {
+        get {
+            return this.floorPlanHighlightColorField;
+        }
+        set {
+            this.floorPlanHighlightColorField = value;
+        }
+    }
     
+    
+
     /// <remarks/>
     public string TrackingColor {
         get {

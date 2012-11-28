@@ -39,11 +39,7 @@
                                                     <xs:element name="timestamplocation" type="xs:int"/>
                                                     <xs:element name="timestampfontsize" type="xs:int" default="10"/>
                                                     <xs:element name="timestampoffset" type="xs:decimal" default="0"/>
-                                                    <xs:element name="desktopresizewidth" type="xs:int"/>
-                                                    <xs:element name="desktopresizeheight" type="xs:int"/>
                                                     <xs:element name="desktoparea" type="xs:string"/>
-                                                    <xs:element name="desktopmouse" type="xs:boolean"/>
-                                                    <xs:element name="resize" type="xs:boolean" default="false"/>
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="ptzusername" type="xs:string" default=""/>
                                                     <xs:element name="ptzpassword" type="xs:string" default=""/>
@@ -78,6 +74,10 @@
                                                         </xs:complexType>
                                                     </xs:element>
                                                 </xs:sequence>
+                                                <xs:attribute name="desktopresizewidth" type="xs:int" use="required"/>
+                                                <xs:attribute name="desktopresizeheight" type="xs:int" use="required"/>
+                                                <xs:attribute name="resize" type="xs:boolean" use="required"/>
+                                                <xs:attribute name="desktopmouse" type="xs:boolean" use="required"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="ftp">
@@ -92,7 +92,7 @@
                                                     <xs:element name="interval" type="xs:int" />
                                                     <xs:element name="counter" type="xs:int" />
                                                     <xs:element name="countermax" type="xs:int" />
-                                                    <xs:element name="ftpmode" type="xs:int" default="2"/>
+                                                    <xs:element name="mode" type="xs:int" default="2"/>
                                                     <xs:element name="ready" type="xs:boolean"/>
                                                     <xs:element name="usepassive" type="xs:boolean"/>
                                                     <xs:element name="text" type="xs:string" default="www.ispyconnect.com"/>
@@ -126,6 +126,8 @@
                                                 <xs:attribute name="movementinterval" type="xs:int" use="required" />
                                                 <xs:attribute name="calibrationdelay" type="xs:int" use="required" />
                                                 <xs:attribute name="sensitivity" type="xs:double" use="required" />
+                                                <xs:attribute name="maxsensitivity" type="xs:double" use="required"/>
+                                                <xs:attribute name="minsensitivity" type="xs:double" use="required"/>
                                                 <xs:attribute name="color" type="xs:string" use="required" />
                                                 <xs:attribute name="keepobjectedges" type="xs:boolean" use="required" />
                                                 <xs:attribute name="recordondetect" type="xs:boolean" use="required" />
@@ -166,15 +168,10 @@
                                                 <xs:attribute name="objectcountalert" type="xs:int" use="required" />
                                                 <xs:attribute name="active" type="xs:boolean" use="required" />
                                                 <xs:attribute name="mode" type="xs:string" use="required" />
-                                                <xs:attribute name="numberplates" type="xs:string"/>
-                                                <xs:attribute name="numberplatesmode" type="xs:int" default="0"/>
-                                                <xs:attribute name="numberplatesinterval" type="xs:string" default="1"/>
-                                                <xs:attribute name="numberplatesaccuracy" type="xs:int" default="80"/>
                                                 <xs:attribute name="overlay" type="xs:boolean" default="true"/>
-                                                <xs:attribute name="numberplatesarea" type="xs:string" default=""/>
                                                 <xs:attribute name="pluginconfig" type="xs:string" default=""/>
                                                 <xs:attribute name="processmode" type="xs:string" default="continuous"/>
-                                                <xs:attribute name="maximise" type="xs:boolean"/>
+                                                <xs:attribute name="maximise" type="xs:boolean" default="false"/>
                                                 <xs:attribute name="trigger" type="xs:string" default=""/>
                                                 <xs:attribute name="playsound" type="xs:string" default=""/>
                                             </xs:complexType>
@@ -225,7 +222,7 @@
                                                                 <xs:element maxOccurs="unbounded" name="entry">
                                                                     <xs:complexType>
                                                                         <xs:attribute name="command" type="xs:string" use="required" />
-                                                                        <xs:attribute name="time" type="xs:string" use="required" />
+                                                                        <xs:attribute name="time" type="xs:dateTime" use="required" />
                                                                     </xs:complexType>
                                                                 </xs:element>
                                                             </xs:sequence>
@@ -389,6 +386,8 @@
                                                                         <xs:attribute name="x" type="xs:int" use="required" />
                                                                         <xs:attribute name="y" type="xs:int" use="required" />
                                                                         <xs:attribute name="angle" type="xs:int" default="0" />
+                                                                        <xs:attribute name="radius" type="xs:int" default="0" />
+                                                                        <xs:attribute name="fov" type="xs:int" default="0" />
                                                                     </xs:complexType>
                                                                 </xs:element>
                                                             </xs:sequence>

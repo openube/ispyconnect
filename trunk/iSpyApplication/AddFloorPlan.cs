@@ -175,10 +175,12 @@ namespace iSpyApplication
 
         private void BtnChooseFileClick(object sender, EventArgs e)
         {
-            var ofd = new OpenFileDialog();
-            ofd.InitialDirectory = Program.AppPath + @"backgrounds\";
-            ofd.Filter = "Image Files|*.jpg;*.gif;*.bmp;*.png;*.jpeg";
-            ofd.FilterIndex = 1;
+            var ofd = new OpenFileDialog
+                          {
+                              InitialDirectory = Program.AppPath + @"backgrounds\",
+                              Filter = "Image Files|*.jpg;*.gif;*.bmp;*.png;*.jpeg",
+                              FilterIndex = 1
+                          };
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 string fileName = ofd.FileName;

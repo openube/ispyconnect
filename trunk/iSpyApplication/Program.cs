@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
+using System.Windows;
 using System.Windows.Forms;
 using iSpyApplication;
 using iSpyApplication.Video;
@@ -9,7 +13,9 @@ using Microsoft.Win32;
 
 internal static class Program
 {
-    public static Mutex Mutex;
+    const int SwRestore = 9;
+
+    //public static Mutex Mutex;
     private static string _apppath = "", _appdatapath = "";
     public static string AppPath
     {
@@ -43,12 +49,38 @@ internal static class Program
     public static string ExecutableDirectory = "";
    
     public static Mutex WriterMutex;
-
-
     private static int _reportedExceptionCount;
     private static ErrorReporting _er;
 
+    [DllImport("user32.dll")]
+    private static extern
+        bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")]
+    private static extern
+        bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")]
+    private static extern
+        bool IsIconic(IntPtr hWnd);
 
+    delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
+
+    static IEnumerable<IntPtr> EnumerateProcessWindowHandles(int processId)
+    {
+        var handles = new List<IntPtr>();
+
+        foreach (ProcessThread thread in Process.GetProcessById(processId).Threads)
+            EnumThreadWindows(thread.Id, (hWnd, lParam) => { handles.Add(hWnd); return true; }, IntPtr.Zero);
+
+        return handles;
+    }
+
+    private const uint WM_GETTEXT = 0x000D;
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto)]
+    static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, int wParam, StringBuilder lParam);
 
     
     /// <summary>
@@ -77,10 +109,22 @@ internal static class Program
         {
             Application.EnableVisualStyles();            
             Application.SetCompatibleTextRenderingDefault(false);
-            
 
-            bool firstInstance;
-            Mutex = new Mutex(false, "iSpy", out firstInstance);
+
+            bool firstInstance = true;
+            //Mutex = new Mutex(false, "iSpy", out firstInstance);
+
+            var me = Process.GetCurrentProcess();
+            var arrProcesses = Process.GetProcessesByName(me.ProcessName);
+
+            if (arrProcesses.Length > 1)
+            {
+                File.WriteAllText(AppDataPath + "external_command.txt", "showform");
+                //ensures pickup by filesystemwatcher
+                Thread.Sleep(1000);
+                firstInstance = false;               
+            }
+            
             string executableName = Application.ExecutablePath;
             var executableFileInfo = new FileInfo(executableName);
             ExecutableDirectory = executableFileInfo.DirectoryName;
@@ -99,12 +143,24 @@ internal static class Program
                 //    EnsureInstall(false);
                 if (args[0].ToLower().Trim() == "-reset" && !ei)
                 {
-                    if (MessageBox.Show("Reset iSpy? This will overwrite all your settings.", "Confirm", MessageBoxButtons.OKCancel)==DialogResult.OK)
-                    EnsureInstall(true);
+                    if (firstInstance)
+                    {
+                        if (
+                            MessageBox.Show("Reset iSpy? This will overwrite all your settings.", "Confirm",
+                                            MessageBoxButtons.OKCancel) == DialogResult.OK)
+                            EnsureInstall(true);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please exit iSpy before resetting it.");
+                    }
                 }
                 if (args[0].ToLower().Trim() == "-silent" || args[0].ToLower().Trim('\\') == "s")
                 {
-                    silentstartup = true;
+                    if (firstInstance)
+                    {
+                        silentstartup = true;
+                    }
                 }
                 else
                 {
@@ -124,31 +180,28 @@ internal static class Program
                     //ensures pickup by filesystemwatcher
                     Thread.Sleep(1000);
                 }
-                else
-                {
-                    MessageBox.Show(LocRm.GetString("iSpyRunning"), LocRm.GetString("Note"), MessageBoxButtons.OK,
-                                    MessageBoxIcon.Error);
-                }
+                
                 Application.Exit();
-                Mutex.Close();
-                Mutex.Dispose();
                 return;
             }
-            File.WriteAllText(AppDataPath + "external_command.txt", "");
 
-            //VLC integration
             if (VlcHelper.VlcInstalled)
                 VlcHelper.AddVlcToPath();
 
+            File.WriteAllText(AppDataPath + "external_command.txt", "");
+
+            //VLC integration
+
+            
+            
             WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;
+                
             var mf = new MainForm(silentstartup, command);
-            
             Application.Run(mf);
-            Mutex.Close();
             WriterMutex.Close();
-            Mutex.Dispose();
             WriterMutex.Dispose();
+            
         }
         catch (Exception ex)
         {

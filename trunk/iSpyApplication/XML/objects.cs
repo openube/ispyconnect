@@ -1606,6 +1606,10 @@ public partial class objectsCameraDetector {
     private int calibrationdelayField;
     
     private double sensitivityField;
+
+    private double maxsensitivityField;
+
+    private double minsensitivityField;
     
     private string colorField;
     
@@ -1758,6 +1762,32 @@ public partial class objectsCameraDetector {
             this.sensitivityField = value;
         }
     }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public double maxsensitivity
+    {
+        get {
+            return this.maxsensitivityField;
+        }
+        set {
+            this.maxsensitivityField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public double minsensitivity
+    {
+        get {
+            return this.minsensitivityField;
+        }
+        set {
+            this.minsensitivityField = value;
+        }
+    }
+
+    
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]

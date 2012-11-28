@@ -21,7 +21,7 @@ namespace iSpyApplication
     {
         private readonly string[] _alertmodes = new[] {"movement", "nomovement", "objectcount"};
 
-        private readonly string[] _detectortypes = new[] {"Two Frames", "Custom Frame", "Background Modelling", "None"};
+        private readonly string[] _detectortypes = new[] { "Two Frames", "Custom Frame", "Background Modelling", "Two Frames (Color)", "Custom Frame (Color)", "Background Modelling (Color)", "None" };
 
         private readonly string[] _processortypes = new[] {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
@@ -221,9 +221,13 @@ namespace iSpyApplication
 
             ddlProcessFrames.SelectedItem = CameraControl.Camobject.detector.processeveryframe.ToString();
             txtCameraName.Text = CameraControl.Camobject.name;
-            
-            tbSensitivity.Value = Convert.ToInt32(CameraControl.Camobject.detector.sensitivity*10);
-            txtSensitivity.Text = CameraControl.Camobject.detector.sensitivity.ToString();
+
+            ranger1.Maximum = 100;
+            ranger1.Minimum = 0.001;
+            ranger1.ValueMin = CameraControl.Camobject.detector.minsensitivity;
+            ranger1.ValueMax = CameraControl.Camobject.detector.maxsensitivity;
+            ranger1.ValueMinChanged += ranger1_ValueMinChanged;
+            ranger1.ValueMaxChanged += ranger1_ValueMaxChanged;
             
             rdoRecordDetect.Checked = CameraControl.Camobject.detector.recordondetect;
             rdoRecordAlert.Checked = CameraControl.Camobject.detector.recordonalert;
@@ -428,6 +432,26 @@ namespace iSpyApplication
             _loaded = true;
         }
 
+        void ranger1_ValueMinChanged()
+        {
+            CameraControl.Camobject.detector.minsensitivity = ranger1.ValueMin;
+            if (CameraControl.Camera != null)
+            {
+                CameraControl.Camera.AlarmLevel = Helper.CalculateTrigger(ranger1.ValueMin);
+            }
+        
+        }
+
+        void ranger1_ValueMaxChanged()
+        {
+            CameraControl.Camobject.detector.maxsensitivity = ranger1.ValueMax;
+            if (CameraControl.Camera != null)
+            {
+                CameraControl.Camera.AlarmLevelMax = Helper.CalculateTrigger(ranger1.ValueMax);
+            }
+
+        }
+
 
         private void ShowPTZSchedule()
         {
@@ -520,7 +544,7 @@ namespace iSpyApplication
             label27.Text = LocRm.GetString("Seconds");
             label28.Text = LocRm.GetString("Seconds");
             label29.Text = LocRm.GetString("Buffer");
-            label3.Text = LocRm.GetString("Sensitivity");
+            label3.Text = LocRm.GetString("TriggerRange");
             label30.Text = LocRm.GetString("MaxRecordTime");
             label31.Text = LocRm.GetString("Seconds");
             label32.Text = LocRm.GetString("InactivityRecord");
@@ -596,7 +620,7 @@ namespace iSpyApplication
             tabPage9.Text = LocRm.GetString("Youtube");
             toolTip1.SetToolTip(txtMaskImage, LocRm.GetString("ToolTip_CameraName"));
             toolTip1.SetToolTip(txtCameraName, LocRm.GetString("ToolTip_CameraName"));
-            toolTip1.SetToolTip(tbSensitivity, LocRm.GetString("ToolTip_MotionSensitivity"));
+            toolTip1.SetToolTip(ranger1, LocRm.GetString("ToolTip_MotionSensitivity"));
             toolTip1.SetToolTip(txtExecuteMovement, LocRm.GetString("ToolTip_EGMP3"));
             toolTip1.SetToolTip(txtTimeLapseFrames, LocRm.GetString("ToolTip_TimeLapseFrames"));
             toolTip1.SetToolTip(txtTimeLapse, LocRm.GetString("ToolTip_TimeLapseVideo"));
@@ -1240,6 +1264,26 @@ namespace iSpyApplication
                                                                  CameraControl.Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
+                case "Two Frames (Color)":
+                    CameraControl.Camera.MotionDetector =
+                        new MotionDetector(
+                            new TwoFramesColorDifferenceDetector(CameraControl.Camobject.settings.suppressnoise));
+                    SetProcessor();
+                    break;
+                case "Custom Frame (Color)":
+                    CameraControl.Camera.MotionDetector =
+                        new MotionDetector(
+                            new CustomFrameColorDifferenceDetector(CameraControl.Camobject.settings.suppressnoise,
+                                                              CameraControl.Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
+                case "Background Modelling (Color)":
+                    CameraControl.Camera.MotionDetector =
+                        new MotionDetector(
+                            new SimpleColorBackgroundModelingDetector(CameraControl.Camobject.settings.suppressnoise,
+                                                                 CameraControl.Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
                 case "None":
                     break;
             }
@@ -1700,7 +1744,9 @@ namespace iSpyApplication
                 ddlHomeCommand.SelectedIndex = 0;
             }
 
-            pnlPTZControls.Enabled = CameraControl.Camobject.ptz > -1;            
+            pnlPTZControls.Enabled = CameraControl.Camobject.ptz > -1;   
+            if (!pnlPTZControls.Enabled)
+                chkTrack.Checked = false;
         }
 
         private void PnlPtzPaint(object sender, PaintEventArgs e)
@@ -1807,31 +1853,6 @@ namespace iSpyApplication
             ((MainForm) Owner).ShowSettings(3);
             if (lang != MainForm.Conf.Language)
                 RenderResources();
-        }
-
-        private void TxtSensitivityKeyUp(object sender, KeyEventArgs e)
-        {
-            double sv;
-            if (!double.TryParse(txtSensitivity.Text, out sv)) return;
-            CameraControl.Camobject.detector.sensitivity = sv;
-            if (CameraControl.Camera != null)
-            {
-                CameraControl.Camera.AlarmLevel = Helper.CalculateSensitivity(sv);
-            }
-        }
-
-        private void TbSensitivityValueChanged(object sender, EventArgs e)
-        {
-            if (_loaded)
-            {
-                if (CameraControl.Camera != null)
-                {
-                    CameraControl.Camera.AlarmLevel =
-                        Helper.CalculateSensitivity(Convert.ToDouble(tbSensitivity.Value)/10.0);
-                }
-                CameraControl.Camobject.detector.sensitivity = Convert.ToDouble(tbSensitivity.Value)/10.0;
-                txtSensitivity.Text = CameraControl.Camobject.detector.sensitivity.ToString();
-            }
         }
 
         //private void GbAdvancedEnabledChanged(object sender, EventArgs e)
@@ -2190,7 +2211,7 @@ namespace iSpyApplication
 
         private void button4_Click(object sender, EventArgs e)
         {
-            ConfigureProcessor cp = new ConfigureProcessor(CameraControl);
+            var cp = new ConfigureProcessor(CameraControl);
             if (cp.ShowDialog(this)== DialogResult.OK)
             {
                 if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
@@ -2198,7 +2219,7 @@ namespace iSpyApplication
                     SetDetector();
                 }
             }
-
+            cp.Dispose();
         }
 
         private void chkTrack_CheckedChanged(object sender, EventArgs e)

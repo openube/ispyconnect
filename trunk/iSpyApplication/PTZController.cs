@@ -52,7 +52,9 @@ namespace iSpyApplication
             }
 
             PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
-
+            if (ptz==null)
+                return;
+            
             string command = ptz.Commands.Center;
             string diag = "";
 
