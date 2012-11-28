@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Media;
@@ -125,7 +127,7 @@ namespace iSpyApplication.Controls
         public DateTime TimelapseStart = DateTime.MinValue;
         public objectsCamera Camobject;
         public volatile bool IsEnabled;
-
+        internal Color BackgroundColor = MainForm.Conf.BackColor.ToColor();
 
        
 
@@ -430,7 +432,7 @@ namespace iSpyApplication.Controls
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
-            BackColor = MainForm.Conf.BackColor.ToColor();
+            BackgroundColor = MainForm.Conf.BackColor.ToColor();
             Camobject = cam;
             PTZ = new PTZController(this);
 
@@ -958,56 +960,57 @@ namespace iSpyApplication.Controls
                 if (Recording)
                     _recordingTime += Convert.ToDouble(ts.TotalMilliseconds)/1000.0;
 
+                bool reset = true;
+                
                 if (Camobject.alerts.active && Camobject.settings.active)
                 {
+                    
                     if (FlashCounter > 0 && _isTrigger)
                     {
-                        BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
+                        BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
                                         ? MainForm.Conf.BackColor.ToColor()
                                         : MainForm.Conf.ActivityColor.ToColor();
+                        reset = false;
                     }
-                    else
-                    {
 
-                        switch (Camobject.alerts.mode.ToLower())
-                        {
-                            case "movement":
-                                if (MovementDetected)
-                                {
-                                    BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
-                                                    ? MainForm.Conf.BackColor.ToColor()
-                                                    : MainForm.Conf.ActivityColor.ToColor();
-                                }
-                                else
-                                    BackColor = MainForm.Conf.BackColor.ToColor();
-                                break;
-                            case "nomovement":
-                                if (!MovementDetected)
-                                {
-                                    BackColor = (BackColor == MainForm.Conf.NoActivityColor.ToColor())
-                                                    ? MainForm.Conf.BackColor.ToColor()
-                                                    : MainForm.Conf.NoActivityColor.ToColor();
-                                }
-                                else
-                                    BackColor = MainForm.Conf.BackColor.ToColor();
-                                break;
-                            default:
-                                if (FlashCounter > 0)
-                                {
-                                    BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
-                                                    ? MainForm.Conf.BackColor.ToColor()
-                                                    : MainForm.Conf.ActivityColor.ToColor();
-                                }
-                                else
-                                    BackColor = MainForm.Conf.BackColor.ToColor();
-                                break;
-                        }
+                    switch (Camobject.alerts.mode.ToLower())
+                    {
+                        case "movement":
+                            if (MovementDetected)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
+                                                ? MainForm.Conf.BackColor.ToColor()
+                                                : MainForm.Conf.ActivityColor.ToColor();
+                                reset = false;
+                            }
+                                
+                            break;
+                        case "nomovement":
+                            if (!MovementDetected)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.Conf.NoActivityColor.ToColor())
+                                                ? MainForm.Conf.BackColor.ToColor()
+                                                : MainForm.Conf.NoActivityColor.ToColor();
+                                reset = false;
+                            }
+                                
+                            break;
+                        default:
+                            if (!Highlighted && FlashCounter > 0)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
+                                                ? MainForm.Conf.BackColor.ToColor()
+                                                : MainForm.Conf.ActivityColor.ToColor();
+                                reset = false;
+                            }
+                                
+                            break;
                     }
+
                 }
-                else
-                {
-                    BackColor = MainForm.Conf.BackColor.ToColor();
-                }
+                if (reset)
+                    BackgroundColor = MainForm.Conf.BackColor.ToColor();
+
 
                 if (_secondCount > 1) //every second
                 {
@@ -1068,10 +1071,24 @@ namespace iSpyApplication.Controls
                         {
                             if (_camera.MotionDetector != null)
                             {
+                                if (_camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameColorDifferenceDetector)
+                                {
+                                    ((CustomFrameColorDifferenceDetector)_camera.MotionDetector.MotionDetectionAlgorithm).
+                                        SetBackgroundFrame(_camera.LastFrame);
+                                }
                                 if (_camera.MotionDetector.MotionDetectionAlgorithm is CustomFrameDifferenceDetector)
                                 {
                                     ((CustomFrameDifferenceDetector)_camera.MotionDetector.MotionDetectionAlgorithm).
                                         SetBackgroundFrame(_camera.LastFrame);
+                                }
+                                if (_camera.MotionDetector.MotionDetectionAlgorithm is SimpleBackgroundModelingDetector)
+                                {
+                                    ((SimpleBackgroundModelingDetector)_camera.MotionDetector.MotionDetectionAlgorithm).Reset();
+                                }
+                                if (_camera.MotionDetector.MotionDetectionAlgorithm is SimpleColorBackgroundModelingDetector)
+                                {
+                                    ((SimpleColorBackgroundModelingDetector)
+                                     _camera.MotionDetector.MotionDetectionAlgorithm).Reset();
                                 }
                             }
 
@@ -1453,7 +1470,14 @@ namespace iSpyApplication.Controls
                 return frame;
             var r = new Bitmap(w, h);
             using (var g = Graphics.FromImage(r))
+            {
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.PixelOffsetMode = PixelOffsetMode.Half;
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.Default;
                 g.DrawImage(frame, 0, 0, w, h);
+            }
             frame.Dispose();
             frame = null;
             return r;
@@ -1589,8 +1613,6 @@ namespace iSpyApplication.Controls
             
         }
 
-        
-
         private bool OpenTimeLapseWriter()
         {
             DateTime date = DateTime.Now;
@@ -1666,7 +1688,6 @@ namespace iSpyApplication.Controls
             }
             return success;
         }
-
 
         private void CloseTimeLapseWriter()
         {
@@ -1751,6 +1772,31 @@ namespace iSpyApplication.Controls
             return false;
         }
 
+        public bool Highlighted;
+
+        public Color BorderColor
+        {
+            get
+            {
+                if (Focused)
+                    return MainForm.Conf.BorderHighlightColor.ToColor();
+                if (Highlighted)
+                    return MainForm.Conf.FloorPlanHighlightColor.ToColor();
+                return Color.Black;
+                
+            }
+        }
+
+        public int BorderWidth
+        {
+            get
+            {
+                if (Highlighted || Focused)
+                    return 4;
+                return 2;
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             if (NeedSizeUpdate && _camera != null && !_camera.LastFrameNull)
@@ -1762,9 +1808,10 @@ namespace iSpyApplication.Controls
                 AutoSize = false;
             Monitor.Enter(this);
             Graphics gCam = pe.Graphics;
-            Color border = (!Focused) ? Color.Black : MainForm.Conf.BorderHighlightColor.ToColor();
-            var grabBrush = new SolidBrush(border);
-            var borderPen = new Pen(grabBrush);
+
+            
+            var grabBrush = new SolidBrush(BorderColor);
+            var borderPen = new Pen(grabBrush, BorderWidth);
             var drawBrush = new SolidBrush(Color.White);
             var sb = new SolidBrush(MainForm.Conf.VolumeLevelColor.ToColor());
             var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
@@ -1776,35 +1823,9 @@ namespace iSpyApplication.Controls
             try
             {
                 Rectangle rc = ClientRectangle;
-                gCam.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
-               
-                var grabPoints = new[]
-                                     {
-                                         new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
-                                         new Point(rc.Width, rc.Height)
-                                     };
                 int textpos = rc.Height - 15;
-
-
-                gCam.FillPolygon(grabBrush, grabPoints);
-
-                if (_camera != null && _camera.IsRunning)
-                {
-                    //draw detection graph
-                    int w = 2 + Convert.ToInt32((Convert.ToDouble(rc.Width - 4)/100.0)*(_camera.MotionLevel*1000));
-                    int ax = 2 + Convert.ToInt32((Convert.ToDouble(rc.Width - 4)/100.0)*(_camera.AlarmLevel*1000));
-
-                    grabPoints = new[]
-                                     {
-                                         new Point(2, rc.Height - 22), new Point(w, rc.Height - 22),
-                                         new Point(w, rc.Height - 15), new Point(2, rc.Height - 15)
-                                     };
-
-                    gCam.FillPolygon(sb, grabPoints);
-
-                    gCam.DrawLine(pline, new Point(ax, rc.Height - 22), new Point(ax, rc.Height - 15));
-                    pline.Dispose();
-                }
+                
+               
                 bool message = false;
 
                 if (Camobject.settings.active)
@@ -1823,8 +1844,18 @@ namespace iSpyApplication.Controls
                         {
                             m = "Z: " + String.Format("{0:0.0}", Camera.ZFactor) + " " + m;
                         }
-
+                        
+                        gCam.CompositingMode = CompositingMode.SourceCopy;
+                        gCam.CompositingQuality = CompositingQuality.HighSpeed;
+                        gCam.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+                        gCam.SmoothingMode = SmoothingMode.None;
+                        gCam.InterpolationMode = InterpolationMode.Default;
+                        gCam.Clear(BackgroundColor);
                         gCam.DrawImage(bm, rc.X + 1, rc.Y + 1, rc.Width - 2, rc.Height - 26);
+
+                        gCam.CompositingMode = CompositingMode.SourceOver;
+                        gCam.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
 
                         if (Calibrating)
                         {
@@ -1921,6 +1952,27 @@ namespace iSpyApplication.Controls
                             message = true;
                         }
                     }
+
+                    if (_camera != null && _camera.IsRunning)
+                    {
+                        //draw detection graph
+                        double d = (Convert.ToDouble(rc.Width - 4)/100.0);
+                        int w = 2 + Convert.ToInt32(d * (_camera.MotionLevel * 1000));
+                        int ax = 2 + Convert.ToInt32(d * Camobject.detector.minsensitivity);
+                        int axmax = 2 + Convert.ToInt32(d * Camobject.detector.maxsensitivity);
+
+                        var grabPoints = new[]
+                                     {
+                                         new Point(2, rc.Height - 22), new Point(w, rc.Height - 22),
+                                         new Point(w, rc.Height - 15), new Point(2, rc.Height - 15)
+                                     };
+
+                        gCam.FillPolygon(sb, grabPoints);
+
+                        gCam.DrawLine(pline, new Point(ax, rc.Height - 22), new Point(ax, rc.Height - 15));
+                        gCam.DrawLine(pline, new Point(axmax, rc.Height - 22), new Point(axmax, rc.Height - 15));
+                        pline.Dispose();
+                    }
                 }
                 else
                 {
@@ -1983,11 +2035,22 @@ namespace iSpyApplication.Controls
                     
 
                 }
+
+                gCam.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
+                var borderPoints = new[]
+                {
+                    new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
+                    new Point(rc.Width, rc.Height)
+                };
+
+                gCam.FillPolygon(grabBrush, borderPoints);
             }
             catch (Exception e)
             {
                 MainForm.LogExceptionToFile(e, "Camera " + Camobject.id);
             }
+
+            
 
             borderPen.Dispose();
             grabBrush.Dispose();
@@ -2058,7 +2121,7 @@ namespace iSpyApplication.Controls
                 MainForm.LogMessageToFile("Skipped recording - maximum recording thread limit hit. See settings to modify the limit.");
                 return;
             }
-            Console.WriteLine("StartSaving");
+            //Console.WriteLine("StartSaving");
             _recordingThread = new Thread(Record) { Name = "Recording Thread (" + Camobject.id + ")", IsBackground = false, Priority = ThreadPriority.Normal };
             _recordingThread.Start();
         }
@@ -2159,7 +2222,7 @@ namespace iSpyApplication.Controls
                         {
                             using (var ms = new MemoryStream(fa.Frame))
                             {
-                                using (var bmp = (Bitmap)System.Drawing.Image.FromStream(ms))
+                                using (var bmp = (Bitmap)Image.FromStream(ms))
                                 {
                                     if (recordingStart == DateTime.MinValue)
                                     {
@@ -2218,7 +2281,7 @@ namespace iSpyApplication.Controls
                                 using (var ms = new MemoryStream(fa.Frame))
                                 {
 
-                                    var bmp = (Bitmap) System.Drawing.Image.FromStream(ms);
+                                    var bmp = (Bitmap) Image.FromStream(ms);
                                     Writer.WriteVideoFrame(ResizeBitmap(bmp), fa.Timestamp - recordingStart);
                                     bmp.Dispose();
                                     bmp = null;
@@ -2276,7 +2339,7 @@ namespace iSpyApplication.Controls
                     {
                         using (var ms = new MemoryStream(peakFrame.Value.Frame))
                         {
-                            using (var bmp = (Bitmap)System.Drawing.Image.FromStream(ms))
+                            using (var bmp = (Bitmap)Image.FromStream(ms))
                             {
                                 bmp.Save(folder + @"thumbs\" + VideoFileName + "_large.jpg", MainForm.Encoder,
                                          MainForm.EncoderParams);
@@ -2379,7 +2442,7 @@ namespace iSpyApplication.Controls
                 ff.IsTimelapse = false;
                 ff.AlertData = Helper.GetMotionDataPoints(_motionData);
                 _motionData.Clear();
-                ff.TriggerLevel = Camobject.detector.sensitivity;
+                ff.TriggerLevel = (100-Camobject.detector.minsensitivity); //adjusted
 
                 if (newfile)
                 {
@@ -2593,7 +2656,7 @@ namespace iSpyApplication.Controls
                         sp.Play();
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
                     MainForm.LogExceptionToFile(ex);
                 }
@@ -2875,7 +2938,7 @@ namespace iSpyApplication.Controls
                     _camera.Mask = null;
                 }
                 _camera = null;
-                BackColor = MainForm.Conf.BackColor.ToColor();
+                BackgroundColor = MainForm.Conf.BackColor.ToColor();
             }
             Camobject.settings.active = false;
             _recordingTime = 0;
@@ -3088,6 +3151,17 @@ namespace iSpyApplication.Controls
                         motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,
                                                                                 Camobject.detector.keepobjectedges);
                         break;
+                    case "Two Frames (Color)":
+                        motionDetector = new TwoFramesColorDifferenceDetector(Camobject.settings.suppressnoise);
+                        break;
+                    case "Custom Frame (Color)":
+                        motionDetector = new CustomFrameColorDifferenceDetector(Camobject.settings.suppressnoise,
+                                                                            Camobject.detector.keepobjectedges);
+                        break;
+                    case "Background Modelling (Color)":
+                        motionDetector = new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,
+                                                                                Camobject.detector.keepobjectedges);
+                        break;
                     case "None":
                         break;
                 }
@@ -3144,7 +3218,8 @@ namespace iSpyApplication.Controls
                     else
                         Camera.MotionDetector = new MotionDetector(motionDetector, motionProcessor);
 
-                    Camera.AlarmLevel = Helper.CalculateSensitivity(Camobject.detector.sensitivity);
+                    Camera.AlarmLevel = Helper.CalculateTrigger(Camobject.detector.minsensitivity);
+                    Camera.AlarmLevelMax = Helper.CalculateTrigger(Camobject.detector.maxsensitivity);
                     NeedMotionZones = true;
                 }
                 else
@@ -3191,7 +3266,7 @@ namespace iSpyApplication.Controls
 
                 if (File.Exists(Camobject.settings.maskimage))
                 {
-                    Camera.Mask = System.Drawing.Image.FromFile(Camobject.settings.maskimage);
+                    Camera.Mask = Image.FromFile(Camobject.settings.maskimage);
                 }
 
                 UpdateFloorplans(false);
@@ -3542,7 +3617,7 @@ namespace iSpyApplication.Controls
             // 
             // CameraWindow
             // 
-            this.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColor = System.Drawing.Color.Black;
             this.Cursor = System.Windows.Forms.Cursors.Hand;
             this.MinimumSize = new System.Drawing.Size(160, 120);
             this.Size = new System.Drawing.Size(160, 120);

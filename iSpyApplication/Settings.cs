@@ -119,6 +119,7 @@ namespace iSpyApplication
             MainForm.Conf.PreviewItems = (int)numMediaPanelItems.Value;
             MainForm.Conf.BigButtons = chkBigButtons.Checked;
             MainForm.Conf.DeleteToRecycleBin = chkRecycle.Checked;
+            MainForm.Conf.SpeechRecognition = chkSpeechRecognition.Checked;
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             if (ddlTalkMic.Items.Count == 0)
@@ -224,6 +225,8 @@ namespace iSpyApplication
             numMediaPanelItems.Value = MainForm.Conf.PreviewItems;
             txtTrayIcon.Text = MainForm.Conf.TrayIconText;
             chkMinimise.Checked = MainForm.Conf.MinimiseOnClose;
+            chkSpeechRecognition.Checked = MainForm.Conf.SpeechRecognition;
+
             if (chkMonitor.Checked && !MainForm.Conf.Monitor)
             {
                 Process.Start(Program.AppPath + "iSpyMonitor.exe");

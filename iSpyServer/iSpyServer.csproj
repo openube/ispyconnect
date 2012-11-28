@@ -605,6 +605,6 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>call "c:\projects\ispy\signing\iSpyServer.bat"</PostBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)signing\iSpyServer.bat"</PostBuildEvent>
   </PropertyGroup>
 </Project>

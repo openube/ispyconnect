@@ -100,7 +100,6 @@ namespace iSpyApplication.Video
         
         #endregion
 
-
         #region Alerts Stuff
         public event AlertEventHandler AlertHandler;
         #endregion
@@ -610,7 +609,6 @@ namespace iSpyApplication.Video
                                             AlertHandler(this, new AlertEventArgs(alerttype));
                                         }
                                         break;
-
                                 }
                             }
 

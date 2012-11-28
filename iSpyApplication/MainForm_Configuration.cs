@@ -140,6 +140,9 @@ namespace iSpyApplication
                 if (_conf.JPEGQuality == 0)
                     _conf.JPEGQuality = 80;
 
+                if (String.IsNullOrEmpty(_conf.FloorPlanHighlightColor))
+                    _conf.FloorPlanHighlightColor = "0,217,0";
+
                 if (String.IsNullOrEmpty(_conf.WebServer))
                     _conf.WebServer = "http://www.ispyconnect.com";
 
@@ -525,6 +528,13 @@ namespace iSpyApplication
                     {
                         cam.settings.audiousername = "";
                         cam.settings.audiopassword = "";
+                    }
+
+                    if (cam.detector.minsensitivity == 0)
+                    {
+                        cam.detector.maxsensitivity = 100;
+                        //fix for old setting conversion
+                        cam.detector.minsensitivity = 100 - cam.detector.sensitivity;
                     }
 
                     if (!Directory.Exists(path2))
@@ -1275,9 +1285,6 @@ namespace iSpyApplication
             oc.alerts.alertoptions = "false,false";
             oc.alerts.objectcountalert = 1;
             oc.alerts.minimuminterval = 180;
-            oc.alerts.numberplatesinterval = 1;
-            oc.alerts.numberplatesaccuracy = 80;
-            oc.alerts.numberplatesarea = "10,33,80,77";
             oc.alerts.processmode = "continuous";
             oc.alerts.pluginconfig = "";
             oc.alerts.trigger = "";
@@ -1352,7 +1359,8 @@ namespace iSpyApplication
             oc.detector.color = ColorTranslator.ToHtml(Conf.TrackingColor.ToColor());
             oc.detector.type = "Two Frames";
             oc.detector.postprocessor = "None";
-            oc.detector.sensitivity = 80;
+            oc.detector.minsensitivity = 20;
+            oc.detector.maxsensitivity = 100;
             oc.detector.minwidth = 20;
             oc.detector.minheight = 20;
             oc.detector.highlight = true;

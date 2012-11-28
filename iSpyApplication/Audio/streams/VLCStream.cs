@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Declarations;
+using Declarations.Events;
 using Declarations.Media;
 using Declarations.Players;
 using Implementation;
@@ -202,16 +203,20 @@ namespace iSpyApplication.Audio.streams
                 _needsSetup = true;
                 var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
                 _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
-                //.SetFormat(new SoundFormat(SoundType.S16N, RecordingFormat.SampleRate, RecordingFormat.Channels)));
                 var ac = new AudioCallbacks {SoundCallback = SoundCallback};
                 _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
-
-                _mMedia.Parse(false);
+                _mMedia.Events.ParsedChanged += EventsParsedChanged;
+                _mMedia.Parse(true);
 
                 
                 _mPlayer.Play();               
 
             }
+        }
+
+        private void EventsParsedChanged(object sender, MediaParseChange e)
+        {
+            Console.WriteLine(e.Parsed);
         }
 
         private SoundFormat SoundFormatCallback(SoundFormat sf)

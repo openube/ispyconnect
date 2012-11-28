@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection;
@@ -32,15 +33,18 @@ namespace iSpyApplication.Controls
         public double RealFramerate;
         public UnmanagedImage LastFrameUnmanaged;
         private Queue<double> _framerates;
-        private Queue<double> _realframerates;
         private HSLFiltering _filter;
         private volatile bool _requestedToStop;
         private readonly object _sync = new object();
         private MotionDetector _motionDetector;
         private int _processFrameCount;
+        private DateTime _motionlastdetected = DateTime.MinValue;
+        private DateTime _nextFrameTarget = DateTime.MinValue;
+
 
         // alarm level
         private double _alarmLevel = 0.0005;
+        private double _alarmLevelMax = 1;
         private int _height = -1;
         private DateTime _lastframeProcessed = DateTime.MinValue;
         private DateTime _lastframeEvent = DateTime.MinValue;
@@ -266,7 +270,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        // Running propert
+        // Running property
         public bool IsRunning
         {
             get { return (VideoSource == null) ? false : VideoSource.IsRunning; }
@@ -292,6 +296,13 @@ namespace iSpyApplication.Controls
         {
             get { return _alarmLevel; }
             set { _alarmLevel = value; }
+        }
+
+        // AlarmLevel property
+        public double AlarmLevelMax
+        {
+            get { return _alarmLevelMax; }
+            set { _alarmLevelMax = value; }
         }
 
         // FramesReceived property
@@ -361,7 +372,6 @@ namespace iSpyApplication.Controls
                 {
                     _requestedToStop = false;
                     _framerates = new Queue<double>();
-                    _realframerates = new Queue<double>();
                     _lastframeProcessed = DateTime.MinValue;
                     _lastframeEvent = DateTime.MinValue;
                     VideoSource.Start();
@@ -422,11 +432,6 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private DateTime _motionlastdetected = DateTime.MinValue;
-
-
-        //private double _dRealFrameCounter = 1;
-        //private double _dPresentationFrameCounter = 1;
 
         private void VideoNewFrame(object sender, NewFrameEventArgs e)
         {
@@ -436,48 +441,23 @@ namespace iSpyApplication.Controls
             
             if (_lastframeEvent > DateTime.MinValue)
             {
-                //discard this frame to limit framerate? - this is a hack, not the best method but adaptive framerate limiting is intensive
-                if ((DateTime.Now - _lastframeProcessed).TotalMilliseconds < Mininterval)
+                if ((DateTime.Now<_nextFrameTarget))
                 {
-                    //Console.WriteLine("skipped: " + (DateTime.Now - _lastframeProcessed).TotalMilliseconds);
                     return;
                 }
 
+                double dMin = Mininterval;
+                _nextFrameTarget = _nextFrameTarget.AddMilliseconds(dMin);
+                if (_nextFrameTarget < DateTime.Now)
+                    _nextFrameTarget = DateTime.Now.AddMilliseconds(dMin);
+
+
                 TimeSpan tsFr = DateTime.Now - _lastframeProcessed;
                 _framerates.Enqueue(1000d / tsFr.TotalMilliseconds);
-                if (_framerates.Count >= 10)
+                if (_framerates.Count >= 30)
                     _framerates.Dequeue();
                 Framerate = _framerates.Average();
 
-
-                //framerate of live stream
-                //var tsFr = DateTime.Now - _lastframeEvent;
-                //_realframerates.Enqueue(1000d / tsFr.TotalMilliseconds);
-                //while (_realframerates.Count >30)
-                //    _realframerates.Dequeue();
-                //RealFramerate = _realframerates.Average();
-
-                //_lastframeEvent = DateTime.Now;
-                ////15 fps
-                //_dRealFrameCounter++;
-                //if (_dRealFrameCounter > RealFramerate)
-                //    _dRealFrameCounter = 1;
-
-
-                //if (_dRealFrameCounter / RealFramerate < _dPresentationFrameCounter / MaxFramerate)
-                //{
-                //    return;
-                //}
-
-                //_dPresentationFrameCounter++;
-                //if (_dPresentationFrameCounter >= 1000d / Mininterval)
-                //    _dPresentationFrameCounter = 1d;
-
-                //tsFr = DateTime.Now - _lastframeProcessed;
-                //_framerates.Enqueue(1000d / tsFr.TotalMilliseconds);
-                //while (_framerates.Count > 30)
-                //    _framerates.Dequeue();
-                //Framerate = _framerates.Average();
             }
             else
             {
@@ -504,10 +484,17 @@ namespace iSpyApplication.Controls
                         //resize?
                         if (CW.Camobject.settings.resize && (CW.Camobject.settings.desktopresizewidth != e.Frame.Width || CW.Camobject.settings.desktopresizeheight != e.Frame.Height))
                         {
-                            var result = new Bitmap(CW.Camobject.settings.desktopresizewidth,CW.Camobject.settings.desktopresizeheight, PixelFormat.Format24bppRgb);
+                            var result = new Bitmap(CW.Camobject.settings.desktopresizewidth, CW.Camobject.settings.desktopresizeheight, PixelFormat.Format24bppRgb);
 
                             using (Graphics g2 = Graphics.FromImage(result))
+                            {
+                                g2.CompositingMode = CompositingMode.SourceCopy;
+                                g2.CompositingQuality = CompositingQuality.HighSpeed;
+                                g2.PixelOffsetMode = PixelOffsetMode.Half;
+                                g2.SmoothingMode = SmoothingMode.None;
+                                g2.InterpolationMode = InterpolationMode.Default;
                                 g2.DrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                            }
                             e.Frame.Dispose();
                             bmOrig = result;
                         }
@@ -572,9 +559,12 @@ namespace iSpyApplication.Controls
                                     MotionLevel = _motionDetector.ProcessFrame(LastFrameUnmanaged, Filter);
                                     if (MotionLevel >= _alarmLevel)
                                     {
-                                        MotionDetected = true;
-                                        _motionlastdetected = DateTime.Now;
-                                        Alarm(this, new EventArgs());
+                                        if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
+                                        {
+                                            MotionDetected = true;
+                                            _motionlastdetected = DateTime.Now;
+                                            Alarm(this, new EventArgs());
+                                        }
                                     }
                                     else
                                         MotionDetected = false;

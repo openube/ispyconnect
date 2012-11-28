@@ -118,13 +118,14 @@ namespace iSpyApplication
             this.tlpVLC = new System.Windows.Forms.TableLayoutPanel();
             this.label21 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
+            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             this.label18 = new System.Windows.Forms.Label();
-            this.txtVLCArgs = new System.Windows.Forms.TextBox();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.lblInstallVLC = new System.Windows.Forms.Label();
             this.flowLayoutPanel11 = new System.Windows.Forms.FlowLayoutPanel();
             this.cmbVLCURL = new System.Windows.Forms.ComboBox();
             this.btnGetStreamSize = new System.Windows.Forms.Button();
+            this.linkLabel5 = new System.Windows.Forms.LinkLabel();
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.pnlXimea = new System.Windows.Forms.Panel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
@@ -1207,8 +1208,8 @@ namespace iSpyApplication
             this.tlpVLC.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpVLC.Controls.Add(this.label21, 0, 0);
             this.tlpVLC.Controls.Add(this.label19, 1, 1);
-            this.tlpVLC.Controls.Add(this.label18, 0, 2);
             this.tlpVLC.Controls.Add(this.txtVLCArgs, 1, 2);
+            this.tlpVLC.Controls.Add(this.label18, 0, 2);
             this.tlpVLC.Controls.Add(this.flowLayoutPanel6, 1, 3);
             this.tlpVLC.Controls.Add(this.flowLayoutPanel11, 1, 0);
             this.tlpVLC.Dock = System.Windows.Forms.DockStyle.Top;
@@ -1241,6 +1242,15 @@ namespace iSpyApplication
             this.label19.TabIndex = 53;
             this.label19.Text = "eg: http://username:password@192.168.1.4/videostream.asf";
             // 
+            // txtVLCArgs
+            // 
+            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
+            this.txtVLCArgs.Multiline = true;
+            this.txtVLCArgs.Name = "txtVLCArgs";
+            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
+            this.txtVLCArgs.TabIndex = 61;
+            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            // 
             // label18
             // 
             this.label18.AutoSize = true;
@@ -1251,19 +1261,11 @@ namespace iSpyApplication
             this.label18.TabIndex = 52;
             this.label18.Text = "Arguments";
             // 
-            // txtVLCArgs
-            // 
-            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
-            this.txtVLCArgs.Multiline = true;
-            this.txtVLCArgs.Name = "txtVLCArgs";
-            this.txtVLCArgs.Size = new System.Drawing.Size(212, 80);
-            this.txtVLCArgs.TabIndex = 51;
-            // 
             // flowLayoutPanel6
             // 
             this.flowLayoutPanel6.Controls.Add(this.lblInstallVLC);
             this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel6.Location = new System.Drawing.Point(66, 145);
+            this.flowLayoutPanel6.Location = new System.Drawing.Point(66, 136);
             this.flowLayoutPanel6.Name = "flowLayoutPanel6";
             this.flowLayoutPanel6.Size = new System.Drawing.Size(487, 100);
             this.flowLayoutPanel6.TabIndex = 59;
@@ -1284,6 +1286,7 @@ namespace iSpyApplication
             // 
             this.flowLayoutPanel11.Controls.Add(this.cmbVLCURL);
             this.flowLayoutPanel11.Controls.Add(this.btnGetStreamSize);
+            this.flowLayoutPanel11.Controls.Add(this.linkLabel5);
             this.flowLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel11.Location = new System.Drawing.Point(63, 0);
             this.flowLayoutPanel11.Margin = new System.Windows.Forms.Padding(0);
@@ -1308,6 +1311,18 @@ namespace iSpyApplication
             this.btnGetStreamSize.Text = "Test";
             this.btnGetStreamSize.UseVisualStyleBackColor = true;
             this.btnGetStreamSize.Click += new System.EventHandler(this.Button4Click);
+            // 
+            // linkLabel5
+            // 
+            this.linkLabel5.AutoSize = true;
+            this.linkLabel5.Location = new System.Drawing.Point(377, 6);
+            this.linkLabel5.Margin = new System.Windows.Forms.Padding(6);
+            this.linkLabel5.Name = "linkLabel5";
+            this.linkLabel5.Size = new System.Drawing.Size(29, 13);
+            this.linkLabel5.TabIndex = 59;
+            this.linkLabel5.TabStop = true;
+            this.linkLabel5.Text = "Help";
+            this.linkLabel5.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel5_LinkClicked);
             // 
             // tabPage7
             // 
@@ -1951,6 +1966,7 @@ namespace iSpyApplication
             this.flowLayoutPanel6.ResumeLayout(false);
             this.flowLayoutPanel6.PerformLayout();
             this.flowLayoutPanel11.ResumeLayout(false);
+            this.flowLayoutPanel11.PerformLayout();
             this.tabPage7.ResumeLayout(false);
             this.pnlXimea.ResumeLayout(false);
             this.pnlXimea.PerformLayout();
@@ -2032,7 +2048,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.ComboBox cmbVLCURL;
         private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.TextBox txtVLCArgs;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.Panel pnlVLC;
         private System.Windows.Forms.Label lblInstallVLC;
@@ -2130,5 +2145,7 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label44;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel14;
         private System.Windows.Forms.CheckBox chkUseHttp102;
+        private ClipboardTextBoxExample.ClipboardTextBox txtVLCArgs;
+        private System.Windows.Forms.LinkLabel linkLabel5;
     }
 }

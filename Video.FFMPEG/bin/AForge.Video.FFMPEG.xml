@@ -4,6 +4,73 @@
         "Video.FFMPEG"
     </assembly>
     <members>
+        <member name="F:AForge.Video.FFMPEG.IMA_ADPCM.StepIndex">
+The step index used for the next ADPCM value
+Typically, this value is read from the header, or written to the header, of a block
+of ADPCM values.
+
+</member>
+        <member name="F:AForge.Video.FFMPEG.IMA_ADPCM.PredictedValue">
+The predicted value of the next sample.
+Typically, this value is read from the header, or written to the header, of a block
+of ADPCM values.
+
+</member>
+        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.Decode(System.UInt32)">
+	Decode a single ADPCM value into a 16bit linear PCM value.
+
+	@param adpcm The 4 least significan bits represent ADPCM value to encode.
+				 Other bits are ignored.
+
+	@return The decoded 16 bit PCM value sign extended to an int.
+
+	@post #PredictedValue and #StepIndex are updated ready
+		  for decoding the next sample.
+
+</member>
+        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.Encode(System.Int16)">
+	Encode a single linear PCM sample as an ADPCM value.
+
+	@param pcm16 The PCM value to encode.
+
+	@return The 4 least significan bits represent the encoded ADPCM value.
+			Other bits are zero.
+
+	@post #PredictedValue and #StepIndex are updated ready
+		  for encoding the next sample.
+
+</member>
+        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.EncodeInit(System.Int16,System.Int16)">
+	Initialise the #PredictedValue and #StepIndex members to the
+	optimum values for encoding an audio stream whoes first two PCM samples have the
+	values given. Use of this method at the start of audio stream encoding gives
+	improved accuracy over a naive initialisation which sets #PredictedValue
+	and #StepIndex to predetermined constant values.
+
+	@param sample1 The first PCM sample in the audio stream.
+	@param sample2 The second PCM sample in the audio stream.
+
+</member>
+        <member name="T:AForge.Video.FFMPEG.IMA_ADPCM">
+@defgroup ima_adpcm Audio Codec - IMA ADPCM
+@{
+
+@brief A class which implements the IMA ADPCM audio coding algorithm.
+
+Typically, IMA ADPCM data is stored as blocks of data with the #PredictedValue
+and #StepIndex values held in a header to each block. When decoding, these values
+should be writen to this class to initialise the decoding of a block. When encoding,
+these values should be writen out to a block's header prior to encoding the samples
+in the block.
+
+Note, when IMA ADPCM data is stored in Microsoft WAV files, the #PredictedValue
+found in the block's header is used as the first sample for that block. The first ADPCM
+value in the block's data then represents the second sample.
+
+@version 2006-05-20
+	- Changed code to use standard typedefs, e.g. replaced uint8 with uint8_t, and made use of size_t.
+
+</member>
         <member name="M:AForge.Video.FFMPEG.AudioFileReader.Close">
             <summary>
 Close currently opened audio file if any.
@@ -106,124 +173,188 @@ reader.Close( );
 </code>
             </remarks>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Close">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Flush">
+            <summary>
+Flush currently opened video file if any.
+</summary>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Close">
             <summary>
 Close currently opened video file if any.
 </summary>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.ReadAudioFrame">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap,System.TimeSpan)">
             <summary>
-Read next audio frame of the currently opened audio file.
+Write new video frame with a specific timestamp into currently opened video file.
 </summary>
-            <returns>Returns next audio frame of the opened file or <see langword="null" /> if end of
-file was reached. The returned audio frame has 24 bpp color format.</returns>
-            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while reading next audio frame. See exception message.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.ReadVideoFrame">
-            <summary>
-Read next video frame of the currently opened video file.
-</summary>
-            <returns>Returns next video frame of the opened file or <see langword="null" /> if end of
-file was reached. The returned video frame has 24 bpp color format.</returns>
+            <param name="frame">Bitmap to add as a new video frame.</param>
+            <param name="timestamp">Frame timestamp, total time since recording started.</param>
+            <remarks>
+                <para>The specified bitmap must be either color 24 or 32 bpp image or grayscale 8 bpp (indexed) image.</para>
+                <para>
+                    <note>The <paramref name="timestamp" /> parameter allows user to specify presentation
+time of the frame being saved. However, it is user's responsibility to make sure the value is increasing
+over time.</note>
+                </para>
+            </remarks>
             <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while reading next video frame. See exception message.</exception>
+            <exception cref="T:System.ArgumentException">The provided bitmap must be 24 or 32 bpp color image or 8 bpp grayscale image.</exception>
+            <exception cref="T:System.ArgumentException">Bitmap size must be of the same as video size, which was specified on opening video file.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while writing new video frame. See exception message.</exception>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Open(System.String)">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)">
             <summary>
-Open video file with the specified name.
+Write new video frame into currently opened video file.
 </summary>
-            <param name="fileName">Video file name to open.</param>
-            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while opening the video file. See exception message.</exception>
+            <param name="frame">Bitmap to add as a new video frame.</param>
+            <remarks>
+                <para>The specified bitmap must be either color 24 or 32 bpp image or grayscale 8 bpp (indexed) image.</para>
+            </remarks>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+            <exception cref="T:System.ArgumentException">The provided bitmap must be 24 or 32 bpp color image or 8 bpp grayscale image.</exception>
+            <exception cref="T:System.ArgumentException">Bitmap size must be of the same as video size, which was specified on opening video file.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while writing new video frame. See exception message.</exception>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Dispose">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec,System.Int32,AForge.Video.FFMPEG.AudioCodec,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+Create video file with the specified name and attributes.
+</summary>
+            <param name="fileName">Video file name to create.</param>
+            <param name="width">Frame width of the video file.</param>
+            <param name="height">Frame height of the video file.</param>
+            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
+            <param name="codec">Video codec to use for compression.</param>
+            <param name="bitRate">Target bitrate.</param>
+            <param name="audioCodec">Audio codec to use for compression.</param>
+            <remarks>
+                <para>The methods creates new video file with the specified name.
+If a file with such name already exists in the file system, it will be overwritten.</para>
+                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
+the video frame must have width and height as specified during file opening.</para>
+                <para>
+                    <note>The bit rate parameter represents a trade-off value between video quality
+and video file size. Higher bit rate value increase video quality and result in larger
+file size. Smaller values result in opposite – worse quality and small video files.</note>
+                </para>
+            </remarks>
+            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
+            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
+            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec,System.Int32,System.Int32)">
+            <summary>
+Create video file with the specified name and attributes.
+</summary>
+            <param name="fileName">Video file name to create.</param>
+            <param name="width">Frame width of the video file.</param>
+            <param name="height">Frame height of the video file.</param>
+            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
+            <param name="codec">Video codec to use for compression.</param>
+            <param name="bitRate">Target bitrate.</param>
+            <remarks>
+                <para>The methods creates new video file with the specified name.
+If a file with such name already exists in the file system, it will be overwritten.</para>
+                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
+the video frame must have width and height as specified during file opening.</para>
+            </remarks>
+            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
+            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
+            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec)">
+            <summary>
+Create video file with the specified name and attributes.
+</summary>
+            <param name="fileName">Video file name to create.</param>
+            <param name="width">Frame width of the video file.</param>
+            <param name="height">Frame height of the video file.</param>
+            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
+            <param name="codec">Video codec to use for compression.</param>
+            <remarks>
+                <para>The methods creates new video file with the specified name.
+If a file with such name already exists in the file system, it will be overwritten.</para>
+                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
+the video frame must have width and height as specified during file opening.</para>
+            </remarks>
+            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
+            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
+            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32)">
+            <summary>
+Create video file with the specified name and attributes.
+</summary>
+            <param name="fileName">Video file name to create.</param>
+            <param name="width">Frame width of the video file.</param>
+            <param name="height">Frame height of the video file.</param>
+            <remarks>
+                <para>See documentation to the <see cref="!:Open( String^, int, int, bool, VideoCodec, int, AudioCodec, int)" />
+for more information and the list of possible exceptions.</para>
+                <para>
+                    <note>The method opens the video file using <see cref="F:AForge.Video.FFMPEG.VideoCodec.Default" />
+codec and 25 fps frame rate.</note>
+                </para>
+            </remarks>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Dispose">
             <summary>
 Disposes the object and frees its resources.
 </summary>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.#ctor">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.#ctor">
             <summary>
-Initializes a new instance of the <see cref="T:AForge.Video.FFMPEG.VideoFileReader" /> class.
+Initializes a new instance of the <see cref="T:AForge.Video.FFMPEG.VideoFileWriter" /> class.
 </summary>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Finalize">
+        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Finalize">
             <summary>
 Object's finalizer.
 </summary>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.IsOpen">
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.IsOpen">
             <summary>
 The property specifies if a video file is opened or not by this instance of the class.
 </summary>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.AudioCodecName">
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.ACodec">
             <summary>
-Name of codec used for encoding the opened audio file.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.CodecName">
-            <summary>
-Name of codec used for encoding the opened video file.
+Codec to use for the audio file.
 </summary>
             <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.FrameCount">
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Codec">
             <summary>
-Number of video frames in the opened video file.
-</summary>
-            <remarks>
-                <para>
-                    <note>
-                        <b>Warning</b>: some video file formats may report different value
-from the actual number of video frames in the file (subject to fix/investigate).</note>
-                </para>
-            </remarks>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.FrameRate">
-            <summary>
-Frame rate of the opened video file.
+Codec to use for the video file.
 </summary>
             <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Height">
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.BitRate">
+            <summary>
+Bit rate of the video stream.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Height">
             <summary>
 Frame height of the opened video file.
 </summary>
             <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Width">
+        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Width">
             <summary>
 Frame width of the opened video file.
 </summary>
             <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
         </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.BitsPerSample">
+        <member name="T:AForge.Video.FFMPEG.VideoFileWriter">
             <summary>
-Sample rate of stream
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Channels">
-            <summary>
-Sample rate of stream
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileReader.SampleRate">
-            <summary>
-Sample rate of stream
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
-        </member>
-        <member name="T:AForge.Video.FFMPEG.VideoFileReader">
-            <summary>
-Class for reading video files utilizing FFmpeg library.
+Class for writing video files utilizing FFmpeg library.
 </summary>
             <remarks>
-                <para>The class allows to read video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
+                <para>The class allows to write video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
                 <para>
                     <note>Make sure you have <b>FFmpeg</b> binaries (DLLs) in the output folder of your application in order
 to use this class successfully. <b>FFmpeg</b> binaries can be found in Externals folder provided with AForge.NET
@@ -231,28 +362,99 @@ framework's distribution.</note>
                 </para>
                 <para>Sample usage:</para>
                 <code>
-// create instance of video reader
-VideoFileReader reader = new VideoFileReader( );
-// open video file
-reader.Open( "test.avi" );
-// check some of its attributes
-Console.WriteLine( "width:  " + reader.Width );
-Console.WriteLine( "height: " + reader.Height );
-Console.WriteLine( "fps:    " + reader.FrameRate );
-Console.WriteLine( "codec:  " + reader.CodecName );
-// read 100 video frames out of it
-for ( int i = 0; i &lt; 100; i++ )
-{
-    Bitmap videoFrame = reader.ReadVideoFrame( );
-    // process the frame somehow
-    // ...
+int width  = 320;
+int height = 240;
 
-    // dispose the frame when it is no longer required
-    videoFrame.Dispose( );
+// create instance of video writer
+VideoFileWriter writer = new VideoFileWriter( );
+// create new video file
+writer.Open( "test.avi", width, height, 25, VideoCodec.MPEG4 );
+// create a bitmap to save into the video file
+Bitmap image = new Bitmap( width, height, PixelFormat.Format24bppRgb );
+// write 1000 video frames
+for ( int i = 0; i &lt; 1000; i++ )
+{
+    image.SetPixel( i % width, i % height, Color.Red );
+    writer.WriteVideoFrame( image );
 }
-reader.Close( );
+writer.Close( );
 </code>
             </remarks>
+        </member>
+        <member name="T:AForge.Video.FFMPEG.AudioCodec">
+            <summary>
+Enumeration of some audio codecs from FFmpeg library, which are available for writing audio files.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.AudioCodec.MP3">
+            <summary>
+MPEG-3
+</summary>
+        </member>
+        <member name="T:AForge.Video.FFMPEG.VideoCodec">
+            <summary>
+Enumeration of some video codecs from FFmpeg library, which are available for writing video files.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.MJPEG">
+            <summary>
+MJPEG video.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.H264">
+            <summary>
+H264 video.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.Raw">
+            <summary>
+Raw (uncompressed) video.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.MPEG2">
+            <summary>
+MPEG-2 part 2.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.FLV1">
+            <summary>
+Flash Video (FLV) / Sorenson Spark / Sorenson H.263.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.H263P">
+            <summary>
+H.263+ / H.263-1998 / H.263 version 2.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.MSMPEG4v3">
+            <summary>
+MPEG-4 part 2 Microsoft variant version 3.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.MSMPEG4v2">
+            <summary>
+MPEG-4 part 2 Microsoft variant version 2.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.WMV2">
+            <summary>
+Windows Media Video 8.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.WMV1">
+            <summary>
+Windows Media Video 7.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.MPEG4">
+            <summary>
+MPEG-4 part 2.
+</summary>
+        </member>
+        <member name="F:AForge.Video.FFMPEG.VideoCodec.Default">
+            <summary>
+Default video codec, which FFmpeg library selects for the specified file format.
+</summary>
         </member>
         <member name="M:libffmpeg.sws_get_class">
  Get the AVClass for swsContext. It can be used in combination with
@@ -1651,324 +1853,6 @@ sizeof(URLContext) must not be used outside libav*.
 @deprecated This struct will be made private
 
 </member>
-        <member name="M:libffmpeg.avformat_license">
-Return the libavformat license.
-
-</member>
-        <member name="M:libffmpeg.avformat_configuration">
-Return the libavformat build-time configuration.
-
-</member>
-        <member name="M:libffmpeg.avformat_version">
- @defgroup libavf I/O and Muxing/Demuxing Library
- @{
-
- @defgroup lavf_decoding Demuxing
- @{
- @}
-
- @defgroup lavf_encoding Muxing
- @{
- @}
-
- @defgroup lavf_proto I/O Read/Write
- @{
- @}
-
- @defgroup lavf_codec Demuxers
- @{
- @defgroup lavf_codec_native Native Demuxers
- @{
- @}
- @defgroup lavf_codec_wrappers External library wrappers
- @{
- @}
- @}
- @defgroup lavf_protos I/O Protocols
- @{
- @}
- @defgroup lavf_internal Internal
- @{
- @}
- @}
-
-
-Return the LIBAVFORMAT_VERSION_INT constant.
-
-</member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Flush">
-            <summary>
-Flush currently opened video file if any.
-</summary>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Close">
-            <summary>
-Close currently opened video file if any.
-</summary>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap,System.TimeSpan)">
-            <summary>
-Write new video frame with a specific timestamp into currently opened video file.
-</summary>
-            <param name="frame">Bitmap to add as a new video frame.</param>
-            <param name="timestamp">Frame timestamp, total time since recording started.</param>
-            <remarks>
-                <para>The specified bitmap must be either color 24 or 32 bpp image or grayscale 8 bpp (indexed) image.</para>
-                <para>
-                    <note>The <paramref name="timestamp" /> parameter allows user to specify presentation
-time of the frame being saved. However, it is user's responsibility to make sure the value is increasing
-over time.</note>
-                </para>
-            </remarks>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-            <exception cref="T:System.ArgumentException">The provided bitmap must be 24 or 32 bpp color image or 8 bpp grayscale image.</exception>
-            <exception cref="T:System.ArgumentException">Bitmap size must be of the same as video size, which was specified on opening video file.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while writing new video frame. See exception message.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)">
-            <summary>
-Write new video frame into currently opened video file.
-</summary>
-            <param name="frame">Bitmap to add as a new video frame.</param>
-            <remarks>
-                <para>The specified bitmap must be either color 24 or 32 bpp image or grayscale 8 bpp (indexed) image.</para>
-            </remarks>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-            <exception cref="T:System.ArgumentException">The provided bitmap must be 24 or 32 bpp color image or 8 bpp grayscale image.</exception>
-            <exception cref="T:System.ArgumentException">Bitmap size must be of the same as video size, which was specified on opening video file.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while writing new video frame. See exception message.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec,System.Int32,AForge.Video.FFMPEG.AudioCodec,System.Int32,System.Int32,System.Int32,System.Int32)">
-            <summary>
-Create video file with the specified name and attributes.
-</summary>
-            <param name="fileName">Video file name to create.</param>
-            <param name="width">Frame width of the video file.</param>
-            <param name="height">Frame height of the video file.</param>
-            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
-            <param name="codec">Video codec to use for compression.</param>
-            <param name="bitRate">Target bitrate.</param>
-            <param name="audioCodec">Audio codec to use for compression.</param>
-            <remarks>
-                <para>The methods creates new video file with the specified name.
-If a file with such name already exists in the file system, it will be overwritten.</para>
-                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
-the video frame must have width and height as specified during file opening.</para>
-                <para>
-                    <note>The bit rate parameter represents a trade-off value between video quality
-and video file size. Higher bit rate value increase video quality and result in larger
-file size. Smaller values result in opposite – worse quality and small video files.</note>
-                </para>
-            </remarks>
-            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
-            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
-            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec,System.Int32,System.Int32)">
-            <summary>
-Create video file with the specified name and attributes.
-</summary>
-            <param name="fileName">Video file name to create.</param>
-            <param name="width">Frame width of the video file.</param>
-            <param name="height">Frame height of the video file.</param>
-            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
-            <param name="codec">Video codec to use for compression.</param>
-            <param name="bitRate">Target bitrate.</param>
-            <remarks>
-                <para>The methods creates new video file with the specified name.
-If a file with such name already exists in the file system, it will be overwritten.</para>
-                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
-the video frame must have width and height as specified during file opening.</para>
-            </remarks>
-            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
-            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
-            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32,System.Boolean,AForge.Video.FFMPEG.VideoCodec)">
-            <summary>
-Create video file with the specified name and attributes.
-</summary>
-            <param name="fileName">Video file name to create.</param>
-            <param name="width">Frame width of the video file.</param>
-            <param name="height">Frame height of the video file.</param>
-            <param name="crf">Use CRF for bitrate calculation (overrides bitrate setting).</param>
-            <param name="codec">Video codec to use for compression.</param>
-            <remarks>
-                <para>The methods creates new video file with the specified name.
-If a file with such name already exists in the file system, it will be overwritten.</para>
-                <para>When adding new video frames using <see cref="M:AForge.Video.FFMPEG.VideoFileWriter.WriteVideoFrame(System.Drawing.Bitmap)" /> method,
-the video frame must have width and height as specified during file opening.</para>
-            </remarks>
-            <exception cref="T:System.ArgumentException">Video file resolution must be a multiple of two.</exception>
-            <exception cref="T:System.ArgumentException">Invalid video codec is specified.</exception>
-            <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
-            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32)">
-            <summary>
-Create video file with the specified name and attributes.
-</summary>
-            <param name="fileName">Video file name to create.</param>
-            <param name="width">Frame width of the video file.</param>
-            <param name="height">Frame height of the video file.</param>
-            <remarks>
-                <para>See documentation to the <see cref="!:Open( String^, int, int, bool, VideoCodec, int, AudioCodec, int)" />
-for more information and the list of possible exceptions.</para>
-                <para>
-                    <note>The method opens the video file using <see cref="F:AForge.Video.FFMPEG.VideoCodec.Default" />
-codec and 25 fps frame rate.</note>
-                </para>
-            </remarks>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Dispose">
-            <summary>
-Disposes the object and frees its resources.
-</summary>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.#ctor">
-            <summary>
-Initializes a new instance of the <see cref="T:AForge.Video.FFMPEG.VideoFileWriter" /> class.
-</summary>
-        </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Finalize">
-            <summary>
-Object's finalizer.
-</summary>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.IsOpen">
-            <summary>
-The property specifies if a video file is opened or not by this instance of the class.
-</summary>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.ACodec">
-            <summary>
-Codec to use for the audio file.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Codec">
-            <summary>
-Codec to use for the video file.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.BitRate">
-            <summary>
-Bit rate of the video stream.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Height">
-            <summary>
-Frame height of the opened video file.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="P:AForge.Video.FFMPEG.VideoFileWriter.Width">
-            <summary>
-Frame width of the opened video file.
-</summary>
-            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
-        </member>
-        <member name="T:AForge.Video.FFMPEG.VideoFileWriter">
-            <summary>
-Class for writing video files utilizing FFmpeg library.
-</summary>
-            <remarks>
-                <para>The class allows to write video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
-                <para>
-                    <note>Make sure you have <b>FFmpeg</b> binaries (DLLs) in the output folder of your application in order
-to use this class successfully. <b>FFmpeg</b> binaries can be found in Externals folder provided with AForge.NET
-framework's distribution.</note>
-                </para>
-                <para>Sample usage:</para>
-                <code>
-int width  = 320;
-int height = 240;
-
-// create instance of video writer
-VideoFileWriter writer = new VideoFileWriter( );
-// create new video file
-writer.Open( "test.avi", width, height, 25, VideoCodec.MPEG4 );
-// create a bitmap to save into the video file
-Bitmap image = new Bitmap( width, height, PixelFormat.Format24bppRgb );
-// write 1000 video frames
-for ( int i = 0; i &lt; 1000; i++ )
-{
-    image.SetPixel( i % width, i % height, Color.Red );
-    writer.WriteVideoFrame( image );
-}
-writer.Close( );
-</code>
-            </remarks>
-        </member>
-        <member name="T:AForge.Video.FFMPEG.VideoCodec">
-            <summary>
-Enumeration of some video codecs from FFmpeg library, which are available for writing video files.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.MJPEG">
-            <summary>
-MJPEG video.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.H264">
-            <summary>
-H264 video.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.Raw">
-            <summary>
-Raw (uncompressed) video.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.MPEG2">
-            <summary>
-MPEG-2 part 2.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.FLV1">
-            <summary>
-Flash Video (FLV) / Sorenson Spark / Sorenson H.263.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.H263P">
-            <summary>
-H.263+ / H.263-1998 / H.263 version 2.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.MSMPEG4v3">
-            <summary>
-MPEG-4 part 2 Microsoft variant version 3.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.MSMPEG4v2">
-            <summary>
-MPEG-4 part 2 Microsoft variant version 2.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.WMV2">
-            <summary>
-Windows Media Video 8.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.WMV1">
-            <summary>
-Windows Media Video 7.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.MPEG4">
-            <summary>
-MPEG-4 part 2.
-</summary>
-        </member>
-        <member name="F:AForge.Video.FFMPEG.VideoCodec.Default">
-            <summary>
-Default video codec, which FFmpeg library selects for the specified file format.
-</summary>
-        </member>
         <member name="M:libffmpeg.avcodec_get_class">
  Get the AVClass for AVCodecContext. It can be used in combination with
  AV_OPT_SEARCH_FAKE_OBJ for examining options.
@@ -5043,7 +4927,7 @@ away.  This is useful for variables accessed only from inline
 assembler without the compiler being aware.
 
 </member>
-        <member name="T:libffmpeg._iobuf">
+        <member name="D:libffmpeg._fsize_t">
 @file
 common internal and external API header
 
@@ -5253,83 +5137,437 @@ external API header
 Return the LIBAVUTIL_VERSION_INT constant.
 
 </member>
-        <member name="T:AForge.Video.FFMPEG.AudioCodec">
+        <member name="M:libffmpeg.avformat_license">
+Return the libavformat license.
+
+</member>
+        <member name="M:libffmpeg.avformat_configuration">
+Return the libavformat build-time configuration.
+
+</member>
+        <member name="M:libffmpeg.avformat_version">
+ @defgroup libavf I/O and Muxing/Demuxing Library
+ @{
+
+ @defgroup lavf_decoding Demuxing
+ @{
+ @}
+
+ @defgroup lavf_encoding Muxing
+ @{
+ @}
+
+ @defgroup lavf_proto I/O Read/Write
+ @{
+ @}
+
+ @defgroup lavf_codec Demuxers
+ @{
+ @defgroup lavf_codec_native Native Demuxers
+ @{
+ @}
+ @defgroup lavf_codec_wrappers External library wrappers
+ @{
+ @}
+ @}
+ @defgroup lavf_protos I/O Protocols
+ @{
+ @}
+ @defgroup lavf_internal Internal
+ @{
+ @}
+ @}
+
+
+Return the LIBAVFORMAT_VERSION_INT constant.
+
+</member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Close">
             <summary>
-Enumeration of some audio codecs from FFmpeg library, which are available for writing audio files.
+Close currently opened video file if any.
 </summary>
         </member>
-        <member name="F:AForge.Video.FFMPEG.AudioCodec.MP3">
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.ReadAudioFrame">
             <summary>
-MPEG-3
+Read next audio frame of the currently opened audio file.
+</summary>
+            <returns>Returns next audio frame of the opened file or <see langword="null" /> if end of
+file was reached. The returned audio frame has 24 bpp color format.</returns>
+            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while reading next audio frame. See exception message.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.ReadVideoFrame">
+            <summary>
+Read next video frame of the currently opened video file.
+</summary>
+            <returns>Returns next video frame of the opened file or <see langword="null" /> if end of
+file was reached. The returned video frame has 24 bpp color format.</returns>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while reading next video frame. See exception message.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Open(System.String)">
+            <summary>
+Open video file with the specified name.
+</summary>
+            <param name="fileName">Video file name to open.</param>
+            <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
+            <exception cref="T:AForge.Video.VideoException">A error occurred while opening the video file. See exception message.</exception>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Dispose">
+            <summary>
+Disposes the object and frees its resources.
 </summary>
         </member>
-        <member name="F:AForge.Video.FFMPEG.IMA_ADPCM.StepIndex">
-The step index used for the next ADPCM value
-Typically, this value is read from the header, or written to the header, of a block
-of ADPCM values.
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.#ctor">
+            <summary>
+Initializes a new instance of the <see cref="T:AForge.Video.FFMPEG.VideoFileReader" /> class.
+</summary>
+        </member>
+        <member name="M:AForge.Video.FFMPEG.VideoFileReader.Finalize">
+            <summary>
+Object's finalizer.
+</summary>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.IsOpen">
+            <summary>
+The property specifies if a video file is opened or not by this instance of the class.
+</summary>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.AudioCodecName">
+            <summary>
+Name of codec used for encoding the opened audio file.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.CodecName">
+            <summary>
+Name of codec used for encoding the opened video file.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.FrameCount">
+            <summary>
+Number of video frames in the opened video file.
+</summary>
+            <remarks>
+                <para>
+                    <note>
+                        <b>Warning</b>: some video file formats may report different value
+from the actual number of video frames in the file (subject to fix/investigate).</note>
+                </para>
+            </remarks>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.FrameRate">
+            <summary>
+Frame rate of the opened video file.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Height">
+            <summary>
+Frame height of the opened video file.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Width">
+            <summary>
+Frame width of the opened video file.
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no video file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.BitsPerSample">
+            <summary>
+Sample rate of stream
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.Channels">
+            <summary>
+Sample rate of stream
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
+        </member>
+        <member name="P:AForge.Video.FFMPEG.VideoFileReader.SampleRate">
+            <summary>
+Sample rate of stream
+</summary>
+            <exception cref="T:System.IO.IOException">Thrown if no audio file was open.</exception>
+        </member>
+        <member name="T:AForge.Video.FFMPEG.VideoFileReader">
+            <summary>
+Class for reading video files utilizing FFmpeg library.
+</summary>
+            <remarks>
+                <para>The class allows to read video files using <a href="http://www.ffmpeg.org/">FFmpeg</a> library.</para>
+                <para>
+                    <note>Make sure you have <b>FFmpeg</b> binaries (DLLs) in the output folder of your application in order
+to use this class successfully. <b>FFmpeg</b> binaries can be found in Externals folder provided with AForge.NET
+framework's distribution.</note>
+                </para>
+                <para>Sample usage:</para>
+                <code>
+// create instance of video reader
+VideoFileReader reader = new VideoFileReader( );
+// open video file
+reader.Open( "test.avi" );
+// check some of its attributes
+Console.WriteLine( "width:  " + reader.Width );
+Console.WriteLine( "height: " + reader.Height );
+Console.WriteLine( "fps:    " + reader.FrameRate );
+Console.WriteLine( "codec:  " + reader.CodecName );
+// read 100 video frames out of it
+for ( int i = 0; i &lt; 100; i++ )
+{
+    Bitmap videoFrame = reader.ReadVideoFrame( );
+    // process the frame somehow
+    // ...
 
-</member>
-        <member name="F:AForge.Video.FFMPEG.IMA_ADPCM.PredictedValue">
-The predicted value of the next sample.
-Typically, this value is read from the header, or written to the header, of a block
-of ADPCM values.
-
-</member>
-        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.Decode(System.UInt32)">
-	Decode a single ADPCM value into a 16bit linear PCM value.
-
-	@param adpcm The 4 least significan bits represent ADPCM value to encode.
-				 Other bits are ignored.
-
-	@return The decoded 16 bit PCM value sign extended to an int.
-
-	@post #PredictedValue and #StepIndex are updated ready
-		  for decoding the next sample.
-
-</member>
-        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.Encode(System.Int16)">
-	Encode a single linear PCM sample as an ADPCM value.
-
-	@param pcm16 The PCM value to encode.
-
-	@return The 4 least significan bits represent the encoded ADPCM value.
-			Other bits are zero.
-
-	@post #PredictedValue and #StepIndex are updated ready
-		  for encoding the next sample.
-
-</member>
-        <member name="M:AForge.Video.FFMPEG.IMA_ADPCM.EncodeInit(System.Int16,System.Int16)">
-	Initialise the #PredictedValue and #StepIndex members to the
-	optimum values for encoding an audio stream whoes first two PCM samples have the
-	values given. Use of this method at the start of audio stream encoding gives
-	improved accuracy over a naive initialisation which sets #PredictedValue
-	and #StepIndex to predetermined constant values.
-
-	@param sample1 The first PCM sample in the audio stream.
-	@param sample2 The second PCM sample in the audio stream.
-
-</member>
-        <member name="T:AForge.Video.FFMPEG.IMA_ADPCM">
-@defgroup ima_adpcm Audio Codec - IMA ADPCM
-@{
-
-@brief A class which implements the IMA ADPCM audio coding algorithm.
-
-Typically, IMA ADPCM data is stored as blocks of data with the #PredictedValue
-and #StepIndex values held in a header to each block. When decoding, these values
-should be writen to this class to initialise the decoding of a block. When encoding,
-these values should be writen out to a block's header prior to encoding the samples
-in the block.
-
-Note, when IMA ADPCM data is stored in Microsoft WAV files, the #PredictedValue
-found in the block's header is used as the first sample for that block. The first ADPCM
-value in the block's data then represents the second sample.
-
-@version 2006-05-20
-	- Changed code to use standard typedefs, e.g. replaced uint8 with uint8_t, and made use of size_t.
-
-</member>
+    // dispose the frame when it is no longer required
+    videoFrame.Dispose( );
+}
+reader.Close( );
+</code>
+            </remarks>
+        </member>
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
+        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
         <!-- Discarding badly formed XML document comment for member 'M:AForge.Video.FFMPEG.IMA_ADPCM.Encode(System.Byte*,System.Int32,System.Int16!System.Runtime.CompilerServices.IsConst*,System.UInt32)'. -->
         <!-- Discarding badly formed XML document comment for member 'M:AForge.Video.FFMPEG.IMA_ADPCM.Decode(System.Int16*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.UInt32)'. -->
         <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
@@ -5364,243 +5602,5 @@ value in the block's data then represents the second sample.
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
         <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_gcd(System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVExtFloat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVSampleFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_samples_alloc(System.Byte**,System.Int32*,System.Int32,System.Int32,libffmpeg.AVSampleFormat,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_dict_set(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.CodecID'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_get_channel_layout_string(System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32,System.Int32,System.UInt64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.Motion_Est_ID'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.motion_val'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFrame.type'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.b_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.i_quant_factor'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.error'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.pre_dia_size'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.stream_codec_tag'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_max_available_vbv_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.rc_min_vbv_overflow_use'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecContext.execute2'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.PixelFormat'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_open2(libffmpeg.AVCodecContext*,libffmpeg.AVCodec*,libffmpeg.AVDictionary**)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avcodec_decode_video2(libffmpeg.AVCodecContext*,libffmpeg.AVFrame*,System.Int32*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVCodecParserContext.dts_sync_point'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_parser_parse2(libffmpeg.AVCodecParserContext*,libffmpeg.AVCodecContext*,System.Byte**,System.Int32*,System.Byte!System.Runtime.CompilerServices.IsConst*,System.Int32,System.Int64,System.Int64,System.Int64)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_seek(libffmpeg.AVIOContext*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_get_str16le(libffmpeg.AVIOContext*,System.Int32,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avio_close(libffmpeg.AVIOContext*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'D:libffmpeg.AVMetadata'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_metadata_set2(libffmpeg.AVDictionary**,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.SByte!System.Runtime.CompilerServices.IsSignUnspecifiedByte!System.Runtime.CompilerServices.IsConst*,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVFrac'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVFormatParameters.mpeg2ts_compute_pcr'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_packet'. -->
-        <!-- Discarding badly formed XML document comment for member 'F:libffmpeg.AVInputFormat.read_seek2'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_probe_input_format2(libffmpeg.AVProbeData*,System.Int32,System.Int32*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_read_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.avformat_seek_file(libffmpeg.AVFormatContext*,System.Int32,System.Int64,System.Int64,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_set_pts_info(libffmpeg.AVStream*,System.Int32,System.UInt32,System.UInt32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_index_search_timestamp(libffmpeg.AVStream*,System.Int64,System.Int32)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleaved_write_frame(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*)'. -->
-        <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
     </members>
 </doc>

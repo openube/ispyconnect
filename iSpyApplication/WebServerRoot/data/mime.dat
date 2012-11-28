@@ -25,4 +25,4 @@
 .ogg; application/ogg
 .ico; image/icon
 .webm; video/webm
-.mjpeg video/mjpeg
+.mjpeg; video/mjpeg

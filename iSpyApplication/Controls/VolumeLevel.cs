@@ -137,13 +137,6 @@ namespace iSpyApplication.Controls
 
         public List<Socket> OutSockets = new List<Socket>();
         
-        //public Mp3Writer Mp3Writer;
-        //public Socket OutSocket;
-        //public MemoryStream OutStream;
-        //public bool CloseStream;
-        //public WaveFileWriter OutWriter;
-        //public WaveFormat AudioStreamFormat;
-
         public bool Recording
         {
             get
@@ -735,6 +728,7 @@ namespace iSpyApplication.Controls
                 if (Recording)
                     _recordingTime += Convert.ToDouble(ts.TotalMilliseconds) / 1000.0;
 
+                bool reset = true;              
 
                 if (Micobject.alerts.active && Micobject.settings.active)
                 {
@@ -743,6 +737,7 @@ namespace iSpyApplication.Controls
                         BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
                                         ? MainForm.Conf.BackColor.ToColor()
                                         : MainForm.Conf.ActivityColor.ToColor();
+                        reset = false;
                     }
                     else
                     {
@@ -754,9 +749,8 @@ namespace iSpyApplication.Controls
                                     BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
                                                     ? MainForm.Conf.BackColor.ToColor()
                                                     : MainForm.Conf.ActivityColor.ToColor();
-                                }
-                                else
-                                    BackColor = MainForm.Conf.BackColor.ToColor();
+                                    reset = false;
+                                }                                
                                 break;
                             case "nosound":
                                 if (!SoundDetected)
@@ -764,19 +758,15 @@ namespace iSpyApplication.Controls
                                     BackColor = (BackColor == MainForm.Conf.NoActivityColor.ToColor())
                                                     ? MainForm.Conf.BackColor.ToColor()
                                                     : MainForm.Conf.NoActivityColor.ToColor();
+                                    reset = false;
                                 }
-                                else
-                                    BackColor = MainForm.Conf.BackColor.ToColor();
                                 break;
                         }
                     }
+                }
 
-                    
-                }
-                else
-                {
+                if (reset)
                     BackColor = MainForm.Conf.BackColor.ToColor();
-                }
 
 
                 if (secondCount > 1) //approx every second
@@ -997,6 +987,30 @@ namespace iSpyApplication.Controls
             base.OnGotFocus(e);
         }
 
+        public bool Highlighted;
+
+        public Color BorderColor
+        {
+            get
+            {
+                if (Focused)
+                    return MainForm.Conf.BorderHighlightColor.ToColor();
+                if (Highlighted)
+                    return MainForm.Conf.FloorPlanHighlightColor.ToColor();
+                return Color.Black;
+            }
+        }
+
+        public int BorderWidth
+        {
+            get
+            {
+                if (Highlighted || Focused)
+                    return 4;
+                return 2;
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             // lock
@@ -1005,29 +1019,14 @@ namespace iSpyApplication.Controls
             var gMic = pe.Graphics;
             var rc = ClientRectangle;
 
-            var grabPoints = new[]
-                                 {
-                                     new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
-                                     new Point(rc.Width, rc.Height)
-                                 };
-            Color border = (!Focused) ? Color.Black : MainForm.Conf.BorderHighlightColor.ToColor();
-            var grabBrush = new SolidBrush(border);
-            var borderPen = new Pen(grabBrush);
+            
+            var grabBrush = new SolidBrush(BorderColor);
+            var borderPen = new Pen(grabBrush,BorderWidth);
             var lgb = new SolidBrush(MainForm.Conf.VolumeLevelColor.ToColor());
             var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
             var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             var drawPen = new Pen(drawBrush);
-            if (!Paired)
-                gMic.FillPolygon(grabBrush, grabPoints);
-
-            if (!Paired)
-                gMic.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
-            else
-            {
-                gMic.DrawLine(borderPen,0,0,0,rc.Height-1);
-                gMic.DrawLine(borderPen, 0, rc.Height-1, rc.Width-1, rc.Height - 1);
-                gMic.DrawLine(borderPen, rc.Width-1,rc.Height-1, rc.Width-1, 0);
-            }
+           
             if (Micobject.settings.active && _levels != null && !AudioSourceErrorState)
             {
                 int bh = (rc.Height - 20) / Micobject.settings.channels - (Micobject.settings.channels - 1) * 2;
@@ -1146,6 +1145,28 @@ namespace iSpyApplication.Controls
                 gMic.DrawString("L", MainForm.Iconfont, Listening ? MainForm.IconBrushActive : b, leftpoint + (ButtonOffset * 5) + (ButtonWidth * 4),
                                 ypoint + ButtonOffset);
             }
+
+
+            if (!Paired)
+            {
+                var grabPoints = new[]
+                                 {
+                                     new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
+                                     new Point(rc.Width, rc.Height)
+                                 };
+                gMic.FillPolygon(grabBrush, grabPoints);
+            }
+
+            if (!Paired)
+                gMic.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
+            else
+            {
+                gMic.DrawLine(borderPen, 0, 0, 0, rc.Height - 1);
+                gMic.DrawLine(borderPen, 0, rc.Height - 1, rc.Width - 1, rc.Height - 1);
+                gMic.DrawLine(borderPen, rc.Width - 1, rc.Height - 1, rc.Width - 1, 0);
+            }
+
+
 
             borderPen.Dispose();
             grabBrush.Dispose();

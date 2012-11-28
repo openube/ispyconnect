@@ -23,6 +23,7 @@
                 <xs:element name="ActivityColor" type="xs:string" />
                 <xs:element name="NoActivityColor" type="xs:string" />
                 <xs:element name="TrackingColor" type="xs:string" />
+                <xs:element name="FloorPlanHighlightColor" type="xs:string"/>
                 <xs:element name="VolumeLevelColor" type="xs:string" />
                 <xs:element name="MaxRecordingThreads" type="xs:int" default="4"/>
                 <xs:element name="MainColor" type="xs:string" />
@@ -100,6 +101,7 @@
                 <xs:element name="MinimiseOnClose" type="xs:boolean" default="false"/>
                 <xs:element name="IPv6Disabled" type="xs:boolean" default="false"/>
                 <xs:element name="DeleteToRecycleBin" type="xs:boolean" default="false"/>
+                <xs:element name="SpeechRecognition" type="xs:boolean" default="false"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

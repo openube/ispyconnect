@@ -55,6 +55,8 @@ namespace iSpyApplication.Controls
                     }
                 }
             }
+
+            
             base.OnPaint(pe);
         }
 

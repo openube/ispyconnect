@@ -112,6 +112,10 @@ namespace iSpyApplication
         public void LoadPreviews()
         {
             UISync.Execute(ClearPreviewBoxes);
+            UISync.Execute(AddPreviewBoxes);
+        }
+        private void AddPreviewBoxes()  {
+
             lock (flowPreview.Controls)
             {
                 
@@ -149,9 +153,9 @@ namespace iSpyApplication
                             }
                         }
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        
+                        LogExceptionToFile(ex);
                     }
                 }
                 var displayList =

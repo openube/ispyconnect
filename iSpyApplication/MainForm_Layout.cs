@@ -364,6 +364,25 @@ namespace iSpyApplication
             LayoutObjects(useX, useY);
         }
 
+        internal void ClearHighlights()
+        {
+            foreach (Control c in _pnlCameras.Controls)
+            {
+                if (c is CameraWindow)
+                {
+                    ((CameraWindow) c).Highlighted = false;
+                }
+                if (c is FloorPlanControl)
+                {
+                    ((FloorPlanControl)c).Highlighted = false;
+                }
+                if (c is VolumeLevel)
+                {
+                    ((VolumeLevel)c).Highlighted = false;
+                }
+
+            }
+        }
 
 
         private void UnlockLayout()

@@ -33,7 +33,19 @@ namespace iSpyApplication
     /// </summary>
     public partial class MainForm : Form
     {
-        public static bool NeedsSync;
+        private static bool _needsSync;
+        private static DateTime _syncLastRequested = DateTime.MinValue;
+        public static bool NeedsSync
+        {
+            get { return _needsSync;}
+            set { 
+                _needsSync = value;
+                if (value)
+                    _syncLastRequested = DateTime.Now;
+            }
+        }
+        
+
         public static bool LoopBack;
         public static bool StopRecordingFlag;
         public static string NL = Environment.NewLine;
@@ -66,7 +78,7 @@ namespace iSpyApplication
         public McRemoteControlManager.RemoteControlDevice RemoteManager;
         public static List<FilePreview> MasterFileList = new List<FilePreview>();
         public static EncoderParameters EncoderParams;
-        public bool reallyclose = false;
+        public static bool reallyclose = false;
 
         public static string Website = "http://www.ispyconnect.com";
         public static string Webserver = "http://www.ispyconnect.com";
@@ -624,7 +636,6 @@ namespace iSpyApplication
                 }
             }
 
-            GC.KeepAlive(Program.Mutex);
             GC.KeepAlive(MWS);
 
             SetBackground();
@@ -639,6 +650,10 @@ namespace iSpyApplication
                 WindowState = FormWindowState.Maximized;
                 FormBorderStyle = FormBorderStyle.None;
                 WinApi.SetWinFullScreen(Handle);
+            }
+            if (SilentStartup)
+            {
+                WindowState = FormWindowState.Minimized;
             }
 
             statusBarToolStripMenuItem.Checked = menuItem4.Checked = Conf.ShowStatus;
@@ -742,6 +757,7 @@ namespace iSpyApplication
 
             if (SilentStartup)
             {
+                
                 _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
             }
 
@@ -1173,11 +1189,7 @@ namespace iSpyApplication
                     }
                     else
                         _tsslStats.Text = LocRm.GetString("Offline");
-                }
-                
-                
-
-               
+                }             
 
                 if (Conf.ServicesEnabled)
                 {
@@ -1185,8 +1197,10 @@ namespace iSpyApplication
                     {
                         if (NeedsSync)
                         {
+                            DateTime dt = _syncLastRequested;
                             WsWrapper.ForceSync();
-                            NeedsSync = false;
+                            if (dt==_syncLastRequested)
+                                NeedsSync = false;
                         }
                     }
                     catch (Exception ex)
@@ -1200,6 +1214,7 @@ namespace iSpyApplication
                         WsWrapper.PingServer();
                     }
                 }
+
                 if (Conf.Enable_Storage_Management)
                 {
                     _storageCounter++;
@@ -1331,6 +1346,7 @@ namespace iSpyApplication
             try
             {
                 command = Uri.UnescapeDataString(command);
+                
 
                 LogMessageToFile("Running External Command: " + command);
 
@@ -1356,6 +1372,10 @@ namespace iSpyApplication
                                 ProcessCommandInternal(command2.Trim('"'));
                         }
                     }
+                }
+                if (command.ToLower()=="showform")
+                {
+                    UISync.Execute(()=>ShowIfUnlocked());
                 }
             }
             catch (Exception ex)

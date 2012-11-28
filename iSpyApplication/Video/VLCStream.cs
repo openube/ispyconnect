@@ -44,6 +44,7 @@ namespace iSpyApplication.Video
         public BufferedWaveProvider WaveOutProvider { get; set; }
 
         #endregion
+
         // URL for VLCstream
         private string _source;
 
@@ -164,9 +165,6 @@ namespace iSpyApplication.Video
         }
 
         private bool _starting;
-
-
-
 
 
 
