@@ -2567,7 +2567,7 @@ namespace iSpyApplication.Controls
                 return;
 
             if (Camobject.alerts.maximise && TopLevelControl!=null)
-                ((MainForm)TopLevelControl).Maximise(this,false,true);
+                ((MainForm)TopLevelControl).Maximise(this,false);
             Alerted = true;
             UpdateFloorplans(true);
             var start = new ParameterizedThreadStart(AlertThread);

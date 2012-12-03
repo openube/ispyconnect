@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Windows;
 using System.Windows.Forms;
 using iSpyApplication;
 using iSpyApplication.Video;
@@ -13,8 +9,6 @@ using Microsoft.Win32;
 
 internal static class Program
 {
-    const int SwRestore = 9;
-
     //public static Mutex Mutex;
     private static string _apppath = "", _appdatapath = "";
     public static string AppPath
@@ -52,37 +46,6 @@ internal static class Program
     private static int _reportedExceptionCount;
     private static ErrorReporting _er;
 
-    [DllImport("user32.dll")]
-    private static extern
-        bool SetForegroundWindow(IntPtr hWnd);
-    [DllImport("user32.dll")]
-    private static extern
-        bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
-    [DllImport("user32.dll")]
-    private static extern
-        bool IsIconic(IntPtr hWnd);
-
-    delegate bool EnumThreadDelegate(IntPtr hWnd, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    static extern bool EnumThreadWindows(int dwThreadId, EnumThreadDelegate lpfn, IntPtr lParam);
-
-    static IEnumerable<IntPtr> EnumerateProcessWindowHandles(int processId)
-    {
-        var handles = new List<IntPtr>();
-
-        foreach (ProcessThread thread in Process.GetProcessById(processId).Threads)
-            EnumThreadWindows(thread.Id, (hWnd, lParam) => { handles.Add(hWnd); return true; }, IntPtr.Zero);
-
-        return handles;
-    }
-
-    private const uint WM_GETTEXT = 0x000D;
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, int wParam, StringBuilder lParam);
-
-    
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
