@@ -624,7 +624,7 @@ namespace iSpyApplication.Controls
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
-            BackColor = MainForm.Conf.BackColor.ToColor();
+            BackColor = MainForm.BackgroundColor;
             Micobject = om;
 
             _toolTipMic = new ToolTip { AutomaticDelay = 500, AutoPopDelay = 1500 };
@@ -734,9 +734,9 @@ namespace iSpyApplication.Controls
                 {
                     if (FlashCounter > 0 && _isTrigger)
                     {
-                        BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
-                                        ? MainForm.Conf.BackColor.ToColor()
-                                        : MainForm.Conf.ActivityColor.ToColor();
+                        BackColor = (BackColor == MainForm.ActivityColor)
+                                        ? MainForm.BackgroundColor
+                                        : MainForm.ActivityColor;
                         reset = false;
                     }
                     else
@@ -746,18 +746,18 @@ namespace iSpyApplication.Controls
                             case "sound":
                                 if (FlashCounter > 0)
                                 {
-                                    BackColor = (BackColor == MainForm.Conf.ActivityColor.ToColor())
-                                                    ? MainForm.Conf.BackColor.ToColor()
-                                                    : MainForm.Conf.ActivityColor.ToColor();
+                                    BackColor = (BackColor == MainForm.ActivityColor)
+                                                    ? MainForm.BackgroundColor
+                                                    : MainForm.ActivityColor;
                                     reset = false;
                                 }                                
                                 break;
                             case "nosound":
                                 if (!SoundDetected)
                                 {
-                                    BackColor = (BackColor == MainForm.Conf.NoActivityColor.ToColor())
-                                                    ? MainForm.Conf.BackColor.ToColor()
-                                                    : MainForm.Conf.NoActivityColor.ToColor();
+                                    BackColor = (BackColor == MainForm.NoActivityColor)
+                                                    ? MainForm.BackgroundColor
+                                                    : MainForm.NoActivityColor;
                                     reset = false;
                                 }
                                 break;
@@ -766,7 +766,7 @@ namespace iSpyApplication.Controls
                 }
 
                 if (reset)
-                    BackColor = MainForm.Conf.BackColor.ToColor();
+                    BackColor = MainForm.BackgroundColor;
 
 
                 if (secondCount > 1) //approx every second
@@ -993,11 +993,14 @@ namespace iSpyApplication.Controls
         {
             get
             {
-                if (Focused)
-                    return MainForm.Conf.BorderHighlightColor.ToColor();
                 if (Highlighted)
-                    return MainForm.Conf.FloorPlanHighlightColor.ToColor();
-                return Color.Black;
+                    return MainForm.FloorPlanHighlightColor;
+
+                if (Focused)
+                    return MainForm.BorderHighlightColor;
+
+                return MainForm.BorderDefaultColor;
+
             }
         }
 
@@ -1022,7 +1025,7 @@ namespace iSpyApplication.Controls
             
             var grabBrush = new SolidBrush(BorderColor);
             var borderPen = new Pen(grabBrush,BorderWidth);
-            var lgb = new SolidBrush(MainForm.Conf.VolumeLevelColor.ToColor());
+            var lgb = new SolidBrush(MainForm.VolumeLevelColor);
             var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
             var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             var drawPen = new Pen(drawBrush);

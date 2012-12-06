@@ -91,6 +91,7 @@ namespace iSpyApplication
         }
 
         private Bitmap _imageprocess;
+        private static object _syncLock = new object();
 
         public Bitmap ImageProcess
         {
@@ -102,11 +103,12 @@ namespace iSpyApplication
             {
                 if (value!=null)
                 {
-                    Monitor.Enter(this);
-                    var rz = new ResizeBilinear(_filterPreview.Width, _filterPreview.Height);
-                    _imageprocess = rz.Apply(value);
+                    lock(_syncLock)
+                    {
+                        var rz = new ResizeBilinear(_filterPreview.Width, _filterPreview.Height);
+                        _imageprocess = rz.Apply(value);  
+                    }
                     UpdateFilter();
-                    Monitor.Exit(this);
                 }
             }
         }
@@ -202,13 +204,16 @@ namespace iSpyApplication
             _filter.Saturation = _saturation;
             _filter.Luminance = _luminance;
 
-            if (ImageProcess != null)
+            lock (_syncLock)
             {
-                if (_filterPreview.Image != null)
-                    _filterPreview.Image.Dispose();
+                if (ImageProcess != null)
+                {
+                    if (_filterPreview.Image != null)
+                        _filterPreview.Image.Dispose();
 
-                _filterPreview.Image = _filter.Apply(ImageProcess);
-                _filterPreview.Invalidate();
+                    _filterPreview.Image = _filter.Apply(ImageProcess);
+                    _filterPreview.Invalidate();
+                }
             }
         }
 

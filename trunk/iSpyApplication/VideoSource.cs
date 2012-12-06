@@ -218,6 +218,7 @@ namespace iSpyApplication
                 txtDecodeKey.Text = CameraControl.Camobject.decodekey;
 
             chkMousePointer.Checked = CameraControl.Camobject.settings.desktopmouse;
+            numBorderTimeout.Value = CameraControl.Camobject.settings.bordertimeout;
 
             cmbJPEGURL.Items.AddRange(MainForm.Conf.RecentJPGList.Split('|'));
             cmbMJPEGURL.Items.AddRange(MainForm.Conf.RecentMJPGList.Split('|'));
@@ -355,6 +356,8 @@ namespace iSpyApplication
                 }
                 catch {}
             }
+
+            
 
             _loaded = true;
             if (StartWizard) Wizard();
@@ -647,6 +650,7 @@ namespace iSpyApplication
                     CameraControl.Camobject.settings.audioport = uri.Port;
                     CameraControl.Camobject.settings.audiousername = "";
                     CameraControl.Camobject.settings.audiopassword = "";
+                    CameraControl.Camobject.settings.bordertimeout = Convert.ToInt32(numBorderTimeout.Value);
                     break;
             }
 

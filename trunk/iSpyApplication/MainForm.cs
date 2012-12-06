@@ -1517,12 +1517,12 @@ namespace iSpyApplication
             {
                 RenderResources();
                 LoadCommands();
-                Refresh();
             }
             AddressIPv4 = ""; //forces reload
             AddressIPv6 = "";
             settings.Dispose();
             SaveConfig();
+            Refresh();
         }
 
         private void MenuItem11Click(object sender, EventArgs e)
@@ -2705,6 +2705,7 @@ namespace iSpyApplication
             {
                 var cw = ((CameraWindow) ContextTarget);
                 cw.Camobject.newrecordingcount = 0;
+                cw.Custom = false;
                 if (cw.VolumeControl != null)
                 {
                     cw.VolumeControl.Micobject.newrecordingcount = 0;

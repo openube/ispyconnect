@@ -95,6 +95,8 @@ namespace iSpyApplication
             MainForm.Conf.AreaColor = btnColorArea.BackColor.ToRGBString();
             MainForm.Conf.BackColor = btnColorBack.BackColor.ToRGBString();
             MainForm.Conf.BorderHighlightColor = btnBorderHighlight.BackColor.ToRGBString();
+            MainForm.Conf.BorderDefaultColor = btnBorderDefault.BackColor.ToRGBString();
+
             MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
             MainForm.Conf.MaxMediaFolderSizeMB = Convert.ToInt32(txtMaxMediaSize.Value);
             MainForm.Conf.DeleteFilesOlderThanDays = Convert.ToInt32(txtDaysDelete.Value);
@@ -179,6 +181,7 @@ namespace iSpyApplication
             if (!MainForm.Conf.StopSavingOnStorageLimit)
                 MainForm.StopRecordingFlag = false;
 
+            MainForm.ReloadColors();
             
             DialogResult = DialogResult.OK;
             Close();
@@ -215,6 +218,7 @@ namespace iSpyApplication
             btnColorArea.BackColor = MainForm.Conf.AreaColor.ToColor();
             btnColorBack.BackColor = MainForm.Conf.BackColor.ToColor();
             btnBorderHighlight.BackColor = MainForm.Conf.BorderHighlightColor.ToColor();
+            btnBorderDefault.BackColor = MainForm.Conf.BorderDefaultColor.ToColor();
             btnTimestampColor.BackColor = MainForm.Conf.TimestampColor.ToColor();
             txtDaysDelete.Text = MainForm.Conf.DeleteFilesOlderThanDays.ToString();
             txtMaxMediaSize.Value = MainForm.Conf.MaxMediaFolderSizeMB;
@@ -396,6 +400,7 @@ namespace iSpyApplication
             btnColorBack.ForeColor = InverseColor(btnColorBack.BackColor);
             btnTimestampColor.ForeColor = InverseColor(btnTimestampColor.BackColor);
             btnBorderHighlight.ForeColor = InverseColor(btnBorderHighlight.BackColor);
+            btnBorderDefault.ForeColor = InverseColor(btnBorderDefault.BackColor);
         }
 
         private static Color InverseColor(Color colorIn)
@@ -698,6 +703,16 @@ namespace iSpyApplication
         private void button3_Click(object sender, EventArgs e)
         {
             ((MainForm) Owner).RunStorageManagement();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            cdColorChooser.Color = btnBorderDefault.BackColor;
+            if (cdColorChooser.ShowDialog(this) == DialogResult.OK)
+            {
+                btnBorderDefault.BackColor = cdColorChooser.Color;
+                SetColors();
+            }
         }
 
     }

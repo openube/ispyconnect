@@ -31,6 +31,7 @@ namespace iSpyApplication.Controls
     {
         #region Private
         internal DateTime LastAutoTrackSent = DateTime.MinValue;
+        private Color _customColor = Color.Black;
         private DateTime _lastRedraw = DateTime.MinValue;
         private bool _processing;
         private double _recordingTime;
@@ -127,7 +128,7 @@ namespace iSpyApplication.Controls
         public DateTime TimelapseStart = DateTime.MinValue;
         public objectsCamera Camobject;
         public volatile bool IsEnabled;
-        internal Color BackgroundColor = MainForm.Conf.BackColor.ToColor();
+        internal Color BackgroundColor = MainForm.BackgroundColor;
 
        
 
@@ -432,7 +433,7 @@ namespace iSpyApplication.Controls
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
-            BackgroundColor = MainForm.Conf.BackColor.ToColor();
+            BackgroundColor = MainForm.BackgroundColor;
             Camobject = cam;
             PTZ = new PTZController(this);
 
@@ -909,6 +910,13 @@ namespace iSpyApplication.Controls
             if (_processing)
                 return;
             _processing = true;
+
+            //reset custom border color
+            if (Camobject.settings.bordertimeout != 0 && _customSet != DateTime.MinValue && _customSet < DateTime.Now.AddSeconds(0 - Camobject.settings.bordertimeout))
+            {
+                Custom = false;
+            }
+
             try
             {
                 //time since last tick
@@ -967,9 +975,9 @@ namespace iSpyApplication.Controls
                     
                     if (FlashCounter > 0 && _isTrigger)
                     {
-                        BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
-                                        ? MainForm.Conf.BackColor.ToColor()
-                                        : MainForm.Conf.ActivityColor.ToColor();
+                        BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                        ? MainForm.BackgroundColor
+                                        : MainForm.ActivityColor;
                         reset = false;
                     }
 
@@ -978,9 +986,9 @@ namespace iSpyApplication.Controls
                         case "movement":
                             if (MovementDetected)
                             {
-                                BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
-                                                ? MainForm.Conf.BackColor.ToColor()
-                                                : MainForm.Conf.ActivityColor.ToColor();
+                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                ? MainForm.BackgroundColor
+                                                : MainForm.ActivityColor;
                                 reset = false;
                             }
                                 
@@ -988,19 +996,19 @@ namespace iSpyApplication.Controls
                         case "nomovement":
                             if (!MovementDetected)
                             {
-                                BackgroundColor = (BackgroundColor == MainForm.Conf.NoActivityColor.ToColor())
-                                                ? MainForm.Conf.BackColor.ToColor()
-                                                : MainForm.Conf.NoActivityColor.ToColor();
+                                BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
+                                                ? MainForm.BackgroundColor
+                                                : MainForm.NoActivityColor;
                                 reset = false;
                             }
                                 
                             break;
                         default:
-                            if (!Highlighted && FlashCounter > 0)
+                            if (FlashCounter > 0)
                             {
-                                BackgroundColor = (BackgroundColor == MainForm.Conf.ActivityColor.ToColor())
-                                                ? MainForm.Conf.BackColor.ToColor()
-                                                : MainForm.Conf.ActivityColor.ToColor();
+                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                ? MainForm.BackgroundColor
+                                                : MainForm.ActivityColor;
                                 reset = false;
                             }
                                 
@@ -1009,7 +1017,7 @@ namespace iSpyApplication.Controls
 
                 }
                 if (reset)
-                    BackgroundColor = MainForm.Conf.BackColor.ToColor();
+                    BackgroundColor = MainForm.BackgroundColor;
 
 
                 if (_secondCount > 1) //every second
@@ -1774,15 +1782,36 @@ namespace iSpyApplication.Controls
 
         public bool Highlighted;
 
+
+        private bool _custom;
+        private DateTime _customSet = DateTime.MinValue;
+
+        internal bool Custom
+        {
+            get { return _custom; }
+            set
+            {
+                _custom = value;
+                if (value)
+                    _customSet = DateTime.Now;
+            }
+        }
+
         public Color BorderColor
         {
             get
             {
-                if (Focused)
-                    return MainForm.Conf.BorderHighlightColor.ToColor();
+
+                if (Custom)
+                    return _customColor;
+              
                 if (Highlighted)
-                    return MainForm.Conf.FloorPlanHighlightColor.ToColor();
-                return Color.Black;
+                    return MainForm.FloorPlanHighlightColor;
+
+                if (Focused)
+                    return MainForm.BorderHighlightColor;
+                
+                return MainForm.BorderDefaultColor;
                 
             }
         }
@@ -1793,6 +1822,8 @@ namespace iSpyApplication.Controls
             {
                 if (Highlighted || Focused)
                     return 4;
+                if (Custom)
+                    return 5;
                 return 2;
             }
         }
@@ -1813,7 +1844,7 @@ namespace iSpyApplication.Controls
             var grabBrush = new SolidBrush(BorderColor);
             var borderPen = new Pen(grabBrush, BorderWidth);
             var drawBrush = new SolidBrush(Color.White);
-            var sb = new SolidBrush(MainForm.Conf.VolumeLevelColor.ToColor());
+            var sb = new SolidBrush(MainForm.VolumeLevelColor);
             var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             var pline = new Pen(Color.Green, 2);
             var pNav = new Pen(Color.White, 1);
@@ -2938,7 +2969,7 @@ namespace iSpyApplication.Controls
                     _camera.Mask = null;
                 }
                 _camera = null;
-                BackgroundColor = MainForm.Conf.BackColor.ToColor();
+                BackgroundColor = MainForm.BackgroundColor;
             }
             Camobject.settings.active = false;
             _recordingTime = 0;
@@ -3478,10 +3509,23 @@ namespace iSpyApplication.Controls
                                 case "alarm":
                                     CameraAlarm(eventArgs.Description, EventArgs.Empty);
                                     break;
-
                                 case "flash":
                                     FlashCounter = 10;
                                     break;
+                            }
+                            if (action.StartsWith("border:") && action.Length>7)
+                            {
+                                string col = action.Substring(7);
+                                try
+                                {
+                                    _customColor = Color.FromArgb(Convert.ToInt32(col));
+                                    Custom = true;
+                                }
+                                catch (Exception e)
+                                {
+                                    MainForm.LogExceptionToFile(e);
+                                }
+
                             }
                         }
                     }

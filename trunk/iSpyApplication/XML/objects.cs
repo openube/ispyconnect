@@ -635,6 +635,21 @@ public partial class objectsCameraSettings {
 
     private string cookiesField;
 
+    private int bordertimeoutField;
+
+    /// <remarks/>
+    public int bordertimeout
+    {
+        get
+        {
+            return this.bordertimeoutField;
+        }
+        set
+        {
+            this.bordertimeoutField = value;
+        }
+    }
+
     /// <remarks/>
     public string cookies
     {

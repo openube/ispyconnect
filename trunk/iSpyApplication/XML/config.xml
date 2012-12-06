@@ -38,6 +38,7 @@
   <FFMPEG_Microphone>NotUsed</FFMPEG_Microphone>
   <TimestampColor>255,255,255</TimestampColor>
   <BorderHighlightColor>255,255,255</BorderHighlightColor>
+  <BorderDefaultColor>0,0,0</BorderDefaultColor>
   <UseUPNP>true</UseUPNP>
   <NextFloorPlanID>0</NextFloorPlanID>
   <YouTubeUsername />

@@ -118,7 +118,6 @@ namespace iSpyApplication
             this.tlpVLC = new System.Windows.Forms.TableLayoutPanel();
             this.label21 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.lblInstallVLC = new System.Windows.Forms.Label();
@@ -176,6 +175,10 @@ namespace iSpyApplication
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
+            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
+            this.flowLayoutPanel15 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label45 = new System.Windows.Forms.Label();
+            this.numBorderTimeout = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.txtFrameInterval2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtResizeWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtResizeHeight)).BeginInit();
@@ -224,6 +227,8 @@ namespace iSpyApplication
             this.flowLayoutPanel9.SuspendLayout();
             this.panel3.SuspendLayout();
             this.tableLayoutPanel9.SuspendLayout();
+            this.flowLayoutPanel15.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBorderTimeout)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -1242,15 +1247,6 @@ namespace iSpyApplication
             this.label19.TabIndex = 53;
             this.label19.Text = "eg: http://username:password@192.168.1.4/videostream.asf";
             // 
-            // txtVLCArgs
-            // 
-            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
-            this.txtVLCArgs.Multiline = true;
-            this.txtVLCArgs.Name = "txtVLCArgs";
-            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
-            this.txtVLCArgs.TabIndex = 61;
-            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
-            // 
             // label18
             // 
             this.label18.AutoSize = true;
@@ -1700,12 +1696,14 @@ namespace iSpyApplication
             // tableLayoutPanel6
             // 
             this.tableLayoutPanel6.ColumnCount = 2;
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 11.26761F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 88.73239F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 19.54225F));
+            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 80.45775F));
+            this.tableLayoutPanel6.Controls.Add(this.numBorderTimeout, 1, 2);
+            this.tableLayoutPanel6.Controls.Add(this.label45, 0, 2);
             this.tableLayoutPanel6.Controls.Add(this.label33, 0, 1);
             this.tableLayoutPanel6.Controls.Add(this.txtCustomURL, 1, 1);
             this.tableLayoutPanel6.Controls.Add(this.label34, 0, 0);
-            this.tableLayoutPanel6.Controls.Add(this.ddlCustomProvider, 1, 0);
+            this.tableLayoutPanel6.Controls.Add(this.flowLayoutPanel15, 1, 0);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
@@ -1728,8 +1726,7 @@ namespace iSpyApplication
             // 
             // txtCustomURL
             // 
-            this.txtCustomURL.Location = new System.Drawing.Point(70, 37);
-            this.txtCustomURL.Margin = new System.Windows.Forms.Padding(6);
+            this.txtCustomURL.Location = new System.Drawing.Point(113, 34);
             this.txtCustomURL.Name = "txtCustomURL";
             this.txtCustomURL.Size = new System.Drawing.Size(204, 20);
             this.txtCustomURL.TabIndex = 1;
@@ -1750,9 +1747,9 @@ namespace iSpyApplication
             this.ddlCustomProvider.FormattingEnabled = true;
             this.ddlCustomProvider.Items.AddRange(new object[] {
             "Network Kinect"});
-            this.ddlCustomProvider.Location = new System.Drawing.Point(67, 3);
+            this.ddlCustomProvider.Location = new System.Drawing.Point(3, 3);
             this.ddlCustomProvider.Name = "ddlCustomProvider";
-            this.ddlCustomProvider.Size = new System.Drawing.Size(161, 21);
+            this.ddlCustomProvider.Size = new System.Drawing.Size(204, 21);
             this.ddlCustomProvider.TabIndex = 3;
             // 
             // flowLayoutPanel4
@@ -1902,6 +1899,53 @@ namespace iSpyApplication
             this.tableLayoutPanel9.Size = new System.Drawing.Size(576, 100);
             this.tableLayoutPanel9.TabIndex = 62;
             // 
+            // txtVLCArgs
+            // 
+            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
+            this.txtVLCArgs.Multiline = true;
+            this.txtVLCArgs.Name = "txtVLCArgs";
+            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
+            this.txtVLCArgs.TabIndex = 61;
+            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            // 
+            // flowLayoutPanel15
+            // 
+            this.flowLayoutPanel15.Controls.Add(this.ddlCustomProvider);
+            this.flowLayoutPanel15.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel15.Location = new System.Drawing.Point(110, 0);
+            this.flowLayoutPanel15.Margin = new System.Windows.Forms.Padding(0);
+            this.flowLayoutPanel15.Name = "flowLayoutPanel15";
+            this.flowLayoutPanel15.Size = new System.Drawing.Size(458, 31);
+            this.flowLayoutPanel15.TabIndex = 4;
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(6, 68);
+            this.label45.Margin = new System.Windows.Forms.Padding(6);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(79, 13);
+            this.label45.TabIndex = 14;
+            this.label45.Text = "Border Timeout";
+            // 
+            // numBorderTimeout
+            // 
+            this.numBorderTimeout.Location = new System.Drawing.Point(113, 65);
+            this.numBorderTimeout.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.numBorderTimeout.Name = "numBorderTimeout";
+            this.numBorderTimeout.Size = new System.Drawing.Size(72, 20);
+            this.numBorderTimeout.TabIndex = 15;
+            this.toolTip1.SetToolTip(this.numBorderTimeout, "Timeout for resetting custom borders (seconds) - Enter 0 for no timeout");
+            this.numBorderTimeout.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            // 
             // VideoSource
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -1995,6 +2039,8 @@ namespace iSpyApplication
             this.panel3.ResumeLayout(false);
             this.tableLayoutPanel9.ResumeLayout(false);
             this.tableLayoutPanel9.PerformLayout();
+            this.flowLayoutPanel15.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numBorderTimeout)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -2147,5 +2193,8 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkUseHttp102;
         private ClipboardTextBoxExample.ClipboardTextBox txtVLCArgs;
         private System.Windows.Forms.LinkLabel linkLabel5;
+        private System.Windows.Forms.NumericUpDown numBorderTimeout;
+        private System.Windows.Forms.Label label45;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel15;
     }
 }

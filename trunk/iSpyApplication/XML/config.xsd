@@ -40,6 +40,7 @@
                 <xs:element name="FFMPEG_Microphone" type="xs:string" />
                 <xs:element name="TimestampColor" type="xs:string" />
                 <xs:element name="BorderHighlightColor" type="xs:string" />
+                <xs:element name="BorderDefaultColor" type="xs:string" />
                 <xs:element name="UseUPNP" type="xs:boolean" />
                 <xs:element name="YouTubeUsername" type="xs:string" />
                 <xs:element name="YouTubePassword" type="xs:string" />
