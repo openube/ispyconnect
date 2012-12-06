@@ -87,6 +87,7 @@ namespace iSpyApplication
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.button1 = new System.Windows.Forms.Button();
             this.label83 = new System.Windows.Forms.Label();
+            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label12 = new System.Windows.Forms.Label();
@@ -105,6 +106,7 @@ namespace iSpyApplication
             this.flowLayoutPanel17 = new System.Windows.Forms.FlowLayoutPanel();
             this.ddlProcessFrames = new System.Windows.Forms.ComboBox();
             this.label64 = new System.Windows.Forms.Label();
+            this.ranger1 = new iSpyApplication.Controls.Ranger();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.gpbSubscriber = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
@@ -383,8 +385,6 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
-            this.ranger1 = new iSpyApplication.Controls.Ranger();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -1197,6 +1197,21 @@ namespace iSpyApplication
             this.label83.TabIndex = 47;
             this.label83.Text = "* Click and drag to draw out rectangles";
             // 
+            // AreaControl
+            // 
+            this.AreaControl.BackColor = System.Drawing.Color.Black;
+            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.AreaControl.Location = new System.Drawing.Point(118, 0);
+            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
+            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
+            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
+            this.AreaControl.Name = "AreaControl";
+            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
+            this.tableLayoutPanel6.SetRowSpan(this.AreaControl, 2);
+            this.AreaControl.Size = new System.Drawing.Size(320, 240);
+            this.AreaControl.TabIndex = 48;
+            // 
             // groupBox5
             // 
             this.groupBox5.Controls.Add(this.tableLayoutPanel5);
@@ -1430,6 +1445,17 @@ namespace iSpyApplication
             this.label64.Size = new System.Drawing.Size(41, 13);
             this.label64.TabIndex = 54;
             this.label64.Text = "Frames";
+            // 
+            // ranger1
+            // 
+            this.ranger1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ranger1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ranger1.Location = new System.Drawing.Point(91, 36);
+            this.ranger1.Name = "ranger1";
+            this.ranger1.Size = new System.Drawing.Size(360, 74);
+            this.ranger1.TabIndex = 61;
+            this.ranger1.ValueMax = 100D;
+            this.ranger1.ValueMin = 0D;
             // 
             // tabPage2
             // 
@@ -4974,32 +5000,6 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Size = new System.Drawing.Size(385, 41);
             this.flowLayoutPanel3.TabIndex = 48;
-            // 
-            // AreaControl
-            // 
-            this.AreaControl.BackColor = System.Drawing.Color.Black;
-            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.AreaControl.Location = new System.Drawing.Point(118, 0);
-            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
-            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
-            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
-            this.AreaControl.Name = "AreaControl";
-            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
-            this.tableLayoutPanel6.SetRowSpan(this.AreaControl, 2);
-            this.AreaControl.Size = new System.Drawing.Size(320, 240);
-            this.AreaControl.TabIndex = 48;
-            // 
-            // ranger1
-            // 
-            this.ranger1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ranger1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ranger1.Location = new System.Drawing.Point(91, 36);
-            this.ranger1.Name = "ranger1";
-            this.ranger1.Size = new System.Drawing.Size(360, 74);
-            this.ranger1.TabIndex = 61;
-            this.ranger1.ValueMax = 100D;
-            this.ranger1.ValueMin = 0D;
             // 
             // AddCamera
             // 

@@ -196,6 +196,8 @@ public partial class configuration {
 
     private string borderHighlightColorField;
 
+    private string borderDefaultColorField;
+
     private bool viewControllerField;
 
     private int layoutModeField;
@@ -936,6 +938,17 @@ public partial class configuration {
         }
         set {
             this.borderHighlightColorField = value;
+        }
+    }
+
+     /// <remarks/>
+    public string BorderDefaultColor
+    {
+        get {
+            return this.borderDefaultColorField;
+        }
+        set {
+            this.borderDefaultColorField = value;
         }
     }
     

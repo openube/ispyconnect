@@ -42,7 +42,7 @@ namespace iSpyApplication
     {
         private static readonly List<Socket> MySockets = new List<Socket>();
         private static List<String> _allowedIPs;
-        private static int _socketindex;
+        //private static int _socketindex;
         private readonly MainForm _parent;
         public string ServerRoot;
         private Hashtable _mimetypes;
@@ -396,13 +396,8 @@ namespace iSpyApplication
                     if (MainForm.Conf.IPMode== "IPv6")
                         mySocket.SetIPProtectionLevel(IPProtectionLevel.Unrestricted);
 
-                    if (MySockets.Count() < _socketindex + 1)
-                    {
-                        MySockets.Add(mySocket);
-                    }
-                    else
-                        MySockets[_socketindex] = mySocket;
-
+                    MySockets.Add(mySocket);
+                    
                     if (mySocket.Connected)
                     {
                         mySocket.NoDelay = true;
@@ -428,7 +423,6 @@ namespace iSpyApplication
                                 
                                 var socket = mySocket;
                                 var feed = new Thread(p => AudioIn(socket, cid));
-                                _socketindex++;
                                 feed.Start();
                                 continue;
                             }
@@ -516,17 +510,17 @@ namespace iSpyApplication
                                     //    break;
                                     case "audiofeed.mp3":
                                         SendAudioFeed(Enums.AudioStreamMode.MP3, sBuffer, sPhysicalFilePath, mySocket);
-                                        break;
+                                        continue;
                                     case "audiofeed.wav":
                                         SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, mySocket);
-                                        break;
+                                        continue;
                                     case "video.mjpg":
                                     case "video.cgi":
                                     case "video.mjpeg":
                                     case "video.jpg":
                                     case "mjpegfeed":
                                         SendMJPEGFeed(sPhysicalFilePath, mySocket);
-                                        break;
+                                        continue;
                                     case "loadclip.flv":
                                     case "loadclip.fla":
                                     case "loadclip.mp3":
@@ -554,20 +548,16 @@ namespace iSpyApplication
                                         break;
                                 }
                             }
-                            
+
                             Finish:
-                            NumErr = 0;
+                                DisconnectSocket(mySocket);
+                                NumErr = 0;
                         }
                         catch (SocketException ex)
                         {
                             //Debug.WriteLine("Server Error (socket): " + ex.Message);
                             MainForm.LogExceptionToFile(ex);
                             NumErr++;
-                        }
-
-                        if (MySockets.Count() == _socketindex + 1)
-                        {
-                            DisconnectSocket(mySocket);
                         }
                     }
                 }
@@ -2947,7 +2937,6 @@ namespace iSpyApplication
                 if (cw.Camobject.settings.active)
                 {
                     var feed = new Thread(p => MJPEGFeed(cw, mySocket, w, h, basicCt));
-                    _socketindex++;
                     feed.Start();
 
                 }
@@ -3032,6 +3021,7 @@ namespace iSpyApplication
 
         private void DisconnectSocket(Socket mySocket)
         {
+            MySockets.Remove(mySocket);
             try
             {
                 var lingerOption = new LingerOption(false,0);
@@ -3129,28 +3119,8 @@ namespace iSpyApplication
                     }
                     else
                     {
+                        MySockets.Remove(mySocket);
                         vl.OutSockets.Add(mySocket);
-                        _socketindex++;
-
-                        //switch (StreamMode)
-                        //{
-                        //    case Enums.AudioStreamMode.PCM:
-                        //        vl.AudioStreamFormat = new WaveFormat(8000, 16, 1);
-                        //        vl.OutWriter = new WaveFileWriter(vl.OutStream, vl.AudioStreamFormat );
-                                
-                        //        break;
-                        //    case Enums.AudioStreamMode.M4A:
-                        //    case Enums.AudioStreamMode.MP3:
-                        //        vl.AudioStreamFormat = new WaveFormat(22050, 16, vl.Micobject.settings.channels);
-
-                        //        var wf = new MP3Stream.WaveFormat(vl.AudioStreamFormat.SampleRate, vl.AudioStreamFormat.BitsPerSample, vl.AudioStreamFormat.Channels);
-                        //        //var bcfg = new BE_CONFIG(wf, 128, LAME_QUALITY_PRESET.LQP_FAST_EXTREME);
-
-                        //        vl.Mp3Writer = new Mp3Writer(vl.OutStream, wf, false);// bcfg, false);
-                        //        break; 
-                        //}
-
-                        //vl.DataAvailable += VlDataAvailable;
                     }
                 }
             }

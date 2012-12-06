@@ -21,6 +21,107 @@ namespace iSpyApplication
     {
         private static configuration _conf;
         private static FilterInfoCollection _videoFilters;
+        private static Color _backColor = Color.Empty;
+        private static Color _borderDefaultColor = Color.Empty;
+        private static Color _borderHighlightColor = Color.Empty;
+        private static Color _floorPlanHighlightColor = Color.Empty;
+        private static Color _volumeLevelColor = Color.Empty;
+        private static Color _activityColor = Color.Empty;
+        private static Color _noActivityColor = Color.Empty;
+
+        public static void ReloadColors()
+        {
+            _backColor =
+                _borderDefaultColor =
+                _borderHighlightColor =
+                _floorPlanHighlightColor = _volumeLevelColor = _activityColor = _noActivityColor = Color.Empty;
+        }
+
+        public static Color BackgroundColor
+        {
+            get
+            {
+                if (_backColor == Color.Empty)
+                    _backColor = Conf.BackColor.ToColor();
+                return _backColor;
+            }
+            set { _backColor = value; }
+        }
+        
+        
+        public static Color BorderDefaultColor
+        {
+            get
+            {
+                if (_borderDefaultColor == Color.Empty)
+                    _borderDefaultColor = Conf.BorderDefaultColor.ToColor();
+                return _borderDefaultColor; 
+            }
+            set { _borderDefaultColor = value; }
+        }
+
+        
+        public static Color BorderHighlightColor
+        {
+            get
+            {
+                if (_borderHighlightColor == Color.Empty)
+                    _borderHighlightColor = Conf.BorderHighlightColor.ToColor();
+                return _borderHighlightColor;
+            }
+            set { _borderHighlightColor = value; }
+        }
+
+        
+        public static Color FloorPlanHighlightColor
+        {
+            get
+            {
+                if (_floorPlanHighlightColor == Color.Empty)
+                    _floorPlanHighlightColor = Conf.FloorPlanHighlightColor.ToColor();
+                return _floorPlanHighlightColor;
+            }
+            set { _floorPlanHighlightColor = value; }
+        }
+
+        
+        public static Color VolumeLevelColor
+        {
+            get
+            {
+                if (_volumeLevelColor == Color.Empty)
+                    _volumeLevelColor = Conf.VolumeLevelColor.ToColor();
+                return _volumeLevelColor;
+            }
+            set { _volumeLevelColor = value; }
+        }
+
+        
+        public static Color ActivityColor
+        {
+            get
+            {
+                if (_activityColor == Color.Empty)
+                    _activityColor = Conf.ActivityColor.ToColor();
+                return _activityColor;
+            }
+            set { _activityColor = value; }
+        }
+
+        
+        public static Color NoActivityColor
+        {
+            get
+            {
+                if (_noActivityColor == Color.Empty)
+                    _noActivityColor = Conf.NoActivityColor.ToColor();
+                return _noActivityColor;
+            }
+            set { _noActivityColor = value; }
+        }
+
+        
+
 
         public static FilterInfoCollection VideoFilters
         {
@@ -159,6 +260,8 @@ namespace iSpyApplication
                 {
                     _conf.Vendor = Resources.Vendor;
                 }
+                if (String.IsNullOrEmpty(_conf.BorderDefaultColor))
+                    _conf.BorderDefaultColor = "0,0,0";
 
                 return _conf;
             }

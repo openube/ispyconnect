@@ -318,7 +318,7 @@ namespace iSpyApplication.Controls
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
-            BackColor = MainForm.Conf.BackColor.ToColor();
+            BackColor = MainForm.BackgroundColor;
             Fpobject = ofp;
             MouseClick += FloorPlanControlClick;
 
@@ -418,10 +418,13 @@ namespace iSpyApplication.Controls
             get
             {
                 if (Highlighted)
-                    return MainForm.Conf.FloorPlanHighlightColor.ToColor();
-                if (!Focused)
-                    return Color.Black;
-                return MainForm.Conf.BorderHighlightColor.ToColor();
+                    return MainForm.FloorPlanHighlightColor;
+
+                if (Focused)
+                    return MainForm.BorderHighlightColor;
+
+                return MainForm.BorderDefaultColor;
+
             }
         }
 

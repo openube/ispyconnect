@@ -129,13 +129,14 @@ namespace iSpyApplication
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.Microphone = new System.Windows.Forms.Label();
             this.ddlTalkMic = new System.Windows.Forms.ComboBox();
+            this.chkSpeechRecognition = new System.Windows.Forms.CheckBox();
             this.cdColorChooser = new System.Windows.Forms.ColorDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkSpeechRecognition = new System.Windows.Forms.CheckBox();
+            this.btnBorderDefault = new System.Windows.Forms.Button();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -809,6 +810,7 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Controls.Add(this.btnColorArea);
             this.flowLayoutPanel3.Controls.Add(this.btnTimestampColor);
             this.flowLayoutPanel3.Controls.Add(this.btnBorderHighlight);
+            this.flowLayoutPanel3.Controls.Add(this.btnBorderDefault);
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(6, 6);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
@@ -1454,6 +1456,17 @@ namespace iSpyApplication
             this.ddlTalkMic.Size = new System.Drawing.Size(207, 21);
             this.ddlTalkMic.TabIndex = 1;
             // 
+            // chkSpeechRecognition
+            // 
+            this.chkSpeechRecognition.AutoSize = true;
+            this.chkSpeechRecognition.Location = new System.Drawing.Point(115, 56);
+            this.chkSpeechRecognition.Margin = new System.Windows.Forms.Padding(6);
+            this.chkSpeechRecognition.Name = "chkSpeechRecognition";
+            this.chkSpeechRecognition.Size = new System.Drawing.Size(159, 17);
+            this.chkSpeechRecognition.TabIndex = 2;
+            this.chkSpeechRecognition.Text = "Enable Speech Recognition";
+            this.chkSpeechRecognition.UseVisualStyleBackColor = true;
+            // 
             // button2
             // 
             this.button2.AutoSize = true;
@@ -1504,16 +1517,17 @@ namespace iSpyApplication
             this.flowLayoutPanel2.Size = new System.Drawing.Size(646, 40);
             this.flowLayoutPanel2.TabIndex = 92;
             // 
-            // chkSpeechRecognition
+            // btnBorderDefault
             // 
-            this.chkSpeechRecognition.AutoSize = true;
-            this.chkSpeechRecognition.Location = new System.Drawing.Point(115, 56);
-            this.chkSpeechRecognition.Margin = new System.Windows.Forms.Padding(6);
-            this.chkSpeechRecognition.Name = "chkSpeechRecognition";
-            this.chkSpeechRecognition.Size = new System.Drawing.Size(159, 17);
-            this.chkSpeechRecognition.TabIndex = 2;
-            this.chkSpeechRecognition.Text = "Enable Speech Recognition";
-            this.chkSpeechRecognition.UseVisualStyleBackColor = true;
+            this.btnBorderDefault.AutoSize = true;
+            this.btnBorderDefault.Location = new System.Drawing.Point(0, 132);
+            this.btnBorderDefault.Margin = new System.Windows.Forms.Padding(0);
+            this.btnBorderDefault.Name = "btnBorderDefault";
+            this.btnBorderDefault.Size = new System.Drawing.Size(184, 44);
+            this.btnBorderDefault.TabIndex = 26;
+            this.btnBorderDefault.Text = "Border Default";
+            this.btnBorderDefault.UseVisualStyleBackColor = true;
+            this.btnBorderDefault.Click += new System.EventHandler(this.button4_Click);
             // 
             // Settings
             // 
@@ -1688,5 +1702,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkEnableIPv6;
         private System.Windows.Forms.CheckBox chkRecycle;
         private System.Windows.Forms.CheckBox chkSpeechRecognition;
+        private System.Windows.Forms.Button btnBorderDefault;
     }
 }
