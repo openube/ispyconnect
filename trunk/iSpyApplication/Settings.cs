@@ -559,40 +559,18 @@ namespace iSpyApplication
 
         private void LinkLabel1LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            linkLabel1.Enabled = false;
-            var t = new Thread(()=>DownloadResources());
-            t.Start();
-        }
-
-        private void DownloadResources()
-        {
-            bool success = false;
-            try
+            var d = new downloader
             {
-                var httpRequest = (HttpWebRequest)WebRequest.Create(MainForm.Website + "/getcontent.aspx?name=translations");
-
-                httpRequest.Timeout = 100000;     // 100 secs
-
-                var webResponse = (HttpWebResponse)httpRequest.GetResponse();
-
-                var doc = new XmlDocument();
-                using (var sr = new StreamReader(webResponse.GetResponseStream(), Encoding.Unicode, true))
-                {
-                    doc.Load(sr);
-                }
-                doc.Save(Program.AppDataPath + @"XML\Translations.xml");
+                Url = MainForm.Website + "/getcontent.aspx?name=translations",
+                SaveLocation = Program.AppDataPath + @"XML\Translations.xml"
+            };
+            d.ShowDialog(this);
+            if (d.DialogResult == DialogResult.OK)
+            {
                 LocRm.TranslationsList = null;
-                success = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, LocRm.GetString("Error"));
-            }
-            if (success)
-            {
                 UISync.Execute(ReloadLanguages);
             }
-            UISync.Execute(() => linkLabel1.Enabled = true);
+            d.Dispose();
         }
 
         private void ReloadLanguages()

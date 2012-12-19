@@ -556,6 +556,7 @@ namespace iSpyApplication
                         catch (SocketException ex)
                         {
                             //Debug.WriteLine("Server Error (socket): " + ex.Message);
+                            DisconnectSocket(mySocket);
                             MainForm.LogExceptionToFile(ex);
                             NumErr++;
                         }
@@ -3019,7 +3020,7 @@ namespace iSpyApplication
             
         }
 
-        private void DisconnectSocket(Socket mySocket)
+        private static void DisconnectSocket(Socket mySocket)
         {
             MySockets.Remove(mySocket);
             try
@@ -3032,6 +3033,7 @@ namespace iSpyApplication
                     int read = 0;
                     byte[] recBuff = new byte[1000];
                     //clear pending buffer
+                    mySocket.ReceiveTimeout = 300;
                     while (mySocket.Receive(recBuff) > 0)
                     { }
                 }

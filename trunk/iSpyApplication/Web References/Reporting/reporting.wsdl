@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
       <s:element name="LogApplicationException">
@@ -28,6 +28,23 @@
       <s:element name="LogUsageResponse">
         <s:complexType />
       </s:element>
+      <s:element name="AddCamera">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="make" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="model" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="prefix" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="source" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="cookies" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="flags" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddCameraResponse">
+        <s:complexType />
+      </s:element>
       <s:element name="SendFeedback">
         <s:complexType>
           <s:sequence>
@@ -53,6 +70,12 @@
   <wsdl:message name="LogUsageSoapOut">
     <wsdl:part name="parameters" element="tns:LogUsageResponse" />
   </wsdl:message>
+  <wsdl:message name="AddCameraSoapIn">
+    <wsdl:part name="parameters" element="tns:AddCamera" />
+  </wsdl:message>
+  <wsdl:message name="AddCameraSoapOut">
+    <wsdl:part name="parameters" element="tns:AddCameraResponse" />
+  </wsdl:message>
   <wsdl:message name="SendFeedbackSoapIn">
     <wsdl:part name="parameters" element="tns:SendFeedback" />
   </wsdl:message>
@@ -67,6 +90,10 @@
     <wsdl:operation name="LogUsage">
       <wsdl:input message="tns:LogUsageSoapIn" />
       <wsdl:output message="tns:LogUsageSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddCamera">
+      <wsdl:input message="tns:AddCameraSoapIn" />
+      <wsdl:output message="tns:AddCameraSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SendFeedback">
       <wsdl:input message="tns:SendFeedbackSoapIn" />
@@ -86,6 +113,15 @@
     </wsdl:operation>
     <wsdl:operation name="LogUsage">
       <soap:operation soapAction="http://tempuri.org/LogUsage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddCamera">
+      <soap:operation soapAction="http://tempuri.org/AddCamera" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -116,6 +152,15 @@
     </wsdl:operation>
     <wsdl:operation name="LogUsage">
       <soap12:operation soapAction="http://tempuri.org/LogUsage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddCamera">
+      <soap12:operation soapAction="http://tempuri.org/AddCamera" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
