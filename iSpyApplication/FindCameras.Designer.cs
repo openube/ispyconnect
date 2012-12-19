@@ -48,8 +48,18 @@
             this.label5 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.tbl2 = new System.Windows.Forms.TableLayoutPanel();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.txtMake = new System.Windows.Forms.TextBox();
+            this.txtModel = new System.Windows.Forms.TextBox();
+            this.chkRTSP = new System.Windows.Forms.CheckBox();
+            this.chkHTTP = new System.Windows.Forms.CheckBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label11 = new System.Windows.Forms.Label();
+            this.ddlModel = new System.Windows.Forms.ComboBox();
+            this.txtChannel = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnNext = new System.Windows.Forms.Button();
@@ -57,6 +67,10 @@
             this.llblDownloadVLC = new System.Windows.Forms.LinkLabel();
             this.pnlOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlConfig = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.rdoUnlisted = new System.Windows.Forms.RadioButton();
+            this.rdoListed = new System.Windows.Forms.RadioButton();
+            this.tbl1 = new System.Windows.Forms.TableLayoutPanel();
             this.pnlNetwork = new System.Windows.Forms.Panel();
             this.pnlFindNetwork = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -67,17 +81,21 @@
             this.pnlConnect = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.label9 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.ddlModel = new System.Windows.Forms.ComboBox();
-            this.txtChannel = new System.Windows.Forms.TextBox();
+            this.pnlLogin = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.label15 = new System.Windows.Forms.Label();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pnlmain = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
+            this.tbl2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.pnlConfig.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.tbl1.SuspendLayout();
             this.pnlNetwork.SuspendLayout();
             this.pnlFindNetwork.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -85,6 +103,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             this.pnlConnect.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.pnlLogin.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
+            this.pnlmain.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -97,7 +119,7 @@
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(215, 300);
+            this.dataGridView1.Size = new System.Drawing.Size(198, 245);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_1);
@@ -132,7 +154,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 62);
+            this.label2.Location = new System.Drawing.Point(3, 31);
             this.label2.Name = "label2";
             this.label2.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
             this.label2.Size = new System.Drawing.Size(55, 21);
@@ -141,7 +163,7 @@
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(103, 65);
+            this.txtUsername.Location = new System.Drawing.Point(103, 34);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(115, 20);
             this.txtUsername.TabIndex = 4;
@@ -149,7 +171,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 93);
+            this.label3.Location = new System.Drawing.Point(3, 62);
             this.label3.Name = "label3";
             this.label3.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
             this.label3.Size = new System.Drawing.Size(53, 21);
@@ -158,7 +180,7 @@
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(103, 96);
+            this.txtPassword.Location = new System.Drawing.Point(103, 65);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(115, 20);
@@ -185,8 +207,8 @@
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 39.83051F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60.16949F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 45.76271F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 54.23729F));
             this.tableLayoutPanel1.Controls.Add(this.label8, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.label6, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.ddlHost, 1, 0);
@@ -195,7 +217,7 @@
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.button1, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(215, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(198, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 8;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
@@ -206,7 +228,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 300);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 245);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // label8
@@ -225,9 +247,9 @@
             this.label6.Location = new System.Drawing.Point(3, 39);
             this.label6.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(31, 13);
+            this.label6.Size = new System.Drawing.Size(91, 13);
             this.label6.TabIndex = 10;
-            this.label6.Text = "Ports";
+            this.label6.Text = "Ports (HTTP only)";
             // 
             // ddlHost
             // 
@@ -296,32 +318,93 @@
             this.linkLabel1.Text = "Get Latest";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // tableLayoutPanel2
+            // tbl2
             // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel2.Controls.Add(this.label12, 0, 4);
-            this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel1, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.txtPassword, 1, 3);
-            this.tableLayoutPanel2.Controls.Add(this.label3, 0, 3);
-            this.tableLayoutPanel2.Controls.Add(this.label2, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.txtUsername, 1, 2);
-            this.tableLayoutPanel2.Controls.Add(this.label11, 0, 1);
-            this.tableLayoutPanel2.Controls.Add(this.ddlModel, 1, 1);
-            this.tableLayoutPanel2.Controls.Add(this.txtChannel, 1, 4);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 5;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(378, 169);
-            this.tableLayoutPanel2.TabIndex = 0;
+            this.tbl2.ColumnCount = 2;
+            this.tbl2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tbl2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tbl2.Controls.Add(this.label13, 0, 0);
+            this.tbl2.Controls.Add(this.label14, 0, 1);
+            this.tbl2.Controls.Add(this.txtMake, 1, 0);
+            this.tbl2.Controls.Add(this.txtModel, 1, 1);
+            this.tbl2.Controls.Add(this.chkRTSP, 1, 2);
+            this.tbl2.Controls.Add(this.chkHTTP, 1, 3);
+            this.tbl2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbl2.Location = new System.Drawing.Point(153, 73);
+            this.tbl2.Name = "tbl2";
+            this.tbl2.RowCount = 5;
+            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tbl2.Size = new System.Drawing.Size(409, 169);
+            this.tbl2.TabIndex = 0;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(3, 8);
+            this.label13.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(34, 13);
+            this.label13.TabIndex = 9;
+            this.label13.Text = "Make";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(3, 39);
+            this.label14.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(36, 13);
+            this.label14.TabIndex = 10;
+            this.label14.Text = "Model";
+            // 
+            // txtMake
+            // 
+            this.txtMake.Location = new System.Drawing.Point(103, 3);
+            this.txtMake.Name = "txtMake";
+            this.txtMake.Size = new System.Drawing.Size(231, 20);
+            this.txtMake.TabIndex = 11;
+            // 
+            // txtModel
+            // 
+            this.txtModel.Location = new System.Drawing.Point(103, 34);
+            this.txtModel.Name = "txtModel";
+            this.txtModel.Size = new System.Drawing.Size(149, 20);
+            this.txtModel.TabIndex = 12;
+            // 
+            // chkRTSP
+            // 
+            this.chkRTSP.AutoSize = true;
+            this.chkRTSP.Location = new System.Drawing.Point(103, 65);
+            this.chkRTSP.Name = "chkRTSP";
+            this.chkRTSP.Size = new System.Drawing.Size(134, 17);
+            this.chkRTSP.TabIndex = 13;
+            this.chkRTSP.Text = "Scan RTSP addresses";
+            this.chkRTSP.UseVisualStyleBackColor = true;
+            this.chkRTSP.CheckedChanged += new System.EventHandler(this.chkRTSP_CheckedChanged);
+            // 
+            // chkHTTP
+            // 
+            this.chkHTTP.AutoSize = true;
+            this.chkHTTP.Location = new System.Drawing.Point(103, 96);
+            this.chkHTTP.Name = "chkHTTP";
+            this.chkHTTP.Size = new System.Drawing.Size(134, 17);
+            this.chkHTTP.TabIndex = 14;
+            this.chkHTTP.Text = "Scan HTTP addresses";
+            this.chkHTTP.UseVisualStyleBackColor = true;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(3, 101);
+            this.label12.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(46, 13);
+            this.label12.TabIndex = 7;
+            this.label12.Text = "Channel";
             // 
             // flowLayoutPanel1
             // 
@@ -331,16 +414,43 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(100, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(547, 31);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 31);
             this.flowLayoutPanel1.TabIndex = 1;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 39);
+            this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(36, 13);
+            this.label11.TabIndex = 6;
+            this.label11.Text = "Model";
+            // 
+            // ddlModel
+            // 
+            this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlModel.FormattingEnabled = true;
+            this.ddlModel.Location = new System.Drawing.Point(103, 34);
+            this.ddlModel.Name = "ddlModel";
+            this.ddlModel.Size = new System.Drawing.Size(149, 21);
+            this.ddlModel.TabIndex = 8;
+            this.ddlModel.SelectedIndexChanged += new System.EventHandler(this.ddlModel_SelectedIndexChanged);
+            // 
+            // txtChannel
+            // 
+            this.txtChannel.Location = new System.Drawing.Point(103, 96);
+            this.txtChannel.Name = "txtChannel";
+            this.txtChannel.Size = new System.Drawing.Size(78, 20);
+            this.txtChannel.TabIndex = 9;
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.flowLayoutPanel3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(8, 497);
+            this.panel1.Location = new System.Drawing.Point(3, 518);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(601, 32);
+            this.panel1.Size = new System.Drawing.Size(696, 32);
             this.panel1.TabIndex = 5;
             // 
             // flowLayoutPanel3
@@ -352,13 +462,13 @@
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(601, 32);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(696, 32);
             this.flowLayoutPanel3.TabIndex = 3;
             // 
             // btnNext
             // 
             this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.Location = new System.Drawing.Point(523, 3);
+            this.btnNext.Location = new System.Drawing.Point(618, 3);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 0;
@@ -369,7 +479,7 @@
             // btnBack
             // 
             this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.Location = new System.Drawing.Point(442, 3);
+            this.btnBack.Location = new System.Drawing.Point(537, 3);
             this.btnBack.Name = "btnBack";
             this.btnBack.Size = new System.Drawing.Size(75, 23);
             this.btnBack.TabIndex = 1;
@@ -380,10 +490,10 @@
             // llblDownloadVLC
             // 
             this.llblDownloadVLC.AutoSize = true;
-            this.llblDownloadVLC.Location = new System.Drawing.Point(272, 6);
+            this.llblDownloadVLC.Location = new System.Drawing.Point(341, 6);
             this.llblDownloadVLC.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.llblDownloadVLC.Name = "llblDownloadVLC";
-            this.llblDownloadVLC.Size = new System.Drawing.Size(164, 13);
+            this.llblDownloadVLC.Size = new System.Drawing.Size(190, 13);
             this.llblDownloadVLC.TabIndex = 2;
             this.llblDownloadVLC.TabStop = true;
             this.llblDownloadVLC.Text = "Install VLC (x86) to enable VLC options";
@@ -401,11 +511,71 @@
             // 
             // pnlConfig
             // 
-            this.pnlConfig.Controls.Add(this.tableLayoutPanel2);
-            this.pnlConfig.Location = new System.Drawing.Point(8, 11);
+            this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
+            this.pnlConfig.Location = new System.Drawing.Point(17, 16);
             this.pnlConfig.Name = "pnlConfig";
-            this.pnlConfig.Size = new System.Drawing.Size(378, 169);
+            this.pnlConfig.Size = new System.Drawing.Size(565, 245);
             this.pnlConfig.TabIndex = 6;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.Controls.Add(this.rdoUnlisted, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.tbl2, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.rdoListed, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.tbl1, 1, 0);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 2;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 245);
+            this.tableLayoutPanel4.TabIndex = 1;
+            // 
+            // rdoUnlisted
+            // 
+            this.rdoUnlisted.AutoSize = true;
+            this.rdoUnlisted.Location = new System.Drawing.Point(3, 73);
+            this.rdoUnlisted.Name = "rdoUnlisted";
+            this.rdoUnlisted.Size = new System.Drawing.Size(95, 17);
+            this.rdoUnlisted.TabIndex = 15;
+            this.rdoUnlisted.TabStop = true;
+            this.rdoUnlisted.Text = "Unlisted (scan)";
+            this.rdoUnlisted.UseVisualStyleBackColor = true;
+            this.rdoUnlisted.CheckedChanged += new System.EventHandler(this.rdoUnlisted_CheckedChanged);
+            // 
+            // rdoListed
+            // 
+            this.rdoListed.AutoSize = true;
+            this.rdoListed.Location = new System.Drawing.Point(3, 3);
+            this.rdoListed.Name = "rdoListed";
+            this.rdoListed.Size = new System.Drawing.Size(53, 17);
+            this.rdoListed.TabIndex = 13;
+            this.rdoListed.TabStop = true;
+            this.rdoListed.Text = "Listed";
+            this.rdoListed.UseVisualStyleBackColor = true;
+            this.rdoListed.CheckedChanged += new System.EventHandler(this.rdoListed_CheckedChanged);
+            // 
+            // tbl1
+            // 
+            this.tbl1.ColumnCount = 2;
+            this.tbl1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tbl1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tbl1.Controls.Add(this.ddlModel, 1, 1);
+            this.tbl1.Controls.Add(this.flowLayoutPanel1, 1, 0);
+            this.tbl1.Controls.Add(this.label1, 0, 0);
+            this.tbl1.Controls.Add(this.label11, 0, 1);
+            this.tbl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tbl1.Location = new System.Drawing.Point(153, 3);
+            this.tbl1.Name = "tbl1";
+            this.tbl1.RowCount = 2;
+            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tbl1.Size = new System.Drawing.Size(409, 64);
+            this.tbl1.TabIndex = 14;
             // 
             // pnlNetwork
             // 
@@ -414,16 +584,16 @@
             this.pnlNetwork.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlNetwork.Location = new System.Drawing.Point(0, 33);
             this.pnlNetwork.Name = "pnlNetwork";
-            this.pnlNetwork.Size = new System.Drawing.Size(451, 300);
+            this.pnlNetwork.Size = new System.Drawing.Size(434, 245);
             this.pnlNetwork.TabIndex = 7;
             // 
             // pnlFindNetwork
             // 
             this.pnlFindNetwork.Controls.Add(this.pnlNetwork);
             this.pnlFindNetwork.Controls.Add(this.panel3);
-            this.pnlFindNetwork.Location = new System.Drawing.Point(11, 159);
+            this.pnlFindNetwork.Location = new System.Drawing.Point(358, 279);
             this.pnlFindNetwork.Name = "pnlFindNetwork";
-            this.pnlFindNetwork.Size = new System.Drawing.Size(451, 333);
+            this.pnlFindNetwork.Size = new System.Drawing.Size(434, 278);
             this.pnlFindNetwork.TabIndex = 8;
             // 
             // panel3
@@ -432,7 +602,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(0, 0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(451, 33);
+            this.panel3.Size = new System.Drawing.Size(434, 33);
             this.panel3.TabIndex = 0;
             // 
             // flowLayoutPanel2
@@ -445,7 +615,7 @@
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(451, 33);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(434, 33);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // label10
@@ -454,13 +624,13 @@
             this.label10.Location = new System.Drawing.Point(184, 0);
             this.label10.Name = "label10";
             this.label10.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
-            this.label10.Size = new System.Drawing.Size(26, 21);
+            this.label10.Size = new System.Drawing.Size(64, 21);
             this.label10.TabIndex = 10;
-            this.label10.Text = "Port";
+            this.label10.Text = "Port (HTTP)";
             // 
             // numPort
             // 
-            this.numPort.Location = new System.Drawing.Point(216, 3);
+            this.numPort.Location = new System.Drawing.Point(254, 3);
             this.numPort.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -473,7 +643,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(279, 0);
+            this.label7.Location = new System.Drawing.Point(317, 0);
             this.label7.Name = "label7";
             this.label7.Padding = new System.Windows.Forms.Padding(0, 8, 0, 0);
             this.label7.Size = new System.Drawing.Size(99, 21);
@@ -484,7 +654,7 @@
             // 
             this.pnlConnect.Controls.Add(this.pnlOptions);
             this.pnlConnect.Controls.Add(this.panel4);
-            this.pnlConnect.Location = new System.Drawing.Point(399, 11);
+            this.pnlConnect.Location = new System.Drawing.Point(17, 288);
             this.pnlConnect.Name = "pnlConnect";
             this.pnlConnect.Size = new System.Drawing.Size(335, 269);
             this.pnlConnect.TabIndex = 9;
@@ -500,61 +670,97 @@
             // 
             // label9
             // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 7);
+            this.label9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label9.Location = new System.Drawing.Point(0, 0);
+            this.label9.Margin = new System.Windows.Forms.Padding(0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(208, 13);
+            this.label9.Padding = new System.Windows.Forms.Padding(6);
+            this.label9.Size = new System.Drawing.Size(335, 37);
             this.label9.TabIndex = 0;
-            this.label9.Text = "Try these URLs to connect to your camera";
+            this.label9.Text = "Try these URLs to connect to your camera. FFMPEG and VLC options frequently suppo" +
+    "rt audio and higher framerates and will be listed in bold below.";
             // 
-            // label11
+            // pnlLogin
             // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 39);
-            this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(36, 13);
-            this.label11.TabIndex = 6;
-            this.label11.Text = "Model";
+            this.pnlLogin.Controls.Add(this.tableLayoutPanel3);
+            this.pnlLogin.Location = new System.Drawing.Point(609, 27);
+            this.pnlLogin.Name = "pnlLogin";
+            this.pnlLogin.Size = new System.Drawing.Size(392, 197);
+            this.pnlLogin.TabIndex = 10;
             // 
-            // label12
+            // tableLayoutPanel3
             // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(3, 132);
-            this.label12.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(46, 13);
-            this.label12.TabIndex = 7;
-            this.label12.Text = "Channel";
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.Controls.Add(this.label12, 0, 3);
+            this.tableLayoutPanel3.Controls.Add(this.label2, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.txtUsername, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.label3, 0, 2);
+            this.tableLayoutPanel3.Controls.Add(this.txtChannel, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.txtPassword, 1, 2);
+            this.tableLayoutPanel3.Controls.Add(this.label15, 0, 0);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 4;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(392, 197);
+            this.tableLayoutPanel3.TabIndex = 0;
             // 
-            // ddlModel
+            // label15
             // 
-            this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlModel.FormattingEnabled = true;
-            this.ddlModel.Location = new System.Drawing.Point(103, 34);
-            this.ddlModel.Name = "ddlModel";
-            this.ddlModel.Size = new System.Drawing.Size(149, 21);
-            this.ddlModel.TabIndex = 8;
-            this.ddlModel.SelectedIndexChanged += new System.EventHandler(this.ddlModel_SelectedIndexChanged);
+            this.label15.AutoSize = true;
+            this.tableLayoutPanel3.SetColumnSpan(this.label15, 2);
+            this.label15.Location = new System.Drawing.Point(0, 0);
+            this.label15.Margin = new System.Windows.Forms.Padding(0);
+            this.label15.Name = "label15";
+            this.label15.Padding = new System.Windows.Forms.Padding(6);
+            this.label15.Size = new System.Drawing.Size(343, 25);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "Enter the username and password you use to login to your IP camera";
             // 
-            // txtChannel
+            // statusStrip1
             // 
-            this.txtChannel.Location = new System.Drawing.Point(103, 127);
-            this.txtChannel.Name = "txtChannel";
-            this.txtChannel.Size = new System.Drawing.Size(78, 20);
-            this.txtChannel.TabIndex = 9;
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsslCurrent});
+            this.statusStrip1.Location = new System.Drawing.Point(3, 550);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(696, 22);
+            this.statusStrip1.TabIndex = 11;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // tsslCurrent
+            // 
+            this.tsslCurrent.Name = "tsslCurrent";
+            this.tsslCurrent.Size = new System.Drawing.Size(23, 17);
+            this.tsslCurrent.Text = "OK";
+            // 
+            // pnlmain
+            // 
+            this.pnlmain.Controls.Add(this.pnlConfig);
+            this.pnlmain.Controls.Add(this.pnlFindNetwork);
+            this.pnlmain.Controls.Add(this.pnlLogin);
+            this.pnlmain.Controls.Add(this.pnlConnect);
+            this.pnlmain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlmain.Location = new System.Drawing.Point(3, 3);
+            this.pnlmain.Name = "pnlmain";
+            this.pnlmain.Size = new System.Drawing.Size(696, 515);
+            this.pnlmain.TabIndex = 12;
             // 
             // FindCameras
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(617, 537);
-            this.Controls.Add(this.pnlConfig);
-            this.Controls.Add(this.pnlConnect);
-            this.Controls.Add(this.pnlFindNetwork);
+            this.ClientSize = new System.Drawing.Size(702, 575);
+            this.Controls.Add(this.pnlmain);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.statusStrip1);
             this.Name = "FindCameras";
-            this.Padding = new System.Windows.Forms.Padding(8);
+            this.Padding = new System.Windows.Forms.Padding(3);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Connect to IP Web Cameras";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FindCameras_FormClosing);
@@ -562,14 +768,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.tableLayoutPanel2.PerformLayout();
+            this.tbl2.ResumeLayout(false);
+            this.tbl2.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
             this.pnlConfig.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
+            this.tbl1.ResumeLayout(false);
+            this.tbl1.PerformLayout();
             this.pnlNetwork.ResumeLayout(false);
             this.pnlFindNetwork.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
@@ -578,8 +788,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             this.pnlConnect.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
+            this.pnlLogin.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
+            this.pnlmain.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -604,7 +820,7 @@
         private System.Windows.Forms.ProgressBar pbScanner;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+        private System.Windows.Forms.TableLayoutPanel tbl2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button btnNext;
@@ -627,5 +843,21 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox ddlModel;
         private System.Windows.Forms.TextBox txtChannel;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TextBox txtMake;
+        private System.Windows.Forms.TextBox txtModel;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.RadioButton rdoUnlisted;
+        private System.Windows.Forms.RadioButton rdoListed;
+        private System.Windows.Forms.TableLayoutPanel tbl1;
+        private System.Windows.Forms.Panel pnlLogin;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel tsslCurrent;
+        private System.Windows.Forms.CheckBox chkRTSP;
+        private System.Windows.Forms.Panel pnlmain;
+        private System.Windows.Forms.CheckBox chkHTTP;
+        private System.Windows.Forms.Label label15;
     }
 }

@@ -347,6 +347,7 @@ namespace iSpyApplication
             set { _floorplans = value; }
         }
 
+
         public static IPAddress[] AddressListIPv4
         {
             get
@@ -357,6 +358,8 @@ namespace iSpyApplication
                     Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(
                         p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
                 return _ipv4Addresses;
+                //return Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(
+                //       p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
             }
         }
 
@@ -398,6 +401,7 @@ namespace iSpyApplication
                 }
                 _ipv6Addresses = ipv6Adds.ToArray();
                 return _ipv6Addresses;
+                
             }
         }
 

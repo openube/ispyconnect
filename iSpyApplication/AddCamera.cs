@@ -1827,20 +1827,18 @@ namespace iSpyApplication
 
         private void LinkLabel6LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var doc = new XmlDocument();
-            try
+            var d = new downloader
             {
-                doc.Load(MainForm.Website+"/getcontent.aspx?name=PTZ2");
-            }
-            catch (Exception ex)
+                Url = MainForm.Website + "/getcontent.aspx?name=PTZ2",
+                SaveLocation = Program.AppDataPath + @"XML\PTZ2.xml"
+            };
+            d.ShowDialog(this);
+            if (d.DialogResult == DialogResult.OK)
             {
-                MessageBox.Show(ex.Message);
-                return;
+                MainForm.PTZs = null;
+                LoadPTZs();
             }
-            doc.Save(Program.AppDataPath + @"XML\PTZ2.xml");
-            MainForm.PTZs = null;
-            LoadPTZs();
-            MessageBox.Show(LocRm.GetString("LoadedPTZDefinitions"), LocRm.GetString("Note"));
+            d.Dispose();
         }
 
         private void TabPage9Click(object sender, EventArgs e)

@@ -2124,7 +2124,7 @@
       <Command Name="Set Preset 5">command=40</Command>
       <Command Name="Go Preset 5">command=41</Command>
       <Command Name="Set Preset 6">command=42</Command>w
-            <Command Name="Go Preset 6">command=43</Command><Command Name="Set Preset 7">command=44</Command><Command Name="Go Preset 7">command=45</Command><Command Name="Set Preset 8">command=46</Command><Command Name="Go Preset 8">command=47</Command><Command Name="Set Preset 9">command=48</Command><Command Name="Go Preset 9">command=49</Command><Command Name="Set Preset 10">command=50</Command><Command Name="Go Preset 10">command=51</Command><Command Name="Set Preset 11">command=52</Command><Command Name="Go Preset 11">command=53</Command><Command Name="Set Preset 12">command=54</Command><Command Name="Go Preset 12">command=55</Command><Command Name="Set Preset 13">command=56</Command><Command Name="Go Preset 13">command=57</Command><Command Name="Set Preset 14">command=58</Command><Command Name="Go Preset 14">command=59</Command><Command Name="Set Preset 15">command=60</Command><Command Name="Go Preset 15">command=61</Command><Command Name="Set Preset 16">command=62</Command><Command Name="Go Preset 16">command=63</Command></ExtendedCommands>
+      <Command Name="Go Preset 6">command=43</Command><Command Name="Set Preset 7">command=44</Command><Command Name="Go Preset 7">command=45</Command><Command Name="Set Preset 8">command=46</Command><Command Name="Go Preset 8">command=47</Command><Command Name="Set Preset 9">command=48</Command><Command Name="Go Preset 9">command=49</Command><Command Name="Set Preset 10">command=50</Command><Command Name="Go Preset 10">command=51</Command><Command Name="Set Preset 11">command=52</Command><Command Name="Go Preset 11">command=53</Command><Command Name="Set Preset 12">command=54</Command><Command Name="Go Preset 12">command=55</Command><Command Name="Set Preset 13">command=56</Command><Command Name="Go Preset 13">command=57</Command><Command Name="Set Preset 14">command=58</Command><Command Name="Go Preset 14">command=59</Command><Command Name="Set Preset 15">command=60</Command><Command Name="Go Preset 15">command=61</Command><Command Name="Set Preset 16">command=62</Command><Command Name="Go Preset 16">command=63</Command></ExtendedCommands>
   </Camera>
   <Camera id="82">
     <Makes>
@@ -4043,54 +4043,128 @@
     <ExtendedCommands>
     </ExtendedCommands>
   </Camera>
-<Camera id="167">
+  <Camera id="167">
     <Makes>
-        <Make Name="Lonestar" Model="J011-WS" />
+      <Make Name="Lonestar" Model="J011-WS" />
     </Makes>
     <CommandURL>/decoder_control.cgi</CommandURL>
     <Commands>
-        <Center>command=25</Center>
-        <Left>command=4</Left>
-        <LeftStop>command=5</LeftStop>
-        <LeftUp>command=90</LeftUp>
-        <LeftDown>command=92</LeftDown>
-        <Right>command=6</Right>
-        <RightStop>command=7</RightStop>
-        <RightUp>command=91</RightUp>
-        <Up>command=0</Up>
-        <Down>command=2</Down>
-        <LeftDown>command=92</LeftDown>
-        <RightDown>command=93</RightDown>
-        <Stop>command=5</Stop>
-        <ZoomIn>
-        </ZoomIn>
-        <ZoomOut>
-        </ZoomOut>
+      <Center>command=25</Center>
+      <Left>command=4</Left>
+      <LeftStop>command=5</LeftStop>
+      <LeftUp>command=90</LeftUp>
+      <LeftDown>command=92</LeftDown>
+      <Right>command=6</Right>
+      <RightStop>command=7</RightStop>
+      <RightUp>command=91</RightUp>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <LeftDown>command=92</LeftDown>
+      <RightDown>command=93</RightDown>
+      <Stop>command=5</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
     </Commands>
     <ExtendedCommands>
-        <Command Name="Stop">command=1</Command>
-        <Command Name="IR on">command=94</Command>
-        <Command Name="IR off">command=95</Command>
-        <Command Name="H Patrol">command=28</Command>
-        <Command Name="H Patrol Stop">command=29</Command>
-        <Command Name="V Patrol">command=26</Command>
-        <Command Name="V Patrol Stop">command=27</Command>
-        <Command Name="IO Output High">command=94</Command>
-        <Command Name="IO Output Low">command=95</Command>
-        <Command Name="Set Preset 0">command=30</Command>
-        <Command Name="Go Preset 0">command=31</Command>
-        <Command Name="Set Preset 1">command=32</Command>
-        <Command Name="Go Preset 1">command=33</Command>
-        <Command Name="Set Preset 2">command=34</Command>
-        <Command Name="Go Preset 2">command=35</Command>
-        <Command Name="Set Preset 3">command=36</Command>
-        <Command Name="Go Preset 3">command=37</Command>
-        <Command Name="Set Preset 4">command=38</Command>
-        <Command Name="Go Preset 4">command=39</Command>
-        <Command Name="Set Preset 5">command=40</Command>
-        <Command Name="Go Preset 5">command=41</Command>
-        <Command Name="Set Preset 6">command=42</Command>w
-        <Command Name="Go Preset 6">command=43</Command><Command Name="Set Preset 7">command=44</Command><Command Name="Go Preset 7">command=45</Command><Command Name="Set Preset 8">command=46</Command><Command Name="Go Preset 8">command=47</Command><Command Name="Set Preset 9">command=48</Command><Command Name="Go Preset 9">command=49</Command><Command Name="Set Preset 10">command=50</Command><Command Name="Go Preset 10">command=51</Command><Command Name="Set Preset 11">command=52</Command><Command Name="Go Preset 11">command=53</Command><Command Name="Set Preset 12">command=54</Command><Command Name="Go Preset 12">command=55</Command><Command Name="Set Preset 13">command=56</Command><Command Name="Go Preset 13">command=57</Command><Command Name="Set Preset 14">command=58</Command><Command Name="Go Preset 14">command=59</Command><Command Name="Set Preset 15">command=60</Command><Command Name="Go Preset 15">command=61</Command><Command Name="Set Preset 16">command=62</Command><Command Name="Go Preset 16">command=63</Command>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="IR on">command=94</Command>
+      <Command Name="IR off">command=95</Command>
+      <Command Name="H Patrol">command=28</Command>
+      <Command Name="H Patrol Stop">command=29</Command>
+      <Command Name="V Patrol">command=26</Command>
+      <Command Name="V Patrol Stop">command=27</Command>
+      <Command Name="IO Output High">command=94</Command>
+      <Command Name="IO Output Low">command=95</Command>
+      <Command Name="Set Preset 0">command=30</Command>
+      <Command Name="Go Preset 0">command=31</Command>
+      <Command Name="Set Preset 1">command=32</Command>
+      <Command Name="Go Preset 1">command=33</Command>
+      <Command Name="Set Preset 2">command=34</Command>
+      <Command Name="Go Preset 2">command=35</Command>
+      <Command Name="Set Preset 3">command=36</Command>
+      <Command Name="Go Preset 3">command=37</Command>
+      <Command Name="Set Preset 4">command=38</Command>
+      <Command Name="Go Preset 4">command=39</Command>
+      <Command Name="Set Preset 5">command=40</Command>
+      <Command Name="Go Preset 5">command=41</Command>
+      <Command Name="Set Preset 6">command=42</Command>w
+      <Command Name="Go Preset 6">command=43</Command><Command Name="Set Preset 7">command=44</Command><Command Name="Go Preset 7">command=45</Command><Command Name="Set Preset 8">command=46</Command><Command Name="Go Preset 8">command=47</Command><Command Name="Set Preset 9">command=48</Command><Command Name="Go Preset 9">command=49</Command><Command Name="Set Preset 10">command=50</Command><Command Name="Go Preset 10">command=51</Command><Command Name="Set Preset 11">command=52</Command><Command Name="Go Preset 11">command=53</Command><Command Name="Set Preset 12">command=54</Command><Command Name="Go Preset 12">command=55</Command><Command Name="Set Preset 13">command=56</Command><Command Name="Go Preset 13">command=57</Command><Command Name="Set Preset 14">command=58</Command><Command Name="Go Preset 14">command=59</Command><Command Name="Set Preset 15">command=60</Command><Command Name="Go Preset 15">command=61</Command><Command Name="Set Preset 16">command=62</Command><Command Name="Go Preset 16">command=63</Command></ExtendedCommands>
+  </Camera>
+  <Camera id="168">
+    <Makes>
+      <Make Name="Ernitec" Model="SX302IR" />
+    </Makes>
+    <CommandURL>/cgi-bin/com/ptz.cgi?</CommandURL>
+    <Commands>
+      <Center>move=home</Center>
+      <Left>move=left</Left>
+      <LeftUp>move=upleft</LeftUp>
+      <LeftDown>move=downleft</LeftDown>
+      <Right>move=right</Right>
+      <RightUp>move=upright</RightUp>
+      <Up>move=up</Up>
+      <Down>move=down</Down>
+      <LeftDown>move=downleft</LeftDown>
+      <RightDown>move=downright</RightDown>
+      <Stop>
+      </Stop>
+      <ZoomIn>rzoom=100</ZoomIn>
+      <ZoomOut>rzoom=-100</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Focus In">rfocus=50</Command>
+      <Command Name="Focus Out">rfocus=-50</Command>
+      <Command Name="AutoFocus On">autofocus=on</Command>
+      <Command Name="AutoFocus Off">autofocus=off</Command>
+      <Command Name="Preset 1">gotoserverpresetno=1</Command>
+      <Command Name="Preset 2">gotoserverpresetno=2</Command>
+      <Command Name="Preset 3">gotoserverpresetno=3</Command>
+      <Command Name="Preset 4">gotoserverpresetno=4</Command>
+      <Command Name="Preset 5">gotoserverpresetno=5</Command>
+      <Command Name="Preset 6">gotoserverpresetno=6</Command>
+      <Command Name="Preset 7">gotoserverpresetno=7</Command>
+      <Command Name="Preset 8">gotoserverpresetno=8</Command>
     </ExtendedCommands>
-</Camera>
+  </Camera>
+  <Camera id="169">
+    <Makes>
+      <Make Name="Coolcam" Model="" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi?user=[USERNAME]&amp;pwd=[PASSWORD]</CommandURL>
+    <Commands>
+      <Center>command=1</Center>
+      <Left>command=4</Left>
+      <Right>command=6</Right>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <Stop>command=1</Stop>
+      <ZoomIn>command=18</ZoomIn>
+      <ZoomOut>command=16</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="Start H Patrol">command=20</Command>
+      <Command Name="Stop H Patrol">command=21</Command>
+      <Command Name="Switch ON">command=94</Command>
+      <Command Name="Switch OFF">command=95</Command>
+      <Command Name="GO Preset 1">command=31</Command>
+      <Command Name="GO Preset 2">command=33</Command>
+      <Command Name="GO Preset 3">command=35</Command>
+      <Command Name="GO Preset 4">command=37</Command>
+      <Command Name="GO Preset 5">command=39</Command>
+      <Command Name="GO Preset 6">command=41</Command>
+      <Command Name="GO Preset 7">command=43</Command>
+      <Command Name="GO Preset 8">command=45</Command>
+      <Command Name="Set Preset 1">command=30</Command>
+      <Command Name="Set Preset 2">command=32</Command>
+      <Command Name="Set Preset 3">command=34</Command>
+      <Command Name="Set Preset 4">command=36</Command>
+      <Command Name="Set Preset 5">command=38</Command>
+      <Command Name="Set Preset 6">command=40</Command>
+      <Command Name="Set Preset 7">command=42</Command>
+      <Command Name="Set Preset 8">command=44</Command>
+    </ExtendedCommands>
+  </Camera>
 </PTZSettings2>

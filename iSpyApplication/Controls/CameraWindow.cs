@@ -755,6 +755,35 @@ namespace iSpyApplication.Controls
                     break;
                 default:
                     Cursor = Cursors.Hand;
+                    if (_toolTipCam.Active)
+                    {
+                        _toolTipCam.Hide(this);
+                        _ttind = -1;
+                    }
+                    if (e.Location.X<30 && e.Location.Y>Height-24)
+                    {
+                        string m = "";
+                        if (Camobject.alerts.active)
+                            m = "Alerts Active";
+
+                        if (ForcedRecording)
+                            m = "Forced Recording, " + m;
+                        
+                        if (Camobject.detector.recordondetect)
+                            m = "Record on Detect, " + m;
+                        else
+                        {
+                            if (Camobject.detector.recordonalert)
+                                m = "Record on Alert, " + m;
+                            else
+                            {
+                                m = "No Recording, " + m;
+                            }
+                        }
+                        m = m.Trim().Trim(',');
+                        var toolTipLocation = new Point(5, Height - 24);
+                        _toolTipCam.Show(m, this, toolTipLocation, 1000);
+                    }
                     if (MainForm.Conf.ShowOverlayControls)
                     {
                         int leftpoint = Width/2 - ButtonPanelWidth/2;
@@ -837,11 +866,7 @@ namespace iSpyApplication.Controls
                                 }
                             }
                         }
-                        else
-                        {
-                            _toolTipCam.Hide(this);
-                            _ttind = -1;
-                        }
+                        
                     }
                     break;
             }
@@ -980,40 +1005,44 @@ namespace iSpyApplication.Controls
                                         : MainForm.ActivityColor;
                         reset = false;
                     }
-
-                    switch (Camobject.alerts.mode.ToLower())
+                    else
                     {
-                        case "movement":
-                            if (MovementDetected)
-                            {
-                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                                ? MainForm.BackgroundColor
-                                                : MainForm.ActivityColor;
-                                reset = false;
-                            }
+                        switch (Camobject.alerts.mode.ToLower())
+                        {
+                            case "movement":
+                                if (MovementDetected)
+                                {
+                                    BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                    ? MainForm.BackgroundColor
+                                                    : MainForm.ActivityColor;
+                                    reset = false;
+                                }
                                 
-                            break;
-                        case "nomovement":
-                            if (!MovementDetected)
-                            {
-                                BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
-                                                ? MainForm.BackgroundColor
-                                                : MainForm.NoActivityColor;
-                                reset = false;
-                            }
+                                break;
+                            case "nomovement":
+                                if (!MovementDetected)
+                                {
+                                    BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
+                                                    ? MainForm.BackgroundColor
+                                                    : MainForm.NoActivityColor;
+                                    reset = false;
+                                }
                                 
-                            break;
-                        default:
-                            if (FlashCounter > 0)
-                            {
-                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                                ? MainForm.BackgroundColor
-                                                : MainForm.ActivityColor;
-                                reset = false;
-                            }
+                                break;
+                            default:
+                                if (FlashCounter > 0)
+                                {
+                                    BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                    ? MainForm.BackgroundColor
+                                                    : MainForm.ActivityColor;
+                                    reset = false;
+                                }
                                 
-                            break;
+                                break;
+                        }
                     }
+
+                    
 
                 }
                 if (reset)

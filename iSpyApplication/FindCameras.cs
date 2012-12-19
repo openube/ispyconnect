@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,13 +12,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
 using iSpyApplication.Video;
 
 namespace iSpyApplication
 {
     public partial class FindCameras : Form
     {
+        private static bool VLC;
         private static DataTable _dt;
         private DataRow _drSelected;
         private bool _exiting;
@@ -34,6 +35,7 @@ namespace iSpyApplication
         public string Flags = "";
         public string Cookies = "";
         public static List<String> DnsEntries = new List<string>();
+        private Thread _urlscanner;
 
         public FindCameras()
         {
@@ -59,8 +61,9 @@ namespace iSpyApplication
 
         private void FindCameras_Load(object sender, EventArgs e)
         {
+            VLC = VlcHelper.VlcInstalled;
             llblDownloadVLC.Text = LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin + " or greater";
-            llblDownloadVLC.Visible = !VlcHelper.VlcInstalled;
+            llblDownloadVLC.Visible = !VLC;
             btnBack.Enabled = false;
             RenderResources();
             ddlHost.Items.Add(LocRm.GetString("AllAdaptors"));
@@ -74,6 +77,8 @@ namespace iSpyApplication
             ddlHost.SelectedIndex = 0;
 
             txtPorts.Text = MainForm.IPPORTS;
+            txtMake.Text = MainForm.IPTYPE;
+            txtModel.Text = MainForm.IPMODEL;
 
 
             if (MainForm.IPTABLE != null)
@@ -88,19 +93,22 @@ namespace iSpyApplication
             txtIPAddress.Text = MainForm.IPADDR;
             txtChannel.Text = MainForm.IPCHANNEL;
             numPort.Value = MainForm.IPPORT;
+            rdoListed.Checked = MainForm.IPLISTED;
+            rdoUnlisted.Checked = !MainForm.IPLISTED;
+            chkRTSP.Checked = MainForm.IPRTSP;
+            chkHTTP.Checked = MainForm.IPHTTP;
 
             UISync.Init(this);
             LoadSources();
-            ShowPanel(pnlConfig);
-
-            
-            
+            ShowPanel(pnlConfig);           
         }
 
         void ShowPanel(Control p)
         {
             pnlConfig.Dock = DockStyle.None;
             pnlConfig.Visible = false;
+            pnlLogin.Dock = DockStyle.None;
+            pnlLogin.Visible = false;
             pnlFindNetwork.Dock = DockStyle.None;
             pnlFindNetwork.Visible = false;
             pnlConnect.Dock = DockStyle.None;
@@ -127,7 +135,7 @@ namespace iSpyApplication
             label2.Text = LocRm.GetString("Username");
             label3.Text = LocRm.GetString("Password");
             label1.Text = LocRm.GetString("CameraModel");
-            label6.Text = LocRm.GetString("Port");
+            //label6.Text = LocRm.GetString("Port");
             label5.Text = LocRm.GetString("ScanInstructions");
             btnBack.Text = LocRm.GetString("Back");
             btnNext.Text = LocRm.GetString("Next");
@@ -269,13 +277,15 @@ namespace iSpyApplication
 
         public static StreamReader ExecuteCommandLine(String file, String arguments = "")
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.CreateNoWindow = true;
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.FileName = file;
-            startInfo.Arguments = arguments;
+            var startInfo = new ProcessStartInfo
+                                {
+                                    CreateNoWindow = true,
+                                    WindowStyle = ProcessWindowStyle.Hidden,
+                                    UseShellExecute = false,
+                                    RedirectStandardOutput = true,
+                                    FileName = file,
+                                    Arguments = arguments
+                                };
 
             Process process = Process.Start(startInfo);
 
@@ -381,14 +391,25 @@ namespace iSpyApplication
 
         private void button1_Click(object sender, EventArgs e)
         {
-            ScanNetwork();
+            if (button1.Text == LocRm.GetString("ScanLocalNetwork"))
+            {
+                button1.Text = LocRm.GetString("Cancel");
+                Application.DoEvents();
+                ScanNetwork();
+            }
+            else
+            {
+                _exiting = true;
+                button1.Text = LocRm.GetString("ScanLocalNetwork");
+            }
 
         }
 
 
         private void ScanNetwork()
         {
-            button1.Enabled = false;
+            _exiting = false;
+            
             _dt = new DataTable("Network");
 
             _dt.Columns.Add(new DataColumn("IP Address"));
@@ -439,6 +460,7 @@ namespace iSpyApplication
                 try
                 {
                     ddlMake.SelectedItem = MainForm.IPTYPE;
+                    txtMake.Text = MainForm.IPTYPE;
                 }
                 catch
                 {
@@ -456,6 +478,10 @@ namespace iSpyApplication
                 return;
 
             string make = ddlMake.SelectedItem.ToString();
+            if (MainForm.IPLISTED)
+            {
+                txtMake.Text = make;
+            }
             var m = MainForm.Sources.FirstOrDefault(p => p.name == make);
 
             string added = ",";
@@ -499,14 +525,289 @@ namespace iSpyApplication
             pnlOptions.Controls.Clear();
             pnlOptions.AutoScroll = true;
             ShowPanel(pnlConnect);
+
+            string make = txtMake.Text;
+            string model = txtModel.Text;
+            if (MainForm.IPLISTED)
+            {
+                make = ddlMake.SelectedItem.ToString();
+                if (ddlModel.SelectedIndex > 0)
+                    model = ddlModel.SelectedItem.ToString().ToUpper();
+            }
+
             if (ddlMake.SelectedItem == null)
             {
                 MessageBox.Show(this, "Select a camera make");
                 ShowPanel(pnlConfig);
                 return;
             }
-            string make = ddlMake.SelectedItem.ToString();
-            var bVlc = VlcHelper.VlcInstalled;
+            if (MainForm.IPLISTED)
+            {
+                ListCameras(make, model);
+            }
+            else
+            {
+                if (_urlscanner != null && _urlscanner.IsAlive)
+                {
+                    QuitScanner();
+                }
+                _urlscanner = new Thread(() => ScanCameras(make));
+                _urlscanner.Start();
+
+                
+            }
+        }
+
+        private void QuitScanner()
+        {
+            _quiturlscanner = true;
+            if (_urlscanner != null)
+            {
+                var i = 0;
+                while (_urlscanner.IsAlive && i < 10)
+                {
+                    Thread.Sleep(200);
+                    i++;
+                }
+                if (_urlscanner.IsAlive)
+                    _urlscanner.Abort();
+                _urlscanner = null;
+            }
+
+            UISync.Execute(() => tsslCurrent.Text = "Scanner Inactive");
+        }
+
+
+        private volatile bool _quiturlscanner;
+
+        private void ScanCameras(string make)
+        {
+            _quiturlscanner = false;
+            //scan all possible urls
+            
+
+            var lp = new List<String>();
+            string login = txtUsername.Text.Trim();
+            string password = txtPassword.Text;
+
+            //list urls for current make first
+            var m = MainForm.Sources.Where(p=>p.name.ToUpper()==make.ToUpper()).ToList();           
+            ListCameras(m, ref lp, login, password);
+            if (!_quiturlscanner)
+            {
+                m = MainForm.Sources.Where(p => p.name.ToUpper() != make.ToUpper()).ToList();
+                ListCameras(m, ref lp, login, password);
+            }
+
+            const int i = 0;
+            while (i < pnlOptions.Controls.Count)
+            {
+                if (pnlOptions.Controls[i].Enabled)
+                {
+                    try
+                    {
+                        ((RadioButton) pnlOptions.Controls[i]).Checked = true;
+                    }
+                    catch
+                    {
+                    }
+                    break;
+                }
+            }
+
+            UISync.Execute(() => tsslCurrent.Text = "OK");
+        }
+
+        private void ListCameras(IEnumerable<ManufacturersManufacturer> m, ref List<string> lp, string login, string password)
+        {
+            foreach(var s in m)
+            {
+                
+                var cand = s.url.ToList();
+                cand = cand.OrderBy(p => p.Source).ToList();
+
+                foreach (var u in cand)
+                {
+                    string addr = "";
+                    switch (u.prefix.ToUpper())
+                    {
+                        case "HTTP://":
+                            if (MainForm.IPHTTP)
+                            {
+                                addr = GetAddr(u);
+                                if (!lp.Contains(addr))
+                                {
+                                    lp.Add(addr);
+                                    UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                                    //test this url
+                                    if (SendHTTPReq(addr, u.cookies, login, password))
+                                    {
+                                        AddCamera(addr, s, u);
+                                    }
+                                }
+                            }
+                            break;
+                        case "RTSP://":
+                            if (MainForm.IPRTSP)
+                            {
+                                addr = GetAddr(u);
+                                if (!lp.Contains(addr))
+                                {
+                                    lp.Add(addr);
+                                    UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                                    //test this url
+                                    if (SendRTSPReq(addr, login, password))
+                                    {
+                                        AddCamera(addr, s, u);
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                    if (_quiturlscanner)
+                        break;
+                }
+                if (_quiturlscanner)
+                    break;
+            }
+        }
+
+        private void AddCamera(string addr, ManufacturersManufacturer m,  ManufacturersManufacturerUrl u)
+        {
+            string st = m.name+":";
+            if (!String.IsNullOrEmpty(u.version))
+                st += u.version;
+            else
+                st += "Other";
+            string source = u.Source;
+            if (source == "VLC" && !VLC)
+                source = "FFMPEG";
+            st += ": " + source +" " + addr.Replace("&", "&&");
+
+            var rb = new RadioButton { Text = st, AutoSize = true, Tag = u };
+            if (u.Source == "FFMPEG" || u.Source == "VLC")
+                rb.Font = new Font(rb.Font, FontStyle.Bold);
+
+            UISync.Execute(() => pnlOptions.Controls.Add(rb));
+ 
+        }
+
+        private static bool SendHTTPReq(string addr, string cookies, string login, string password)
+        {
+            bool b = false;
+            HttpStatusCode sc = 0;
+            try
+            {
+                var wc = (HttpWebRequest) WebRequest.Create(addr); //args[0]);
+                wc.AllowAutoRedirect = true;
+                wc.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19";
+                wc.Timeout = 3000;
+                wc.Method = "GET";
+                var authInfo = "";
+                if (!String.IsNullOrEmpty(login))
+                {
+                    authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(login + ":" + password));
+                    wc.Headers["Authorization"] = "Basic " + authInfo;
+                }
+
+                if (!String.IsNullOrEmpty(cookies))
+                {
+                    cookies = cookies.Replace("[AUTH]", authInfo);
+                    var myContainer = new CookieContainer();
+                    string[] coll = cookies.Split(';');
+                    foreach (var ckie in coll)
+                    {
+                        if (!String.IsNullOrEmpty(ckie))
+                        {
+                            string[] nv = ckie.Split('=');
+                            if (nv.Length == 2)
+                            {
+                                var cookie = new Cookie(nv[0].Trim(), nv[1].Trim());
+                                myContainer.Add(new Uri(wc.RequestUri.ToString()), cookie);
+                            }
+                        }
+                    }
+                    wc.CookieContainer = myContainer;
+                }
+                var res = (HttpWebResponse) wc.GetResponse();
+                sc = res.StatusCode;
+                res.Close();
+                if (sc==HttpStatusCode.OK)
+                {
+                    string ct = res.ContentType.ToLower();
+                    if (ct.IndexOf("text")==-1)
+                    {
+                        b = true;
+                    }
+                }
+            }
+            catch (WebException we)
+            {
+                if (we.Response != null)
+                {
+
+                    //sc = ((HttpWebResponse) we.Response).StatusCode;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            MainForm.LogMessageToFile("Status " + sc + " at " + addr);
+
+            return b;// sc == HttpStatusCode.OK;
+        }
+
+        private static bool SendRTSPReq(string addr, string login, string password)
+        {
+            bool b = false;
+            try
+            {
+                var uri = new Uri(addr);
+
+                var request = "DESCRIBE " + addr + " RTSP/1.0\r\n" +
+                              "CSeq: 1\r\n" +
+                              "User-Agent: Dummy\r\n" +
+                              "Accept: */*\r\n";
+
+                if (!String.IsNullOrEmpty(login))
+                {
+                    var authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(login + ":" + password));
+                    request +="Authorization: Basic " + authInfo+"\r\n";
+                }
+
+                request += "\r\n";
+
+                IPAddress host = IPAddress.Parse(uri.DnsSafeHost);
+                var hostep = new IPEndPoint(host, uri.Port);
+
+                var sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                               {ReceiveTimeout = 2000};
+                sock.Connect(hostep);
+
+                var response = sock.Send(Encoding.UTF8.GetBytes(request));
+                if (response > 0)
+                {
+                    var bytesReceived = new byte[100];
+                    var bytes = sock.Receive(bytesReceived, bytesReceived.Length, 0);
+                    string resp = Encoding.ASCII.GetString(bytesReceived, 0, bytes);
+                    if (resp.IndexOf("200 OK") != -1)
+                    {
+                        b = true;
+                    }
+                    MainForm.LogMessageToFile("RTSP attempt: " + resp + " at " + addr);
+                }
+                sock.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return b;
+        }
+
+        private void ListCameras(string make, string model)  {
+
             var m = MainForm.Sources.FirstOrDefault(p => p.name == make);
             if (m == null)
             {
@@ -514,11 +815,7 @@ namespace iSpyApplication
                 ShowPanel(pnlConfig);
                 return;
             }
-            var c = false;
-            string model = "";
-            if (ddlModel.SelectedIndex>0)
-                model = ddlModel.SelectedItem.ToString().ToUpper();
-
+                      
             var cand = m.url.ToList();
             if (model!="")
             {
@@ -529,50 +826,18 @@ namespace iSpyApplication
             foreach (var u in cand)
             {
                 string addr = GetAddr(u);
-
-
-
-                string st = "";
-                if (!String.IsNullOrEmpty(u.version))
-                    st += u.version;
-                else
-                    st += "Other";
-                st += ": " + u.Source + " " + addr.Replace("&","&&");
-
-
-                var rb = new RadioButton { Text = st, AutoSize = true, Tag = u };
-                if (u.Source == "FFMPEG")
-                {
-                    rb.Checked = true;
-                    c = true;
-                }
-                if (u.Source == "VLC")
-                {
-                    if (!bVlc)
-                        rb.Enabled = false;
-
-                    pnlOptions.Controls.Add(rb);
-                }
-                else
-                {
-                    pnlOptions.Controls.Add(rb);
-                }
-
+                AddCamera(addr, m, u);
             }
 
-            if (!c)
+            const int i = 0;
+            while (i < pnlOptions.Controls.Count)
             {
-                const int i = 0;
-                while (i < pnlOptions.Controls.Count)
+                if (pnlOptions.Controls[i].Enabled)
                 {
-                    if (pnlOptions.Controls[i].Enabled)
-                    {
-                        ((RadioButton)pnlOptions.Controls[i]).Checked = true;
-                        break;
-                    }
+                    ((RadioButton)pnlOptions.Controls[i]).Checked = true;
+                    break;
                 }
             }
-
         }
 
 
@@ -605,20 +870,18 @@ namespace iSpyApplication
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var doc = new XmlDocument();
-            try
+            var d = new downloader
+                        {
+                            Url = MainForm.Website + "/getcontent.aspx?name=sources",
+                            SaveLocation = Program.AppDataPath + @"XML\Sources.xml"
+                        };
+            d.ShowDialog(this);
+            if (d.DialogResult==DialogResult.OK)
             {
-                doc.Load(MainForm.Website + "/getcontent.aspx?name=sources");
+                MainForm.Sources = null;
+                LoadSources();
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            doc.Save(Program.AppDataPath + @"XML\Sources.xml");
-            MainForm.Sources = null;
-            LoadSources();
-            MessageBox.Show(LocRm.GetString("ResourcesUpdated"), LocRm.GetString("Note"));
+            d.Dispose();
         }
 
         private void ddlHost_SelectedIndexChanged(object sender, EventArgs e)
@@ -629,17 +892,37 @@ namespace iSpyApplication
         private void FindCameras_FormClosing(object sender, FormClosingEventArgs e)
         {
             _exiting = true;
+            QuitScanner();
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
             if (pnlConfig.Visible)
             {
-                if (ddlMake.SelectedIndex == 0)
+                MainForm.IPLISTED = tbl1.Enabled;
+                MainForm.IPRTSP = chkRTSP.Checked;
+                MainForm.IPHTTP = chkHTTP.Checked;
+                if (MainForm.IPLISTED)
                 {
-                    MessageBox.Show(this, "Please choose a make");
-                    return;
+                    if (ddlMake.SelectedIndex == 0)
+                    {
+                        MessageBox.Show(this, "Please choose a make");
+                        return;
+                    }
                 }
+                else
+                {
+                    if (!MainForm.IPRTSP && !MainForm.IPHTTP)
+                    {
+                        MessageBox.Show(this, "You need to scan for at least one option");
+                        return;
+                    }
+                }
+                ShowPanel(pnlLogin);
+                return;
+            }
+            if (pnlLogin.Visible)
+            {
                 ShowPanel(pnlFindNetwork);
                 return;
             }
@@ -664,13 +947,21 @@ namespace iSpyApplication
             }
             if (pnlConnect.Visible)
             {
-                if (ddlMake.SelectedIndex == 0)
+                if (MainForm.IPLISTED && ddlMake.SelectedIndex == 0)
                 {
                     ShowPanel(pnlConfig);
                     return;
                 }
-                string make = ddlMake.SelectedItem.ToString();
-                
+                string make = txtMake.Text;
+                string model = txtModel.Text;
+                if (MainForm.IPLISTED)
+                {
+                    make = ddlMake.SelectedItem.ToString();
+                    if (ddlModel.SelectedIndex > 0)
+                        model = ddlModel.SelectedItem.ToString().ToUpper();
+                }
+              
+
                 ManufacturersManufacturerUrl s = null;
                 for (int j = 0; j < pnlOptions.Controls.Count; j++)
                 {
@@ -678,17 +969,24 @@ namespace iSpyApplication
                     {
                         if (((RadioButton)pnlOptions.Controls[j]).Checked)
                         {
-                            s = (ManufacturersManufacturerUrl) ((RadioButton) pnlOptions.Controls[j]).Tag;
+                            s = (ManufacturersManufacturerUrl) (pnlOptions.Controls[j]).Tag;
                             break;
                         }
                     }
                 }
-                if (s == null) //should never happen
+                if (s == null)
+                {
+                    MessageBox.Show(this, "Please select a URL");
                     return;
+                }
 
                 FinalUrl = GetAddr(s);
 
-                switch (s.Source)
+                string source = s.Source;
+                if (source == "VLC" && !VLC)
+                    source = "FFMPEG";
+
+                switch (source)
                 {
                     case "JPEG":
                         VideoSourceType = 0;
@@ -708,6 +1006,7 @@ namespace iSpyApplication
 
                 if (!s.@fixed)
                 {
+                    string modellc = model.ToLower();
                     string n = make.ToLower();
                     bool quit = false;
                     foreach(var ptz in MainForm.PTZs)
@@ -719,7 +1018,8 @@ namespace iSpyApplication
                             {
                                 Ptzid = ptz.id;
                                 Ptzentryid = j;
-                                if (m.Model==s.version)
+                                string mdl = m.Model.ToLower();
+                                if (mdl == modellc || s.version.ToLower() == mdl)
                                 {
                                     Ptzid = ptz.id;
                                     Ptzentryid = j;
@@ -736,17 +1036,44 @@ namespace iSpyApplication
 
                 MainForm.IPUN = txtUsername.Text;
                 MainForm.IPPASS = txtPassword.Text;
-                MainForm.IPTYPE = ddlMake.SelectedItem.ToString();
+                MainForm.IPTYPE = make;
+                MainForm.IPMODEL = model;
                 MainForm.IPADDR = txtIPAddress.Text;
                 MainForm.IPPORTS = txtPorts.Text;
                 MainForm.IPPORT = (int)numPort.Value;
                 MainForm.IPCHANNEL = txtChannel.Text.Trim();
+
                 AudioModel = s.AudioModel;
+
+                if (MainForm.IPMODEL.Trim() != "")
+                {
+                    var t =
+                        new Thread(
+                            () =>
+                            AddCamera(MainForm.IPTYPE, MainForm.IPMODEL, s.prefix, s.Source, s.url, s.cookies, s.flags, s.Port));
+                    t.Start();
+                }
 
                 if (_dt != null)
                     MainForm.IPTABLE = _dt.Copy();
                 DialogResult = DialogResult.OK;
                 Close();
+            }
+        }
+
+        private static void AddCamera(string type, string model, string prefix, string source, string url, string cookies, string flags, int port)
+        {
+            try
+            {
+                //this will not send personally identifiable information - just used for auto-building the supported camera database.
+                var r = new Reporting.Reporting {Timeout = 8000};
+                r.AddCamera(type,model,prefix,source,url,cookies,flags, port);
+                r.Dispose();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
             }
         }
 
@@ -795,23 +1122,29 @@ namespace iSpyApplication
                 url = url.Replace("[AUTH]", Convert.ToBase64String(bytes));
             }
                 
-
-                
             connectUrl += url;
             return connectUrl;
         }
 
         private void btnBack_Click(object sender, EventArgs e)
         {
-            if (pnlFindNetwork.Visible)
-            {
-                ShowPanel(pnlConfig);
-
-            }
             if (pnlConnect.Visible)
             {
+                QuitScanner();
                 ShowPanel(pnlFindNetwork);
+                return;
             }
+            if (pnlFindNetwork.Visible)
+            {
+                ShowPanel(pnlLogin);
+                return;
+            }
+            if (pnlLogin.Visible)
+            {
+                ShowPanel(pnlConfig);
+                return;
+            }
+
         }
 
         private void llblDownloadVLC_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -820,6 +1153,29 @@ namespace iSpyApplication
         }
 
         private void ddlModel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (MainForm.IPLISTED)
+            {
+                if (ddlModel.SelectedIndex > -1)
+                {
+                    txtModel.Text = ddlModel.SelectedItem.ToString();
+                }
+            }
+        }
+
+        private void rdoListed_CheckedChanged(object sender, EventArgs e)
+        {
+            tbl1.Enabled = rdoListed.Checked;
+            tbl2.Enabled = !tbl1.Enabled;
+        }
+
+        private void rdoUnlisted_CheckedChanged(object sender, EventArgs e)
+        {
+            tbl2.Enabled = rdoUnlisted.Checked;
+            tbl1.Enabled = !tbl2.Enabled;
+        }
+
+        private void chkRTSP_CheckedChanged(object sender, EventArgs e)
         {
 
         }

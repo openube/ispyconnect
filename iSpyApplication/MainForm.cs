@@ -59,6 +59,8 @@ namespace iSpyApplication
         public static string NextLog = "";
         public static string Identifier;
         public static DataTable IPTABLE;
+        public static bool IPLISTED = true;
+        public static bool IPRTSP = false, IPHTTP = true;
         public static string IPADDR = "";
         public static string IPCHANNEL = "0";
         public static string IPMODEL = "";
@@ -928,7 +930,7 @@ namespace iSpyApplication
                         WsWrapper.ForceSync();
                         break;
                     case "IPv6":
-                         _ipv6Addresses = null;
+                        _ipv6Addresses = null;
                         bool iplisted = false;
                         foreach (IPAddress ip in AddressListIPv6)
                         {
@@ -2280,7 +2282,7 @@ namespace iSpyApplication
                 {
                     if (ContextTarget.GetType() == typeof (FloorPlanControl))
                     {
-                        string url = Webserver + "/watch_new";
+                        string url = Webserver + "/watch_new.aspx";
                         if (WsWrapper.WebsiteLive && Conf.ServicesEnabled)
                         {
                             OpenUrl(url);

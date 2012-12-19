@@ -42,5 +42,12 @@ namespace iSpyApplication
                 }
             }
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            SelectedIDs = new List<int>();
+            DialogResult = DialogResult.OK;
+            Close();
+        }
     }
 }

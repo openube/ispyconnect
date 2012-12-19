@@ -351,8 +351,9 @@ namespace iSpyApplication
                 int port = MainForm.Conf.ServerPort;
                 if (MainForm.Conf.IPMode == "IPv6")
                     port = MainForm.Conf.LANPort;
-                Wsa.PingAlive3Completed += WsaPingAlive3Completed;
-                Wsa.PingAlive3Async(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal);
+
+                Wsa.PingAlive4Completed += WsaPingAlive4Completed;
+                Wsa.PingAlive4Async(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.IPAddress);
 
             }
             catch (Exception ex)
@@ -364,7 +365,7 @@ namespace iSpyApplication
            
         }
 
-        static void WsaPingAlive3Completed(object sender, PingAlive3CompletedEventArgs e)
+        static void WsaPingAlive4Completed(object sender, PingAlive4CompletedEventArgs e)
         {
             bool islive = _websitelive;
             if (e.Error == null)
