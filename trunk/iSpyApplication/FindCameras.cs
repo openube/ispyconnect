@@ -105,6 +105,7 @@ namespace iSpyApplication
 
         void ShowPanel(Control p)
         {
+            llblScan.Visible = false;
             pnlConfig.Dock = DockStyle.None;
             pnlConfig.Visible = false;
             pnlLogin.Dock = DockStyle.None;
@@ -113,6 +114,7 @@ namespace iSpyApplication
             pnlFindNetwork.Visible = false;
             pnlConnect.Dock = DockStyle.None;
             pnlConnect.Visible = false;
+            llblScan.Visible = false;
 
             p.Dock = DockStyle.Fill;
             p.Visible = true;
@@ -125,6 +127,9 @@ namespace iSpyApplication
             {
                 btnBack.Enabled = true;
             }
+
+            if (p.Name == "pnlConnect")
+                llblScan.Visible = MainForm.IPLISTED;
         }
 
         private void RenderResources()
@@ -530,10 +535,13 @@ namespace iSpyApplication
             string model = txtModel.Text;
             if (MainForm.IPLISTED)
             {
+                llblScan.Visible = true;
                 make = ddlMake.SelectedItem.ToString();
                 if (ddlModel.SelectedIndex > 0)
                     model = ddlModel.SelectedItem.ToString().ToUpper();
             }
+            else
+                llblScan.Visible = false;
 
             if (ddlMake.SelectedItem == null)
             {
@@ -897,6 +905,11 @@ namespace iSpyApplication
 
         private void btnNext_Click(object sender, EventArgs e)
         {
+            Next();
+        }
+
+        private void Next()
+        {
             if (pnlConfig.Visible)
             {
                 MainForm.IPLISTED = tbl1.Enabled;
@@ -952,8 +965,10 @@ namespace iSpyApplication
                     ShowPanel(pnlConfig);
                     return;
                 }
+
                 string make = txtMake.Text;
                 string model = txtModel.Text;
+                
                 if (MainForm.IPLISTED)
                 {
                     make = ddlMake.SelectedItem.ToString();
@@ -1047,11 +1062,15 @@ namespace iSpyApplication
 
                 if (MainForm.IPMODEL.Trim() != "")
                 {
-                    var t =
-                        new Thread(
-                            () =>
-                            AddCamera(MainForm.IPTYPE, MainForm.IPMODEL, s.prefix, s.Source, s.url, s.cookies, s.flags, s.Port));
-                    t.Start();
+                    if (MessageBox.Show("Save this configuration to the ispyconnect camera database? (login information and IP address is not captured)", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        var t =
+                            new Thread(
+                                () =>
+                                AddCamera(MainForm.IPTYPE, MainForm.IPMODEL, s.prefix, s.Source, s.url, s.cookies,
+                                          s.flags, s.Port));
+                        t.Start();
+                    }
                 }
 
                 if (_dt != null)
@@ -1180,6 +1199,13 @@ namespace iSpyApplication
 
         }
 
+        private void llblScan_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.IPLISTED = false;
+            MainForm.IPRTSP = true;
+            MainForm.IPHTTP = true;
 
+            AddConnections();
+        }
     }
 }

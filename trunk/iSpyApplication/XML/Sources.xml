@@ -1360,7 +1360,6 @@
   </Manufacturer>
   <Manufacturer name="Foscam">
     <url version="FI8918W" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="Foscam" port="" flags="" cookies="" />
-    <url version="test" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8910W" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8904W" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="Other" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf?user=[USERNAME]&amp;pwd=[PASSWORD]&amp;resolution=[WIDTH]*[HEIGHT]" AudioModel="" port="" flags="" cookies="" />
@@ -1379,7 +1378,6 @@
     <url version="FI8608W" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8910E" confirmed="false" prefix="http://" Source="FFMPEG" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8602W" confirmed="false" prefix="http://" Source="JPEG" url="snapshot.cgi" AudioModel="" port="" flags="" cookies="" />
-    <url version="TEST" confirmed="false" prefix="http://" Source="JPEG" url="snapshot.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8608W" confirmed="false" prefix="http://" Source="JPEG" url="snapshot.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8601W" confirmed="false" prefix="http://" Source="JPEG" url="snapshot.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI9820W" confirmed="false" prefix="http://" Source="JPEG" url="snapshot.cgi" AudioModel="" port="" flags="" cookies="" />
@@ -1428,7 +1426,6 @@
     <url version="FI8905W" confirmed="false" prefix="http://" Source="MJPEG" url="videostream.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8918W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8608W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
-    <url version="test" confirmed="false" prefix="http://" Source="MJPEG" url="videostream.cgi?rate=11" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8904W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8602" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8602W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
@@ -1438,7 +1435,6 @@
     <url version="FI9820W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8910W" confirmed="false" prefix="http://" Source="MJPEG" url="videostream.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8601W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
-    <url version="TEST" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8909W" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="Other" confirmed="false" prefix="http://" Source="MJPEG" url="videostream.cgi" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8918E" confirmed="false" prefix="http://" Source="MJPEG" url="video.cgi" AudioModel="" port="" flags="" cookies="" />
@@ -1464,7 +1460,6 @@
     <url version="FI8918W" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="Other" confirmed="false" prefix="http://" Source="VLC" url="/iphone/11?[USERNAME]:[PASSWORD]&amp;" AudioModel="" port="" flags="" cookies="" />
     <url version="Other" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
-    <url version="TEST" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8910W" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI8905W" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
     <url version="FI9820" confirmed="false" prefix="http://" Source="VLC" url="videostream.asf" AudioModel="" port="" flags="" cookies="" />
