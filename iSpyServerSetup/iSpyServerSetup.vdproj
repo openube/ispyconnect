@@ -64,13 +64,13 @@
         "Entry"
         {
         "MsmKey" = "8:_67391613467560318D50D3C2EBDE164E"
-        "OwnerKey" = "8:_B681A7A9999638970DDBCA4C288791B9"
+        "OwnerKey" = "8:_6E6A548D0E7E47B3B67D0F22F29F778D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_67391613467560318D50D3C2EBDE164E"
-        "OwnerKey" = "8:_6E6A548D0E7E47B3B67D0F22F29F778D"
+        "OwnerKey" = "8:_B1C4574D76106B47E80FCCAE8375EEB2"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -100,13 +100,7 @@
         "Entry"
         {
         "MsmKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
-        "OwnerKey" = "8:_6E6A548D0E7E47B3B67D0F22F29F778D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
-        "OwnerKey" = "8:_67391613467560318D50D3C2EBDE164E"
+        "OwnerKey" = "8:_E7A7ACC69884CFCEE16E36088AD6F06E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -118,7 +112,13 @@
         "Entry"
         {
         "MsmKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
-        "OwnerKey" = "8:_E7A7ACC69884CFCEE16E36088AD6F06E"
+        "OwnerKey" = "8:_67391613467560318D50D3C2EBDE164E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
+        "OwnerKey" = "8:_6E6A548D0E7E47B3B67D0F22F29F778D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -135,7 +135,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B681A7A9999638970DDBCA4C288791B9"
+        "MsmKey" = "8:_B1C4574D76106B47E80FCCAE8375EEB2"
         "OwnerKey" = "8:_6E6A548D0E7E47B3B67D0F22F29F778D"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -184,67 +184,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5D5665F67EA444359D6EE79A848AE529"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_B681A7A9999638970DDBCA4C288791B9"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_47B03CFCEC72FB2E3223AB44CA40081B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5785BE107D1386B9A85856A43D98133F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_078D621F083DFA92AD7FDD7AE4E54EF7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_53AEF38732759D053FD0397305435507"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_73331C3E831C9C20A72F2E92DAD1346E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_67391613467560318D50D3C2EBDE164E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E7A7ACC69884CFCEE16E36088AD6F06E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_BEA0B48FEBF08A1582C3A4C471D43041"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
+        "OwnerKey" = "8:_06E59390C39E4B1FA61CECEEC94410E6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -256,7 +196,67 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_06E59390C39E4B1FA61CECEEC94410E6"
+        "OwnerKey" = "8:_8F6C8F17BB569FFAC66FBA451E114D5F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_BEA0B48FEBF08A1582C3A4C471D43041"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E7A7ACC69884CFCEE16E36088AD6F06E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_67391613467560318D50D3C2EBDE164E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_73331C3E831C9C20A72F2E92DAD1346E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_53AEF38732759D053FD0397305435507"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_078D621F083DFA92AD7FDD7AE4E54EF7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5785BE107D1386B9A85856A43D98133F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_47B03CFCEC72FB2E3223AB44CA40081B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5D5665F67EA444359D6EE79A848AE529"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_B1C4574D76106B47E80FCCAE8375EEB2"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -371,11 +371,6 @@
             "AssemblyAsmDisplayName" = "8:CodeVendor.Controls, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_078D621F083DFA92AD7FDD7AE4E54EF7"
-                    {
-                    "Name" = "8:CodeVendor.Controls.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:CodeVendor.Controls.dll"
             "TargetName" = "8:"
@@ -422,11 +417,6 @@
             "AssemblyAsmDisplayName" = "8:Renderers, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_47B03CFCEC72FB2E3223AB44CA40081B"
-                    {
-                    "Name" = "8:Renderers.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Renderers.dll"
             "TargetName" = "8:"
@@ -453,11 +443,6 @@
             "AssemblyAsmDisplayName" = "8:AForge.Imaging.Formats, Version=2.5.0.0, Culture=neutral, PublicKeyToken=8065ed5a639199a0, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_53AEF38732759D053FD0397305435507"
-                    {
-                    "Name" = "8:AForge.Imaging.Formats.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Imaging.Formats.dll"
             "TargetName" = "8:"
@@ -484,11 +469,6 @@
             "AssemblyAsmDisplayName" = "8:NAudio, Version=1.5.4.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_5785BE107D1386B9A85856A43D98133F"
-                    {
-                    "Name" = "8:NAudio.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:NAudio.dll"
             "TargetName" = "8:"
@@ -546,11 +526,6 @@
             "AssemblyAsmDisplayName" = "8:AForge.Video, Version=2.5.3.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_67391613467560318D50D3C2EBDE164E"
-                    {
-                    "Name" = "8:AForge.Video.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Video.dll"
             "TargetName" = "8:"
@@ -577,11 +552,6 @@
             "AssemblyAsmDisplayName" = "8:Microsoft.Kinect, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_6CCC58A5818C513662BAAFE39C33A37C"
-                    {
-                    "Name" = "8:Microsoft.Kinect.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Microsoft.Kinect.dll"
             "TargetName" = "8:"
@@ -608,11 +578,6 @@
             "AssemblyAsmDisplayName" = "8:AForge.Controls, Version=2.5.1.0, Culture=neutral, PublicKeyToken=a8ac264d1dc6b9d9, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_73331C3E831C9C20A72F2E92DAD1346E"
-                    {
-                    "Name" = "8:AForge.Controls.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Controls.dll"
             "TargetName" = "8:"
@@ -639,11 +604,6 @@
             "AssemblyAsmDisplayName" = "8:AForge, Version=2.5.2.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_8F6C8F17BB569FFAC66FBA451E114D5F"
-                    {
-                    "Name" = "8:AForge.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.dll"
             "TargetName" = "8:"
@@ -703,18 +663,13 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B681A7A9999638970DDBCA4C288791B9"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B1C4574D76106B47E80FCCAE8375EEB2"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.5.7.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.5.8.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_B681A7A9999638970DDBCA4C288791B9"
-                    {
-                    "Name" = "8:AForge.Video.DirectShow.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Video.DirectShow.dll"
             "TargetName" = "8:"
@@ -741,11 +696,6 @@
             "AssemblyAsmDisplayName" = "8:AForge.Math, Version=2.5.0.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_BEA0B48FEBF08A1582C3A4C471D43041"
-                    {
-                    "Name" = "8:AForge.Math.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Math.dll"
             "TargetName" = "8:"
@@ -812,11 +762,6 @@
             "AssemblyAsmDisplayName" = "8:AForge.Imaging, Version=2.5.2.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E7A7ACC69884CFCEE16E36088AD6F06E"
-                    {
-                    "Name" = "8:AForge.Imaging.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:AForge.Imaging.dll"
             "TargetName" = "8:"
@@ -914,15 +859,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpyServer"
-        "ProductCode" = "8:{A278B685-FA6F-480B-B9AC-2554E100EE22}"
-        "PackageCode" = "8:{DF1409B8-8EE7-4AEE-BD87-CE46B8F2896E}"
+        "ProductCode" = "8:{228FB55D-176C-4801-8C03-7754072416D8}"
+        "PackageCode" = "8:{043DA689-0540-4F5C-B574-14BB7150B4EE}"
         "UpgradeCode" = "8:{F2FAA718-9798-4DD4-B458-7EB71A032D50}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:2.4.3"
+        "ProductVersion" = "8:2.4.6"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
