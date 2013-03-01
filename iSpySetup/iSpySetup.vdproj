@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0050ADCFECE5C93E78F12496EE91FC7A"
-        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0259D22346F44A5FA98C740404ED86D7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -273,6 +267,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7AD671212E136670F9B763D623BAAD7C"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_80C81B799553429F96AEB1D8B56C55FA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -281,6 +281,12 @@
         {
         "MsmKey" = "8:_84A086E554DF4A94BD617EA3894014B3"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_85311AD5AD8BCF8AD09AB6E5269D8D1E"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -299,12 +305,6 @@
         {
         "MsmKey" = "8:_92ABD0A314E94DC7851A89A72F4A99BC"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_939C05549F13BAF9B87E030C925AE467"
-        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -388,7 +388,7 @@
         "Entry"
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
-        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
+        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -412,12 +412,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
-        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "OwnerKey" = "8:_9BCF7BEA32002097A97E54F731952FC6"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -425,6 +419,12 @@
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "OwnerKey" = "8:_418BBD42AB83D024F6CDC3446D7BC340"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
+        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -514,13 +514,7 @@
         "Entry"
         {
         "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
-        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
-        "OwnerKey" = "8:_0050ADCFECE5C93E78F12496EE91FC7A"
+        "OwnerKey" = "8:_7AD671212E136670F9B763D623BAAD7C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -539,6 +533,12 @@
         {
         "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
         "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -575,12 +575,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DBA7E4641307477C8E9706D504556C48"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0050ADCFECE5C93E78F12496EE91FC7A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -682,12 +676,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_418BBD42AB83D024F6CDC3446D7BC340"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -700,13 +688,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7AD671212E136670F9B763D623BAAD7C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_939C05549F13BAF9B87E030C925AE467"
+        "OwnerKey" = "8:_85311AD5AD8BCF8AD09AB6E5269D8D1E"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -845,7 +845,7 @@
             "Sequence" = "3:1"
             "Identifier" = "8:_5E4DFE8D_7EDF_4CCA_97C5_81BA6D4D14FD"
             "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:"
+            "CustomActionData" = "8:/SourceDir=\"[SourceDir]\\\""
             }
         }
         "DefaultFeature"
@@ -870,37 +870,6 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0050ADCFECE5C93E78F12496EE91FC7A"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.5.7.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_0050ADCFECE5C93E78F12496EE91FC7A"
-                    {
-                    "Name" = "8:AForge.Video.DirectShow.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:AForge.Video.DirectShow.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0259D22346F44A5FA98C740404ED86D7"
             {
             "SourcePath" = "8:..\\iSpyApplication\\sounds\\wiggle.wav"
@@ -1662,6 +1631,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7AD671212E136670F9B763D623BAAD7C"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.5.9.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_7AD671212E136670F9B763D623BAAD7C"
+                    {
+                    "Name" = "8:AForge.Video.DirectShow.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:AForge.Video.DirectShow.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_80C81B799553429F96AEB1D8B56C55FA"
             {
             "SourcePath" = "8:..\\iSpyApplication\\lgpl-3.0.txt"
@@ -1700,6 +1700,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_85311AD5AD8BCF8AD09AB6E5269D8D1E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Microsoft.Kinect, Version=1.7.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_85311AD5AD8BCF8AD09AB6E5269D8D1E"
+                    {
+                    "Name" = "8:Microsoft.Kinect.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Microsoft.Kinect.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_879F723F45344BE8A51AC2EB406C04E5"
@@ -1771,37 +1802,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_939C05549F13BAF9B87E030C925AE467"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Microsoft.Kinect, Version=1.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_939C05549F13BAF9B87E030C925AE467"
-                    {
-                    "Name" = "8:Microsoft.Kinect.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Microsoft.Kinect.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_93C0018CAFE2676B08875C7E54623169"
@@ -2032,7 +2032,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.4.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.FFMPEG, Version=2.6.5.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_A800BE89C59B30CB843A368DCD029E8A"
@@ -2685,15 +2685,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{79E8E076-4190-4941-953A-3459AE428E7C}"
-        "PackageCode" = "8:{71C1AEF9-09A6-4381-8450-C7B0957EF248}"
+        "ProductCode" = "8:{F4CEEC3F-38C7-4E36-BAAF-54B1F2EE956C}"
+        "PackageCode" = "8:{8B9201FC-68AB-4935-B1A4-C7C5FC694B19}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.7.3"
+        "ProductVersion" = "8:4.8.6"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
