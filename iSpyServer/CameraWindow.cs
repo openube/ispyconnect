@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -89,7 +90,7 @@ namespace iSpyServer
         {
             //find most recent schedule entry
             if (!Camobject.schedule.active || Camobject.schedule == null || Camobject.schedule.entries == null ||
-                Camobject.schedule.entries.Count() == 0)
+                !Camobject.schedule.entries.Any())
                 return;
 
             DateTime dNow = DateTime.Now;
@@ -105,7 +106,7 @@ namespace iSpyServer
                 {
                     int dow = Convert.ToInt32(dayofweek);
                     //when did this last fire?
-                    if (entry.start.IndexOf("-") == -1)
+                    if (entry.start.IndexOf("-", StringComparison.Ordinal) == -1)
                     {
                         string[] start = entry.start.Split(':');
                         var dtstart = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(start[0]),
@@ -119,7 +120,7 @@ namespace iSpyServer
                             isstart = true;
                         }
                     }
-                    if (entry.stop.IndexOf("-") == -1)
+                    if (entry.stop.IndexOf("-", StringComparison.Ordinal) == -1)
                     {
                         string[] stop = entry.stop.Split(':');
                         var dtstop = new DateTime(dNow.Year, dNow.Month, dNow.Day, Convert.ToInt32(stop[0]),
@@ -199,7 +200,7 @@ namespace iSpyServer
 
         private MousePos GetMousePos(Point location)
         {
-            MousePos result = MousePos.NoWhere;
+            var result = MousePos.NoWhere;
             int rightSize = Padding.Right;
             int bottomSize = Padding.Bottom;
             var testRect = new Rectangle(Width - rightSize, 0, Width - rightSize, Height - bottomSize);
@@ -347,7 +348,7 @@ namespace iSpyServer
                         DateTime dtnow = DateTime.Now;
                         foreach (objectsCameraScheduleEntry entry in Camobject.schedule.entries.Where(p => p.active))
                         {
-                            if (entry.daysofweek.IndexOf(((int) dtnow.DayOfWeek).ToString()) != -1)
+                            if (entry.daysofweek.IndexOf(((int) dtnow.DayOfWeek).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal) != -1)
                             {
                                 if (Camobject.settings.active)
                                 {
@@ -713,17 +714,23 @@ namespace iSpyServer
 
                     var videoSource = new VideoCaptureDevice(moniker);
                     string[] wh = Camobject.resolution.Split('x');
-                    videoSource.DesiredFrameSize = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
-                    videoSource.DesiredFrameRate = Camobject.settings.framerate;
-
-                    var availableVideoInputs = videoSource.AvailableCrossbarVideoInputs;
-
-                    foreach (VideoInput input in availableVideoInputs)
+                    var sz = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
+                    var vc = videoSource.VideoCapabilities.Where(p => p.FrameSize == sz).ToList();
+                    if (vc.Count>0)
                     {
-                        if ((input.Index == Camobject.settings.crossbarindex))
+                        var vc2 = vc.FirstOrDefault(p => p.AverageFrameRate == Camobject.settings.framerate) ??
+                                  vc.FirstOrDefault();
+                        videoSource.VideoResolution = vc2;
+                    }
+
+                    if (Camobject.settings.crossbarindex!=-1 && videoSource.CheckIfCrossbarAvailable())
+                    {
+                        var cbi =
+                            videoSource.AvailableCrossbarVideoInputs.FirstOrDefault(
+                                p => p.Index == Camobject.settings.crossbarindex);
+                        if (cbi!=null)
                         {
-                            videoSource.CrossbarVideoInput = input;
-                            break;
+                            videoSource.CrossbarVideoInput = cbi;
                         }
                     }
 
@@ -743,7 +750,7 @@ namespace iSpyServer
                     OpenVideoSource(desktopSource, false);
                     break;
                 case 5:
-                    var ks = new KinectStream(NV("UniqueKinectId"), Convert.ToBoolean(NV("KinectSkeleton")));
+                    var ks = new KinectStream(Nv("UniqueKinectId"), Convert.ToBoolean(Nv("KinectSkeleton")));
                     OpenVideoSource(ks, true);
                     break;
             }
@@ -760,7 +767,7 @@ namespace iSpyServer
 
                 if (File.Exists(Camobject.settings.maskimage))
                 {
-                    Camera.Mask = System.Drawing.Image.FromFile(Camobject.settings.maskimage);
+                    Camera.Mask = Image.FromFile(Camobject.settings.maskimage);
                 }
             }
             _frameCount = 0;
@@ -774,7 +781,7 @@ namespace iSpyServer
             _processing = false;
         }
 
-        private string NV(string name)
+        private string Nv(string name)
         {
             if (String.IsNullOrEmpty(Camobject.settings.namevaluesettings))
                 return "";
@@ -801,7 +808,6 @@ namespace iSpyServer
             Camera = new Camera(source);
             source.PlayingFinished += SourcePlayingFinished;
             source.VideoSourceError += SourceVideoSourceError;
-            return;
         }
 
         #region Windows Form Designer generated code
