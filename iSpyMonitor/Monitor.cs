@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Timers.Timer;
@@ -15,8 +10,8 @@ namespace iSpyMonitor
 {
     public partial class Monitor : Form
     {
-        internal DataTable dt = new DataTable("Activity");
-        private Timer pollTimer;
+        internal DataTable Dt = new DataTable("Activity");
+        private Timer _pollTimer;
 
         public Monitor()
         {
@@ -29,35 +24,35 @@ namespace iSpyMonitor
             var dc2 = new DataColumn("Event", typeof(String));
             var dc3 = new DataColumn("Data", typeof(String));
 
-            dt.Columns.Add(dc);
-            dt.Columns.Add(dc2);
-            dt.Columns.Add(dc3);
-            dt.AcceptChanges();
+            Dt.Columns.Add(dc);
+            Dt.Columns.Add(dc2);
+            Dt.Columns.Add(dc3);
+            Dt.AcceptChanges();
 
-            var dr = dt.NewRow();
+            var dr = Dt.NewRow();
             dr["Time"] = DateTime.Now;
             dr["Event"] = "STARTED";
             dr["Data"] = Program.ProgramName;
 
-            dt.Rows.Add(dr);
+            Dt.Rows.Add(dr);
 
-            dataGridView1.DataSource = dt;
+            dataGridView1.DataSource = Dt;
             dataGridView1.Invalidate();
 
             WindowState = FormWindowState.Minimized;
             Hide();
 
-            pollTimer = new Timer(1000);
-            pollTimer.Elapsed += tmrPoll_Tick;
-            pollTimer.AutoReset = true;
-            pollTimer.SynchronizingObject = this;
-            pollTimer.Start();
+            _pollTimer = new Timer(1000);
+            _pollTimer.Elapsed += tmrPoll_Tick;
+            _pollTimer.AutoReset = true;
+            _pollTimer.SynchronizingObject = this;
+            _pollTimer.Start();
 
         }
 
         private void tmrPoll_Tick(object sender, EventArgs e)
         {
-            pollTimer.Stop();
+            _pollTimer.Stop();
             try
             {
                 var w = Process.GetProcessesByName(Program.ProgramName);
@@ -66,17 +61,17 @@ namespace iSpyMonitor
                     if (File.Exists(Program.AppDataPath + "exit.txt") &&
                         File.ReadAllText(Program.AppDataPath + "exit.txt") == "OK")
                     {
-                        reallyclose = true;
+                        _reallyclose = true;
                         Close();
                         return;
                     }
 
                     //app has crashed and terminated
-                    var dr = dt.NewRow();
+                    var dr = Dt.NewRow();
                     dr["Time"] = DateTime.Now;
                     dr["Event"] = "RESTART";
                     dr["Data"] = "";
-                    dt.Rows.Add(dr);
+                    Dt.Rows.Add(dr);
                     dataGridView1.Invalidate();
 
                     var si = new ProcessStartInfo(Program.AppPath + Program.ProgramName+".exe", "");
@@ -99,18 +94,18 @@ namespace iSpyMonitor
                     {
                         //app has hung (3 minutes non responsive)
                         p.Kill();
-                        var dr = dt.NewRow();
+                        var dr = Dt.NewRow();
                         dr["Time"] = DateTime.Now;
                         dr["Event"] = "KILL (UNRESPONSIVE)";
                         dr["Data"] = "";
-                        dt.Rows.Add(dr);
+                        Dt.Rows.Add(dr);
                         dataGridView1.Invalidate();
                     }
 
                 }
             } catch {}
 
-            pollTimer.Start();
+            _pollTimer.Start();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -143,19 +138,19 @@ namespace iSpyMonitor
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            reallyclose = true;
+            _reallyclose = true;
             Close();
         }
 
-        private bool reallyclose = false;
+        private bool _reallyclose;
         private void Monitor_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason != CloseReason.WindowsShutDown)
             {
-                if (!reallyclose)
+                if (!_reallyclose)
                 {
                     e.Cancel = true;
-                    this.WindowState = FormWindowState.Minimized;
+                    WindowState = FormWindowState.Minimized;
                 }
             }
         }
