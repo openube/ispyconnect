@@ -57,15 +57,18 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AForge.Video">
-      <HintPath>..\iSpyApplication\DLLS\AForge.Video.dll</HintPath>
+    <Reference Include="AForge.Video, Version=2.2.4.0, Culture=neutral, PublicKeyToken=cbfb6e07d173c401, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\iSpy\iSpyApplication\DLLS\AForge.Video.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CameraControlProperty.cs" />
     <Compile Include="FileVideoSource.cs" />
+    <Compile Include="Internals\IAMCameraControl.cs" />
     <Compile Include="Internals\IAMCrossbar.cs" />
     <Compile Include="Internals\IAMStreamConfig.cs" />
     <Compile Include="Internals\IAMVideoControl.cs" />
