@@ -893,6 +893,7 @@ namespace iSpyApplication
                     }
                 }
                 sms = sms.Trim(';');
+
                 string email = txtEmailAlert.Text.Replace(" ", "");
                 if (email != "" && !email.IsValidEmail())
                 {
