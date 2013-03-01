@@ -476,20 +476,20 @@ void VideoFileWriter::AddAudioSamples( WriterPrivateData^ data,  BYTE* soundBuff
     libffmpeg::AVPacket pkt;
     libffmpeg::av_init_packet(&pkt);
 
+	pkt.stream_index = data->AudioStream->index;
     pkt.size = libffmpeg::avcodec_encode_audio(codecContext, data->AudioEncodeBuffer, 
       data->AudioEncodeBufferSize, (const short *)pSoundBuffer);
+	pkt.data = data->AudioEncodeBuffer;
 
 	//sync audio with video
-	//if (data->VideoStream->codec->coded_frame->pts != AV_NOPTS_VALUE) {
-	//			pkt.pts = av_rescale_q(data->VideoStream->codec->coded_frame->pts,  data->VideoStream->codec->time_base,  data->VideoStream->time_base);
- //   }
-	//Console::WriteLine("AUDIO PTS: "+pkt.pts);
-    
+	if (data->AudioStream->codec->coded_frame && data->AudioStream->codec->coded_frame->pts != AV_NOPTS_VALUE) {
+		pkt.pts = libffmpeg::av_rescale_q(data->AudioStream->codec->coded_frame->pts,  data->AudioStream->codec->time_base,  data->AudioStream->time_base);
+    }
+
+	Console::WriteLine("AUDIO PTS: "+pkt.pts);
 
 	pkt.flags |= AV_PKT_FLAG_KEY;
-    pkt.stream_index = data->AudioStream->index;
-    pkt.data = data->AudioEncodeBuffer;
-	
+    
     // Write the compressed frame in the media file.
     if (libffmpeg::av_interleaved_write_frame(data->FormatContext, &pkt) != 0) 
     {
@@ -645,36 +645,35 @@ void add_video_stream( WriterPrivateData^ data,  int width, int height, bool crf
 	{
 		data->VideoStream->need_parsing = libffmpeg::AVSTREAM_PARSE_FULL_ONCE;
 
-		//codecContex->coder_type = 0;  // coder = 1
-		//codecContex->flags|=CODEC_FLAG_LOOP_FILTER;   // flags=+loop
-		//codecContex->me_cmp= 256;// me_cmp|= 1 // cmp=+chroma, where CHROMA = 1
-		//codecContex->partitions|=X264_PART_I8X8+X264_PART_I4X4+X264_PART_P8X8+X264_PART_B8X8; // partitions=+parti8x8+parti4x4+partp8x8+partb8x8
-		//codecContex->me_method = libffmpeg::ME_HEX;    // me_method=hex
-		//codecContex->me_subpel_quality = 7;   // subq=7
-		//codecContex->me_range = 16;   // me_range=16
-		//codecContex->gop_size = 250;  // g=250
-		//codecContex->keyint_min = 25; // keyint_min=25
-		//codecContex->scenechange_threshold = 40;  // sc_threshold=40
-		//codecContex->i_quant_factor = 0.71; // i_qfactor=0.71
-		//codecContex->b_frame_strategy = 1;  // b_strategy=1
-		//codecContex->qcompress = 0.6; // qcomp=0.6
-		//codecContex->qmin = 10;   // qmin=0
-		//codecContex->qmax = 51;   // qmax=51
-		//codecContex->max_qdiff = 4;   // qdiff=4
-		//codecContex->max_b_frames = 0;    // bf=3
-		//codecContex->refs = 5;    // refs=3
-		////codecContex->directpred = 1;  // directpred=1
-		//codecContex->trellis = 0; // trellis=1 (requires coder_type = 1)
-		//codecContex->flags2|=CODEC_FLAG2_MIXED_REFS+CODEC_FLAG2_WPRED+CODEC_FLAG2_8X8DCT;
-		////codecContex->flags2|=CODEC_FLAG2_BPYRAMID+CODEC_FLAG2_MIXED_REFS+CODEC_FLAG2_WPRED+CODEC_FLAG2_8X8DCT+CODEC_FLAG2_FASTPSKIP;  // flags2=+bpyramid+mixed_refs+wpred+dct8x8+fastpskip
-		////codecContex->weighted_p_pred = 2; // wpredp=2
-		//codecContex->partitions|=X264_PART_I8X8+X264_PART_I4X4+X264_PART_P8X8+X264_PART_B8X8;
+		//BASELINE
+		//codecContex->coder_type = 0;
+		//codecContex->flags|=CODEC_FLAG_LOOP_FILTER;
+		//codecContex->profile=FF_PROFILE_H264_BASELINE; //Baselinev
+		//codecContex->scenechange_threshold = 40; 
+  //      codecContex->gop_size=250;//8 - broken on android
+  //      codecContex->max_b_frames=0;
+  //      codecContex->max_qdiff=4;
+		//codecContex->me_method=7;
+  //      codecContex->me_range=16;
+		//codecContex->me_cmp|= 1;
+		//codecContex->me_subpel_quality = 6; 
+  //      codecContex->qmin=10;
+  //      codecContex->qmax=51;
+  //      codecContex->qcompress=0.6f;
+  //      codecContex->keyint_min=25; //5 - broken on android
+  //      codecContex->trellis=0;
+  //      codecContex->level=13; //Level 1.3
+		//codecContex->refs = 1;
+		//codecContex->weighted_p_pred = 0;
+		//if (crf)
+		//	codecContex->crf = 20.0f; //quality is set by bitrate
+		//codecContex->flags2|=CODEC_FLAG2_BPYRAMID-CODEC_FLAG2_WPRED-CODEC_FLAG2_8X8DCT;
 
-		codecContex->coder_type = 0;
+		//works on android, iphone and web and allows seeking!
+		codecContex->coder_type = 1;
 		codecContex->flags|=CODEC_FLAG_LOOP_FILTER;
-		codecContex->profile=FF_PROFILE_H264_BASELINE; //Baselinev
 		codecContex->scenechange_threshold = 40; 
-        codecContex->gop_size=250;//8 - broken on android
+        codecContex->gop_size=40;
         codecContex->max_b_frames=0;
         codecContex->max_qdiff=4;
 		codecContex->me_method=7;
@@ -684,15 +683,13 @@ void add_video_stream( WriterPrivateData^ data,  int width, int height, bool crf
         codecContex->qmin=10;
         codecContex->qmax=51;
         codecContex->qcompress=0.6f;
-        codecContex->keyint_min=25; //5 - broken on android
+        codecContex->keyint_min=25;
         codecContex->trellis=0;
-        codecContex->level=13; //Level 1.3
+        codecContex->level=13;
 		codecContex->refs = 1;
-		codecContex->weighted_p_pred = 0;
+		codecContex->directpred = 1;
 		if (crf)
-			codecContex->crf = 20.0f; //quality is set by bitrate
-		codecContex->flags2|=CODEC_FLAG2_BPYRAMID-CODEC_FLAG2_WPRED-CODEC_FLAG2_8X8DCT;
-				
+			codecContex->crf = 20.0f; //quality is set by bitrate				
 	}
 
 	// some formats want stream headers to be separate
