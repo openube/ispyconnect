@@ -274,6 +274,12 @@
     <Compile Include="Audio\SpeechStreamer.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
+    <Compile Include="Kinect\ConfigureTripWires.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Kinect\ConfigureTripWires.Designer.cs">
+      <DependentUpon>ConfigureTripWires.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\AngleSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -388,6 +394,16 @@
     <Compile Include="GridViewCustom.Designer.cs">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
     </Compile>
+    <Compile Include="Kinect\DepthLine.cs" />
+    <Compile Include="Kinect\EditDepthLine.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Kinect\EditDepthLine.Designer.cs">
+      <DependentUpon>EditDepthLine.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Kinect\TripWireEditor.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="LayoutItem.cs" />
     <Compile Include="MainForm_Commands.cs">
       <SubType>Form</SubType>
@@ -424,6 +440,12 @@
     </Compile>
     <Compile Include="PTZTool.Designer.cs">
       <DependentUpon>PTZTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ShareCamera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ShareCamera.Designer.cs">
+      <DependentUpon>ShareCamera.cs</DependentUpon>
     </Compile>
     <Compile Include="Video\AlertEvents.cs" />
     <Compile Include="Video\ByteArrayUtils.cs" />
@@ -482,10 +504,10 @@
     </Compile>
     <Compile Include="QueueWithEvents.cs" />
     <Compile Include="Screensaver.cs" />
-    <Compile Include="VideoNavigator.cs">
+    <Compile Include="Controls\VideoNavigator.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="VideoNavigator.Designer.cs">
+    <Compile Include="Controls\VideoNavigator.Designer.cs">
       <DependentUpon>VideoNavigator.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewController.cs">
@@ -830,6 +852,9 @@
     <EmbeddedResource Include="AddFloorPlan.resx">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Kinect\ConfigureTripWires.resx">
+      <DependentUpon>ConfigureTripWires.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\AngleSelector.resx">
       <DependentUpon>AngleSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -879,8 +904,14 @@
     <EmbeddedResource Include="GridViewCustom.resx">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Kinect\EditDepthLine.resx">
+      <DependentUpon>EditDepthLine.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PTZTool.resx">
       <DependentUpon>PTZTool.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ShareCamera.resx">
+      <DependentUpon>ShareCamera.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Video\ScreenArea.resx">
       <DependentUpon>ScreenArea.cs</DependentUpon>
@@ -924,7 +955,7 @@
     <EmbeddedResource Include="RemoteCommands.resx">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="VideoNavigator.resx">
+    <EmbeddedResource Include="Controls\VideoNavigator.resx">
       <DependentUpon>VideoNavigator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewController.resx">
@@ -1119,7 +1150,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Video.DirectShow\Video.DirectShow.csproj">
+    <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
       <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
       <Name>Video.DirectShow</Name>
     </ProjectReference>

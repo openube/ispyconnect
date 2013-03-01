@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using iSpyApplication.Properties;
@@ -14,14 +15,14 @@ namespace iSpyApplication.Controls
         public string FileName = "";
         public DateTime CreatedDate = DateTime.MinValue;
         public int Duration;
-        private bool _linkPlay;
+        private bool _linkPlay, _linkHover;
 
         protected override void Dispose(bool disposing)
         {
-            if (this.Image != null)
+            if (Image != null)
             {
-                this.Image.Dispose();
-                this.Image = null;
+                Image.Dispose();
+                Image = null;
             }
 
             base.Dispose(disposing);
@@ -31,28 +32,38 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
 
             var brush = new SolidBrush(Color.White);
-            var bSel = new SolidBrush(Color.FromArgb(128, 255, 255, 255));
-            Color c = Color.FromArgb(255, 78,78,78);
-            if (_linkPlay)
-                c = Color.FromArgb(255, 41, 176, 211);
-            var bPlay = new SolidBrush(c);
+            var bSel = new SolidBrush(Color.FromArgb(255, 255,128,0));
+
             var g = pe.Graphics;
-            
-            
-            g.FillRectangle(bPlay,0,Height-20,Width,20);
-            
+
+            if (_linkPlay)
+            {
+                Color c = Color.FromArgb(150, 41, 176, 211); 
+                var bPlay = new SolidBrush(c);
+                g.FillRectangle(bPlay, 0, 0, Width, Height - 20);
+                bPlay.Dispose();
+            }
+            if (_linkHover)
+            {
+                Color c = Color.FromArgb(44,44,44);
+                var bHover = new SolidBrush(c);
+                g.FillRectangle(bHover, 0, Height-20 , Width, 20);
+                bHover.Dispose();
+            }
             if (Selected)
             {
-                g.DrawImage(Resources.checkbox, Width - 18, Height-35, 16, 14);
+                //g.DrawImage(Resources.checkbox, Width - 18, Height-35, 16, 14);
+                g.FillRectangle(bSel, 0, Height - 20, Width, 20);
             }
 
             if (_linkPlay)
-                g.DrawString(">", MainForm.Drawfont, brush, Width/2-8, Height - 18);
-            else
-                g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, brush, 2, Height - 18);
+            {
+                g.DrawString(">", MainForm.DrawfontBig, brush, Width/2 - 10, 20);
+            }
+
+            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, brush, 2, Height - 18);
 
             bSel.Dispose();
-            bPlay.Dispose();
             brush.Dispose();
 
         }
@@ -61,8 +72,8 @@ namespace iSpyApplication.Controls
             var hr = Math.Floor(sec / 3600);
             var min = Math.Floor((sec - (hr * 3600)) / 60);
             sec -= ((hr * 3600) + (min * 60));
-            string m = min.ToString();
-            string s = sec.ToString();
+            string m = min.ToString(CultureInfo.InvariantCulture);
+            string s = sec.ToString(CultureInfo.InvariantCulture);
             while (m.Length < 2) { m = "0" + m; }
             while (s.Length < 2) { s = "0" + s; }
             string h = (hr!=0) ? hr + ":" : "";
@@ -72,20 +83,24 @@ namespace iSpyApplication.Controls
         {
             if (i < 10)
                 return "0" + i;
-            return i.ToString();
+            return i.ToString(CultureInfo.InvariantCulture);
         }
         
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
             bool last = _linkPlay;
-            _linkPlay = e.Location.Y > Height - 20;
-            if (last!=_linkPlay)
+            bool last2 = _linkHover;
+            _linkPlay = e.Location.Y < Height - 20;
+            _linkHover = e.Location.Y > Height - 20;
+            if (last != _linkPlay || last2 != _linkHover)
                 Invalidate();
         }
         protected override void OnMouseLeave(EventArgs e)
         {
             _linkPlay = false;
+            _linkHover = false;
+
             Invalidate();
         }
 
@@ -101,22 +116,23 @@ namespace iSpyApplication.Controls
             {
                 if (e.Y > Height - 20)
                 {
-                    PlayMedia(MainForm.Conf.PlaybackMode);
-                }
-                else
-                {
                     Selected = !Selected;
                     Invalidate();
 
                     if ((ModifierKeys & Keys.Shift) == Keys.Shift)
                     {
                         if (TopLevelControl != null)
-                            ((MainForm) TopLevelControl).SelectMediaRange(this, (PreviewBox) (Parent.Tag));
+                            ((MainForm)TopLevelControl).SelectMediaRange(this, (PreviewBox)(Parent.Tag));
                     }
                     else
                     {
                         Parent.Tag = this;
                     }
+                }
+                else
+                {
+                    PlayMedia(MainForm.Conf.PlaybackMode);
+                    
                 }
             }
         }
@@ -142,28 +158,23 @@ namespace iSpyApplication.Controls
 
             }
         }
-        public void PlayMedia(int Mode)
+        public void PlayMedia(int mode)
         {
-            if (Mode < 0)
+            if (mode < 0)
                 MainForm.Conf.PlaybackMode = 0;
-            if (!VlcHelper.VlcInstalled && Mode == 1)
+            if (!VlcHelper.VlcInstalled && mode == 1)
             {
                 MessageBox.Show(this, "VLC player is not installed ("+VlcHelper.VMin+" or greater required). Using the web player instead. Install VLC (x86) and then see settings to enable ispy local playback.");
-                MainForm.Conf.PlaybackMode = Mode = 0;
+                MainForm.Conf.PlaybackMode = mode = 0;
             }
 
             //play video          
             
             string movie = FileName;
-            int j = Mode;
+            int j = mode;
             if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
             {
-                if (VlcHelper.VlcInstalled)
-                    j = 1;
-                else
-                {
-                    j = 2;
-                }
+                j = VlcHelper.VlcInstalled ? 1 : 2;
             }
             if (!File.Exists(movie))
             {

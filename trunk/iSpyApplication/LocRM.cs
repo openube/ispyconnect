@@ -68,10 +68,11 @@ namespace iSpyApplication
             {
                 Res.Clear();
                 CurrentSet = TranslationSets.FirstOrDefault(p => p.CultureCode == lang);
-                foreach (TranslationsTranslationSetTranslation tran in CurrentSet.Translation)
-                {
-                    Res.Add(tran.Token,tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ","));
-                }
+                if (CurrentSet != null)
+                    foreach (TranslationsTranslationSetTranslation tran in CurrentSet.Translation)
+                    {
+                        Res.Add(tran.Token,tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ","));
+                    }
             }
             try
             {

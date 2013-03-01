@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -116,17 +117,17 @@ namespace iSpyApplication
             chkRestore.Checked = Convert.ToBoolean(alertOptions[1]);
             Text = LocRm.GetString("EditMicrophone");
             if (VolumeLevel.Micobject.id > -1)
-                Text += " (ID: " + VolumeLevel.Micobject.id + ", DIR: " + VolumeLevel.Micobject.directory + ")";
+                Text += string.Format(" (ID: {0}, DIR: {1})", VolumeLevel.Micobject.id, VolumeLevel.Micobject.directory);
 
-            txtNoSound.Text = VolumeLevel.Micobject.detector.nosoundinterval.ToString();
-            txtSound.Text = VolumeLevel.Micobject.detector.soundinterval.ToString();
+            txtNoSound.Text = VolumeLevel.Micobject.detector.nosoundinterval.ToString(CultureInfo.InvariantCulture);
+            txtSound.Text = VolumeLevel.Micobject.detector.soundinterval.ToString(CultureInfo.InvariantCulture);
             pnlSound.Enabled = chkSound.Checked;
             pnlScheduler.Enabled = chkSchedule.Checked;
 
-            txtBuffer.Text = VolumeLevel.Micobject.settings.buffer.ToString();
-            txtInactiveRecord.Text = VolumeLevel.Micobject.recorder.inactiverecord.ToString();
-            txtMinimumInterval.Text = VolumeLevel.Micobject.alerts.minimuminterval.ToString();
-            txtMaxRecordTime.Text = VolumeLevel.Micobject.recorder.maxrecordtime.ToString();
+            txtBuffer.Text = VolumeLevel.Micobject.settings.buffer.ToString(CultureInfo.InvariantCulture);
+            txtInactiveRecord.Text = VolumeLevel.Micobject.recorder.inactiverecord.ToString(CultureInfo.InvariantCulture);
+            txtMinimumInterval.Text = VolumeLevel.Micobject.alerts.minimuminterval.ToString(CultureInfo.InvariantCulture);
+            txtMaxRecordTime.Text = VolumeLevel.Micobject.recorder.maxrecordtime.ToString(CultureInfo.InvariantCulture);
 
             ddlHourStart.SelectedIndex =
                 ddlHourEnd.SelectedIndex = ddlMinuteStart.SelectedIndex = ddlMinuteEnd.SelectedIndex = 0;
@@ -145,7 +146,7 @@ namespace iSpyApplication
             foreach (objectsMicrophone c in MainForm.Microphones)
             {
                 if (c.id!=VolumeLevel.Micobject.id)
-                    ddlCopyFrom.Items.Add(new ListItem(c.name, c.id.ToString()));
+                    ddlCopyFrom.Items.Add(new ListItem(c.name, c.id.ToString(CultureInfo.InvariantCulture)));
             }
             ddlCopyFrom.SelectedIndex = 0;
 
@@ -452,7 +453,7 @@ namespace iSpyApplication
 
         public bool IsNumeric(string numberString)
         {
-            return numberString.All(c => char.IsNumber(c));
+            return numberString.All(char.IsNumber);
         }
 
         private void ChkSoundCheckedChanged(object sender, EventArgs e)
@@ -637,7 +638,7 @@ namespace iSpyApplication
             {
                 if (sched != "")
                 {
-                    lbSchedule.Items.Add(new ListItem(sched, i.ToString()));
+                    lbSchedule.Items.Add(new ListItem(sched, i.ToString(CultureInfo.InvariantCulture)));
                     i++;
                 }
             }
@@ -702,13 +703,13 @@ namespace iSpyApplication
                     ddlMinuteStart.SelectedItem = start[1];
                     ddlMinuteEnd.SelectedItem = stop[1];
 
-                    chkMon.Checked = sched.daysofweek.IndexOf("1") != -1;
-                    chkTue.Checked = sched.daysofweek.IndexOf("2") != -1;
-                    chkWed.Checked = sched.daysofweek.IndexOf("3") != -1;
-                    chkThu.Checked = sched.daysofweek.IndexOf("4") != -1;
-                    chkFri.Checked = sched.daysofweek.IndexOf("5") != -1;
-                    chkSat.Checked = sched.daysofweek.IndexOf("6") != -1;
-                    chkSun.Checked = sched.daysofweek.IndexOf("0") != -1;
+                    chkMon.Checked = sched.daysofweek.IndexOf("1", StringComparison.Ordinal) != -1;
+                    chkTue.Checked = sched.daysofweek.IndexOf("2", StringComparison.Ordinal) != -1;
+                    chkWed.Checked = sched.daysofweek.IndexOf("3", StringComparison.Ordinal) != -1;
+                    chkThu.Checked = sched.daysofweek.IndexOf("4", StringComparison.Ordinal) != -1;
+                    chkFri.Checked = sched.daysofweek.IndexOf("5", StringComparison.Ordinal) != -1;
+                    chkSat.Checked = sched.daysofweek.IndexOf("6", StringComparison.Ordinal) != -1;
+                    chkSun.Checked = sched.daysofweek.IndexOf("0", StringComparison.Ordinal) != -1;
 
                     chkRecordSchedule.Checked = sched.recordonstart;
                     chkScheduleActive.Checked = sched.active;
@@ -817,11 +818,6 @@ namespace iSpyApplication
             MainForm.OpenUrl(MainForm.Webserver+"/account.aspx?task=twitter-auth");
         }
 
-        private void tbGain_Scroll(object sender, EventArgs e)
-        {
-            //VolumeLevel.Volume =  ((float)tbGain.Value)/100f;
-        }
-
         private void tmrUpdateSourceDetails_Tick(object sender, EventArgs e)
         {
             if (VolumeLevel.Micobject.settings.needsupdate)
@@ -857,11 +853,6 @@ namespace iSpyApplication
                 VolumeLevel.WaveOut = new DirectSoundOut(g, 100);
                 VolumeLevel.Listening = listen;
             }
-        }
-
-        private void chkAudioOut_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void ddlTrigger_SelectedIndexChanged(object sender, EventArgs e)

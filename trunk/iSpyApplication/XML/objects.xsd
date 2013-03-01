@@ -93,6 +93,7 @@
                                                     <xs:element name="interval" type="xs:int" />
                                                     <xs:element name="counter" type="xs:int" />
                                                     <xs:element name="countermax" type="xs:int" />
+                                                    <xs:element name="ftpcounter" type="xs:int" />
                                                     <xs:element name="mode" type="xs:int" default="2"/>
                                                     <xs:element name="ready" type="xs:boolean"/>
                                                     <xs:element name="usepassive" type="xs:boolean"/>

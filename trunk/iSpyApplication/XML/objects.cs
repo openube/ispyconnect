@@ -1404,6 +1404,10 @@ public partial class objectsCameraFtp {
 
     private int countermaxField;
 
+    private int ftpcounterField;
+
+    private int ftpcountermaxField;
+
     private int modeField;
     
     private bool readyField;
@@ -1561,6 +1565,19 @@ public partial class objectsCameraFtp {
         set
         {
             this.countermaxField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int ftpcounter
+    {
+        get
+        {
+            return this.ftpcounterField;
+        }
+        set
+        {
+            this.ftpcounterField = value;
         }
     }
 

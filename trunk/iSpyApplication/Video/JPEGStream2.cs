@@ -454,7 +454,6 @@ namespace iSpyApplication.Video
                     // set timeout value for the request
                     request.Timeout = _requestTimeout;
                     request.AllowAutoRedirect = true;
-                    ServicePointManager.ServerCertificateValidationCallback += Certificates.ValidateRemoteCertificate;
 
 
                     // set timeout value for the request

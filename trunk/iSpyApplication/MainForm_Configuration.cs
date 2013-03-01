@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -28,6 +29,8 @@ namespace iSpyApplication
         private static Color _volumeLevelColor = Color.Empty;
         private static Color _activityColor = Color.Empty;
         private static Color _noActivityColor = Color.Empty;
+
+        private static readonly IPAddress[] Ipv6EmptyList = new IPAddress[] { };
 
         public static void ReloadColors()
         {
@@ -125,13 +128,7 @@ namespace iSpyApplication
 
         public static FilterInfoCollection VideoFilters
         {
-            get
-            {
-                if (_videoFilters == null)
-                    _videoFilters = new FilterInfoCollection(FilterCategory.VideoInputDevice);
-                return _videoFilters;
-
-            }
+            get { return _videoFilters ?? (_videoFilters = new FilterInfoCollection(FilterCategory.VideoInputDevice)); }
         }
 
         public static ImageCodecInfo Encoder
@@ -368,8 +365,14 @@ namespace iSpyApplication
         {
             get
             {
+                if (Conf.IPv6Disabled)
+                {
+                    return Ipv6EmptyList;
+                }
+
                 if (_ipv6Addresses != null)
                     return _ipv6Addresses;
+
                 var ipv6Adds = new List<IPAddress>();
                 if (Conf.IPv6Disabled)
                 {
@@ -506,17 +509,16 @@ namespace iSpyApplication
         private static string MakeIPv6Url(string ip)
         {
             //strip scope id
-            if (ip.IndexOf("%") != -1)
-                ip = ip.Substring(0, ip.IndexOf("%"));
+            if (ip.IndexOf("%", StringComparison.Ordinal) != -1)
+                ip = ip.Substring(0, ip.IndexOf("%", StringComparison.Ordinal));
             return "[" + ip + "]";
         }
 
         private static void LoadObjects(string path)
         {
-            objects c;
-            
             try
             {
+                objects c;
                 using (var fs = new FileStream(path, FileMode.Open))
                 {
                     var s = new XmlSerializer(typeof(objects));
@@ -831,7 +833,9 @@ namespace iSpyApplication
                         Tag = oc.id,
                         AutoSize = true,
                         UseVisualStyleBackColor = true,
-                        Text = oc.name.StartsWith("cmd_") ? LocRm.GetString(oc.name) : oc.name
+                        Text = oc.name.StartsWith("cmd_") ? LocRm.GetString(oc.name) : oc.name,
+                        Width = 110
+                        
                     };
                     b.Click += BClick;
                     flCommands.Controls.Add(b);
@@ -976,7 +980,7 @@ namespace iSpyApplication
                 LogMessageToFile(LocRm.GetString("MediaStorageLimit").Replace("[AMOUNT]",
                                                                               Conf.
                                                                                   MaxMediaFolderSizeMB.
-                                                                                  ToString()));
+                                                                                  ToString(CultureInfo.InvariantCulture)));
                 if (!StopRecordingFlag)
                 {
                     if (Conf.StopSavingOnStorageLimit)
@@ -1237,13 +1241,15 @@ namespace iSpyApplication
             {
                 var control = volumeControl;
                 var om = Microphones.SingleOrDefault(p => p.id == control.Micobject.id);
-                for (var index = 0; index < Cameras.Where(p => p.settings.micpair == om.id).ToList().Count; index++)
-                {
-                    var oc = Cameras.Where(p => p.settings.micpair == om.id).ToList()[index];
-                    oc.settings.micpair = -1;
-                }
                 if (om != null)
+                {
+                    for (var index = 0; index < Cameras.Count(p => p.settings.micpair == om.id); index++)
+                    {
+                        var oc = Cameras.Where(p => p.settings.micpair == om.id).ToList()[index];
+                        oc.settings.micpair = -1;
+                    }
                     Microphones.Remove(om);
+                }
                 SetNewStartPosition();
                 NeedsSync = true;
             }
@@ -1657,7 +1663,7 @@ namespace iSpyApplication
                 width = 640,
                 x = Convert.ToInt32(Random.NextDouble() * 100),
                 y = Convert.ToInt32(Random.NextDouble() * 100),
-                name = LocRm.GetString("FloorPlan") + " " + MainForm.NextFloorPlanId
+                name = LocRm.GetString("FloorPlan") + " " + NextFloorPlanId
             };
 
             var fpc = new FloorPlanControl(ofp, this) { BackColor = Conf.BackColor.ToColor() };
@@ -1734,8 +1740,8 @@ namespace iSpyApplication
                     pb.Selected = false;
                     pb.FileName = movieName;
                     pb.CreatedDate = createdDate;
-                    pb.MouseDown += new MouseEventHandler(pb_MouseDown);
-                    toolTip1.SetToolTip(pb, createdDate.ToString());
+                    pb.MouseDown += pb_MouseDown;
+                    toolTip1.SetToolTip(pb, createdDate.ToString(CultureInfo.InvariantCulture));
                     UISync.Execute(() => flowPreview.Controls.Add(pb));
                     if (first)
                     {
@@ -1975,7 +1981,7 @@ namespace iSpyApplication
                 cameraid = NextCameraId;
             VolumeLevel vl = NewVolumeLevel(4);
             vl.Micobject.name = name;
-            vl.Micobject.settings.sourcename = cameraid.ToString();
+            vl.Micobject.settings.sourcename = cameraid.ToString(CultureInfo.InvariantCulture);
             vl.Micobject.id = NextMicrophoneId;
             Microphones.Add(vl.Micobject);
             string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
@@ -2298,7 +2304,7 @@ namespace iSpyApplication
             cameraControl.BringToFront();
             cameraControl.Tag = GetControlIndex();
 
-            if (Conf.AutoSchedule && cam.schedule.active && cam.schedule.entries.Count() > 0)
+            if (Conf.AutoSchedule && cam.schedule.active && cam.schedule.entries.Any())
             {
                 cam.settings.active = false;
                 cameraControl.ApplySchedule();
@@ -2324,12 +2330,12 @@ namespace iSpyApplication
             {
                 Directory.CreateDirectory(path);
                 //move existing thumbs into directory
-                List<string> lfi =
+                var lfi =
                     Directory.GetFiles(Conf.MediaDirectory + "video\\" + cam.directory + "\\", "*.jpg").ToList();
                 foreach (string file in lfi)
                 {
                     string destfile = file;
-                    int i = destfile.LastIndexOf(@"\");
+                    int i = destfile.LastIndexOf(@"\", StringComparison.Ordinal);
                     destfile = file.Substring(0, i) + @"\thumbs" + file.Substring(i);
                     File.Move(file, destfile);
                 }

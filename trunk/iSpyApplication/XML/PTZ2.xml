@@ -4167,4 +4167,224 @@
       <Command Name="Set Preset 8">command=44</Command>
     </ExtendedCommands>
   </Camera>
+  <Camera id="170">
+    -<Makes>
+      <Make Model="Other" Name="Kogan"/>
+    </Makes><CommandURL>/decoder_control.cgi</CommandURL>-<Commands>
+      <Center>command=31</Center>
+      <Left>command=6</Left>
+      <LeftUp/>
+      <Right>command=4</Right>
+      <RightUp/>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <LeftDown/>
+      <RightDown/>
+      <Stop>command=1</Stop>
+      <ZoomIn/>
+      <ZoomOut/>
+    </Commands><ExtendedCommands> </ExtendedCommands>
+  </Camera>
+  <Camera id="171">
+    <Makes>
+      <Make Name="Supra" Model="Traveler IPC-1" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi?</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=4</Left>
+      <Right>command=6</Right>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <Stop>command=1</Stop>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Start Horizontal  Patrol">command=28</Command>
+      <Command Name="Stop Horizontal Patrol">command=29</Command>
+      <Command Name="Start Vertical  Patrol">command=26</Command>
+      <Command Name="Stop Vertical Patrol">command=27</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="172">
+    <Makes>
+      <Make Name="Sony" Model="SNC-RZ50P (PTZ norm mode)" />
+    </Makes>
+    <CommandURL>/command/</CommandURL>
+    <Commands>
+      <Center>presetposition.cgi?HomePos=ptz-recall</Center>
+      <Left>ptzf.cgi?Move=left,0</Left>
+      <LeftUp>ptzf.cgi?Move=up-left,0</LeftUp>
+      <Right>ptzf.cgi?Move=right,0</Right>
+      <RightUp>ptzf.cgi?Move=up-right,0</RightUp>
+      <Up>ptzf.cgi?Move=up,0</Up>
+      <Down>ptzf.cgi?Move=down,0</Down>
+      <LeftDown>ptzf.cgi?Move=down-left,0</LeftDown>
+      <RightDown>ptzf.cgi?Move=down-right,0</RightDown>
+      <Stop>ptzf.cgi?Move=stop,motor</Stop>
+      <ZoomIn>ptzf.cgi?Move=tele,8</ZoomIn>
+      <ZoomOut>ptzf.cgi?Move=wide,8</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop zoom">ptzf.cgi?Move=stop,zoom</Command>
+      <Command Name="Home position">presetposition.cgi?HomePos=ptz-recall</Command>
+      <Command Name="Preset 1">presetposition.cgi?PresetCall=1,24</Command>
+      <Command Name="Preset 2">presetposition.cgi?PresetCall=2,24</Command>
+      <Command Name="Zoom tele (outest)">ptzf.cgi?AbsoluteZoom=0000</Command>
+      <Command Name="Zoom tele (nearest)">ptzf.cgi?AbsoluteZoom=4000</Command>
+      <Command Name="Zoom digital (max)">ptzf.cgi?AbsoluteZoom=77C0</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="173">
+    <Makes>
+      <Make Name="Sony" Model="SNC-RZ50P (PTZ step mode)" />
+    </Makes>
+    <CommandURL>/command/</CommandURL>
+    <Commands>
+      <Center>presetposition.cgi?HomePos=ptz-recall</Center>
+      <Left>ptzf.cgi?Relative=0401</Left>
+      <LeftUp>ptzf.cgi?Relative=0701</LeftUp>
+      <Right>ptzf.cgi?Relative=0601</Right>
+      <RightUp>ptzf.cgi?Relative=0901</RightUp>
+      <Up>ptzf.cgi?Relative=0801</Up>
+      <Down>ptzf.cgi?Relative=0201</Down>
+      <LeftDown>ptzf.cgi?Relative=0101</LeftDown>
+      <RightDown>ptzf.cgi?Relative=0301</RightDown>
+      <ZoomIn>ptzf.cgi?Relative=1101</ZoomIn>
+      <ZoomOut>ptzf.cgi?Relative=1001</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Home position">presetposition.cgi?HomePos=ptz-recall</Command>
+      <Command Name="Preset 1">presetposition.cgi?PresetCall=1,24</Command>
+      <Command Name="Preset 2">presetposition.cgi?PresetCall=2,24</Command>
+      <Command Name="Zoom tele (outest)">ptzf.cgi?AbsoluteZoom=0000</Command>
+      <Command Name="Zoom tele (nearest)">ptzf.cgi?AbsoluteZoom=4000</Command>
+      <Command Name="Zoom digital (max)">ptzf.cgi?AbsoluteZoom=77C0</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="174">
+    <Makes>
+      <Make Name="Foscam" Model="FI9821W" />
+      <Make Name="Foscam" Model="FI9801W" />
+      <Make Name="Foscam" Model="FI9802W" />
+    </Makes>
+    <CommandURL>/cgi-bin/CGIProxy.fcgi?usr=[USERNAME]&amp;pwd=[PASSWORD]</CommandURL>
+    <Commands>
+      <Center></Center>
+      <Left>cmd=ptzMoveLeft</Left>
+      <LeftUp>cmd=ptzMoveTopLeft</LeftUp>
+      <Right>cmd=ptzMoveRight</Right>
+      <RightUp>cmd=ptzMoveTopRight</RightUp>
+      <Up>cmd=ptzMoveUp</Up>
+      <Down>cmd=ptzMoveDown</Down>
+      <LeftDown>cmd=ptzMoveBottomLeft</LeftDown>
+      <RightDown>cmd=ptzMoveBottomRight</RightDown>
+      <Stop>cmd=ptzStopRun</Stop>
+      <ZoomIn>cmd=zoomIn</ZoomIn>
+      <ZoomOut>cmd=zoomOut</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Infrared On">cmd=openInfraLed</Command>
+      <Command Name="Infrared Off">cmd=closeInfraLed</Command>
+      <Command Name="Preset LeftMost">cmd= ptzGotoPresetPoint&amp;name=LeftMost</Command>
+      <Command Name="Preset RightMost">cmd= ptzGotoPresetPoint&amp;name=RightMost</Command>
+      <Command Name="Preset TopMost">cmd= ptzGotoPresetPoint&amp;name=TopMost</Command>
+      <Command Name="Preset BottomMost">cmd= ptzGotoPresetPoint&amp;name=BottomMost</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="175">
+    <Makes>
+      <Make Name="NVS1011WR" Model="" />
+    </Makes>
+    <CommandURL>/asp/mainviewfirefox.asp</CommandURL>
+    <Commands>
+      <Center></Center>
+      <Left>jcpcmd=ptz%20-chn%201/D1%20-cmd%205%20-step%200%20-speed%2043</Left>
+      <Right>jcpcmd=ptz%20-chn%201/D1%20-cmd%207%20-step%200%20-speed%2043</Right>
+      <Up>jcpcmd=ptz%20-chn%201/D1%20-cmd%201%20-step%200%20-speed%2043</Up>
+      <Down>jcpcmd=ptz%20-chn%201/D1%20-cmd%203%20-step%200%20-speed%2043</Down>
+      <Stop>jcpcmd=ptz%20-chn%201/D1%20-cmd%202%20-step%200%20-speed%2043</Stop>
+      <ZoomIn>jcpcmd=ptz%20-chn%201/D1%20-cmd%2019%20-step%200%20-speed%2043</ZoomIn>
+      <ZoomOut>jcpcmd=ptz%20-chn%201/D1%20-cmd%2021%20-step%200%20-speed%2043</ZoomOut>
+      <stop>jcpcmd=ptz%20-chn%201/D1%20-cmd%202%20-step%200%20-speed%2043</stop>
+    </Commands>
+    <ExtendedCommands>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="176">
+    <Makes>
+      <Make Name="Wanscam" Model="AJ-C2WA-B118" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi?loginuse=[USERNAME]&amp;loginpas=[PASSWORD]</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=4&amp;onestep=0</Left>
+      <Right>command=6&amp;onestep=0</Right>
+      <Up>command=0&amp;onestep=0</Up>
+      <Down>command=2&amp;onestep=0</Down>
+      <Stop>command=1&amp;onestep=0</Stop>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="Hor Patrol">command=28</Command>
+      <Command Name="Stop H Patrol">command=29</Command>
+      <Command Name="Vert Patrol">command=26</Command>
+      <Command Name="Stop V Patrol">command=27</Command>
+      <Command Name="Set Preset 1">command=30</Command>
+      <Command Name="Go Preset 1">command=31</Command>
+      <Command Name="Set Preset 2">command=32</Command>
+      <Command Name="Go Preset 2">command=33</Command>
+      <Command Name="Set Preset 3">command=34</Command>
+      <Command Name="Go Preset 3">command=35</Command>
+      <Command Name="Set Preset 4">command=36</Command>
+      <Command Name="Go Preset 4">command=37</Command>
+      <Command Name="Set Preset 5">command=38</Command>
+      <Command Name="Go Preset 5">command=39</Command>
+      <Command Name="Set Preset 6">command=40</Command>
+      <Command Name="Go Preset 6">command=41</Command>
+      <Command Name="Set Preset 7">command=42</Command>
+      <Command Name="Go Preset 7">command=43</Command>
+      <Command Name="Set Preset 8">command=44</Command>
+      <Command Name="Go Preset 8">command=45</Command>
+      <Command Name="Set Preset 9">command=46</Command>
+      <Command Name="Go Preset 9">command=47</Command>
+      <Command Name="Set Preset 10">command=48</Command>
+      <Command Name="Go Preset 10">command=49</Command>
+      <Command Name="Set Preset 11">command=50</Command>
+      <Command Name="Go Preset 11">command=51</Command>
+      <Command Name="Set Preset 12">command=52</Command>
+      <Command Name="Go Preset 12">command=53</Command>
+      <Command Name="Set Preset 13">command=54</Command>
+      <Command Name="Go Preset 13">command=55</Command>
+      <Command Name="Set Preset 14">command=56</Command>
+      <Command Name="Go Preset 14">command=57</Command>
+      <Command Name="Set Preset 15">command=58</Command>
+      <Command Name="Go Preset 15">command=59</Command>
+      <Command Name="Set Preset 16">command=60</Command>
+      <Command Name="Go Preset 16">command=61</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="177">
+    <Makes>
+      <Make Name="IPS" Model="IPS-EYE01W" />
+      <Make Name="Digitus" Model="DN-16036" />
+    </Makes>
+    <CommandURL>/cgi-bin/cmd.cgi</CommandURL>
+    <POST>true</POST>
+    <Commands>
+      <Center></Center>
+      <Left>opType=set&amp;cmd=ptz&amp;ptz_cmd=3&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Left>
+      <Right>opType=set&amp;cmd=ptz&amp;ptz_cmd=4&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Right>
+      <Up>opType=set&amp;cmd=ptz&amp;ptz_cmd=1&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Up>
+      <Down>opType=set&amp;cmd=ptz&amp;ptz_cmd=2&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Down>
+      <Stop>opType=set&amp;cmd=ptz&amp;ptz_cmd=5&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Stop>
+      <ZoomIn>opType=set&amp;cmd=ptz&amp;ptz_cmd=11&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</ZoomIn>
+      <ZoomOut>opType=set&amp;cmd=ptz&amp;ptz_cmd=10&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="focus far">opType=set&amp;cmd=ptz&amp;ptz_cmd=9&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Command>
+      <Command Name="focus near">opType=set&amp;cmd=ptz&amp;ptz_cmd=8&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Command>
+      <Command Name="iris large">opType=set&amp;cmd=ptz&amp;ptz_cmd=6&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Command>
+      <Command Name="iris small">opType=set&amp;cmd=ptz&amp;ptz_cmd=7&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Command>
+    </ExtendedCommands>
+  </Camera>
 </PTZSettings2>

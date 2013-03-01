@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
@@ -36,26 +37,26 @@ namespace iSpyApplication
 
 
         // collection of available video devices
-        private FilterInfoCollection videoDevices;
+        private readonly FilterInfoCollection _videoDevices;
         // selected video device
-        private VideoCaptureDevice videoDevice;
+        private VideoCaptureDevice _videoCaptureDevice;
 
         // supported capabilities of video and snapshots
-        private Dictionary<string, VideoCapabilities> videoCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
-        private Dictionary<string, VideoCapabilities> snapshotCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
+        private readonly Dictionary<string, VideoCapabilities> _videoCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
+        private readonly Dictionary<string, VideoCapabilities> _snapshotCapabilitiesDictionary = new Dictionary<string, VideoCapabilities>();
 
         // available video inputs
-        private VideoInput[] availableVideoInputs = null;
+        private VideoInput[] _availableVideoInputs;
 
         // flag telling if user wants to configure snapshots as well
-        private bool configureSnapshots = false;
+        private bool _configureSnapshots;
 
         public bool ConfigureSnapshots
         {
-            get { return configureSnapshots; }
+            get { return _configureSnapshots; }
             set
             {
-                configureSnapshots = value;
+                _configureSnapshots = value;
                 snapshotsLabel.Visible = value;
                 snapshotResolutionsCombo.Visible = value;
             }
@@ -71,14 +72,14 @@ namespace iSpyApplication
         /// 
         public VideoCaptureDevice VideoDevice
         {
-            get { return videoDevice; }
+            get { return _videoCaptureDevice; }
         }
 
-        private string videoDeviceMoniker = string.Empty;
-        private Size captureSize = new Size(0, 0);
-        private Size snapshotSize = new Size(0, 0);
+        private string _videoDeviceMoniker = string.Empty;
+        private Size _captureSize = new Size(0, 0);
+        private Size _snapshotSize = new Size(0, 0);
         public int FrameRate = 0;
-        private VideoInput videoInput = VideoInput.Default;
+        private VideoInput _videoInput = VideoInput.Default;
 
         /// <summary>
         /// Moniker string of the selected video device.
@@ -90,8 +91,8 @@ namespace iSpyApplication
         /// 
         public string VideoDeviceMoniker
         {
-            get { return videoDeviceMoniker; }
-            set { videoDeviceMoniker = value; }
+            get { return _videoDeviceMoniker; }
+            set { _videoDeviceMoniker = value; }
         }
 
         /// <summary>
@@ -104,8 +105,8 @@ namespace iSpyApplication
         /// 
         public Size CaptureSize
         {
-            get { return captureSize; }
-            set { captureSize = value; }
+            get { return _captureSize; }
+            set { _captureSize = value; }
         }
 
         /// <summary>
@@ -118,8 +119,8 @@ namespace iSpyApplication
         /// </remarks>
         public Size SnapshotSize
         {
-            get { return snapshotSize; }
-            set { snapshotSize = value; }
+            get { return _snapshotSize; }
+            set { _snapshotSize = value; }
         }
 
         public VideoSource()
@@ -131,13 +132,13 @@ namespace iSpyApplication
             try
             {
                 // enumerate video devices
-                videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+                _videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
 
-                if (videoDevices.Count == 0)
+                if (_videoDevices.Count == 0)
                     throw new ApplicationException();
 
                 // add all devices to combo
-                foreach (FilterInfo device in videoDevices)
+                foreach (FilterInfo device in _videoDevices)
                 {
                     devicesCombo.Items.Add(device.Name);
                 }
@@ -181,7 +182,7 @@ namespace iSpyApplication
                 string[] wh= CameraControl.Camobject.resolution.Split('x');
                 CaptureSize = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
             }
-            txtFrameInterval.Text = txtFrameInterval2.Text = CameraControl.Camobject.settings.frameinterval.ToString();
+            txtFrameInterval.Text = txtFrameInterval2.Text = CameraControl.Camobject.settings.frameinterval.ToString(CultureInfo.InvariantCulture);
             chkForceBasic1.Checked = chkForceBasic.Checked = CameraControl.Camobject.settings.forcebasic;
             txtVLCArgs.Text = CameraControl.Camobject.settings.vlcargs.Replace("\r\n","\n").Replace("\n\n","\n").Replace("\n", Environment.NewLine);
             txtReconnect.Value = CameraControl.Camobject.settings.reconnectinterval;
@@ -192,7 +193,7 @@ namespace iSpyApplication
             {
                 case 0:
                     cmbJPEGURL.Text = VideoSourceString;
-                    txtFrameInterval.Text = CameraControl.Camobject.settings.frameinterval.ToString();
+                    txtFrameInterval.Text = CameraControl.Camobject.settings.frameinterval.ToString(CultureInfo.InvariantCulture);
                     break;
                 case 1:
                     cmbMJPEGURL.Text = VideoSourceString;
@@ -227,9 +228,9 @@ namespace iSpyApplication
            
             int selectedCameraIndex = 0;
 
-            for (int i = 0; i < videoDevices.Count; i++)
+            for (int i = 0; i < _videoDevices.Count; i++)
             {
-                if (videoDeviceMoniker == videoDevices[i].MonikerString)
+                if (_videoDeviceMoniker == _videoDevices[i].MonikerString)
                 {
                     selectedCameraIndex = i;
                     break;
@@ -257,9 +258,9 @@ namespace iSpyApplication
 
             if (CameraControl != null && CameraControl.Camera != null && CameraControl.Camera.VideoSource is VideoCaptureDevice)
             {
-                videoDevice = (VideoCaptureDevice)CameraControl.Camera.VideoSource;
-                videoInput = videoDevice.CrossbarVideoInput;
-                EnumeratedSupportedFrameSizes(videoDevice);
+                _videoCaptureDevice = (VideoCaptureDevice)CameraControl.Camera.VideoSource;
+                _videoInput = _videoCaptureDevice.CrossbarVideoInput;
+                EnumeratedSupportedFrameSizes();
             }
 
 
@@ -294,7 +295,7 @@ namespace iSpyApplication
                     numXimeaOffsetX.Value = Convert.ToInt32(NV("x"));
                     numXimeaOffestY.Value = Convert.ToInt32(NV("y"));
 
-                    decimal gain = 0;
+                    decimal gain;
                     decimal.TryParse(NV("gain"), out gain);
                     numXimeaGain.Value =  gain;
 
@@ -353,11 +354,10 @@ namespace iSpyApplication
                 try
                 {
                     chkKinectSkeletal.Checked = Convert.ToBoolean(NV("KinectSkeleton"));
+                    chkTripWires.Checked = Convert.ToBoolean(NV("TripWires"));
                 }
                 catch {}
-            }
-
-            
+            }          
 
             _loaded = true;
             if (StartWizard) Wizard();
@@ -462,7 +462,7 @@ namespace iSpyApplication
                 return;
             } 
             
-            string nv = "";
+            string nv;
             SourceIndex = tcSource.SelectedIndex;
             CameraLogin = txtLogin.Text;
             CameraPassword = txtPassword.Text;
@@ -525,38 +525,37 @@ namespace iSpyApplication
                         return;
                     }
 
-                    videoDeviceMoniker = videoDevice.Source;
-                    if (videoCapabilitiesDictionary.Count > 0)
+                    _videoDeviceMoniker = _videoCaptureDevice.Source;
+                    if (_videoCapabilitiesDictionary.Count != 0)
                     {
                         VideoCapabilities caps =
-                            videoCapabilitiesDictionary[(string) videoResolutionsCombo.SelectedItem];
-                        captureSize = caps.FrameSize;
-                        FrameRate = caps.FrameRate;
-                        captureSize = new Size(captureSize.Width, captureSize.Height);
+                            _videoCapabilitiesDictionary[(string) videoResolutionsCombo.SelectedItem];
+                        _captureSize = caps.FrameSize;
+                        FrameRate = caps.AverageFrameRate;
                     }
 
-                    if ( configureSnapshots )
+                    if ( _configureSnapshots )
                     {
                         // set snapshots size
-                        if ( snapshotCapabilitiesDictionary.Count != 0 )
+                        if ( _snapshotCapabilitiesDictionary.Count != 0 )
                         {
-                            VideoCapabilities caps2 = snapshotCapabilitiesDictionary[(string) snapshotResolutionsCombo.SelectedItem];
-                            snapshotSize = caps2.FrameSize;
+                            VideoCapabilities caps = _snapshotCapabilitiesDictionary[(string) snapshotResolutionsCombo.SelectedItem];
+                            _snapshotSize = caps.FrameSize;
                         }
                     }
 
                     VideoInputIndex = -1;
                     if (videoInputsCombo.SelectedIndex > 0)
                     {
-                        if (availableVideoInputs.Length != 0)
+                        if (_availableVideoInputs.Length != 0)
                         {
-                            VideoInputIndex = availableVideoInputs[videoInputsCombo.SelectedIndex-1].Index;
+                            VideoInputIndex = _availableVideoInputs[videoInputsCombo.SelectedIndex-1].Index;
                         }
                     }
                     
 
-                    VideoSourceString = videoDeviceMoniker;
-                    FriendlyName = videoDevice.Source;
+                    VideoSourceString = _videoDeviceMoniker;
+                    FriendlyName = _videoCaptureDevice.Source;
                     break;
                 case 4:
                     int frameinterval2;
@@ -570,7 +569,7 @@ namespace iSpyApplication
                         MessageBox.Show(LocRm.GetString("Validate_SelectCamera"), LocRm.GetString("Note"));
                         return;
                     }
-                    VideoSourceString = (ddlScreen.SelectedIndex - 1).ToString();
+                    VideoSourceString = (ddlScreen.SelectedIndex - 1).ToString(CultureInfo.InvariantCulture);
                     FriendlyName = ddlScreen.SelectedItem.ToString();
                     CameraControl.Camobject.settings.frameinterval = frameinterval2;
                     CameraControl.Camobject.settings.desktopmouse = chkMousePointer.Checked;
@@ -610,9 +609,9 @@ namespace iSpyApplication
                     nv += ",x=" + (int)numXimeaOffsetX.Value;
                     nv += ",y=" + (int)numXimeaOffestY.Value;
                     nv += ",gain=" +
-                          String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                          String.Format(CultureInfo.InvariantCulture, "{0:0.000}",
                                         numXimeaGain.Value);
-                    nv += ",exposure=" + String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                    nv += ",exposure=" + String.Format(CultureInfo.InvariantCulture, "{0:0.000}",
                                         numXimeaExposure.Value);
                     nv += ",downsampling=" + combo_dwnsmpl.SelectedItem;
                     VideoSourceString = nv;
@@ -628,6 +627,7 @@ namespace iSpyApplication
                     nv = "type=kinect";
                     nv += ",UniqueKinectId=" + ddlKinectDevice.SelectedItem;
                     nv += ",KinectSkeleton=" + chkKinectSkeletal.Checked;
+                    nv += ",TripWires=" + chkTripWires.Checked;
                     
                     VideoSourceString = nv;
                     CameraControl.Camobject.settings.namevaluesettings = nv;
@@ -642,12 +642,22 @@ namespace iSpyApplication
                     CameraControl.Camobject.detector.recordondetect = false;
                     CameraControl.Camobject.detector.type = "None";
                     CameraControl.Camobject.settings.audiomodel = "NetworkKinect";
-                    var uri = new Uri(VideoSourceString);
-                    if (!String.IsNullOrEmpty(uri.DnsSafeHost))
+                    try
                     {
-                        CameraControl.Camobject.settings.audioip = uri.DnsSafeHost;
+                        var uri = new Uri(VideoSourceString);
+
+                        if (!String.IsNullOrEmpty(uri.DnsSafeHost))
+                        {
+                            CameraControl.Camobject.settings.audioip = uri.DnsSafeHost;
+                            CameraControl.Camobject.settings.audioport = uri.Port;
+                        }
                     }
-                    CameraControl.Camobject.settings.audioport = uri.Port;
+                    catch
+                    {
+                        MessageBox.Show("Invalid URL", "Error");
+                        return;
+                    }
+                    
                     CameraControl.Camobject.settings.audiousername = "";
                     CameraControl.Camobject.settings.audiopassword = "";
                     CameraControl.Camobject.settings.bordertimeout = Convert.ToInt32(numBorderTimeout.Value);
@@ -734,10 +744,6 @@ namespace iSpyApplication
         }
 
         private void cmbMJPEGURL_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void ddlDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
         }
 
@@ -912,10 +918,10 @@ namespace iSpyApplication
                 typeBox.Text = CameraControl.XimeaSource.GetParamString(CameraParameter.DeviceType);
 
                 // width
-                numXimeaWidth.Text = CameraControl.XimeaSource.GetParamInt(CameraParameter.Width ).ToString();
+                numXimeaWidth.Text = CameraControl.XimeaSource.GetParamInt(CameraParameter.Width ).ToString(CultureInfo.InvariantCulture);
 
                 // height
-                numXimeaHeight.Text = CameraControl.XimeaSource.GetParamInt(CameraParameter.Height).ToString();
+                numXimeaHeight.Text = CameraControl.XimeaSource.GetParamInt(CameraParameter.Height).ToString(CultureInfo.InvariantCulture);
 
                 // exposure
                 numXimeaExposure.Minimum = (decimal)CameraControl.XimeaSource.GetParamFloat(CameraParameter.ExposureMin) / 1000;
@@ -1121,41 +1127,44 @@ namespace iSpyApplication
 
                 }
                 SetupVideoSource();
+
+                
             }
+            fc.Dispose();
         }
 
         private void devicesCombo_SelectedIndexChanged_1(object sender, EventArgs e)
         {
-            if (videoDevices.Count != 0)
+            if (_videoDevices.Count != 0)
             {
-                videoDevice = new VideoCaptureDevice(videoDevices[devicesCombo.SelectedIndex].MonikerString);
-                EnumeratedSupportedFrameSizes(videoDevice);
+                _videoCaptureDevice = new VideoCaptureDevice(_videoDevices[devicesCombo.SelectedIndex].MonikerString);
+                EnumeratedSupportedFrameSizes();
             }
         }
 
         // Collect supported video and snapshot sizes
-        private void EnumeratedSupportedFrameSizes(VideoCaptureDevice videoDevice)
+        private void EnumeratedSupportedFrameSizes()
         {
             this.Cursor = Cursors.WaitCursor;
 
             videoResolutionsCombo.Items.Clear();
             snapshotResolutionsCombo.Items.Clear();
             videoInputsCombo.Items.Clear();
-            snapshotCapabilitiesDictionary.Clear();
-            videoCapabilitiesDictionary.Clear();
+            _snapshotCapabilitiesDictionary.Clear();
+            _videoCapabilitiesDictionary.Clear();
             try
             {
                 // collect video capabilities
-                VideoCapabilities[] videoCapabilities = videoDevice.VideoCapabilities;
+                VideoCapabilities[] videoCapabilities = _videoCaptureDevice.VideoCapabilities;
                 int videoResolutionIndex = 0;
                 foreach (VideoCapabilities capabilty in videoCapabilities)
                 {
                     string item = string.Format(
-                        "{0} x {1} ({2} fps)", capabilty.FrameSize.Width, capabilty.FrameSize.Height, capabilty.FrameRate);
+                        "{0} x {1} ({2} fps)", capabilty.FrameSize.Width, capabilty.FrameSize.Height, capabilty.AverageFrameRate);
 
                     if (!videoResolutionsCombo.Items.Contains(item))
                     {
-                        if (captureSize == capabilty.FrameSize)
+                        if (_captureSize == capabilty.FrameSize)
                         {
                             videoResolutionIndex = videoResolutionsCombo.Items.Count;
                         }
@@ -1163,9 +1172,9 @@ namespace iSpyApplication
                         videoResolutionsCombo.Items.Add(item);
                     }
 
-                    if (!videoCapabilitiesDictionary.ContainsKey(item))
+                    if (!_videoCapabilitiesDictionary.ContainsKey(item))
                     {
-                        videoCapabilitiesDictionary.Add(item, capabilty);
+                        _videoCapabilitiesDictionary.Add(item, capabilty);
                     }
                 }
 
@@ -1181,10 +1190,10 @@ namespace iSpyApplication
 
                 videoResolutionsCombo.SelectedIndex = videoResolutionIndex;
 
-                if (configureSnapshots)
+                if (_configureSnapshots)
                 {
                     // collect snapshot capabilities
-                    VideoCapabilities[] snapshotCapabilities = videoDevice.SnapshotCapabilities;
+                    VideoCapabilities[] snapshotCapabilities = _videoCaptureDevice.SnapshotCapabilities;
                     int snapshotResolutionIndex = 0;
 
                     foreach (VideoCapabilities capabilty in snapshotCapabilities)
@@ -1194,13 +1203,13 @@ namespace iSpyApplication
 
                         if (!snapshotResolutionsCombo.Items.Contains(item))
                         {
-                            if (snapshotSize == capabilty.FrameSize)
+                            if (_snapshotSize == capabilty.FrameSize)
                             {
                                 snapshotResolutionIndex = snapshotResolutionsCombo.Items.Count;
                             }
 
                             snapshotResolutionsCombo.Items.Add(item);
-                            snapshotCapabilitiesDictionary.Add(item, capabilty);
+                            _snapshotCapabilitiesDictionary.Add(item, capabilty);
                         }
                     }
 
@@ -1218,14 +1227,14 @@ namespace iSpyApplication
                 }             
 
                 // get video inputs
-                availableVideoInputs = videoDevice.AvailableCrossbarVideoInputs;
+                _availableVideoInputs = _videoCaptureDevice.AvailableCrossbarVideoInputs;
                 int videoInputIndex = -1;
 
-                foreach (VideoInput input in availableVideoInputs)
+                foreach (VideoInput input in _availableVideoInputs)
                 {
                     string item = string.Format("{0}: {1}", input.Index, input.Type);
 
-                    if ((input.Index == videoInput.Index) && (input.Type == videoInput.Type))
+                    if ((input.Index == _videoInput.Index) && (input.Type == _videoInput.Type))
                     {
                         videoInputIndex = videoInputsCombo.Items.Count;
                     }
@@ -1233,7 +1242,7 @@ namespace iSpyApplication
                     videoInputsCombo.Items.Add(item);
                 }
 
-                if (availableVideoInputs.Length == 0)
+                if (_availableVideoInputs.Length == 0)
                 {
                     videoInputsCombo.Items.Add(LocRm.GetString("NotSupported"));
                     videoInputsCombo.Enabled = false;
@@ -1314,6 +1323,16 @@ namespace iSpyApplication
         private void linkLabel5_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MainForm.OpenUrl(MainForm.Website+"/userguide-vlc.aspx");
+        }
+
+        private void snapshotResolutionsCombo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkKinectSkeletal_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
     }

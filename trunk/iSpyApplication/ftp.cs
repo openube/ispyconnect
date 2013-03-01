@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,11 +15,11 @@ namespace iSpyApplication
             {
                 var target = new Uri(server);
                 int i = 0;
-                filename = filename.Replace("{C}", counter.ToString());
+                filename = filename.Replace("{C}", counter.ToString(CultureInfo.InvariantCulture));
 
-                while (filename.IndexOf("{") != -1 && i < 20)
+                while (filename.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
                 {
-                    filename = String.Format(System.Globalization.CultureInfo.InvariantCulture, filename, DateTime.Now);
+                    filename = String.Format(CultureInfo.InvariantCulture, filename, DateTime.Now);
                     i++;
                 }
 
@@ -52,16 +53,13 @@ namespace iSpyApplication
                 requestStream.Close();
 
                 var response = (FtpWebResponse)request.GetResponse();
-                if (response != null)
+                if (response.StatusCode != FtpStatusCode.ClosingData)
                 {
-                    if (response.StatusCode != FtpStatusCode.ClosingData)
-                    {
-                        MainForm.LogErrorToFile("FTP Failed: "+response.StatusDescription);
-                        failed = true;
-                    }
-
-                    response.Close();
+                    MainForm.LogErrorToFile("FTP Failed: "+response.StatusDescription);
+                    failed = true;
                 }
+
+                response.Close();
                 error = "";
             }
             catch (Exception ex)
@@ -76,9 +74,9 @@ namespace iSpyApplication
         {
             var task = (FTPTask) taskObject;
             int i = 0;
-            while (task.FileName.IndexOf("{") != -1 && i < 20)
+            while (task.FileName.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
             {
-                task.FileName = String.Format(System.Globalization.CultureInfo.InvariantCulture, task.FileName, DateTime.Now);
+                task.FileName = String.Format(CultureInfo.InvariantCulture, task.FileName, DateTime.Now);
                 i++;
             }
             string error;

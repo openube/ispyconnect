@@ -87,7 +87,7 @@ namespace iSpyApplication
                         {
                             bool skip = false;
                             int hoffset = 0;
-                            if (!indexesassigned.Contains(i) && c is PictureBox)
+                            if (!indexesassigned.Contains(i))
                             {
                                 if (c is CameraWindow)
                                 {
@@ -201,7 +201,7 @@ namespace iSpyApplication
         {
             if (obj == null)
                 return;
-            if (obj.GetType() == typeof(CameraWindow))
+            if (obj is CameraWindow)
             {
 
                 var cameraControl = ((CameraWindow)obj);
@@ -261,7 +261,7 @@ namespace iSpyApplication
                 }
             }
 
-            if (obj.GetType() == typeof(VolumeLevel))
+            if (obj is VolumeLevel)
             {
                 var vf = ((VolumeLevel)obj);
                 vf.BringToFront();
@@ -278,7 +278,7 @@ namespace iSpyApplication
                 }
             }
 
-            if (obj.GetType() == typeof(FloorPlanControl))
+            if (obj is FloorPlanControl)
             {
                 var fp = ((FloorPlanControl)obj);
                 fp.BringToFront();
@@ -331,19 +331,19 @@ namespace iSpyApplication
         private void LayoutOptimised()
         {
             double numberCameras = Cameras.Count;
-            int dispHeight, dispWidth, dispArea, camArea, camX, camY, useX = 320, useY = 200, lastArea;
-            dispArea = _pnlCameras.Width * _pnlCameras.Height;
-            lastArea = dispArea;
+            int useX = 320, useY = 200;
+            int dispArea = _pnlCameras.Width * _pnlCameras.Height;
+            int lastArea = dispArea;
 
 
             for (int y = 1; y <= numberCameras; y++)
             {
-                camX = y;
-                camY = (int)Math.Round((numberCameras / y) + 0.499999999, 0);
+                int camX = y;
+                var camY = (int)Math.Round((numberCameras / y) + 0.499999999, 0);
 
-                dispWidth = _pnlCameras.Width / camX;
-                dispHeight = dispWidth / 4 * 3;
-                camArea = (int)numberCameras * (dispWidth * (dispHeight + 40));
+                int dispWidth = _pnlCameras.Width / camX;
+                int dispHeight = dispWidth / 4 * 3;
+                int camArea = (int)numberCameras * (dispWidth * (dispHeight + 40));
                 if (((dispArea - camArea) <= lastArea) && ((dispArea - camArea) > 0) && (((camY * (dispHeight + 40)) < _pnlCameras.Height)))
                 {
                     useX = dispWidth;

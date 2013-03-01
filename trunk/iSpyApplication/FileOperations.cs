@@ -26,7 +26,7 @@ namespace iSpyApplication
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        static extern int SHFileOperation(ref SHFILEOPSTRUCT FileOp);
+        static extern int SHFileOperation(ref SHFILEOPSTRUCT fileOp);
 
         private static void DeleteFileOperation(string filePath)
         {
@@ -40,16 +40,25 @@ namespace iSpyApplication
             SHFileOperation(ref fileop);
         }
 
-        public static void Delete(string filePath)
+        public static bool Delete(string filePath)
         {
-            if (MainForm.Conf.DeleteToRecycleBin)
+            try
             {
-                DeleteFileOperation(filePath);
+                if (MainForm.Conf.DeleteToRecycleBin)
+                {
+                    DeleteFileOperation(filePath);
+                }
+                else
+                {
+                    File.Delete(filePath);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                File.Delete(filePath);
+                MainForm.LogExceptionToFile(ex);
+                return false;
             }
+            return true;
         }
     }
 }

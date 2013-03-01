@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -65,7 +64,7 @@ namespace iSpyApplication.Controls
                         return _filter;
                     if (!String.IsNullOrEmpty(CW.Camobject.detector.colourprocessing))
                     {
-                        string[] config = CW.Camobject.detector.colourprocessing.Split(CW.Camobject.detector.colourprocessing.IndexOf("|") != -1 ? '|' : ',');
+                        string[] config = CW.Camobject.detector.colourprocessing.Split(CW.Camobject.detector.colourprocessing.IndexOf("|", StringComparison.Ordinal) != -1 ? '|' : ',');
                         _filter = new HSLFiltering
                                       {
                                           FillColor =
@@ -168,7 +167,7 @@ namespace iSpyApplication.Controls
                                             string s = oc.settings.namevaluesettings;
                                             if (!String.IsNullOrEmpty(s))
                                             {
-                                                if (s.ToLower().IndexOf("kinect")!=-1)
+                                                if (s.ToLower().IndexOf("kinect", StringComparison.Ordinal)!=-1)
                                                 {
                                                     dl += oc.name.Replace("*","").Replace("|","") + "|" + oc.id + "|" + oc.settings.videosourcestring + "*";
                                                 }
@@ -235,7 +234,6 @@ namespace iSpyApplication.Controls
 
         public Camera(IVideoSource source, MotionDetector detector)
         {
-            //VideoSource = new AsyncVideoSource(source, false);
             VideoSource = source;
             _motionDetector = detector;
             VideoSource.NewFrame += VideoNewFrame;
@@ -273,7 +271,7 @@ namespace iSpyApplication.Controls
         // Running property
         public bool IsRunning
         {
-            get { return (VideoSource == null) ? false : VideoSource.IsRunning; }
+            get { return (VideoSource != null) && VideoSource.IsRunning; }
         }
 
         //

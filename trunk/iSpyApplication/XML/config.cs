@@ -222,6 +222,21 @@ public partial class configuration {
 
     private bool SpeechRecognitionField;
 
+    private string DefaultManufacturerField;
+
+    /// <remarks/>
+    public string DefaultManufacturer
+    {
+        get
+        {
+            return this.DefaultManufacturerField;
+        }
+        set
+        {
+            this.DefaultManufacturerField = value;
+        }
+    }
+
     /// <remarks/>
     public bool SpeechRecognition
     {

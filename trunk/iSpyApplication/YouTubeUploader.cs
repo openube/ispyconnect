@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Google.GData.Client;
-using Google.GData.Client.ResumableUpload;
 using Google.GData.Extensions.MediaRss;
 using Google.YouTube;
 
@@ -32,15 +31,15 @@ namespace iSpyApplication
             if (UploadFiles.Count == 40)
                 return LocRm.GetString("YouTubeQueueFull");
 
-            int i = MainForm.Conf.UploadedVideos.IndexOf(filename);
+            int i = MainForm.Conf.UploadedVideos.IndexOf(filename, StringComparison.Ordinal);
             if (i != -1)
             {
                 if (emailOnComplete != "")
                 {
                     string cfg = MainForm.Conf.UploadedVideos.Substring(i);
-                    string vid = cfg.Substring(cfg.IndexOf("|") + 1);
-                    if (vid.IndexOf(",") != -1)
-                        vid = vid.Substring(0, vid.IndexOf(","));
+                    string vid = cfg.Substring(cfg.IndexOf("|", StringComparison.Ordinal) + 1);
+                    if (vid.IndexOf(",", StringComparison.Ordinal) != -1)
+                        vid = vid.Substring(0, vid.IndexOf(",", StringComparison.Ordinal));
                     SendYouTubeMails(emailOnComplete, message, vid);
                     return LocRm.GetString("YouTubUploadedAlreadyNotificationsSent");
                 }
@@ -62,7 +61,7 @@ namespace iSpyApplication
         private static void Upload()
         {           
             UserState us = UploadFiles.Dequeue();
-            Console.WriteLine("youtube: upload " + us.AbsoluteFilePath);
+            //Console.WriteLine("youtube: upload " + us.AbsoluteFilePath);
 
             var settings = new YouTubeRequestSettings("iSpy", MainForm.Conf.YouTubeKey, MainForm.Conf.YouTubeUsername, MainForm.Conf.YouTubePassword);
             var request = new YouTubeRequest(settings);
@@ -123,7 +122,7 @@ namespace iSpyApplication
             }
             if (success)
             {
-                Console.WriteLine("Uploaded: http://www.youtube.com/watch?v=" + vCreated.VideoId);
+                //Console.WriteLine("Uploaded: http://www.youtube.com/watch?v=" + vCreated.VideoId);
 
                 string msg = "YouTube video uploaded: <a href=\"http://www.youtube.com/watch?v=" + vCreated.VideoId + "\">" +
                                 vCreated.VideoId + "</a>";

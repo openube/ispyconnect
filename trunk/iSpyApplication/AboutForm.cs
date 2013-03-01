@@ -37,13 +37,27 @@ namespace iSpyApplication
         private void RenderResources()
         {
             _lblVersion.Text = "iSpy v" + Application.ProductVersion;
-            Text = LocRm.GetString("AboutiSpy");
+            Text = string.Format("iSpy v{0}", Application.ProductVersion);
+            if (!String.IsNullOrEmpty(MainForm.Conf.Vendor))
+            {
+                Text += string.Format(" with {0}", MainForm.Conf.Vendor);
+            }
+
+
             _lblCopyright.Text = "Copyright " + DateTime.Now.Year;
 
-            linkLabel1.Visible = MainForm.Conf.Reseller!="";
-            if (MainForm.Conf.Reseller != "")
+            linkLabel1.Visible = false;
+
+            if (!String.IsNullOrEmpty(MainForm.Conf.Vendor))
             {
-                linkLabel1.Text = MainForm.Conf.Reseller.Split('|')[1];
+                linkLabel1.Visible = true;
+                try
+                {
+                    linkLabel1.Text = MainForm.Conf.Vendor;
+                }
+                catch
+                {
+                }
             }
         }
 
@@ -82,7 +96,7 @@ namespace iSpyApplication
             // 
             // _lblCopyright
             // 
-            this._lblCopyright.Location = new System.Drawing.Point(173, 13);
+            this._lblCopyright.Location = new System.Drawing.Point(139, 22);
             this._lblCopyright.Name = "_lblCopyright";
             this._lblCopyright.Size = new System.Drawing.Size(165, 16);
             this._lblCopyright.TabIndex = 13;
@@ -102,7 +116,7 @@ namespace iSpyApplication
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(173, 81);
+            this.linkLabel1.Location = new System.Drawing.Point(139, 44);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Padding = new System.Windows.Forms.Padding(3);
             this.linkLabel1.Size = new System.Drawing.Size(67, 19);
@@ -126,7 +140,7 @@ namespace iSpyApplication
             // _linkLabel2
             // 
             this._linkLabel2.AutoSize = true;
-            this._linkLabel2.Location = new System.Drawing.Point(173, 62);
+            this._linkLabel2.Location = new System.Drawing.Point(139, 66);
             this._linkLabel2.Name = "_linkLabel2";
             this._linkLabel2.Padding = new System.Windows.Forms.Padding(3);
             this._linkLabel2.Size = new System.Drawing.Size(151, 19);
@@ -138,7 +152,7 @@ namespace iSpyApplication
             // _lblVersion
             // 
             this._lblVersion.AutoSize = true;
-            this._lblVersion.Location = new System.Drawing.Point(173, 0);
+            this._lblVersion.Location = new System.Drawing.Point(139, 0);
             this._lblVersion.Name = "_lblVersion";
             this._lblVersion.Size = new System.Drawing.Size(42, 13);
             this._lblVersion.TabIndex = 18;
@@ -147,22 +161,22 @@ namespace iSpyApplication
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40.17595F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 59.82405F));
             this.tableLayoutPanel1.Controls.Add(this._pictureBox1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.linkLabel1, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this._lblVersion, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this._linkLabel2, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this._lblCopyright, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this._btnOk, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.linkLabel1, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 8);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 6;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.Size = new System.Drawing.Size(341, 129);
@@ -207,14 +221,9 @@ namespace iSpyApplication
             Close();
         }
 
-        private void Grouper1Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MainForm.StartBrowser(MainForm.Conf.Reseller.Split('|')[1]);
+            MainForm.StartBrowser(MainForm.PurchaseLink);
         }
 
         

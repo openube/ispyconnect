@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using iSpyApplication;
@@ -153,9 +154,8 @@ internal static class Program
 
             File.WriteAllText(AppDataPath + "external_command.txt", "");
 
-            //VLC integration
-
-            
+            // in case our https certificate ever expires or there is some other issue
+            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
             
             WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;

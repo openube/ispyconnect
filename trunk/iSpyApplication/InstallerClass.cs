@@ -7,8 +7,6 @@ using System.Reflection;
 
 namespace OffLine.Installer
 {
-    // Taken from:http://msdn2.microsoft.com/en-us/library/system.configuration.configurationmanager.aspx
-    // Set 'RunInstaller' attribute to true.
 
     [RunInstaller(true)]
     public class InstallerClass : System.Configuration.Install.Installer
@@ -16,15 +14,15 @@ namespace OffLine.Installer
         public InstallerClass()
         {
             // Attach the 'Committed' event.
-            Committed += MyInstaller_Committed;
+            Committed += MyInstallerCommitted;
             // Attach the 'Committing' event.
-            Committing += MyInstaller_Committing;
+            Committing += MyInstallerCommitting;
         }
 
 
 
         // Event handler for 'Committing' event.
-        private void MyInstaller_Committing(object sender, InstallEventArgs e)
+        private void MyInstallerCommitting(object sender, InstallEventArgs e)
         {
             //delete existing dlls
             //Console.WriteLine("");
@@ -50,16 +48,17 @@ namespace OffLine.Installer
         }
 
         // Event handler for 'Committed' event.
-        private void MyInstaller_Committed(object sender, InstallEventArgs e)
+        private void MyInstallerCommitted(object sender, InstallEventArgs e)
         {
             //string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             //Process.Start(appPath + @"\iSpy.exe","-firstrun");
 
             //copy across xml files
+            string appDataPath = "";
             try
             {
                 string appPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\";
-                string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\iSpy\";
+                appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + @"\iSpy\";
 
                 if (!Directory.Exists(appDataPath))
                 {
@@ -99,7 +98,29 @@ namespace OffLine.Installer
             {
                 //let it install anyway, it'll rebuild on start
             }
+
+            if (appDataPath != "")
+            {
+                string path = Context.Parameters["SourceDir"];
+
+                path = path.Trim('\\') + @"\";
+                try
+                {
+                    if (File.Exists(path + "custom.txt"))
+                    {
+                        TryCopy(path + @"custom.txt", appDataPath + @"custom.txt", true);
+                        TryCopy(path + @"logo.jpg", appDataPath + @"logo.jpg", true);
+                        TryCopy(path + @"logo.png", appDataPath + @"logo.png", true);
+                    }
+
+                }
+                catch
+                {
+
+                }
+            }
         }
+
 
         private static void CopyAll(DirectoryInfo source, DirectoryInfo target)
         {

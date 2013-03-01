@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using Declarations;
@@ -15,9 +14,9 @@ namespace iSpyApplication
 {
     public partial class Player : Form
     {
-        IMediaPlayerFactory m_factory;
-        IDiskPlayer m_player;
-        IMedia m_media;
+        readonly IMediaPlayerFactory _mFactory;
+        readonly IDiskPlayer _mPlayer;
+        IMedia _mMedia;
 
         private bool _needsSize = true;
         public int ObjectID = -1;
@@ -33,16 +32,16 @@ namespace iSpyApplication
         {
             InitializeComponent();
 
-            m_factory = new MediaPlayerFactory(false);
-            m_player = m_factory.CreatePlayer<IDiskPlayer>();
+            _mFactory = new MediaPlayerFactory();
+            _mPlayer = _mFactory.CreatePlayer<IDiskPlayer>();
 
-            m_player.Events.PlayerPositionChanged += new EventHandler<MediaPlayerPositionChanged>(Events_PlayerPositionChanged);
-            m_player.Events.TimeChanged += new EventHandler<MediaPlayerTimeChanged>(Events_TimeChanged);
-            m_player.Events.MediaEnded += new EventHandler(Events_MediaEnded);
-            m_player.Events.PlayerStopped += new EventHandler(Events_PlayerStopped);
+            _mPlayer.Events.PlayerPositionChanged += EventsPlayerPositionChanged;
+            _mPlayer.Events.TimeChanged += EventsTimeChanged;
+            _mPlayer.Events.MediaEnded += EventsMediaEnded;
+            _mPlayer.Events.PlayerStopped += EventsPlayerStopped;
 
-            m_player.WindowHandle = pnlMovie.Handle;
-            trackBar2.Value = m_player.Volume;
+            _mPlayer.WindowHandle = pnlMovie.Handle;
+            trackBar2.Value = _mPlayer.Volume;
             RenderResources();
 
         }
@@ -50,30 +49,44 @@ namespace iSpyApplication
         private void Player_Load(object sender, EventArgs e)
         {
             UISync.Init(this);
-            m_player.MouseInputEnabled = true;
+            _mPlayer.MouseInputEnabled = true;
+            vNav.Seek += vNav_Seek;
+        }
+
+        void vNav_Seek(object sender, float percent)
+        {
+            if (!_mPlayer.IsPlaying)
+            {
+                if (_mPlayer.PlayerWillPlay)
+                    _mPlayer.Play();
+                else
+                    Play(_filename);
+            }
+
+            _mPlayer.Position = percent / 100;
         }
 
         private string _filename = "";
 
-        private delegate void PlayDelegate(string Filename);
-        public void Play(string Filename)
+        private delegate void PlayDelegate(string filename);
+        public void Play(string filename)
         {
             if (InvokeRequired)
-                Invoke(new PlayDelegate(Play), Filename);
+                Invoke(new PlayDelegate(Play), filename);
             else
             {
-                _filename = Filename;
-                m_media = m_factory.CreateMedia<IMedia>(Filename);
-                m_media.Events.DurationChanged += new EventHandler<MediaDurationChange>(Events_DurationChanged);
-                m_media.Events.StateChanged += new EventHandler<MediaStateChange>(Events_StateChanged);
-                m_media.Events.ParsedChanged += new EventHandler<MediaParseChange>(Events_ParsedChanged);
-                m_player.Open(m_media);
-                m_media.Parse(true);
+                _needsSize = _filename != filename;
+                _filename = filename;
+                _mMedia = _mFactory.CreateMedia<IMedia>(filename);
+                _mMedia.Events.DurationChanged += EventsDurationChanged;
+                _mMedia.Events.StateChanged += EventsStateChanged;
+                _mMedia.Events.ParsedChanged += Events_ParsedChanged;
+                _mPlayer.Open(_mMedia);
+                _mMedia.Parse(true);
 
-                m_player.Play();
-                _needsSize = true;
+                _mPlayer.Play();
                 
-                string[] parts = Filename.Split('\\');
+                string[] parts = filename.Split('\\');
                 string fn = parts[parts.Length - 1];
                 FilesFile ff =
                     ((MainForm) Owner).GetCameraWindow(ObjectID).FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
@@ -81,39 +94,38 @@ namespace iSpyApplication
                     vNav.Render(ff);
             }
         }
-        void Events_PlayerStopped(object sender, EventArgs e)
+        void EventsPlayerStopped(object sender, EventArgs e)
         {
-            UISync.Execute(() => InitControls());
+            UISync.Execute(InitControls);
         }
 
-        void Events_MediaEnded(object sender, EventArgs e)
+        void EventsMediaEnded(object sender, EventArgs e)
         {
-            UISync.Execute(() => InitControls());
+            UISync.Execute(InitControls);
         }
 
         private void InitControls()
         {
-            trackBar1.Value = 0;
             lblTime.Text = "00:00:00";
             lblDuration.Text = "00:00:00";
         }
 
-        void Events_TimeChanged(object sender, MediaPlayerTimeChanged e)
+        void EventsTimeChanged(object sender, MediaPlayerTimeChanged e)
         {
             UISync.Execute(() => lblTime.Text = TimeSpan.FromMilliseconds(e.NewTime).ToString().Substring(0, 8));
         }
 
-        void Events_PlayerPositionChanged(object sender, MediaPlayerPositionChanged e)
+        void EventsPlayerPositionChanged(object sender, MediaPlayerPositionChanged e)
         {
             var newpos = (int) (e.NewPosition*100);
             if (newpos<0)
                 newpos = 0;
             if (newpos>100)
                 newpos = 100;
-            UISync.Execute(() => trackBar1.Value = newpos);
+            UISync.Execute(() => vNav.Value = newpos);
             if (_needsSize)
             {
-                Size sz = m_player.GetVideoSize(0);
+                Size sz = _mPlayer.GetVideoSize(0);
                 if (sz.Width > 0)
                 {
                     if (sz.Width < 320)
@@ -121,17 +133,17 @@ namespace iSpyApplication
                     if (sz.Height < 240)
                         sz.Height = 240;
 
-                    if (this.Width != sz.Width)
-                        UISync.Execute(() => this.Width = sz.Width);
-                    if (this.Height != sz.Height + tableLayoutPanel1.Height)
-                        UISync.Execute(() => this.Height = sz.Height + tableLayoutPanel1.Height);
+                    if (Width != sz.Width)
+                        UISync.Execute(() => Width = sz.Width);
+                    if (Height != sz.Height + tableLayoutPanel1.Height)
+                        UISync.Execute(() => Height = sz.Height + tableLayoutPanel1.Height);
                     _needsSize = false;
                 }
             }
         }
 
 
-        void Events_StateChanged(object sender, MediaStateChange e)
+        void EventsStateChanged(object sender, MediaStateChange e)
         {
             UISync.Execute(() => label1.Text = e.NewState.ToString());
             switch (e.NewState)
@@ -145,7 +157,7 @@ namespace iSpyApplication
             }
         }
 
-        void Events_DurationChanged(object sender, MediaDurationChange e)
+        void EventsDurationChanged(object sender, MediaDurationChange e)
         {
             UISync.Execute(() => lblDuration.Text = TimeSpan.FromMilliseconds(e.NewDuration).ToString().Substring(0, 8));
         }
@@ -158,29 +170,24 @@ namespace iSpyApplication
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            m_player.Volume = trackBar2.Value;
-        }
-
-        private void trackBar1_Scroll(object sender, EventArgs e)
-        {
-            m_player.Position = (float)trackBar1.Value / 100;
+            _mPlayer.Volume = trackBar2.Value;
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            m_player.Stop();
+            _mPlayer.Stop();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (m_player.IsPlaying)
+            if (_mPlayer.IsPlaying)
             {
-                m_player.Pause();
+                _mPlayer.Pause();
             }
             else
             {
-                if (m_player.PlayerWillPlay)
-                    m_player.Play();
+                if (_mPlayer.PlayerWillPlay)
+                    _mPlayer.Play();
                 else
                     Play(_filename);
             }
@@ -204,12 +211,12 @@ namespace iSpyApplication
 
         private void Player_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try {m_player.Stop();} catch
+            try {_mPlayer.Stop();} catch
             {
             }
-            m_factory.Dispose();
-            m_media.Dispose();
-            m_player.Dispose();
+            _mFactory.Dispose();
+            _mMedia.Dispose();
+            _mPlayer.Dispose();
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -220,7 +227,7 @@ namespace iSpyApplication
 
         private void tbSpeed_Scroll(object sender, EventArgs e)
         {
-            m_player.PlaybackRate = ((float) tbSpeed.Value)/10;
+            _mPlayer.PlaybackRate = ((float) tbSpeed.Value)/10;
         }
     }
 }

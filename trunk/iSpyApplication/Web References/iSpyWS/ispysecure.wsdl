@@ -59,6 +59,29 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="Connect2">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="identifier" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="tryLoopBack" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="version" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="computerName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="bIPv4" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="affiliateID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Connect2Response">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Connect2Result" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="Authorise">
         <s:complexType>
           <s:sequence>
@@ -363,6 +386,12 @@
   <wsdl:message name="ConnectSoapOut">
     <wsdl:part name="parameters" element="tns:ConnectResponse" />
   </wsdl:message>
+  <wsdl:message name="Connect2SoapIn">
+    <wsdl:part name="parameters" element="tns:Connect2" />
+  </wsdl:message>
+  <wsdl:message name="Connect2SoapOut">
+    <wsdl:part name="parameters" element="tns:Connect2Response" />
+  </wsdl:message>
   <wsdl:message name="AuthoriseSoapIn">
     <wsdl:part name="parameters" element="tns:Authorise" />
   </wsdl:message>
@@ -478,6 +507,10 @@
       <wsdl:input message="tns:ConnectSoapIn" />
       <wsdl:output message="tns:ConnectSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="Connect2">
+      <wsdl:input message="tns:Connect2SoapIn" />
+      <wsdl:output message="tns:Connect2SoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="Authorise">
       <wsdl:input message="tns:AuthoriseSoapIn" />
       <wsdl:output message="tns:AuthoriseSoapOut" />
@@ -569,6 +602,15 @@
     </wsdl:operation>
     <wsdl:operation name="Connect">
       <soap:operation soapAction="http://ispyconnect.com/Connect" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Connect2">
+      <soap:operation soapAction="http://ispyconnect.com/Connect2" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -752,6 +794,15 @@
     </wsdl:operation>
     <wsdl:operation name="Connect">
       <soap12:operation soapAction="http://ispyconnect.com/Connect" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Connect2">
+      <soap12:operation soapAction="http://ispyconnect.com/Connect2" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

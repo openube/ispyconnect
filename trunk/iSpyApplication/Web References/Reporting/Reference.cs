@@ -35,6 +35,8 @@ namespace iSpyApplication.Reporting {
         
         private System.Threading.SendOrPostCallback AddCameraOperationCompleted;
         
+        private System.Threading.SendOrPostCallback AddCamera2OperationCompleted;
+        
         private System.Threading.SendOrPostCallback SendFeedbackOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
@@ -83,6 +85,9 @@ namespace iSpyApplication.Reporting {
         
         /// <remarks/>
         public event AddCameraCompletedEventHandler AddCameraCompleted;
+        
+        /// <remarks/>
+        public event AddCamera2CompletedEventHandler AddCamera2Completed;
         
         /// <remarks/>
         public event SendFeedbackCompletedEventHandler SendFeedbackCompleted;
@@ -198,6 +203,48 @@ namespace iSpyApplication.Reporting {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/AddCamera2", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public void AddCamera2(string make, string model, string prefix, string source, string url, string cookies, string flags, int port) {
+            this.Invoke("AddCamera2", new object[] {
+                        make,
+                        model,
+                        prefix,
+                        source,
+                        url,
+                        cookies,
+                        flags,
+                        port});
+        }
+        
+        /// <remarks/>
+        public void AddCamera2Async(string make, string model, string prefix, string source, string url, string cookies, string flags, int port) {
+            this.AddCamera2Async(make, model, prefix, source, url, cookies, flags, port, null);
+        }
+        
+        /// <remarks/>
+        public void AddCamera2Async(string make, string model, string prefix, string source, string url, string cookies, string flags, int port, object userState) {
+            if ((this.AddCamera2OperationCompleted == null)) {
+                this.AddCamera2OperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddCamera2OperationCompleted);
+            }
+            this.InvokeAsync("AddCamera2", new object[] {
+                        make,
+                        model,
+                        prefix,
+                        source,
+                        url,
+                        cookies,
+                        flags,
+                        port}, this.AddCamera2OperationCompleted, userState);
+        }
+        
+        private void OnAddCamera2OperationCompleted(object arg) {
+            if ((this.AddCamera2Completed != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddCamera2Completed(this, new System.ComponentModel.AsyncCompletedEventArgs(invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://tempuri.org/SendFeedback", RequestNamespace="http://tempuri.org/", ResponseNamespace="http://tempuri.org/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public void SendFeedback(string Feedback, string FromEmail) {
             this.Invoke("SendFeedback", new object[] {
@@ -257,6 +304,10 @@ namespace iSpyApplication.Reporting {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
     public delegate void AddCameraCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]
+    public delegate void AddCamera2CompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.17929")]

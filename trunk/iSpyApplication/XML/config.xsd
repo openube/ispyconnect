@@ -103,6 +103,7 @@
                 <xs:element name="IPv6Disabled" type="xs:boolean" default="false"/>
                 <xs:element name="DeleteToRecycleBin" type="xs:boolean" default="false"/>
                 <xs:element name="SpeechRecognition" type="xs:boolean" default="false"/>
+                <xs:element name="DefaultManufacturer" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

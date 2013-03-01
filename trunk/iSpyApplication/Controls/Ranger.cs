@@ -10,7 +10,7 @@ namespace iSpyApplication.Controls
         public double Maximum = 100;
         public double Minimum = 0;
 
-        private double _valueMin = 0, _valueMax = 100;
+        private double _valueMin, _valueMax = 100;
         public double ValueMin
         {
             get { return _valueMin; }
@@ -224,7 +224,7 @@ namespace iSpyApplication.Controls
             double d;
             if (double.TryParse(txtVal1.Text, out d))
             {
-                if (d != ValueMin)
+                if (Math.Abs(d - ValueMin) > double.Epsilon)
                 {
                     if (d <= ValueMax && d >= Minimum)
                     {
@@ -240,7 +240,7 @@ namespace iSpyApplication.Controls
             double d;
             if (double.TryParse(txtVal2.Text, out d))
             {
-                if (d!=ValueMax)
+                if (Math.Abs(d - ValueMax) > double.Epsilon)
                 {
                     if (d >= ValueMin && d<=Maximum)
                     {
