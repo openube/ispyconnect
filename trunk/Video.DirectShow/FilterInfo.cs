@@ -10,7 +10,7 @@ namespace AForge.Video.DirectShow
     using System;
     using System.Runtime.InteropServices;
     using System.Runtime.InteropServices.ComTypes;
-    using AForge.Video.DirectShow.Internals;
+    using Internals;
 
     /// <summary>
     /// DirectShow filter information.
@@ -63,12 +63,12 @@ namespace AForge.Video.DirectShow
         /// 
         public int CompareTo( object value )
         {
-            FilterInfo f = (FilterInfo) value;
+            var f = (FilterInfo) value;
 
             if ( f == null )
                 return 1;
 
-            return ( this.Name.CompareTo( f.Name ) );
+            return ( String.Compare(Name, f.Name, StringComparison.Ordinal) );
         }
 
         /// <summary>
@@ -85,11 +85,10 @@ namespace AForge.Video.DirectShow
         {
             object filterObject = null;
             object comObj = null;
-            ICreateDevEnum enumDev = null;
+            ICreateDevEnum enumDev;
             IEnumMoniker enumMon = null;
-            IMoniker[] devMon = new IMoniker[1];
-            int hr;
-            
+            var devMon = new IMoniker[1];
+
             try
             {
                 // Get the system device enumerator
@@ -104,7 +103,7 @@ namespace AForge.Video.DirectShow
                 // Create an enumerator to find filters of specified category
 
                 Guid cat = FilterCategory.VideoInputDevice;
-                hr = enumDev.CreateClassEnumerator(ref cat, out enumMon, 0);
+                int hr = enumDev.CreateClassEnumerator(ref cat, out enumMon, 0);
                 if (hr != 0)
                     throw new ApplicationException("No devices of the category");
 
@@ -118,11 +117,11 @@ namespace AForge.Video.DirectShow
                         break;
 
                     // Add the filter
-                    FilterInfo filter = new FilterInfo(devMon[0]);
-                    if (filter.MonikerString==filterMoniker)
+                    var filter = new FilterInfo(devMon[0]);
+                    if (filter.MonikerString == filterMoniker)
                     {
                         Guid filterId = typeof(IBaseFilter).GUID;
-                        devMon[0].BindToObject( null, null, ref filterId, out filterObject );
+                        devMon[0].BindToObject(null, null, ref filterId, out filterObject);
                         break;
                     }
 
@@ -155,6 +154,7 @@ namespace AForge.Video.DirectShow
                 }
             }
             return filterObject;
+
             //// filter's object
             //object filterObject = null;
             //// bind context and moniker objects
@@ -196,7 +196,7 @@ namespace AForge.Video.DirectShow
         private string GetName( IMoniker moniker )
         {
             Object bagObj = null;
-            IPropertyBag bag = null;
+            IPropertyBag bag;
 
             try
             {
@@ -212,8 +212,8 @@ namespace AForge.Video.DirectShow
                     Marshal.ThrowExceptionForHR( hr );
 
                 // get it as string
-                string ret = (string) val;
-                if ( ( ret == null ) || ( ret.Length < 1 ) )
+                var ret = (string) val;
+                if ( string.IsNullOrEmpty(ret) )
                     throw new ApplicationException( );
 
                 return ret;
@@ -239,8 +239,7 @@ namespace AForge.Video.DirectShow
         //
         private string GetName( string monikerString )
         {
-            IBindCtx bindCtx = null;
-            IMoniker moniker = null;
+            IBindCtx bindCtx;
             String name = "";
             int n = 0;
 
@@ -248,6 +247,7 @@ namespace AForge.Video.DirectShow
             if ( Win32.CreateBindCtx( 0, out bindCtx ) == 0 )
             {
                 // convert moniker`s string to a moniker
+                IMoniker moniker;
                 if ( Win32.MkParseDisplayName( bindCtx, monikerString, ref n, out moniker ) == 0 )
                 {
                     // get device name
