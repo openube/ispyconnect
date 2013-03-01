@@ -77,16 +77,20 @@ static class Program
                 return;
             }
 
-            var w = Process.GetProcessesByName("ispymonitor");
-            if (w.Length == 0)
+            if (iSpyServer.iSpyServer.Default.RunMonitor)
             {
-                try
+                var w = Process.GetProcessesByName("ispymonitor");
+                if (w.Length == 0)
                 {
-                    var si = new ProcessStartInfo(AppPath + "/ispymonitor.exe", "ispyserver");
-                    Process.Start(si);
+                    try
+                    {
+                        var si = new ProcessStartInfo(AppPath + "/ispymonitor.exe", "ispyserver");
+                        Process.Start(si);
+                    }
+                    catch
+                    {
+                    }
                 }
-                catch
-                { }
             }
 
             File.WriteAllText(AppPath + "external_command.txt", "");

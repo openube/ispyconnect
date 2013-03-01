@@ -596,7 +596,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Video.DirectShow\Video.DirectShow.csproj">
+    <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
       <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
       <Name>Video.DirectShow</Name>
     </ProjectReference>

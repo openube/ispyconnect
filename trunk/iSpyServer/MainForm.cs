@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -16,7 +15,6 @@ using System.Xml.Serialization;
 using AForge.Video.DirectShow;
 using C2BP;
 using iSpyServer.iSpyWS;
-using iSpyServer.Properties;
 using Microsoft.Win32;
 using Renderers;
 using PictureBox = AForge.Controls.PictureBox;

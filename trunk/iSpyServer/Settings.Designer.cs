@@ -72,6 +72,7 @@ namespace iSpyServer
             this.cdColorChooser = new System.Windows.Forms.ColorDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkMonitor = new System.Windows.Forms.CheckBox();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtLANPort)).BeginInit();
@@ -181,6 +182,7 @@ namespace iSpyServer
             // 
             // tabPage6
             // 
+            this.tabPage6.Controls.Add(this.chkMonitor);
             this.tabPage6.Controls.Add(this.label5);
             this.tabPage6.Controls.Add(this.lbIPv4Address);
             this.tabPage6.Controls.Add(this.txtLANPort);
@@ -536,6 +538,16 @@ namespace iSpyServer
             this.panel1.Size = new System.Drawing.Size(579, 42);
             this.panel1.TabIndex = 40;
             // 
+            // chkMonitor
+            // 
+            this.chkMonitor.AutoSize = true;
+            this.chkMonitor.Location = new System.Drawing.Point(19, 234);
+            this.chkMonitor.Name = "chkMonitor";
+            this.chkMonitor.Size = new System.Drawing.Size(107, 17);
+            this.chkMonitor.TabIndex = 59;
+            this.chkMonitor.Text = "Run iSpy Monitor";
+            this.chkMonitor.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -612,5 +624,6 @@ namespace iSpyServer
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.ComboBox ddlAudioOut;
+        private System.Windows.Forms.CheckBox chkMonitor;
     }
 }

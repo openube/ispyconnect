@@ -100,15 +100,33 @@ namespace iSpyServer
                 {
                 }
             }
+
+            iSpyServer.Default.RunMonitor = chkMonitor.Checked;
+            if (iSpyServer.Default.RunMonitor)
+            {
+                var w = Process.GetProcessesByName("ispymonitor");
+                if (w.Length == 0)
+                {
+                    try
+                    {
+                        var si = new ProcessStartInfo(Program.AppPath + "/ispymonitor.exe", "ispyserver");
+                        Process.Start(si);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+
             DialogResult = DialogResult.OK;
 
-            bool _needsrestart = false;
-            if (iSpyServer.Default.LANPort != Convert.ToInt32(txtLANPort.Value))
-                _needsrestart = true;
+            bool needsrestart = iSpyServer.Default.LANPort != Convert.ToInt32(txtLANPort.Value);
 
             iSpyServer.Default.LANPort = Convert.ToInt32(txtLANPort.Value);
-            if (_needsrestart)
+            if (needsrestart)
                 MainForm.StopAndStartServer();
+
             Close();
         }
 
@@ -198,6 +216,7 @@ namespace iSpyServer
                     ddlAudioOut.Enabled = false;
                 }
             }
+            chkMonitor.Checked = iSpyServer.Default.RunMonitor;
         }
 
         private void RenderResources() {
