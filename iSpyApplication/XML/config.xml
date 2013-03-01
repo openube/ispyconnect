@@ -99,6 +99,6 @@
   <LockLayout>false</LockLayout>
   <MediaPanelSize></MediaPanelSize>
   <WebServer>http://www.ispyconnect.com</WebServer>
-  <IPv6_Support_Disabled>false</IPv6_Support_Disabled>
+  <IPv6_Support_Disabled>true</IPv6_Support_Disabled>
   <SpeechRecognition>false</SpeechRecognition>
 </configuration>

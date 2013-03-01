@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -10,19 +11,22 @@ using iSpyApplication.Audio.streams;
 using Microsoft.Kinect;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using iSpyApplication.Kinect;
 
 namespace iSpyApplication.Video
 {
     public class KinectStream : IVideoSource, IAudioSource
     {
         private readonly Pen _inferredBonePen = new Pen(Brushes.Gray, 1);
-        private readonly Pen _trackedBonePen = new Pen(Brushes.Green, 6);
+        private readonly Pen _trackedBonePen = new Pen(Brushes.Green, 2);
         private readonly Brush _trackedJointBrush = new SolidBrush(Color.FromArgb(255, 68, 192, 68));
         private readonly Brush _inferredJointBrush = Brushes.Yellow;
+        internal static Pen TripWirePen = new Pen(Color.DarkOrange);
         private Skeleton[] _skeletons = new Skeleton[0];
         private const int JointThickness = 3;
         private KinectSensor _sensor;
-        private readonly bool _skeleton;
+        private readonly bool _skeleton, _tripwires;
+        private DateTime _lastWarnedTripWire = DateTime.MinValue;
         //private readonly bool _bound;
         private ManualResetEvent _stopEvent;
         private DateTime _lastFrameTimeStamp = DateTime.Now;
@@ -46,7 +50,6 @@ namespace iSpyApplication.Video
         public int BytePacket = 400;
 
         private Stream _audioStream;
-        private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
         private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
@@ -96,14 +99,7 @@ namespace iSpyApplication.Video
             }
         }
 
-        public WaveFormat RecordingFormat
-        {
-            get { return _recordingFormat; }
-            set
-            {
-                _recordingFormat = value;
-            }
-        }
+        public WaveFormat RecordingFormat { get; set; }
 
         #endregion
 
@@ -119,10 +115,11 @@ namespace iSpyApplication.Video
             
         }
 
-        public KinectStream(string uniqueKinectId, bool skeleton)
+        public KinectStream(string uniqueKinectId, bool skeleton, bool tripwires)
         {
             _uniqueKinectId = uniqueKinectId;
             _skeleton = skeleton;
+            _tripwires = tripwires;
             //_depth = depth;
 
         }
@@ -371,14 +368,25 @@ namespace iSpyApplication.Video
 
                 using (ColorImageFrame imageFrame = e.OpenColorImageFrame())
                 {
+                    
                     Bitmap bmap = ImageToBitmap(imageFrame);
                     if (bmap != null)
                     {
-                        lock (_skeletons)
+                        using (Graphics g = Graphics.FromImage(bmap))
                         {
-                            foreach (Skeleton skel in _skeletons)
+                            lock (_skeletons)
                             {
-                                DrawBonesAndJoints(skel, Graphics.FromImage(bmap));
+                                foreach (Skeleton skel in _skeletons)
+                                {
+                                    DrawBonesAndJoints(skel, g);
+                                }
+                            }
+                            if (_tripwires)
+                            {
+                                foreach (var dl in TripWires)
+                                {
+                                    g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
+                                }
                             }
                         }
                         // notify client
@@ -423,23 +431,26 @@ namespace iSpyApplication.Video
             DrawBone(skeleton, g, JointType.AnkleRight, JointType.FootRight);
 
             // Render Joints
-            foreach (Joint joint in skeleton.Joints)
+            if (_skeleton)
             {
-                Brush drawBrush = null;
+                foreach (Joint joint in skeleton.Joints)
+                {
+                    Brush drawBrush = null;
 
-                if (joint.TrackingState == JointTrackingState.Tracked)
-                {
-                    drawBrush = _trackedJointBrush;
-                }
-                else if (joint.TrackingState == JointTrackingState.Inferred)
-                {
-                    drawBrush = _inferredJointBrush;
-                }
+                    if (joint.TrackingState == JointTrackingState.Tracked)
+                    {
+                        drawBrush = _trackedJointBrush;
+                    }
+                    else if (joint.TrackingState == JointTrackingState.Inferred)
+                    {
+                        drawBrush = _inferredJointBrush;
+                    }
 
-                if (drawBrush != null)
-                {
-                    var p = SkeletonPointToScreen(joint.Position);
-                    g.FillEllipse(drawBrush, p.X, p.Y, JointThickness, JointThickness);
+                    if (drawBrush != null)
+                    {
+                        var p = SkeletonPointToScreen(joint.Position);
+                        g.FillEllipse(drawBrush, p.X, p.Y, JointThickness, JointThickness);
+                    }
                 }
             }
         }
@@ -470,8 +481,68 @@ namespace iSpyApplication.Video
                 drawPen = _trackedBonePen;
             }
 
-            g.DrawLine(drawPen, SkeletonPointToScreen(joint0.Position), SkeletonPointToScreen(joint1.Position));
+            Point p1 = SkeletonPointToScreen(joint0.Position);
+            Point p2 = SkeletonPointToScreen(joint1.Position);
+
+            if (_skeleton)
+            {
+                g.DrawLine(drawPen, p1, p2);
+            }
+
+
+            if (_tripwires && TripWire != null)
+            {
+                for (int i = 0; i < TripWires.Count; i++)
+                {
+                    var dl = TripWires[i];
+                    if (joint1.Position.Z * 1000 >= dl.DepthMin && joint1.Position.Z * 1000 <= dl.DepthMax)
+                    {
+                        if (ProcessIntersection(p1, p2, TripWires[i]))
+                        {
+                            if ((DateTime.Now - _lastWarnedTripWire).TotalSeconds > 5)
+                            {
+                                TripWire(this, EventArgs.Empty);
+                                _lastWarnedTripWire = DateTime.Now;
+                            }
+                            break;
+
+                        }
+                    }
+                }
+            }
         }
+
+        public void InitTripWires(String cfg)
+        {
+            TripWires.Clear();
+            if (!String.IsNullOrEmpty(cfg))
+            {
+                try
+                {
+                    var tw = cfg.Trim().Split(';');
+                    for (int i = 0; i < tw.Length; i++)
+                    {
+                        var twe = tw[i].Split(',');
+                        if (!String.IsNullOrEmpty(twe[0]))
+                        {
+                            var sp = new Point(Convert.ToInt32(twe[0]), Convert.ToInt32(twe[1]));
+                            var ep = new Point(Convert.ToInt32(twe[2]), Convert.ToInt32(twe[3]));
+                            int dmin = Convert.ToInt32(twe[4]);
+                            int dmax = Convert.ToInt32(twe[5]);
+                            TripWires.Add(new DepthLine(sp, ep, dmin, dmax));
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    TripWires.Clear();
+                }
+            }
+        }
+
+        public event TripWireEventHandler TripWire;
+        public delegate void TripWireEventHandler(object sender, EventArgs e);
+        public List<DepthLine> TripWires = new List<DepthLine>();
 
         public void SignalToStop()
         {
@@ -517,11 +588,8 @@ namespace iSpyApplication.Video
         {
             // Convert point to depth space.  
             // We are not using depth directly, but we do want the points in our 640x480 output resolution.
-            
-            DepthImagePoint depthPoint = _sensor.MapSkeletonPointToDepth(
-                skelpoint,
-                DepthImageFormat.Resolution640x480Fps30);
 
+            DepthImagePoint depthPoint = _sensor.CoordinateMapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
             return new Point(depthPoint.X, depthPoint.Y);
         }
 
@@ -560,6 +628,42 @@ namespace iSpyApplication.Video
                 MainForm.LogExceptionToFile(ex);
             }
             return null;
+        }
+
+        private static bool ProcessIntersection(Point a, Point b, DepthLine dl)
+        {
+            var c = dl.StartPoint;
+            var d = dl.EndPoint;
+
+            float ua = (d.X - c.X) * (a.Y - c.Y) - (d.Y - c.Y) * (a.X - c.X);
+            float ub = (b.X - a.X) * (a.Y - c.Y) - (b.Y - a.Y) * (a.X - c.X);
+            float denominator = (d.Y - c.Y) * (b.X - a.X) - (d.X - c.X) * (b.Y - a.Y);
+
+            //bool intersection, coincident;
+
+            if (Math.Abs(denominator) <= 0.00001f)
+            {
+                if (Math.Abs(ua) <= 0.00001f && Math.Abs(ub) <= 0.00001f)
+                {
+                    return true;
+                    //intersection = coincident = true;
+                    //intersectionPoint = (A + B) / 2;
+                }
+            }
+            else
+            {
+                ua /= denominator;
+                ub /= denominator;
+
+                if (ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1)
+                {
+                    return true;
+                    //intersection = true;
+                    //intersectionPoint.X = A.X + ua * (B.X - A.X);
+                    //intersectionPoint.Y = A.Y + ua * (B.Y - A.Y);
+                }
+            }
+            return false;
         }
 
         //Bitmap ImageToBitmap(

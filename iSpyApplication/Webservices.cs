@@ -1,6 +1,6 @@
 using System;
+using System.Globalization;
 using System.Net;
-using System.Net.Sockets;
 using System.Windows.Forms;
 using Moah;
 
@@ -12,6 +12,7 @@ namespace iSpyApplication
         public string EmailAddress = "";
         public string MobileNumber = "";
         public bool SupportsUpnp;
+        private bool _loaded;
 
 
         public Webservices()
@@ -63,7 +64,7 @@ namespace iSpyApplication
         {
             bool bIPv6 = tcIPMode.SelectedIndex == 1;
             int port, localPort;
-            string error = "";
+            string error;
             
             if (!SetupNetwork(out port, out localPort, out error))
             {
@@ -151,7 +152,7 @@ namespace iSpyApplication
                                 {
                                     switch (
                                         MessageBox.Show(
-                                            LocRm.GetString("ErrorLoopback").Replace("[PORT]", port.ToString()),
+                                            LocRm.GetString("ErrorLoopback").Replace("[PORT]", port.ToString(CultureInfo.InvariantCulture)),
                                             LocRm.GetString("Error"), MessageBoxButtons.YesNoCancel))
                                     {
                                         case DialogResult.Yes:
@@ -171,7 +172,7 @@ namespace iSpyApplication
                                 {
                                     switch (
                                         MessageBox.Show(
-                                            LocRm.GetString("ErrorLoopbackIPv6").Replace("[PORT]", localPort.ToString()),
+                                            LocRm.GetString("ErrorLoopbackIPv6").Replace("[PORT]", localPort.ToString(CultureInfo.InvariantCulture)),
                                             LocRm.GetString("Error"), MessageBoxButtons.YesNoCancel))
                                     {
                                         case DialogResult.Yes:
@@ -203,7 +204,7 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        if (result.Length>0 && result[0].ToLower().IndexOf("login") == -1)
+                        if (result.Length>0 && result[0].ToLower().IndexOf("login", StringComparison.Ordinal) == -1)
                         {
                             MessageBox.Show(result[0], LocRm.GetString("Error"));
                         }
@@ -241,9 +242,10 @@ namespace iSpyApplication
             txtWANPort.Value = MainForm.Conf.ServerPort;
             txtUsername.Text = MainForm.Conf.WSUsername;
             txtPassword.Text = MainForm.Conf.WSPassword;
-            txtLANPort.Text = MainForm.Conf.LANPort.ToString();
-            txtPort.Text = MainForm.Conf.LANPort.ToString();
+            txtLANPort.Text = MainForm.Conf.LANPort.ToString(CultureInfo.InvariantCulture);
+            txtPort.Text = MainForm.Conf.LANPort.ToString(CultureInfo.InvariantCulture);
             chkReroute.Checked = MainForm.Conf.DHCPReroute;
+            chkEnableIPv6.Checked = !MainForm.Conf.IPv6Disabled;
 
             chkuPNP.Checked = MainForm.Conf.UseUPNP;
             if (!chkuPNP.Checked)
@@ -261,17 +263,17 @@ namespace iSpyApplication
             if (lbIPv4Address.Items.Count > 0 && lbIPv4Address.SelectedIndex == -1)
                 lbIPv4Address.SelectedIndex = 0;
             
-            int _i = 0;
-            foreach (IPAddress _ipadd in MainForm.AddressListIPv6)
+            int i = 0;
+            foreach (IPAddress ipadd in MainForm.AddressListIPv6)
             {
-                lbIPv6Address.Items.Add(_ipadd.ToString());
-                if (_ipadd.ToString() == MainForm.AddressIPv6)
-                    lbIPv6Address.SelectedIndex = _i;
+                lbIPv6Address.Items.Add(ipadd.ToString());
+                if (ipadd.ToString() == MainForm.AddressIPv6)
+                    lbIPv6Address.SelectedIndex = i;
 
-                _i++;
+                i++;
             }
 
-            if (_i==0)
+            if (i==0)
                 tcIPMode.TabPages.RemoveAt(1);
 
 
@@ -293,6 +295,7 @@ namespace iSpyApplication
                 MainForm.Conf.IPMode = "IPv4";
             }
             EnableNext();
+            _loaded = true;
         }
 
         private void RenderResources()
@@ -345,10 +348,6 @@ namespace iSpyApplication
         {
         }
 
-        private void ddlPort_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
         private void label5_Click(object sender, EventArgs e)
         {
         }
@@ -362,10 +361,6 @@ namespace iSpyApplication
         {
             MainForm.Conf.UseUPNP = chkuPNP.Checked;
             chkReroute.Checked = chkReroute.Enabled = chkuPNP.Checked;
-        }
-
-        private void lblIPv6_Click(object sender, EventArgs e)
-        {
         }
 
         private void lbIPv4Address_SelectedIndexChanged(object sender, EventArgs e)
@@ -415,6 +410,19 @@ namespace iSpyApplication
         private void button1_Click(object sender, EventArgs e)
         {
             ShowTroubleShooter();
+        }
+
+        private void chkEnableIPv6_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loaded)
+            {
+                if (chkEnableIPv6.Checked)
+                {
+                    MessageBox.Show(this,
+                                    "IPv6 support can cause problems accessing this form on some systems. You can disable IPv6 support in settings. Please re-open this form to see IPv6 options.", "Warning");
+                }
+                MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;
+            }
         }
 
     }

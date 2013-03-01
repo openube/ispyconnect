@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
@@ -81,12 +80,12 @@ namespace iSpyApplication
                 MasterFileList.RemoveAll(p => p.Filename == fn);
 
                 //preview
-                string dir = pb.FileName.Substring(0, pb.FileName.LastIndexOf("\\"));
+                string dir = pb.FileName.Substring(0, pb.FileName.LastIndexOf("\\", StringComparison.Ordinal));
 
-                var lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".")) + "_large.jpg";
+                var lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + "_large.jpg";
                 FileOperations.Delete(lthumb);
 
-                lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".")) + ".jpg";
+                lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
                 FileOperations.Delete(lthumb);
             }
             catch (Exception ex)
@@ -167,7 +166,7 @@ namespace iSpyApplication
                                    "\\" + fp.Filename;
                     FilePreview fp2 = fp;
                     var thumb = Conf.MediaDirectory + "video\\" + Cameras.Single(p => p.id == fp2.ObjectId).directory +
-                                "\\thumbs\\" + fp.Filename.Substring(0, fp.Filename.LastIndexOf(".")) + ".jpg";
+                                "\\thumbs\\" + fp.Filename.Substring(0, fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
 
                     AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), false);
                 }

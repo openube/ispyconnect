@@ -63,7 +63,7 @@ namespace iSpyApplication.Audio
         public override int Read(byte[] buffer, int offset, int count)
         {
             int i = 0;
-            while (i < count && _writeEvent != null && !MainForm.reallyclose)
+            while (i < count && _writeEvent != null && !MainForm.Reallyclose)
             {
                 if (!_reset && _readposition >= _writeposition)
                 {

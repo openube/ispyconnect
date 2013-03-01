@@ -61,13 +61,13 @@ namespace iSpyApplication.Controls
                 _controls.Add(null);
 
             _tmrRefresh = new Timer(200);
-            _tmrRefresh.Elapsed += new System.Timers.ElapsedEventHandler(tmrRefresh_Elapsed);
+            _tmrRefresh.Elapsed += tmrRefresh_Elapsed;
             _tmrRefresh.Start();
         }
 
         void tmrRefresh_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            this.Invalidate();
+            Invalidate();
 
         }
 
@@ -194,7 +194,7 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             Select();
 
-            if (e.Button==System.Windows.Forms.MouseButtons.Left)
+            if (e.Button==MouseButtons.Left)
             {
                 var row = -1;
                 var col = -1;
@@ -234,14 +234,7 @@ namespace iSpyApplication.Controls
                     }
                     if (gvc.ShowDialog(this)==DialogResult.OK)
                     {
-                        if (gvc.SelectedIDs.Count>0)
-                        {
-                            cgv = new GridViewConfig(gvc.SelectedIDs,gvc.Delay);
-                        }
-                        else
-                        {
-                            cgv = null;
-                        }
+                        cgv = gvc.SelectedIDs.Count>0 ? new GridViewConfig(gvc.SelectedIDs,gvc.Delay) : null;
                         _controls[io] = cgv;
                         Invalidate();
                     }
@@ -270,10 +263,10 @@ namespace iSpyApplication.Controls
 
         private class GridViewConfig
         {
-            public int Delay;
-            public List<int> CameraIDs;
+            public readonly int Delay;
+            public readonly List<int> CameraIDs;
             public DateTime LastCycle;
-            public int CurrentIndex = 0;
+            public int CurrentIndex;
             public GridViewConfig(List<int> cameraIDs, int delay)
             {
                 CameraIDs = cameraIDs;

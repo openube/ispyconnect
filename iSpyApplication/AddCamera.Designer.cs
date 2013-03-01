@@ -162,7 +162,6 @@ namespace iSpyApplication
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
-            this.numFramerate = new System.Windows.Forms.NumericUpDown();
             this.lblMinutes = new System.Windows.Forms.Label();
             this.label70 = new System.Windows.Forms.Label();
             this.label71 = new System.Windows.Forms.Label();
@@ -177,6 +176,7 @@ namespace iSpyApplication
             this.numTimelapseSave = new System.Windows.Forms.NumericUpDown();
             this.lblSaveEvery = new System.Windows.Forms.Label();
             this.label62 = new System.Windows.Forms.Label();
+            this.numFramerate = new System.Windows.Forms.NumericUpDown();
             this.panel2 = new System.Windows.Forms.Panel();
             this.chkTimelapse = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -223,6 +223,7 @@ namespace iSpyApplication
             this.dtpSchedulePTZ = new System.Windows.Forms.DateTimePicker();
             this.button6 = new System.Windows.Forms.Button();
             this.panel15 = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel28 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkSchedulePTZ = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel12 = new System.Windows.Forms.TableLayoutPanel();
             this.pnlPTZ = new System.Windows.Forms.Panel();
@@ -269,7 +270,9 @@ namespace iSpyApplication
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel21 = new System.Windows.Forms.TableLayoutPanel();
+            this.label93 = new System.Windows.Forms.Label();
             this.label57 = new System.Windows.Forms.Label();
+            this.lblQuality2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel15 = new System.Windows.Forms.TableLayoutPanel();
             this.rdoFTPMotion = new System.Windows.Forms.RadioButton();
             this.rdoFTPAlerts = new System.Windows.Forms.RadioButton();
@@ -279,35 +282,36 @@ namespace iSpyApplication
             this.label58 = new System.Windows.Forms.Label();
             this.label86 = new System.Windows.Forms.Label();
             this.txtFTPText = new System.Windows.Forms.TextBox();
+            this.numMaxCounter = new System.Windows.Forms.NumericUpDown();
+            this.tbFTPQuality = new System.Windows.Forms.TrackBar();
             this.gbLocal = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.txtLocalFilename = new System.Windows.Forms.TextBox();
             this.label56 = new System.Windows.Forms.Label();
+            this.flowLayoutPanel29 = new System.Windows.Forms.FlowLayoutPanel();
+            this.txtLocalFilename = new System.Windows.Forms.TextBox();
             this.label81 = new System.Windows.Forms.Label();
+            this.flowLayoutPanel30 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkLocalSaving = new System.Windows.Forms.CheckBox();
+            this.linkLabel11 = new System.Windows.Forms.LinkLabel();
             this.gbFTP = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel14 = new System.Windows.Forms.TableLayoutPanel();
             this.txtFTPFilename = new System.Windows.Forms.TextBox();
-            this.tbFTPQuality = new System.Windows.Forms.TrackBar();
-            this.label60 = new System.Windows.Forms.Label();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
-            this.lblQuality2 = new System.Windows.Forms.Label();
             this.label52 = new System.Windows.Forms.Label();
-            this.label53 = new System.Windows.Forms.Label();
             this.btnSaveFTP = new System.Windows.Forms.Button();
             this.label54 = new System.Windows.Forms.Label();
-            this.label55 = new System.Windows.Forms.Label();
             this.txtFTPServer = new System.Windows.Forms.TextBox();
-            this.chkUsePassive = new System.Windows.Forms.CheckBox();
             this.txtFTPUsername = new System.Windows.Forms.TextBox();
-            this.txtFTPPassword = new System.Windows.Forms.TextBox();
-            this.txtFTPPort = new System.Windows.Forms.NumericUpDown();
             this.label20 = new System.Windows.Forms.Label();
-            this.panel6 = new System.Windows.Forms.Panel();
+            this.txtFTPPassword = new System.Windows.Forms.TextBox();
+            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.label55 = new System.Windows.Forms.Label();
+            this.txtFTPPort = new System.Windows.Forms.NumericUpDown();
+            this.label53 = new System.Windows.Forms.Label();
+            this.chkUsePassive = new System.Windows.Forms.CheckBox();
+            this.label60 = new System.Windows.Forms.Label();
             this.flowLayoutPanel24 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkFTP = new System.Windows.Forms.CheckBox();
-            this.chkLocalSaving = new System.Windows.Forms.CheckBox();
-            this.linkLabel11 = new System.Windows.Forms.LinkLabel();
             this.tabPage9 = new System.Windows.Forms.TabPage();
             this.panel10 = new System.Windows.Forms.Panel();
             this.linkLabel9 = new System.Windows.Forms.LinkLabel();
@@ -424,10 +428,10 @@ namespace iSpyApplication
             this.tabPage4.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel10.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numFramerate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTimeLapse)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTimeLapseFrames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numTimelapseSave)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numFramerate)).BeginInit();
             this.panel2.SuspendLayout();
             this.groupBox4.SuspendLayout();
             this.tableLayoutPanel9.SuspendLayout();
@@ -448,6 +452,7 @@ namespace iSpyApplication
             this.panel14.SuspendLayout();
             this.flowPTZSchedule.SuspendLayout();
             this.panel15.SuspendLayout();
+            this.flowLayoutPanel28.SuspendLayout();
             this.tableLayoutPanel12.SuspendLayout();
             this.pnlTrack.SuspendLayout();
             this.tableLayoutPanel13.SuspendLayout();
@@ -466,14 +471,16 @@ namespace iSpyApplication
             this.tableLayoutPanel15.SuspendLayout();
             this.flowLayoutPanel19.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtUploadEvery)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxCounter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbFTPQuality)).BeginInit();
             this.gbLocal.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.flowLayoutPanel29.SuspendLayout();
+            this.flowLayoutPanel30.SuspendLayout();
             this.gbFTP.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel14.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbFTPQuality)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtFTPPort)).BeginInit();
-            this.panel6.SuspendLayout();
             this.flowLayoutPanel24.SuspendLayout();
             this.tabPage9.SuspendLayout();
             this.panel10.SuspendLayout();
@@ -2109,7 +2116,6 @@ namespace iSpyApplication
             this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel10.Controls.Add(this.numFramerate, 0, 4);
             this.tableLayoutPanel10.Controls.Add(this.lblMinutes, 2, 3);
             this.tableLayoutPanel10.Controls.Add(this.label70, 3, 2);
             this.tableLayoutPanel10.Controls.Add(this.label71, 0, 0);
@@ -2124,6 +2130,7 @@ namespace iSpyApplication
             this.tableLayoutPanel10.Controls.Add(this.numTimelapseSave, 1, 3);
             this.tableLayoutPanel10.Controls.Add(this.lblSaveEvery, 0, 3);
             this.tableLayoutPanel10.Controls.Add(this.label62, 0, 4);
+            this.tableLayoutPanel10.Controls.Add(this.numFramerate, 1, 4);
             this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel10.Location = new System.Drawing.Point(6, 19);
             this.tableLayoutPanel10.Name = "tableLayoutPanel10";
@@ -2136,32 +2143,10 @@ namespace iSpyApplication
             this.tableLayoutPanel10.Size = new System.Drawing.Size(581, 163);
             this.tableLayoutPanel10.TabIndex = 87;
             // 
-            // numFramerate
-            // 
-            this.numFramerate.Location = new System.Drawing.Point(3, 115);
-            this.numFramerate.Maximum = new decimal(new int[] {
-            200,
-            0,
-            0,
-            0});
-            this.numFramerate.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numFramerate.Name = "numFramerate";
-            this.numFramerate.Size = new System.Drawing.Size(56, 20);
-            this.numFramerate.TabIndex = 86;
-            this.numFramerate.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
             // lblMinutes
             // 
             this.lblMinutes.AutoSize = true;
-            this.lblMinutes.Location = new System.Drawing.Point(146, 94);
+            this.lblMinutes.Location = new System.Drawing.Point(145, 94);
             this.lblMinutes.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.lblMinutes.Name = "lblMinutes";
             this.lblMinutes.Size = new System.Drawing.Size(43, 13);
@@ -2273,7 +2258,7 @@ namespace iSpyApplication
             // label36
             // 
             this.label36.AutoSize = true;
-            this.label36.Location = new System.Drawing.Point(146, 21);
+            this.label36.Location = new System.Drawing.Point(145, 21);
             this.label36.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label36.Name = "label36";
             this.label36.Size = new System.Drawing.Size(47, 13);
@@ -2315,12 +2300,34 @@ namespace iSpyApplication
             // label62
             // 
             this.label62.AutoSize = true;
-            this.label62.Location = new System.Drawing.Point(80, 120);
+            this.label62.Location = new System.Drawing.Point(6, 120);
             this.label62.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label62.Name = "label62";
             this.label62.Size = new System.Drawing.Size(54, 13);
             this.label62.TabIndex = 85;
             this.label62.Text = "Framerate";
+            // 
+            // numFramerate
+            // 
+            this.numFramerate.Location = new System.Drawing.Point(77, 115);
+            this.numFramerate.Maximum = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
+            this.numFramerate.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numFramerate.Name = "numFramerate";
+            this.numFramerate.Size = new System.Drawing.Size(56, 20);
+            this.numFramerate.TabIndex = 86;
+            this.numFramerate.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // panel2
             // 
@@ -2890,19 +2897,29 @@ namespace iSpyApplication
             // 
             // panel15
             // 
-            this.panel15.Controls.Add(this.chkSchedulePTZ);
+            this.panel15.Controls.Add(this.flowLayoutPanel28);
             this.panel15.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel15.Location = new System.Drawing.Point(0, 0);
             this.panel15.Name = "panel15";
             this.panel15.Size = new System.Drawing.Size(593, 31);
             this.panel15.TabIndex = 2;
             // 
+            // flowLayoutPanel28
+            // 
+            this.flowLayoutPanel28.Controls.Add(this.chkSchedulePTZ);
+            this.flowLayoutPanel28.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel28.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel28.Name = "flowLayoutPanel28";
+            this.flowLayoutPanel28.Size = new System.Drawing.Size(593, 31);
+            this.flowLayoutPanel28.TabIndex = 1;
+            // 
             // chkSchedulePTZ
             // 
             this.chkSchedulePTZ.AutoSize = true;
-            this.chkSchedulePTZ.Location = new System.Drawing.Point(9, 4);
+            this.chkSchedulePTZ.Location = new System.Drawing.Point(3, 3);
             this.chkSchedulePTZ.Name = "chkSchedulePTZ";
-            this.chkSchedulePTZ.Size = new System.Drawing.Size(95, 17);
+            this.chkSchedulePTZ.Padding = new System.Windows.Forms.Padding(3);
+            this.chkSchedulePTZ.Size = new System.Drawing.Size(101, 23);
             this.chkSchedulePTZ.TabIndex = 0;
             this.chkSchedulePTZ.Text = "Schedule PTZ";
             this.chkSchedulePTZ.UseVisualStyleBackColor = true;
@@ -3433,9 +3450,9 @@ namespace iSpyApplication
             this.tabPage7.AutoScroll = true;
             this.tabPage7.Controls.Add(this.groupBox7);
             this.tabPage7.Controls.Add(this.gbLocal);
-            this.tabPage7.Controls.Add(this.label81);
+            this.tabPage7.Controls.Add(this.flowLayoutPanel30);
             this.tabPage7.Controls.Add(this.gbFTP);
-            this.tabPage7.Controls.Add(this.panel6);
+            this.tabPage7.Controls.Add(this.flowLayoutPanel24);
             this.tabPage7.Location = new System.Drawing.Point(4, 22);
             this.tabPage7.Margin = new System.Windows.Forms.Padding(6);
             this.tabPage7.Name = "tabPage7";
@@ -3449,9 +3466,9 @@ namespace iSpyApplication
             // 
             this.groupBox7.Controls.Add(this.tableLayoutPanel21);
             this.groupBox7.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox7.Location = new System.Drawing.Point(6, 409);
+            this.groupBox7.Location = new System.Drawing.Point(6, 378);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(593, 149);
+            this.groupBox7.Size = new System.Drawing.Size(593, 212);
             this.groupBox7.TabIndex = 3;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Save/ Upload";
@@ -3461,18 +3478,35 @@ namespace iSpyApplication
             this.tableLayoutPanel21.ColumnCount = 2;
             this.tableLayoutPanel21.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel21.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel21.Controls.Add(this.label93, 0, 3);
             this.tableLayoutPanel21.Controls.Add(this.label57, 0, 0);
+            this.tableLayoutPanel21.Controls.Add(this.lblQuality2, 0, 1);
             this.tableLayoutPanel21.Controls.Add(this.tableLayoutPanel15, 1, 0);
-            this.tableLayoutPanel21.Controls.Add(this.label86, 0, 1);
-            this.tableLayoutPanel21.Controls.Add(this.txtFTPText, 1, 1);
+            this.tableLayoutPanel21.Controls.Add(this.label86, 0, 2);
+            this.tableLayoutPanel21.Controls.Add(this.txtFTPText, 1, 2);
+            this.tableLayoutPanel21.Controls.Add(this.numMaxCounter, 1, 3);
+            this.tableLayoutPanel21.Controls.Add(this.tbFTPQuality, 1, 1);
             this.tableLayoutPanel21.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel21.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel21.Name = "tableLayoutPanel21";
-            this.tableLayoutPanel21.RowCount = 2;
+            this.tableLayoutPanel21.RowCount = 5;
             this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel21.Size = new System.Drawing.Size(587, 130);
+            this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel21.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel21.Size = new System.Drawing.Size(587, 193);
             this.tableLayoutPanel21.TabIndex = 0;
+            // 
+            // label93
+            // 
+            this.label93.AutoSize = true;
+            this.label93.Location = new System.Drawing.Point(6, 171);
+            this.label93.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label93.Name = "label93";
+            this.label93.Size = new System.Drawing.Size(67, 13);
+            this.label93.TabIndex = 37;
+            this.label93.Text = "Counter Max";
             // 
             // label57
             // 
@@ -3483,6 +3517,16 @@ namespace iSpyApplication
             this.label57.Size = new System.Drawing.Size(21, 13);
             this.label57.TabIndex = 13;
             this.label57.Text = "On";
+            // 
+            // lblQuality2
+            // 
+            this.lblQuality2.AutoSize = true;
+            this.lblQuality2.Location = new System.Drawing.Point(6, 82);
+            this.lblQuality2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.lblQuality2.Name = "lblQuality2";
+            this.lblQuality2.Size = new System.Drawing.Size(39, 13);
+            this.lblQuality2.TabIndex = 23;
+            this.lblQuality2.Text = "Quality";
             // 
             // tableLayoutPanel15
             // 
@@ -3576,7 +3620,7 @@ namespace iSpyApplication
             // label86
             // 
             this.label86.AutoSize = true;
-            this.label86.Location = new System.Drawing.Point(6, 82);
+            this.label86.Location = new System.Drawing.Point(6, 139);
             this.label86.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label86.Name = "label86";
             this.label86.Size = new System.Drawing.Size(67, 13);
@@ -3585,19 +3629,46 @@ namespace iSpyApplication
             // 
             // txtFTPText
             // 
-            this.txtFTPText.Location = new System.Drawing.Point(85, 80);
+            this.txtFTPText.Location = new System.Drawing.Point(85, 137);
             this.txtFTPText.Margin = new System.Windows.Forms.Padding(6);
             this.txtFTPText.Name = "txtFTPText";
             this.txtFTPText.Size = new System.Drawing.Size(220, 20);
             this.txtFTPText.TabIndex = 21;
             // 
+            // numMaxCounter
+            // 
+            this.numMaxCounter.Location = new System.Drawing.Point(85, 169);
+            this.numMaxCounter.Margin = new System.Windows.Forms.Padding(6);
+            this.numMaxCounter.Maximum = new decimal(new int[] {
+            999999999,
+            0,
+            0,
+            0});
+            this.numMaxCounter.Name = "numMaxCounter";
+            this.numMaxCounter.Size = new System.Drawing.Size(63, 20);
+            this.numMaxCounter.TabIndex = 38;
+            // 
+            // tbFTPQuality
+            // 
+            this.tbFTPQuality.BackColor = System.Drawing.SystemColors.Window;
+            this.tbFTPQuality.Location = new System.Drawing.Point(85, 80);
+            this.tbFTPQuality.Margin = new System.Windows.Forms.Padding(6);
+            this.tbFTPQuality.Maximum = 100;
+            this.tbFTPQuality.Minimum = 20;
+            this.tbFTPQuality.Name = "tbFTPQuality";
+            this.tbFTPQuality.Size = new System.Drawing.Size(312, 45);
+            this.tbFTPQuality.TabIndex = 34;
+            this.tbFTPQuality.TickFrequency = 10;
+            this.toolTip1.SetToolTip(this.tbFTPQuality, "Motion detection sensitivity");
+            this.tbFTPQuality.Value = 100;
+            // 
             // gbLocal
             // 
             this.gbLocal.Controls.Add(this.tableLayoutPanel1);
             this.gbLocal.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbLocal.Location = new System.Drawing.Point(6, 352);
+            this.gbLocal.Location = new System.Drawing.Point(6, 268);
             this.gbLocal.Name = "gbLocal";
-            this.gbLocal.Size = new System.Drawing.Size(593, 57);
+            this.gbLocal.Size = new System.Drawing.Size(593, 110);
             this.gbLocal.TabIndex = 4;
             this.gbLocal.TabStop = false;
             this.gbLocal.Text = "Local Details";
@@ -3607,24 +3678,16 @@ namespace iSpyApplication
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12.80702F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 87.19299F));
-            this.tableLayoutPanel1.Controls.Add(this.txtLocalFilename, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label56, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel29, 1, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(587, 38);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(587, 91);
             this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // txtLocalFilename
-            // 
-            this.txtLocalFilename.Location = new System.Drawing.Point(81, 6);
-            this.txtLocalFilename.Margin = new System.Windows.Forms.Padding(6);
-            this.txtLocalFilename.Name = "txtLocalFilename";
-            this.txtLocalFilename.Size = new System.Drawing.Size(224, 20);
-            this.txtLocalFilename.TabIndex = 36;
             // 
             // label56
             // 
@@ -3636,28 +3699,79 @@ namespace iSpyApplication
             this.label56.TabIndex = 10;
             this.label56.Text = "Filename";
             // 
+            // flowLayoutPanel29
+            // 
+            this.flowLayoutPanel29.Controls.Add(this.txtLocalFilename);
+            this.flowLayoutPanel29.Controls.Add(this.label81);
+            this.flowLayoutPanel29.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel29.Location = new System.Drawing.Point(78, 3);
+            this.flowLayoutPanel29.Name = "flowLayoutPanel29";
+            this.flowLayoutPanel29.Size = new System.Drawing.Size(506, 85);
+            this.flowLayoutPanel29.TabIndex = 11;
+            // 
+            // txtLocalFilename
+            // 
+            this.txtLocalFilename.Location = new System.Drawing.Point(6, 6);
+            this.txtLocalFilename.Margin = new System.Windows.Forms.Padding(6);
+            this.txtLocalFilename.Name = "txtLocalFilename";
+            this.txtLocalFilename.Size = new System.Drawing.Size(224, 20);
+            this.txtLocalFilename.TabIndex = 36;
+            // 
             // label81
             // 
-            this.label81.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label81.Location = new System.Drawing.Point(6, 316);
+            this.label81.Location = new System.Drawing.Point(6, 40);
             this.label81.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label81.Name = "label81";
-            this.label81.Size = new System.Drawing.Size(593, 36);
+            this.label81.Size = new System.Drawing.Size(487, 36);
             this.label81.TabIndex = 17;
             this.label81.Text = "Tip: use a date string format to generate unique files, eg: \"/gallery/cam_{0:hh-m" +
     "m-ss}.jpg\". \r\nYou can also use {C} to adding an automatically increasing counter" +
-    " (resets at 20).\r\n";
+    ".\r\n";
             this.label81.Click += new System.EventHandler(this.label81_Click);
+            // 
+            // flowLayoutPanel30
+            // 
+            this.flowLayoutPanel30.Controls.Add(this.chkLocalSaving);
+            this.flowLayoutPanel30.Controls.Add(this.linkLabel11);
+            this.flowLayoutPanel30.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel30.Location = new System.Drawing.Point(6, 230);
+            this.flowLayoutPanel30.Name = "flowLayoutPanel30";
+            this.flowLayoutPanel30.Size = new System.Drawing.Size(593, 38);
+            this.flowLayoutPanel30.TabIndex = 5;
+            // 
+            // chkLocalSaving
+            // 
+            this.chkLocalSaving.AutoSize = true;
+            this.chkLocalSaving.Location = new System.Drawing.Point(6, 6);
+            this.chkLocalSaving.Margin = new System.Windows.Forms.Padding(6);
+            this.chkLocalSaving.Name = "chkLocalSaving";
+            this.chkLocalSaving.Size = new System.Drawing.Size(130, 17);
+            this.chkLocalSaving.TabIndex = 1;
+            this.chkLocalSaving.Text = "Local Saving Enabled";
+            this.chkLocalSaving.UseVisualStyleBackColor = true;
+            this.chkLocalSaving.CheckedChanged += new System.EventHandler(this.chkLocalSaving_CheckedChanged);
+            // 
+            // linkLabel11
+            // 
+            this.linkLabel11.AutoSize = true;
+            this.linkLabel11.Location = new System.Drawing.Point(148, 6);
+            this.linkLabel11.Margin = new System.Windows.Forms.Padding(6);
+            this.linkLabel11.Name = "linkLabel11";
+            this.linkLabel11.Size = new System.Drawing.Size(94, 13);
+            this.linkLabel11.TabIndex = 2;
+            this.linkLabel11.TabStop = true;
+            this.linkLabel11.Text = "Open Local Folder";
+            this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel11_LinkClicked);
             // 
             // gbFTP
             // 
             this.gbFTP.Controls.Add(this.panel1);
             this.gbFTP.Dock = System.Windows.Forms.DockStyle.Top;
-            this.gbFTP.Location = new System.Drawing.Point(6, 47);
+            this.gbFTP.Location = new System.Drawing.Point(6, 44);
             this.gbFTP.Margin = new System.Windows.Forms.Padding(6);
             this.gbFTP.Name = "gbFTP";
             this.gbFTP.Padding = new System.Windows.Forms.Padding(6);
-            this.gbFTP.Size = new System.Drawing.Size(593, 269);
+            this.gbFTP.Size = new System.Drawing.Size(593, 186);
             this.gbFTP.TabIndex = 1;
             this.gbFTP.TabStop = false;
             this.gbFTP.Text = "FTP Details";
@@ -3669,31 +3783,30 @@ namespace iSpyApplication
             this.panel1.Location = new System.Drawing.Point(6, 19);
             this.panel1.Margin = new System.Windows.Forms.Padding(6);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(581, 244);
+            this.panel1.Size = new System.Drawing.Size(581, 161);
             this.panel1.TabIndex = 22;
             // 
             // tableLayoutPanel14
             // 
-            this.tableLayoutPanel14.ColumnCount = 3;
+            this.tableLayoutPanel14.ColumnCount = 4;
+            this.tableLayoutPanel14.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel14.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel14.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel14.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel14.Controls.Add(this.txtFTPFilename, 1, 8);
-            this.tableLayoutPanel14.Controls.Add(this.tbFTPQuality, 1, 10);
-            this.tableLayoutPanel14.Controls.Add(this.label60, 2, 8);
-            this.tableLayoutPanel14.Controls.Add(this.linkLabel2, 2, 11);
-            this.tableLayoutPanel14.Controls.Add(this.lblQuality2, 0, 10);
             this.tableLayoutPanel14.Controls.Add(this.label52, 0, 0);
-            this.tableLayoutPanel14.Controls.Add(this.label53, 0, 1);
             this.tableLayoutPanel14.Controls.Add(this.btnSaveFTP, 1, 11);
             this.tableLayoutPanel14.Controls.Add(this.label54, 0, 2);
-            this.tableLayoutPanel14.Controls.Add(this.label55, 0, 3);
             this.tableLayoutPanel14.Controls.Add(this.txtFTPServer, 1, 0);
-            this.tableLayoutPanel14.Controls.Add(this.chkUsePassive, 2, 0);
             this.tableLayoutPanel14.Controls.Add(this.txtFTPUsername, 1, 2);
-            this.tableLayoutPanel14.Controls.Add(this.txtFTPPassword, 1, 3);
-            this.tableLayoutPanel14.Controls.Add(this.txtFTPPort, 1, 1);
             this.tableLayoutPanel14.Controls.Add(this.label20, 0, 8);
+            this.tableLayoutPanel14.Controls.Add(this.txtFTPPassword, 3, 2);
+            this.tableLayoutPanel14.Controls.Add(this.linkLabel2, 2, 11);
+            this.tableLayoutPanel14.Controls.Add(this.label55, 2, 2);
+            this.tableLayoutPanel14.Controls.Add(this.txtFTPPort, 3, 0);
+            this.tableLayoutPanel14.Controls.Add(this.label53, 2, 0);
+            this.tableLayoutPanel14.Controls.Add(this.chkUsePassive, 1, 1);
+            this.tableLayoutPanel14.Controls.Add(this.label60, 2, 8);
             this.tableLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel14.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel14.Name = "tableLayoutPanel14";
@@ -3710,63 +3823,16 @@ namespace iSpyApplication
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel14.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel14.Size = new System.Drawing.Size(581, 244);
+            this.tableLayoutPanel14.Size = new System.Drawing.Size(581, 161);
             this.tableLayoutPanel14.TabIndex = 23;
             // 
             // txtFTPFilename
             // 
-            this.txtFTPFilename.Location = new System.Drawing.Point(73, 128);
+            this.txtFTPFilename.Location = new System.Drawing.Point(73, 99);
             this.txtFTPFilename.Margin = new System.Windows.Forms.Padding(6);
             this.txtFTPFilename.Name = "txtFTPFilename";
             this.txtFTPFilename.Size = new System.Drawing.Size(140, 20);
             this.txtFTPFilename.TabIndex = 11;
-            // 
-            // tbFTPQuality
-            // 
-            this.tbFTPQuality.BackColor = System.Drawing.SystemColors.Window;
-            this.tableLayoutPanel14.SetColumnSpan(this.tbFTPQuality, 2);
-            this.tbFTPQuality.Location = new System.Drawing.Point(73, 160);
-            this.tbFTPQuality.Margin = new System.Windows.Forms.Padding(6);
-            this.tbFTPQuality.Maximum = 100;
-            this.tbFTPQuality.Minimum = 20;
-            this.tbFTPQuality.Name = "tbFTPQuality";
-            this.tbFTPQuality.Size = new System.Drawing.Size(312, 45);
-            this.tbFTPQuality.TabIndex = 34;
-            this.tbFTPQuality.TickFrequency = 10;
-            this.toolTip1.SetToolTip(this.tbFTPQuality, "Motion detection sensitivity");
-            this.tbFTPQuality.Value = 100;
-            // 
-            // label60
-            // 
-            this.label60.AutoSize = true;
-            this.label60.Location = new System.Drawing.Point(225, 130);
-            this.label60.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label60.Name = "label60";
-            this.label60.Size = new System.Drawing.Size(143, 13);
-            this.label60.TabIndex = 16;
-            this.label60.Text = "eg /images/mycamimage.jpg";
-            // 
-            // linkLabel2
-            // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(225, 219);
-            this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(285, 13);
-            this.linkLabel2.TabIndex = 3;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "Script to render this image on your website is available here";
-            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel2LinkClicked);
-            // 
-            // lblQuality2
-            // 
-            this.lblQuality2.AutoSize = true;
-            this.lblQuality2.Location = new System.Drawing.Point(6, 162);
-            this.lblQuality2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.lblQuality2.Name = "lblQuality2";
-            this.lblQuality2.Size = new System.Drawing.Size(39, 13);
-            this.lblQuality2.TabIndex = 23;
-            this.lblQuality2.Text = "Quality";
             // 
             // label52
             // 
@@ -3778,21 +3844,11 @@ namespace iSpyApplication
             this.label52.TabIndex = 0;
             this.label52.Text = "Server";
             // 
-            // label53
-            // 
-            this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(6, 40);
-            this.label53.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label53.Name = "label53";
-            this.label53.Size = new System.Drawing.Size(26, 13);
-            this.label53.TabIndex = 1;
-            this.label53.Text = "Port";
-            // 
             // btnSaveFTP
             // 
             this.btnSaveFTP.AutoSize = true;
             this.btnSaveFTP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnSaveFTP.Location = new System.Drawing.Point(73, 217);
+            this.btnSaveFTP.Location = new System.Drawing.Point(73, 131);
             this.btnSaveFTP.Margin = new System.Windows.Forms.Padding(6);
             this.btnSaveFTP.Name = "btnSaveFTP";
             this.btnSaveFTP.Size = new System.Drawing.Size(38, 23);
@@ -3804,22 +3860,12 @@ namespace iSpyApplication
             // label54
             // 
             this.label54.AutoSize = true;
-            this.label54.Location = new System.Drawing.Point(6, 66);
+            this.label54.Location = new System.Drawing.Point(6, 69);
             this.label54.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label54.Name = "label54";
             this.label54.Size = new System.Drawing.Size(55, 13);
             this.label54.TabIndex = 2;
             this.label54.Text = "Username";
-            // 
-            // label55
-            // 
-            this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(6, 98);
-            this.label55.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label55.Name = "label55";
-            this.label55.Size = new System.Drawing.Size(53, 13);
-            this.label55.TabIndex = 3;
-            this.label55.Text = "Password";
             // 
             // txtFTPServer
             // 
@@ -3829,37 +3875,59 @@ namespace iSpyApplication
             this.txtFTPServer.Size = new System.Drawing.Size(140, 20);
             this.txtFTPServer.TabIndex = 4;
             // 
-            // chkUsePassive
-            // 
-            this.chkUsePassive.AutoSize = true;
-            this.chkUsePassive.Location = new System.Drawing.Point(225, 6);
-            this.chkUsePassive.Margin = new System.Windows.Forms.Padding(6);
-            this.chkUsePassive.Name = "chkUsePassive";
-            this.chkUsePassive.Size = new System.Drawing.Size(93, 17);
-            this.chkUsePassive.TabIndex = 19;
-            this.chkUsePassive.Text = "Passive Mode";
-            this.chkUsePassive.UseVisualStyleBackColor = true;
-            // 
             // txtFTPUsername
             // 
-            this.txtFTPUsername.Location = new System.Drawing.Point(73, 64);
+            this.txtFTPUsername.Location = new System.Drawing.Point(73, 67);
             this.txtFTPUsername.Margin = new System.Windows.Forms.Padding(6);
             this.txtFTPUsername.Name = "txtFTPUsername";
             this.txtFTPUsername.Size = new System.Drawing.Size(140, 20);
             this.txtFTPUsername.TabIndex = 6;
             // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(6, 101);
+            this.label20.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(49, 13);
+            this.label20.TabIndex = 35;
+            this.label20.Text = "Filename";
+            // 
             // txtFTPPassword
             // 
-            this.txtFTPPassword.Location = new System.Drawing.Point(73, 96);
+            this.txtFTPPassword.Location = new System.Drawing.Point(290, 67);
             this.txtFTPPassword.Margin = new System.Windows.Forms.Padding(6);
             this.txtFTPPassword.Name = "txtFTPPassword";
             this.txtFTPPassword.PasswordChar = '*';
             this.txtFTPPassword.Size = new System.Drawing.Size(140, 20);
             this.txtFTPPassword.TabIndex = 7;
             // 
+            // linkLabel2
+            // 
+            this.linkLabel2.AutoSize = true;
+            this.tableLayoutPanel14.SetColumnSpan(this.linkLabel2, 2);
+            this.linkLabel2.Location = new System.Drawing.Point(225, 133);
+            this.linkLabel2.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.linkLabel2.Name = "linkLabel2";
+            this.linkLabel2.Size = new System.Drawing.Size(285, 13);
+            this.linkLabel2.TabIndex = 3;
+            this.linkLabel2.TabStop = true;
+            this.linkLabel2.Text = "Script to render this image on your website is available here";
+            this.linkLabel2.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel2LinkClicked);
+            // 
+            // label55
+            // 
+            this.label55.AutoSize = true;
+            this.label55.Location = new System.Drawing.Point(225, 69);
+            this.label55.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label55.Name = "label55";
+            this.label55.Size = new System.Drawing.Size(53, 13);
+            this.label55.TabIndex = 3;
+            this.label55.Text = "Password";
+            // 
             // txtFTPPort
             // 
-            this.txtFTPPort.Location = new System.Drawing.Point(70, 35);
+            this.txtFTPPort.Location = new System.Drawing.Point(287, 3);
             this.txtFTPPort.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -3869,34 +3937,45 @@ namespace iSpyApplication
             this.txtFTPPort.Size = new System.Drawing.Size(57, 20);
             this.txtFTPPort.TabIndex = 23;
             // 
-            // label20
+            // label53
             // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(6, 130);
-            this.label20.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(49, 13);
-            this.label20.TabIndex = 35;
-            this.label20.Text = "Filename";
+            this.label53.AutoSize = true;
+            this.label53.Location = new System.Drawing.Point(225, 8);
+            this.label53.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label53.Name = "label53";
+            this.label53.Size = new System.Drawing.Size(26, 13);
+            this.label53.TabIndex = 1;
+            this.label53.Text = "Port";
             // 
-            // panel6
+            // chkUsePassive
             // 
-            this.panel6.Controls.Add(this.flowLayoutPanel24);
-            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel6.Location = new System.Drawing.Point(6, 6);
-            this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(593, 41);
-            this.panel6.TabIndex = 2;
+            this.chkUsePassive.AutoSize = true;
+            this.chkUsePassive.Location = new System.Drawing.Point(73, 38);
+            this.chkUsePassive.Margin = new System.Windows.Forms.Padding(6);
+            this.chkUsePassive.Name = "chkUsePassive";
+            this.chkUsePassive.Size = new System.Drawing.Size(93, 17);
+            this.chkUsePassive.TabIndex = 19;
+            this.chkUsePassive.Text = "Passive Mode";
+            this.chkUsePassive.UseVisualStyleBackColor = true;
+            // 
+            // label60
+            // 
+            this.label60.AutoSize = true;
+            this.tableLayoutPanel14.SetColumnSpan(this.label60, 2);
+            this.label60.Location = new System.Drawing.Point(225, 101);
+            this.label60.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label60.Name = "label60";
+            this.label60.Size = new System.Drawing.Size(143, 13);
+            this.label60.TabIndex = 16;
+            this.label60.Text = "eg /images/mycamimage.jpg";
             // 
             // flowLayoutPanel24
             // 
             this.flowLayoutPanel24.Controls.Add(this.chkFTP);
-            this.flowLayoutPanel24.Controls.Add(this.chkLocalSaving);
-            this.flowLayoutPanel24.Controls.Add(this.linkLabel11);
-            this.flowLayoutPanel24.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel24.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel24.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel24.Location = new System.Drawing.Point(6, 6);
             this.flowLayoutPanel24.Name = "flowLayoutPanel24";
-            this.flowLayoutPanel24.Size = new System.Drawing.Size(593, 41);
+            this.flowLayoutPanel24.Size = new System.Drawing.Size(593, 38);
             this.flowLayoutPanel24.TabIndex = 2;
             // 
             // chkFTP
@@ -3910,30 +3989,6 @@ namespace iSpyApplication
             this.chkFTP.Text = "FTP Enabled";
             this.chkFTP.UseVisualStyleBackColor = true;
             this.chkFTP.CheckedChanged += new System.EventHandler(this.CheckBox1CheckedChanged);
-            // 
-            // chkLocalSaving
-            // 
-            this.chkLocalSaving.AutoSize = true;
-            this.chkLocalSaving.Location = new System.Drawing.Point(106, 6);
-            this.chkLocalSaving.Margin = new System.Windows.Forms.Padding(6);
-            this.chkLocalSaving.Name = "chkLocalSaving";
-            this.chkLocalSaving.Size = new System.Drawing.Size(130, 17);
-            this.chkLocalSaving.TabIndex = 1;
-            this.chkLocalSaving.Text = "Local Saving Enabled";
-            this.chkLocalSaving.UseVisualStyleBackColor = true;
-            this.chkLocalSaving.CheckedChanged += new System.EventHandler(this.chkLocalSaving_CheckedChanged);
-            // 
-            // linkLabel11
-            // 
-            this.linkLabel11.AutoSize = true;
-            this.linkLabel11.Location = new System.Drawing.Point(248, 6);
-            this.linkLabel11.Margin = new System.Windows.Forms.Padding(6);
-            this.linkLabel11.Name = "linkLabel11";
-            this.linkLabel11.Size = new System.Drawing.Size(94, 13);
-            this.linkLabel11.TabIndex = 2;
-            this.linkLabel11.TabStop = true;
-            this.linkLabel11.Text = "Open Local Folder";
-            this.linkLabel11.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel11_LinkClicked);
             // 
             // tabPage9
             // 
@@ -5080,10 +5135,10 @@ namespace iSpyApplication
             this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numFramerate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTimeLapse)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtTimeLapseFrames)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numTimelapseSave)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numFramerate)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.groupBox4.ResumeLayout(false);
@@ -5110,7 +5165,8 @@ namespace iSpyApplication
             this.flowPTZSchedule.ResumeLayout(false);
             this.flowPTZSchedule.PerformLayout();
             this.panel15.ResumeLayout(false);
-            this.panel15.PerformLayout();
+            this.flowLayoutPanel28.ResumeLayout(false);
+            this.flowLayoutPanel28.PerformLayout();
             this.tableLayoutPanel12.ResumeLayout(false);
             this.tableLayoutPanel12.PerformLayout();
             this.pnlTrack.ResumeLayout(false);
@@ -5138,16 +5194,20 @@ namespace iSpyApplication
             this.flowLayoutPanel19.ResumeLayout(false);
             this.flowLayoutPanel19.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtUploadEvery)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxCounter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbFTPQuality)).EndInit();
             this.gbLocal.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
+            this.flowLayoutPanel29.ResumeLayout(false);
+            this.flowLayoutPanel29.PerformLayout();
+            this.flowLayoutPanel30.ResumeLayout(false);
+            this.flowLayoutPanel30.PerformLayout();
             this.gbFTP.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.tableLayoutPanel14.ResumeLayout(false);
             this.tableLayoutPanel14.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.tbFTPQuality)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtFTPPort)).EndInit();
-            this.panel6.ResumeLayout(false);
             this.flowLayoutPanel24.ResumeLayout(false);
             this.flowLayoutPanel24.PerformLayout();
             this.tabPage9.ResumeLayout(false);
@@ -5276,8 +5336,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkFTP;
         private System.Windows.Forms.Label label58;
         private System.Windows.Forms.Label label57;
-        private System.Windows.Forms.Button btnSaveFTP;
-        private System.Windows.Forms.LinkLabel linkLabel2;
         private System.Windows.Forms.Label label60;
         private System.Windows.Forms.Label label70;
         private System.Windows.Forms.Label label68;
@@ -5433,7 +5491,6 @@ namespace iSpyApplication
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel11;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel14;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel15;
-        private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel16;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Panel panel8;
@@ -5494,8 +5551,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkSchedSaveLocalEnabled;
         private System.Windows.Forms.Label label59;
         private System.Windows.Forms.ComboBox ddlHomeCommand;
-        private System.Windows.Forms.Label lblQuality2;
-        private System.Windows.Forms.TrackBar tbFTPQuality;
         private System.Windows.Forms.Label label63;
         private System.Windows.Forms.CheckBox chkTwitter;
         private System.Windows.Forms.LinkLabel linkLabel12;
@@ -5540,5 +5595,14 @@ namespace iSpyApplication
         private System.Windows.Forms.Button button9;
         private Ranger ranger1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel28;
+        private System.Windows.Forms.Label label93;
+        private System.Windows.Forms.NumericUpDown numMaxCounter;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel29;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel30;
+        private System.Windows.Forms.Label lblQuality2;
+        private System.Windows.Forms.TrackBar tbFTPQuality;
+        private System.Windows.Forms.Button btnSaveFTP;
+        private System.Windows.Forms.LinkLabel linkLabel2;
     }
 }

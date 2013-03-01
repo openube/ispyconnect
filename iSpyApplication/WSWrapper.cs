@@ -9,25 +9,31 @@ namespace iSpyApplication
     public static class WsWrapper
     {
         private static Timer _reconnect;
-
-        private static readonly object Sync = new object();
         private static iSpySecure _wsa;
+        private static string _externalIP = "";
+        private static bool _websitelive = true;
 
         public static iSpySecure Wsa
         {
             get
             {
-                if (_wsa == null)
-                    lock (Sync)
-                        if (_wsa == null)
-                            _wsa = new iSpySecure { Url = MainForm.WebserverSecure + "/webservices/ispysecure.asmx", Timeout = 20000 };
+                if (_wsa != null)
+                    return _wsa;
+
+                _wsa = new iSpySecure
+                    {
+                        Url = MainForm.WebserverSecure + "/webservices/ispysecure.asmx",
+                        Timeout = 20000,
+                    };
+                _wsa.Disposed += WsaDisposed;
+                
                 return _wsa;
             }
-            set
-            {
-                lock (Sync)
-                    _wsa = value;
-            }
+        }
+
+        static void WsaDisposed(object sender, EventArgs e)
+        {
+            _wsa = null;
         }
 
         public static Timer ReconnectTimer
@@ -35,20 +41,20 @@ namespace iSpyApplication
             get
             {
                 if (_reconnect == null)
-                    lock (Sync)
-                        if (_reconnect == null)
-                        {
-                            _reconnect = new Timer {Interval = 60*1000};
-                            _reconnect.Elapsed += ReconnectElapsed;
-                        }
+                {
+                    _reconnect = new Timer { Interval = 60 * 1000 };
+                    _reconnect.Elapsed += ReconnectElapsed;
+                    _reconnect.Disposed += ReconnectDisposed;
+                }
+
                 return _reconnect;
             }
         }
 
-        private static string _externalIP = "";
-
-        private static bool _websitelive = true;
-
+        static void ReconnectDisposed(object sender, EventArgs e)
+        {
+            _reconnect = null;
+        }
 
         public static string WebservicesDisabledMessage
         {
@@ -458,9 +464,9 @@ namespace iSpyApplication
 
                 try
                 {
-                    r = Wsa.Connect(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
+                    r = Wsa.Connect2(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
                                       MainForm.Identifier, tryLoopback, Application.ProductVersion,
-                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode=="IPv4", MainForm.IPAddressExternal);
+                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.AFFILIATEID);
                     if (r == "OK" && tryLoopback)
                         MainForm.LoopBack = true;
                 }

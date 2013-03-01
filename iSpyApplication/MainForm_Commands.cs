@@ -263,9 +263,9 @@ namespace iSpyApplication
             {
                 if (command.ToLower().StartsWith("ispy ") || command.ToLower().StartsWith("ispy.exe "))
                 {
-                    string cmd2 = command.Substring(command.IndexOf(" ") + 1).ToLower().Trim();
+                    string cmd2 = command.Substring(command.IndexOf(" ", StringComparison.Ordinal) + 1).ToLower().Trim();
                     if (cmd2.StartsWith("commands "))
-                        cmd2 = cmd2.Substring(cmd2.IndexOf(" ") + 1).Trim();
+                        cmd2 = cmd2.Substring(cmd2.IndexOf(" ", StringComparison.Ordinal) + 1).Trim();
 
                     string cmd = cmd2.Trim('"');
                     string[] commands = cmd.Split('|');

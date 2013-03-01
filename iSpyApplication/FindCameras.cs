@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,7 +19,7 @@ namespace iSpyApplication
 {
     public partial class FindCameras : Form
     {
-        private static bool VLC;
+        private static bool _vlc;
         private static DataTable _dt;
         private DataRow _drSelected;
         private bool _exiting;
@@ -61,16 +62,17 @@ namespace iSpyApplication
 
         private void FindCameras_Load(object sender, EventArgs e)
         {
-            VLC = VlcHelper.VlcInstalled;
+            LastConfig.PromptSave = false;
+            _vlc = VlcHelper.VlcInstalled;
             llblDownloadVLC.Text = LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin + " or greater";
-            llblDownloadVLC.Visible = !VLC;
+            llblDownloadVLC.Visible = !_vlc;
             btnBack.Enabled = false;
             RenderResources();
             ddlHost.Items.Add(LocRm.GetString("AllAdaptors"));
             foreach (var ip in MainForm.AddressListIPv4)
             {
                 string subnet = ip.ToString();
-                subnet = subnet.Substring(0, subnet.LastIndexOf(".") + 1) + "x";
+                subnet = subnet.Substring(0, subnet.LastIndexOf(".", StringComparison.Ordinal) + 1) + "x";
                 if (!ddlHost.Items.Contains(subnet))
                     ddlHost.Items.Add(subnet);
             }
@@ -119,14 +121,7 @@ namespace iSpyApplication
             p.Dock = DockStyle.Fill;
             p.Visible = true;
 
-            if (p.Name == "pnlConfig")
-            {
-                btnBack.Enabled = false;
-            }
-            else
-            {
-                btnBack.Enabled = true;
-            }
+            btnBack.Enabled = p.Name != "pnlConfig";
 
             if (p.Name == "pnlConnect")
                 llblScan.Visible = MainForm.IPLISTED;
@@ -165,7 +160,7 @@ namespace iSpyApplication
             pbScanner.Value = 0;
 
             var manualEvents = new ManualResetEvent[MaxThreads];
-            int j = 0;
+            int j;
             for (int k = 0; k < MaxThreads; k++)
             {
                 manualEvents[k] = new ManualResetEvent(true);
@@ -174,11 +169,7 @@ namespace iSpyApplication
             var ipranges = new List<string>();
             if (host == LocRm.GetString("AllAdaptors"))
             {
-                foreach (string s in ddlHost.Items)
-                {
-                    if (s != LocRm.GetString("AllAdaptors"))
-                        ipranges.Add(s);
-                }
+                ipranges.AddRange(from string s in ddlHost.Items where s != LocRm.GetString("AllAdaptors") select s);
             }
             else
             {
@@ -209,7 +200,7 @@ namespace iSpyApplication
                     for (int i = 0; i < 255; i++)
                     {
 
-                        string ip = shost.Replace("x", i.ToString());
+                        string ip = shost.Replace("x", i.ToString(CultureInfo.InvariantCulture));
                         if (!DnsEntries.Contains(ip))
                         {
                             int k = j;
@@ -274,12 +265,18 @@ namespace iSpyApplication
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            UISync.Execute(() => dataGridView1.Refresh());
-            UISync.Execute(() => button1.Enabled = true);
-            UISync.Execute(() => pbScanner.Value = 0);
+            
+            UISync.Execute(ResetControls);
         }
 
-
+        private void ResetControls()
+        {
+            dataGridView1.Refresh();
+            button1.Text = LocRm.GetString("ScanLocalNetwork");
+            pbScanner.Value = 0;
+            button1.Enabled = true;
+        }
+        
         public static StreamReader ExecuteCommandLine(String file, String arguments = "")
         {
             var startInfo = new ProcessStartInfo
@@ -300,22 +297,22 @@ namespace iSpyApplication
 
         private void PortScanner(IEnumerable<int> ports, string ipaddress, ManualResetEvent mre)
         {
-            bool _found = false;
+            bool found;
             if (!DnsEntries.Contains(ipaddress))
             {
-                string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+                const string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                 byte[] buffer = Encoding.ASCII.GetBytes(data);
 
                 var netMon = new Ping();
                 var options = new PingOptions(128, true);
                 PingReply pr = netMon.Send(ipaddress, 3000, buffer, options);
-                _found = pr != null && pr.Status == IPStatus.Success;
+                found = pr != null && pr.Status == IPStatus.Success;
             }
             else
             {
-                _found = true;
+                found = true;
             }
-            if (_found)
+            if (found)
             {
                 MainForm.LogMessageToFile("Ping response from " + ipaddress);
                 string hostname = "Unknown";
@@ -327,7 +324,7 @@ namespace iSpyApplication
                 catch
                 {
                 }
-                var nc = new NetworkCredential("user", "password");
+                
                 foreach (int iport in ports)
                 {
                     try
@@ -492,12 +489,17 @@ namespace iSpyApplication
             string added = ",";
             ddlModel.Items.Add("Other");
 
-            foreach(var u in m.url)
+            if (m != null)
             {
-                if (!String.IsNullOrEmpty(u.version) && added.IndexOf(","+u.version.ToUpper()+",") == -1)
+                var l = m.url.OrderBy(p => p.version).ToList();
+                foreach (var u in l)
                 {
-                    ddlModel.Items.Add(u.version);
-                    added += u.version.ToUpper() + ",";
+                    if (!String.IsNullOrEmpty(u.version) &&
+                        added.IndexOf("," + u.version.ToUpper() + ",", StringComparison.Ordinal) == -1)
+                    {
+                        ddlModel.Items.Add(u.version);
+                        added += u.version.ToUpper() + ",";
+                    }
                 }
             }
             if (ddlModel.SelectedIndex == -1)
@@ -636,7 +638,7 @@ namespace iSpyApplication
 
                 foreach (var u in cand)
                 {
-                    string addr = "";
+                    string addr;
                     switch (u.prefix.ToUpper())
                     {
                         case "HTTP://":
@@ -688,7 +690,7 @@ namespace iSpyApplication
             else
                 st += "Other";
             string source = u.Source;
-            if (source == "VLC" && !VLC)
+            if (source == "VLC" && !_vlc)
                 source = "FFMPEG";
             st += ": " + source +" " + addr.Replace("&", "&&");
 
@@ -743,7 +745,7 @@ namespace iSpyApplication
                 if (sc==HttpStatusCode.OK)
                 {
                     string ct = res.ContentType.ToLower();
-                    if (ct.IndexOf("text")==-1)
+                    if (ct.IndexOf("text", StringComparison.Ordinal)==-1)
                     {
                         b = true;
                     }
@@ -799,7 +801,7 @@ namespace iSpyApplication
                     var bytesReceived = new byte[100];
                     var bytes = sock.Receive(bytesReceived, bytesReceived.Length, 0);
                     string resp = Encoding.ASCII.GetString(bytesReceived, 0, bytes);
-                    if (resp.IndexOf("200 OK") != -1)
+                    if (resp.IndexOf("200 OK", StringComparison.Ordinal) != -1)
                     {
                         b = true;
                     }
@@ -942,17 +944,25 @@ namespace iSpyApplication
             if (pnlFindNetwork.Visible)
             {
                 string addr = txtIPAddress.Text.Trim();
-                if (addr == "")
+                if (String.IsNullOrEmpty(addr))
                 {
                     MessageBox.Show(this, "Please select or enter an IP address");
                     return;
                 }
-                IPAddress ip;
-                if (!IPAddress.TryParse(addr, out ip))
+                Uri nUrl = null;
+                if (!Uri.TryCreate("http://"+addr, UriKind.Absolute, out nUrl))
                 {
-                    MessageBox.Show(this, "Please enter an IP address only (excluding http://)");
+                    MessageBox.Show(this, "Please enter an IP address or DNS address only (excluding http://)");
                     return;
                 }
+
+                //IPAddress ip;
+                //if (!IPAddress.TryParse(addr, out ip))
+                //{
+
+                    
+                //    return;
+                //}
 
 
                 AddConnections();
@@ -998,7 +1008,7 @@ namespace iSpyApplication
                 FinalUrl = GetAddr(s);
 
                 string source = s.Source;
-                if (source == "VLC" && !VLC)
+                if (source == "VLC" && !_vlc)
                     source = "FFMPEG";
 
                 switch (source)
@@ -1060,18 +1070,16 @@ namespace iSpyApplication
 
                 AudioModel = s.AudioModel;
 
-                if (MainForm.IPMODEL.Trim() != "")
-                {
-                    if (MessageBox.Show("Save this configuration to the ispyconnect camera database? (login information and IP address is not captured)", "Confirm", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    {
-                        var t =
-                            new Thread(
-                                () =>
-                                AddCamera(MainForm.IPTYPE, MainForm.IPMODEL, s.prefix, s.Source, s.url, s.cookies,
-                                          s.flags, s.Port));
-                        t.Start();
-                    }
-                }
+                LastConfig.PromptSave = !MainForm.IPLISTED && MainForm.IPMODEL.Trim() != "";
+                
+                LastConfig.Iptype = MainForm.IPTYPE;
+                LastConfig.Ipmodel = MainForm.IPMODEL;
+                LastConfig.Prefix = s.prefix;
+                LastConfig.Source = s.Source;
+                LastConfig.URL = s.url;
+                LastConfig.Cookies = s.cookies;
+                LastConfig.Flags = s.flags;
+                LastConfig.Port = s.Port;               
 
                 if (_dt != null)
                     MainForm.IPTABLE = _dt.Copy();
@@ -1080,21 +1088,21 @@ namespace iSpyApplication
             }
         }
 
-        private static void AddCamera(string type, string model, string prefix, string source, string url, string cookies, string flags, int port)
-        {
-            try
-            {
-                //this will not send personally identifiable information - just used for auto-building the supported camera database.
-                var r = new Reporting.Reporting {Timeout = 8000};
-                r.AddCamera(type,model,prefix,source,url,cookies,flags, port);
-                r.Dispose();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
 
-            }
+        public class LastConfig
+        {
+            public static bool PromptSave = false;
+            public static string Iptype;
+            public static string Ipmodel;
+            public static string Prefix;
+            public static string Source;
+            public static string URL;
+            public static string Cookies;
+            public static string Flags;
+            public static int Port;
         }
+
+        
 
         private string GetAddr(ManufacturersManufacturerUrl s)
         {
@@ -1134,7 +1142,7 @@ namespace iSpyApplication
             url = url.Replace("[WIDTH]", "320");
             url = url.Replace("[HEIGHT]", "240");
 
-            if (url.IndexOf("[AUTH]")!=-1)
+            if (url.IndexOf("[AUTH]", StringComparison.Ordinal)!=-1)
             {
                 string credentials = String.Format("{0}:{1}", Username, Password);
                 byte[] bytes = Encoding.ASCII.GetBytes(credentials);
@@ -1161,7 +1169,6 @@ namespace iSpyApplication
             if (pnlLogin.Visible)
             {
                 ShowPanel(pnlConfig);
-                return;
             }
 
         }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
 using iSpyApplication.Controls;
-using iSpyApplication.Pelco;
 
 namespace iSpyApplication
 {
@@ -269,7 +269,9 @@ namespace iSpyApplication
                     return;
                 _request.Abort();
             }
-            //PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
+            PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
+            if (ptz == null)
+                return;
             Uri uri;
             bool absURL = false;
             string url = _cameraControl.Camobject.settings.videosourcestring;
@@ -299,14 +301,14 @@ namespace iSpyApplication
             {
                 url = uri.AbsoluteUri.Replace(uri.PathAndQuery, "/");
 
-                string s = "http";
+                const string s = "http";
                 //if (!String.IsNullOrEmpty(ptz.Prefix))
                 //    s = ptz.Prefix;
-                int p = 80;
+                const int p = 80;
                 //if (ptz.Port > 0)
                 //    p = ptz.Port;
                 
-                if (uri.Scheme != "http")
+                if (!uri.Scheme.ToLower().StartsWith("http")) //rtsp/mrl replace
                     url = url.Replace(":" + uri.Port + "/", ":" + p + "/");
 
                 url = url.Replace(uri.Scheme + "://", s + "://");              
@@ -322,7 +324,7 @@ namespace iSpyApplication
                         if (!url.EndsWith("/"))
                         {
                             string ext = "?";
-                            if (url.IndexOf("?") != -1)
+                            if (url.IndexOf("?", StringComparison.Ordinal) != -1)
                                 ext = "&";
                             url += ext + cmd;
                         }
@@ -340,8 +342,6 @@ namespace iSpyApplication
             }
             else
             {
-                if (cmd.Contains("://"))
-
                 if (!String.IsNullOrEmpty(cmd))
                 {
                     if (!cmd.Contains("://"))
@@ -349,7 +349,7 @@ namespace iSpyApplication
                         if (!url.EndsWith("/"))
                         {
                             string ext = "?";
-                            if (url.IndexOf("?") != -1)
+                            if (url.IndexOf("?", StringComparison.Ordinal) != -1)
                                 ext = "&";
                             url += ext + cmd;
                         }
@@ -357,6 +357,10 @@ namespace iSpyApplication
                         {
                             url += cmd;
                         }
+                    }
+                    else
+                    {
+                        url = cmd;
                     }
 
                 }
@@ -397,11 +401,12 @@ namespace iSpyApplication
             _request.AllowAutoRedirect = true;
             _request.KeepAlive = true;
             _request.SendChunked = false;
-            //_request.Method = "POST";
             _request.AllowWriteStreamBuffering = true;
             _request.UserAgent = _cameraControl.Camobject.settings.useragent;
+            //
+            
             //get credentials
-
+            
             // set login and password
 
             string authInfo = "";
@@ -434,6 +439,28 @@ namespace iSpyApplication
                 }
                 _request.CookieContainer = myContainer;
             }
+
+            if (ptz.POST)
+            {
+               
+                var i = url.IndexOf("?", StringComparison.Ordinal);
+                if (i>-1 && i<url.Length)
+                {
+                    var encoding = new ASCIIEncoding();
+                    string postData = url.Substring(i + 1);
+                    byte[] data = encoding.GetBytes(postData);
+
+                    _request.Method = "POST";
+                    _request.ContentType = "application/x-www-form-urlencoded";
+                    _request.ContentLength = data.Length;
+
+                    using (Stream stream = _request.GetRequestStream())
+                    {
+                        stream.Write(data, 0, data.Length);
+                    }    
+                }
+            }
+
 
             var myRequestState = new RequestState {Request = _request};
             _request.BeginGetResponse(FinishPTZRequest, myRequestState);

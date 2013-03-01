@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -69,12 +70,12 @@ namespace iSpyApplication
                         string sLine;
                         while ((sLine = sr.ReadLine()) != null)
                         {
-                            sLine.Trim();
+                            sLine = sLine.Trim();
 
                             if (sLine.Length > 0)
                             {
                                 //find the separator
-                                int iStartPos = sLine.IndexOf(";");
+                                int iStartPos = sLine.IndexOf(";", StringComparison.Ordinal);
 
                                 // Convert to lower case
                                 sLine = sLine.ToLower();
@@ -217,7 +218,7 @@ namespace iSpyApplication
             // Convert to lowercase
             sRequestedFile = sRequestedFile.ToLower();
 
-            int iStartPos = sRequestedFile.LastIndexOf(".");
+            int iStartPos = sRequestedFile.LastIndexOf(".", StringComparison.Ordinal);
             if (iStartPos == -1)
                 return "text/javascript";
             string sFileExt = sRequestedFile.Substring(iStartPos);
@@ -387,7 +388,7 @@ namespace iSpyApplication
             String sPhysicalFilePath;
             NumErr = 0;
 
-            while (Running && NumErr < 5 && _myListener!=null)
+            while (!MainForm.Reallyclose && Running && NumErr < 5 && _myListener!=null)
             {
                 //Accept a new connection
                 try
@@ -436,13 +437,13 @@ namespace iSpyApplication
                                 goto Finish;
                             }
 
-                            String sRequestedFile;
-                            String sErrorMessage;
-                            String sLocalDir;
-                            String sDirName;
                             //Debug.WriteLine(sBuffer);
                             try
                             {
+                                String sRequestedFile;
+                                String sErrorMessage;
+                                String sLocalDir;
+                                String sDirName;
                                 ParseRequest(sMyWebServerRoot, sBuffer, out sRequest, out sRequestedFile,
                                              out sErrorMessage,
                                              out sLocalDir, out sDirName, out sPhysicalFilePath, out sHttpVersion,
@@ -474,7 +475,7 @@ namespace iSpyApplication
                             else //not a js request
                             {
                                 string cmd = sRequest.Trim('/').ToLower();
-                                int i = cmd.IndexOf("?");
+                                int i = cmd.IndexOf("?", StringComparison.Ordinal);
                                 if (i>-1)
                                     cmd = cmd.Substring(0,i );
                                 if (cmd.StartsWith("get /"))
@@ -592,14 +593,14 @@ namespace iSpyApplication
             int iEndBytes = 0;
             bool isrange = false;
 
-            if (sBuffer.IndexOf("Range: bytes=") != -1)
+            if (sBuffer.IndexOf("Range: bytes=", StringComparison.Ordinal) != -1)
             {
                 string[] headers = sBuffer.Split(Environment.NewLine.ToCharArray());
                 foreach (string h in headers)
                 {
                     if (h.StartsWith("Range:"))
                     {
-                        string[] range = (h.Substring(h.IndexOf("=") + 1)).Split('-');
+                        string[] range = (h.Substring(h.IndexOf("=", StringComparison.Ordinal) + 1)).Split('-');
                         iStartBytes = Convert.ToInt32(range[0]);
                         if (range[1] != "")
                         {
@@ -704,7 +705,7 @@ namespace iSpyApplication
             sErrorMessage = "";
             string sClientIP = mySocket.RemoteEndPoint.ToString();
 
-            sClientIP = sClientIP.Substring(0, sClientIP.LastIndexOf(":")).Trim();
+            sClientIP = sClientIP.Substring(0, sClientIP.LastIndexOf(":", StringComparison.Ordinal)).Trim();
             sClientIP = sClientIP.Replace("[", "").Replace("]", "");
 
             bServe = false;
@@ -717,18 +718,18 @@ namespace iSpyApplication
                 }
             }
 
-            int iStartPos = sBuffer.IndexOf("HTTP", 1);
+            int iStartPos = sBuffer.IndexOf("HTTP", 1, StringComparison.Ordinal);
 
             sHttpVersion = sBuffer.Substring(iStartPos, 8);
             sRequest = sBuffer.Substring(0, iStartPos - 1);
-            sRequest.Replace("\\", "/");
+            sRequest = sRequest.Replace("\\", "/");
 
-            if (sRequest.IndexOf("command.txt") != -1)
+            if (sRequest.IndexOf("command.txt", StringComparison.Ordinal) != -1)
             {
                 sRequest = sRequest.Replace("Video/", "Video|");
                 sRequest = sRequest.Replace("Audio/", "Audio|");
             }
-            iStartPos = sRequest.LastIndexOf("/") + 1;
+            iStartPos = sRequest.LastIndexOf("/", StringComparison.Ordinal) + 1;
             sRequestedFile = Uri.UnescapeDataString(sRequest.Substring(iStartPos));
             GetDirectoryPath(sRequest, sMyWebServerRoot, out sLocalDir, out sDirName);
 
@@ -782,20 +783,20 @@ namespace iSpyApplication
             url = url.ToLower();
             var = var.ToLower();
 
-            int i = url.IndexOf("&"+ var + "=");
+            int i = url.IndexOf("&"+ var + "=", StringComparison.Ordinal);
             if (i == -1)
-                i = url.IndexOf("?" + var + "=");
+                i = url.IndexOf("?" + var + "=", StringComparison.Ordinal);
             if (i == -1)
             {
-                i = url.IndexOf(var);
+                i = url.IndexOf(var, StringComparison.Ordinal);
                 if (i == -1)
                     return "";
                 i--;
             }
 
             string txt = url.Substring(i + var.Length + 1).Trim('=');
-            if (txt.IndexOf("&") != -1)
-                txt = txt.Substring(0, txt.IndexOf("&"));
+            if (txt.IndexOf("&", StringComparison.Ordinal) != -1)
+                txt = txt.Substring(0, txt.IndexOf("&", StringComparison.Ordinal));
 
             return txt;
         }
@@ -804,7 +805,7 @@ namespace iSpyApplication
         {
             string cmd = sRequest.Trim('/').ToLower().Trim();
             string resp = "";
-            int i = cmd.IndexOf("?");
+            int i = cmd.IndexOf("?", StringComparison.Ordinal);
             if (i!=-1)
                 cmd = cmd.Substring(0, i);
             if (cmd.StartsWith("get /"))
@@ -1155,9 +1156,9 @@ namespace iSpyApplication
                         {
                             if (oc.command.StartsWith("ispy ") || oc.command.StartsWith("ispy.exe "))
                             {
-                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ") + 1).Trim();
+                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ", StringComparison.Ordinal) + 1).Trim();
 
-                                int k = cmd2.ToLower().IndexOf("commands ");
+                                int k = cmd2.ToLower().IndexOf("commands ", StringComparison.Ordinal);
                                 if (k != -1)
                                 {
                                     cmd2 = cmd2.Substring(k + 9);
@@ -1513,7 +1514,7 @@ namespace iSpyApplication
                                     lFi = lFi.FindAll(f => f.CreatedDateTicks > sdl).ToList();
                                 if (edl > 0)
                                     lFi = lFi.FindAll(f => f.CreatedDateTicks < edl).ToList();
-                                func = func.Replace("resultcount", lFi.Count.ToString());
+                                func = func.Replace("resultcount", lFi.Count.ToString(CultureInfo.InvariantCulture));
 
                                 switch (ordermode)
                                 {
@@ -1535,7 +1536,7 @@ namespace iSpyApplication
                                                           current +
                                                           (fi.Filename + "|" + FormatBytes(fi.SizeBytes) + "|" +
                                                            String.Format(
-                                                               System.Globalization.CultureInfo.InvariantCulture,
+                                                               CultureInfo.InvariantCulture,
                                                                "{0:0.000}", fi.MaxAlarm) + ","));
                                 resp = temp.Trim(',');
                             }
@@ -1549,7 +1550,7 @@ namespace iSpyApplication
                                     lFi2 = lFi2.FindAll(f => f.CreatedDateTicks > sdl).ToList();
                                 if (edl > 0)
                                     lFi2 = lFi2.FindAll(f => f.CreatedDateTicks < edl).ToList();
-                                func = func.Replace("resultcount", lFi2.Count.ToString());
+                                func = func.Replace("resultcount", lFi2.Count.ToString(CultureInfo.InvariantCulture));
 
                                 switch (ordermode)
                                 {
@@ -1570,7 +1571,7 @@ namespace iSpyApplication
                                                            current +
                                                            (fi.Filename + "|" + FormatBytes(fi.SizeBytes) + "|" +
                                                             String.Format(
-                                                                System.Globalization.CultureInfo.InvariantCulture,
+                                                                CultureInfo.InvariantCulture,
                                                                 "{0:0.000}", fi.MaxAlarm) + ","));
                                 resp = temp.Trim(',');
                             }
@@ -1616,7 +1617,7 @@ namespace iSpyApplication
                         FloorPlanControl fpc = _parent.GetFloorPlan(ofp.id);
                         if (fpc != null && fpc.ImgPlan != null)
                         {
-                            temp += ofp.id + "," + fpc.LastAlertTimestamp + "," + fpc.LastRefreshTimestamp + "," +
+                            temp += ofp.id + "," + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + "," + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + "," +
                                     fpc.LastOid + "," + fpc.LastOtid + "|";
                         }
                     }
@@ -1631,8 +1632,8 @@ namespace iSpyApplication
                             FloorPlanControl fpc = _parent.GetFloorPlan(ofp.id);
                             if (fpc != null && fpc.ImgPlan != null)
                             {
-                                cfg += "{oid:" + ofp.id + ",alertTimestamp:" + fpc.LastAlertTimestamp +
-                                       ",refreshTimestamp:" + fpc.LastRefreshTimestamp + ",last_oid:" + fpc.LastOid +
+                                cfg += "{oid:" + ofp.id + ",alertTimestamp:" + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) +
+                                       ",refreshTimestamp:" + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + ",last_oid:" + fpc.LastOid +
                                        ",last_otid:" + fpc.LastOtid + "},";
                             }
                         }
@@ -1671,7 +1672,7 @@ namespace iSpyApplication
                             if (fpc != null && fpc.ImgPlan != null)
                             {
                                 cfg += "{oid: " + ofp.id + ", name: \"" +
-                                       ofp.name.Replace("\"", "") + "\", refreshTimestamp: "+fpc.LastRefreshTimestamp +", alertTimestamp: "+fpc.LastAlertTimestamp+", width:"+fpc.ImageWidth+", height:"+fpc.ImageHeight+",areas:[";
+                                       ofp.name.Replace("\"", "") + "\", refreshTimestamp: " + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + ", alertTimestamp: " + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + ", width:" + fpc.ImageWidth + ", height:" + fpc.ImageHeight + ",areas:[";
 
                                 cfg += ofp.objects.@object.Aggregate(temp,
                                                                      (current, ofpo) =>
@@ -1709,7 +1710,7 @@ namespace iSpyApplication
                         func = func.Replace("data", "\"" + ff.AlertData + "\"");
                         func = func.Replace("duration", "\"" + ff.DurationSeconds + "\"");
                         func = func.Replace("threshold",
-                                            String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
+                                            String.Format(CultureInfo.InvariantCulture, "{0:0.000}",
                                                           ff.TriggerLevel));
                     }
                     else
@@ -1757,12 +1758,12 @@ namespace iSpyApplication
                             if (edl > 0)
                                 ffs = ffs.FindAll(f => f.CreatedDateTicks < edl).ToList();
 
+                            StringBuilder sb = new StringBuilder();
                             foreach (FilesFile f in ffs)
                             {
-                                temp += (long) (f.CreatedDateTicks.UnixTicks()) + "|" +
-                                        String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.000}",
-                                                      f.MaxAlarm) + "|" + f.DurationSeconds + "|" + f.Filename + ",";
+                                sb.Append((f.CreatedDateTicks.UnixTicks())).Append("|").Append(String.Format(CultureInfo.InvariantCulture, "{0:0.000}",f.MaxAlarm)).Append("|").Append(f.DurationSeconds.ToString(CultureInfo.InvariantCulture)).Append("|").Append(f.Filename).Append(",");
                             }
+                            temp = sb.ToString();
                             func = func.Replace("data", "\"" + temp.Trim(',') + "\"");
 
                         }
@@ -1808,10 +1809,10 @@ namespace iSpyApplication
                             sb.Append(",oid:");
                             sb.Append(f.ObjectId);
                             sb.Append(",created:");
-                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.00}",
+                            sb.Append(String.Format(CultureInfo.InvariantCulture, "{0:0.00}",
                                                     f.CreatedDateTicks.UnixTicks()));
                             sb.Append(",maxalarm:");
-                            sb.Append(String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:0.0}",
+                            sb.Append(String.Format(CultureInfo.InvariantCulture, "{0:0.0}",
                                                     f.MaxAlarm));
                             sb.Append(",duration: ");
                             sb.Append(f.Duration);
@@ -1820,7 +1821,6 @@ namespace iSpyApplication
                             sb.Append("\"},");
                         }
                         temp = sb.ToString().Trim(',') + "]";
-                        sb = null;
                         func = func.Replace("data", temp);
                     }
                     resp = "OK";
@@ -1891,8 +1891,8 @@ namespace iSpyApplication
                     if (ed != "")
                         edl = Convert.ToInt64(ed);
 
-                    StringBuilder grablist = new StringBuilder("");
-                    var ocgrab = MainForm.Cameras.Where(p => p.id == oid).FirstOrDefault();
+                    var grablist = new StringBuilder("");
+                    var ocgrab = MainForm.Cameras.FirstOrDefault(p => p.id == oid);
                     if (ocgrab != null)
                     {
                         var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "video\\" +
@@ -1902,7 +1902,7 @@ namespace iSpyApplication
                         lFi.AddRange(dirinfo.GetFiles());
                         lFi = lFi.FindAll(f => f.Extension.ToLower() == ".jpg" && (sdl == 0 || f.CreationTime.Ticks > sdl) && (edl == 0 || f.CreationTime.Ticks < edl));
                         lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
-                        func = func.Replace("total", lFi.Count.ToString());
+                        func = func.Replace("total", lFi.Count.ToString(CultureInfo.InvariantCulture));
                         lFi = lFi.Skip(page*pagesize).Take(pagesize).ToList();
 
                         int max = 10000;
@@ -1946,13 +1946,7 @@ namespace iSpyApplication
                    
                     foreach(string fn3 in files)
                     {
-                        try
-                        {
-                            FileOperations.Delete(folderpath + fn3);
-                        }
-                        catch
-                        {
-                        }
+                        FileOperations.Delete(folderpath + fn3);
                     }
                     resp = "OK";
                     break;
@@ -1990,30 +1984,11 @@ namespace iSpyApplication
                         var fi = new FileInfo(folderpath +
                                                      fn3);
                         string ext = fi.Extension.Trim();
-                        try
-                        {
-                            FileOperations.Delete(folderpath + fn3);
-                        }
-                        catch
-                        {
-                        }
+                        FileOperations.Delete(folderpath + fn3);
                         if (otid == 2)
                         {
-                            try
-                            {
-                                FileOperations.Delete(folderpath + "thumbs\\" + fn3.Replace(ext, ".jpg"));
-
-                            }
-                            catch
-                            {
-                            }
-                            try
-                            {
-                                FileOperations.Delete(folderpath + "thumbs\\" + fn3.Replace(ext, "_large.jpg"));
-                            }
-                            catch
-                            {
-                            }
+                            FileOperations.Delete(folderpath + "thumbs\\" + fn3.Replace(ext, ".jpg"));
+                            FileOperations.Delete(folderpath + "thumbs\\" + fn3.Replace(ext, "_large.jpg"));
                         }
                         string filename1 = fn3;
                         if (otid==1)
@@ -2341,7 +2316,7 @@ namespace iSpyApplication
                                     string[] res = cw.Camobject.resolution.Split('x');
                                     string micpairid = "-1";
                                     if (cw.VolumeControl != null)
-                                        micpairid = cw.VolumeControl.Micobject.id.ToString();
+                                        micpairid = cw.VolumeControl.Micobject.id.ToString(CultureInfo.InvariantCulture);
                                     cfg = "ot: 2, oid:" + oid + ", micpairid: " + micpairid + ", port: " +
                                           MainForm.Conf.ServerPort + ",online: " + cw.IsEnabled.ToString().ToLower() +
                                           ",recording: " + cw.ForcedRecording.ToString().ToLower() + ", width:" + res[0] +
@@ -2374,8 +2349,8 @@ namespace iSpyApplication
         {
             try
             {
-                sDirName = sRequest.Substring(sRequest.IndexOf("/"));
-                sDirName = sDirName.Substring(0, sDirName.LastIndexOf("/"));
+                sDirName = sRequest.Substring(sRequest.IndexOf("/", StringComparison.Ordinal));
+                sDirName = sDirName.Substring(0, sDirName.LastIndexOf("/", StringComparison.Ordinal));
 
                 if (sDirName == "/")
                     sLocalDir = sMyWebServerRoot;
@@ -2384,8 +2359,8 @@ namespace iSpyApplication
                     if (sDirName.ToLower().StartsWith(@"/video/"))
                     {
                         sLocalDir = MainForm.Conf.MediaDirectory + "video\\";
-                        string sfile = sRequest.Substring(sRequest.LastIndexOf("/") + 1);
-                        int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_")));
+                        string sfile = sRequest.Substring(sRequest.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                        int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_", StringComparison.Ordinal)));
                         sLocalDir += GetDirectory(2, iind) + "\\";
                         if (sfile.Contains(".jpg"))
                             sLocalDir += "thumbs\\";
@@ -2395,8 +2370,8 @@ namespace iSpyApplication
                         if (sDirName.ToLower().StartsWith(@"/audio/"))
                         {
                             sLocalDir = MainForm.Conf.MediaDirectory + "audio\\";
-                            string sfile = sRequest.Substring(sRequest.LastIndexOf("/") + 1);
-                            int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_")));
+                            string sfile = sRequest.Substring(sRequest.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                            int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_", StringComparison.Ordinal)));
                             sLocalDir += GetDirectory(1, iind) + "\\";
                         }
                         else
@@ -2416,11 +2391,12 @@ namespace iSpyApplication
         {
             sFileName = sRequestedFile;
 
-
-            if (sFileName.IndexOf("?") != -1)
-                sFileName = sFileName.Substring(0, sFileName.IndexOf("?"));
-            if (sFileName.IndexOf("&") != -1)
-                sFileName = sFileName.Substring(0, sFileName.IndexOf("&"));
+            int i = sFileName.IndexOf("?", StringComparison.Ordinal);
+            if (i != -1)
+                sFileName = sFileName.Substring(0, i);
+            i = sFileName.IndexOf("&", StringComparison.Ordinal);
+            if (i != -1)
+                sFileName = sFileName.Substring(0, i);
             
             sMimeType = GetMimeType(sFileName);
             if (sMimeType=="")
@@ -2458,7 +2434,7 @@ namespace iSpyApplication
         {
             string fn = GetVar(sPhysicalFilePath, "fn");
             //prevent filesystem access
-            if (fn.IndexOf("./") != -1)
+            if (fn.IndexOf("./", StringComparison.Ordinal) != -1)
                 return;
 
             var fi = new FileInfo(Program.AppDataPath + fn);
@@ -2579,14 +2555,14 @@ namespace iSpyApplication
 
                                 int w = 320, h = 240;
                                 bool done = false;
-                                if (sPhysicalFilePath.IndexOf("thumb") != -1)
+                                if (sPhysicalFilePath.IndexOf("thumb", StringComparison.Ordinal) != -1)
                                 {
                                     w = 96;
                                     h = 72;
                                 }
                                 else
                                 {
-                                    if (sPhysicalFilePath.IndexOf("full") != -1)
+                                    if (sPhysicalFilePath.IndexOf("full", StringComparison.Ordinal) != -1)
                                     {
                                         b.Save(imageStream, ImageFormat.Jpeg);
                                         done = true;
@@ -2831,14 +2807,14 @@ namespace iSpyApplication
                         bool done = false;
                         using (var ms = new MemoryStream())
                         {
-                                if (sPhysicalFilePath.IndexOf("thumb") != -1)
+                                if (sPhysicalFilePath.IndexOf("thumb", StringComparison.Ordinal) != -1)
                                 {
                                 w = 96;
                                 h = 72;
                                 }
                                 else
                                 {
-                                    if (sPhysicalFilePath.IndexOf("full") != -1)
+                                    if (sPhysicalFilePath.IndexOf("full", StringComparison.Ordinal) != -1)
                                     {
                                         fpc.ImgView.Save(ms, ImageFormat.Jpeg);
                                         done = true;
@@ -2903,9 +2879,7 @@ namespace iSpyApplication
         {
             string scamid = GetVar(sPhysicalFilePath,"oid");
             string size = GetVar(sPhysicalFilePath, "size");
-            bool basicCt = false;
-            if (GetVar(sPhysicalFilePath, "basicct") != "")
-                basicCt = true; //basic content type - fix for chrome
+            bool basicCt = GetVar(sPhysicalFilePath, "basicct") != "";
             int w = 320, h = 240;
             int camid;
             int.TryParse(scamid, out camid);
@@ -2918,14 +2892,14 @@ namespace iSpyApplication
                     int.TryParse(wh[1], out h);
                 }                
             }
-            if (sPhysicalFilePath.IndexOf("thumb") != -1)
+            if (sPhysicalFilePath.IndexOf("thumb", StringComparison.Ordinal) != -1)
             {
                 w = 96;
                 h = 72;
             }
             else
             {
-                if (sPhysicalFilePath.IndexOf("full") != -1)
+                if (sPhysicalFilePath.IndexOf("full", StringComparison.Ordinal) != -1)
                 {
                     w = -1;
                     h = -1;
@@ -3030,8 +3004,7 @@ namespace iSpyApplication
                 mySocket.Shutdown(SocketShutdown.Send);
                 try
                 {
-                    int read = 0;
-                    byte[] recBuff = new byte[1000];
+                    var recBuff = new byte[1000];
                     //clear pending buffer
                     mySocket.ReceiveTimeout = 300;
                     while (mySocket.Receive(recBuff) > 0)
@@ -3069,7 +3042,7 @@ namespace iSpyApplication
                     bool sendend = false;
 
                     int iStartBytes = 0;
-                    if (sBuffer.IndexOf("Range: bytes=") != -1)
+                    if (sBuffer.IndexOf("Range: bytes=", StringComparison.Ordinal) != -1)
                     {
                         var headers = sBuffer.Split(Environment.NewLine.ToCharArray());
                         for (int index = 0; index < headers.Length; index++)
@@ -3077,7 +3050,7 @@ namespace iSpyApplication
                             string h = headers[index];
                             if (h.StartsWith("Range:"))
                             {
-                                string[] range = (h.Substring(h.IndexOf("=") + 1)).Split('-');
+                                string[] range = (h.Substring(h.IndexOf("=", StringComparison.Ordinal) + 1)).Split('-');
                                 iStartBytes = Convert.ToInt32(range[0]);
                                 break;
                             }
@@ -3236,7 +3209,7 @@ namespace iSpyApplication
             foreach (string order in orders)
             {
                 if (bytes > max)
-                    return String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:##.##} {1}",
+                    return String.Format(CultureInfo.InvariantCulture, "{0:##.##} {1}",
                                          decimal.Divide(bytes, max), order);
 
                 max /= scale;
@@ -3254,11 +3227,7 @@ namespace iSpyApplication
                     CameraWindow cw = _parent.GetCameraWindow(oc.id);
                     if (cw != null)
                     {
-                        bool onlinestatus = true;
-                        if (!oc.settings.active || cw.VideoSourceErrorState)
-                        {
-                            onlinestatus = false;
-                        }
+                        bool onlinestatus = !(!oc.settings.active || cw.VideoSourceErrorState);
                         bool talkconfigured = oc.settings.audiomodel != "None";
                         resp += "2," + oc.id + "," + onlinestatus.ToString().ToLower() + "," +
                                 oc.name.Replace(",", "&comma;") + "," + GetStatus(onlinestatus) + "," +

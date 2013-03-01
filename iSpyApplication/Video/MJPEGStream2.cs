@@ -491,7 +491,6 @@ namespace iSpyApplication.Video
                     // set timeout value for the request
                     request.Timeout = _requestTimeout;
                     request.AllowAutoRedirect = true;
-                    ServicePointManager.ServerCertificateValidationCallback += Certificates.ValidateRemoteCertificate;
 
                     // set login and password
                     if ((_login != null) && (_password != null) && (_login != string.Empty))
