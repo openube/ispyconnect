@@ -710,8 +710,6 @@ namespace iSpyApplication
                 h++;
 
             CameraControl.Camobject.settings.desktopresizeheight = h;
-
-
             CameraControl.Camobject.settings.resize = !chkNoResize.Checked;
             
 

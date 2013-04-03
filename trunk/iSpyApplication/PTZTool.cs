@@ -10,7 +10,7 @@ namespace iSpyApplication
     {
         private bool _loaded;
         private CameraWindow _cameraControl;
-        private bool _mousedown = false;
+        private bool _mousedown;
         private Point _location = Point.Empty;
 
         public CameraWindow CameraControl
@@ -95,7 +95,7 @@ namespace iSpyApplication
             if (CameraControl.Camera == null)
                 return;
             bool d = MainForm.PTZs.SingleOrDefault(q => q.id == CameraControl.Camobject.ptz) == null;
-            Enums.PtzCommand comm = Enums.PtzCommand.Center;
+            var comm = Enums.PtzCommand.Center;
             if (p.X < 60 && p.Y > 60 && p.Y < 106)
             {
                 comm = Enums.PtzCommand.Left;
@@ -152,6 +152,7 @@ namespace iSpyApplication
 
             if (d)
             {
+
                 Rectangle r = CameraControl.Camera.ViewRectangle;
                 if (r != Rectangle.Empty)
                 {

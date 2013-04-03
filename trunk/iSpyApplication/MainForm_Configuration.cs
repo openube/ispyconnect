@@ -228,8 +228,9 @@ namespace iSpyApplication
                     _conf.ShowOverlayControls = true;
                     _conf.ShowMediaPanel = true;
                 }
-                if (Conf.IPMode != "IPv6")
-                    Conf.IPMode = "IPv4";
+                if (_conf.IPMode != "IPv6")
+                    _conf.IPMode = "IPv4";
+
                 if (_conf.Priority == 0)
                 {
                     _conf.Priority = 3;
@@ -260,6 +261,12 @@ namespace iSpyApplication
                 if (String.IsNullOrEmpty(_conf.BorderDefaultColor))
                     _conf.BorderDefaultColor = "0,0,0";
 
+                if (_conf.GridViews==null)
+                    _conf.GridViews = new configurationGrid[]{};
+
+                if (_conf.Joystick==null)
+                    _conf.Joystick = new configurationJoystick();
+                
                 return _conf;
             }
         }
@@ -639,7 +646,7 @@ namespace iSpyApplication
                         cam.settings.audiopassword = "";
                     }
 
-                    if (cam.detector.minsensitivity == 0)
+                    if (Math.Abs(cam.detector.minsensitivity - 0) < double.Epsilon)
                     {
                         cam.detector.maxsensitivity = 100;
                         //fix for old setting conversion
@@ -939,7 +946,7 @@ namespace iSpyApplication
 
             DateTime dtref = DateTime.Now.AddDays(0 - Conf.DeleteFilesOlderThanDays);
 
-            if ((b / 1048576) <= Conf.MaxMediaFolderSizeMB * 0.7)
+            if ((b / 1048576d) <= Conf.MaxMediaFolderSizeMB * 0.7)
             {
                 return;
             }
@@ -1740,7 +1747,7 @@ namespace iSpyApplication
                     pb.Selected = false;
                     pb.FileName = movieName;
                     pb.CreatedDate = createdDate;
-                    pb.MouseDown += pb_MouseDown;
+                    pb.MouseDown += PbMouseDown;
                     toolTip1.SetToolTip(pb, createdDate.ToString(CultureInfo.InvariantCulture));
                     UISync.Execute(() => flowPreview.Controls.Add(pb));
                     if (first)
@@ -1763,7 +1770,7 @@ namespace iSpyApplication
             }
         }
 
-        void pb_MouseDown(object sender, MouseEventArgs e)
+        void PbMouseDown(object sender, MouseEventArgs e)
         {
             var ctrl = (PreviewBox)sender;
             ctrl.Focus();

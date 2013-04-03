@@ -3,17 +3,16 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using System.Xml;
 using Google.GData.Client;
 using Google.GData.YouTube;
 using Microsoft.Win32;
 using NAudio.Wave;
+using iSpyApplication.Controls;
+using iSpyApplication.Joystick;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace iSpyApplication
@@ -21,10 +20,13 @@ namespace iSpyApplication
     public partial class Settings : Form
     {
         private const int Rgbmax = 255;
+        private JoystickDevice _jst;
         public int InitialTab;
         public bool ReloadResources;
         readonly string _noDevices = LocRm.GetString("NoAudioDevices");
         private RegistryKey _rkApp;
+        private string[] _sticks;
+        private static readonly object Jslock = new object();
 
         public Settings()
         {
@@ -182,10 +184,73 @@ namespace iSpyApplication
                 MainForm.StopRecordingFlag = false;
 
             MainForm.ReloadColors();
-            
+
+            if (ddlJoystick.SelectedIndex > 0)
+            {
+                string nameid = _sticks[ddlJoystick.SelectedIndex - 1];
+                MainForm.Conf.Joystick.id = nameid.Split('|')[1];
+
+                MainForm.Conf.Joystick.XAxis = jaxis1.ID;
+                MainForm.Conf.Joystick.InvertXAxis = jaxis1.Invert;
+
+                MainForm.Conf.Joystick.YAxis = jaxis2.ID;
+                MainForm.Conf.Joystick.InvertYAxis = jaxis2.Invert;
+
+                MainForm.Conf.Joystick.ZAxis = jaxis3.ID;
+                MainForm.Conf.Joystick.InvertZAxis = jaxis3.Invert;
+
+                MainForm.Conf.Joystick.Record = jbutton1.ID;
+                MainForm.Conf.Joystick.Snapshot = jbutton2.ID;
+                MainForm.Conf.Joystick.Talk = jbutton3.ID;
+                MainForm.Conf.Joystick.Listen = jbutton4.ID;
+                MainForm.Conf.Joystick.Play = jbutton5.ID;
+                MainForm.Conf.Joystick.Next = jbutton6.ID;
+                MainForm.Conf.Joystick.Previous = jbutton7.ID;
+                MainForm.Conf.Joystick.Stop = jbutton8.ID;
+            }
+            else
+                MainForm.Conf.Joystick.id = "";
+           
             DialogResult = DialogResult.OK;
             Close();
         }
+
+        private jbutton _curButton;
+        private jaxis _curAxis;
+
+        void jbutton_GetInput(object sender, EventArgs e)
+        {
+            jbutton1.Reset();
+            jbutton2.Reset();
+            jbutton3.Reset();
+            jbutton4.Reset();
+            jbutton5.Reset();
+            jbutton6.Reset();
+            jbutton7.Reset();
+
+            if (sender!=null)
+                _curButton = (jbutton) sender;
+            else
+            {
+                _curButton = null;
+            }
+        }
+
+        void jaxis_GetInput(object sender, EventArgs e)
+        {
+            jaxis1.Reset();
+            jaxis2.Reset();
+            jaxis3.Reset();
+
+            if (sender!=null)
+                _curAxis = (jaxis)sender;
+            else
+            {
+                _curAxis = null;
+            }
+        }
+
+        
 
         private void Button2Click(object sender, EventArgs e)
         {
@@ -196,7 +261,6 @@ namespace iSpyApplication
         {
             UISync.Init(this);
             tcTabs.SelectedIndex = InitialTab;
-            //lblBackground.Text = MainForm.Conf.BackgroundImage;
             chkErrorReporting.Checked = MainForm.Conf.Enable_Error_Reporting;
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
             chkPasswordProtect.Checked = MainForm.Conf.Enable_Password_Protect;
@@ -220,7 +284,7 @@ namespace iSpyApplication
             btnBorderHighlight.BackColor = MainForm.Conf.BorderHighlightColor.ToColor();
             btnBorderDefault.BackColor = MainForm.Conf.BorderDefaultColor.ToColor();
             btnTimestampColor.BackColor = MainForm.Conf.TimestampColor.ToColor();
-            txtDaysDelete.Text = MainForm.Conf.DeleteFilesOlderThanDays.ToString();
+            txtDaysDelete.Text = MainForm.Conf.DeleteFilesOlderThanDays.ToString(CultureInfo.InvariantCulture);
             txtMaxMediaSize.Value = MainForm.Conf.MaxMediaFolderSizeMB;
             chkAutoSchedule.Checked = MainForm.Conf.AutoSchedule;
             numMaxCPU.Value = MainForm.Conf.CPUMax;
@@ -236,8 +300,6 @@ namespace iSpyApplication
                 Process.Start(Program.AppPath + "iSpyMonitor.exe");
             }
             chkMonitor.Checked = MainForm.Conf.Monitor;
-
-            //ddlImageMode.SelectedItem = MainForm.Conf.BackgroundImageMode;
 
             tbOpacity.Value = MainForm.Conf.Opacity;
             SetColors();
@@ -319,8 +381,57 @@ namespace iSpyApplication
                 ddlTalkMic.Items.Add(_noDevices);
                 ddlTalkMic.Enabled = false;
             }
-            
 
+            ddlJoystick.Items.Add(LocRm.GetString("None"));
+
+            _jst = new JoystickDevice();
+            var ij = 0;
+            _sticks = _jst.FindJoysticks();
+            i = 1;
+            foreach(string js in _sticks)
+            {
+                var nameid = js.Split('|');
+                ddlJoystick.Items.Add(nameid[0]);
+                if (nameid[1] == MainForm.Conf.Joystick.id)
+                    ij = i;
+                i++;
+            }
+
+            ddlJoystick.SelectedIndex = ij;
+
+
+            jaxis1.ID = MainForm.Conf.Joystick.XAxis;
+            jaxis1.SupportDPad = true;
+            jaxis1.Invert = MainForm.Conf.Joystick.InvertXAxis;
+
+            jaxis2.ID = MainForm.Conf.Joystick.YAxis;
+            jaxis2.Invert = MainForm.Conf.Joystick.InvertYAxis;
+
+            jaxis3.ID = MainForm.Conf.Joystick.ZAxis;
+            jaxis3.Invert = MainForm.Conf.Joystick.InvertZAxis;
+
+            jbutton1.ID = MainForm.Conf.Joystick.Record;
+            jbutton2.ID = MainForm.Conf.Joystick.Snapshot;
+            jbutton3.ID = MainForm.Conf.Joystick.Talk;
+            jbutton4.ID = MainForm.Conf.Joystick.Listen;
+            jbutton5.ID = MainForm.Conf.Joystick.Play;
+            jbutton6.ID = MainForm.Conf.Joystick.Next;
+            jbutton7.ID = MainForm.Conf.Joystick.Previous;
+            jbutton8.ID = MainForm.Conf.Joystick.Stop;
+
+            jbutton1.GetInput += jbutton_GetInput;
+            jbutton2.GetInput += jbutton_GetInput;
+            jbutton3.GetInput += jbutton_GetInput;
+            jbutton4.GetInput += jbutton_GetInput;
+            jbutton5.GetInput += jbutton_GetInput;
+            jbutton6.GetInput += jbutton_GetInput;
+            jbutton7.GetInput += jbutton_GetInput;
+            jbutton8.GetInput += jbutton_GetInput;
+
+            jaxis1.GetInput += jaxis_GetInput;
+            jaxis2.GetInput += jaxis_GetInput;
+            jaxis3.GetInput += jaxis_GetInput;
+            
         }
 
         private void RenderResources()
@@ -551,6 +662,10 @@ namespace iSpyApplication
 
         private void Settings_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (_jst!=null)
+            {
+                _jst.ReleaseJoystick();
+            }
         }
 
         private void ddlLanguage_SelectedIndexChanged(object sender, EventArgs e)
@@ -693,5 +808,144 @@ namespace iSpyApplication
             }
         }
 
+        private void ddlJoystick_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            tblJoystick.Enabled = ddlJoystick.SelectedIndex > 0;
+
+            jaxis1.ID = 0;
+            jaxis2.ID = 0;
+            jaxis3.ID = 0;
+
+            jbutton1.ID = 0;
+            jbutton2.ID = 0;
+            jbutton3.ID = 0;
+            jbutton4.ID = 0;
+            jbutton5.ID = 0;
+            jbutton6.ID = 0;
+            jbutton7.ID = 0;
+
+            _curButton = null;
+
+
+            if (tblJoystick.Enabled && _jst!=null)
+            {
+                string nameid = _sticks[ddlJoystick.SelectedIndex - 1];
+                Guid g = Guid.Parse(nameid.Split('|')[1]);
+                _jst.ReleaseJoystick();
+
+                if (_jst.AcquireJoystick(g))
+                {
+                    lock (Jslock)
+                    {
+                        _axisLast = new int[_jst.Axis.Length];
+                        _buttonsLast = new bool[_jst.Buttons.Length];
+                        _dPadsLast = new int[_jst.Dpads.Length];
+                    }
+
+                    jaxis1.ID = MainForm.Conf.Joystick.XAxis;
+                    jaxis2.ID = MainForm.Conf.Joystick.YAxis;
+                    jaxis3.ID = MainForm.Conf.Joystick.ZAxis;
+                    
+                    
+                    jbutton1.ID = MainForm.Conf.Joystick.Record;
+                    jbutton2.ID = MainForm.Conf.Joystick.Snapshot;
+                    jbutton3.ID = MainForm.Conf.Joystick.Talk;
+                    jbutton4.ID = MainForm.Conf.Joystick.Listen;
+                    jbutton5.ID = MainForm.Conf.Joystick.Play;
+                    jbutton6.ID = MainForm.Conf.Joystick.Next;
+                    jbutton7.ID = MainForm.Conf.Joystick.Previous;
+                    jbutton8.ID = MainForm.Conf.Joystick.Stop;
+
+
+                    CenterAxes();
+
+                }
+                else
+                {
+                    MessageBox.Show(this, "Could not acquire joystick");
+                    tblJoystick.Enabled = false;
+                }
+
+
+
+            }
+
+            
+            
+        }
+
+        private int[] _axisLast;
+        private int[] _dPadsLast;
+        private bool[] _buttonsLast;
+
+        private void tmrJSUpdate_Tick(object sender, EventArgs e)
+        {
+            if (_jst != null && _axisLast!=null)
+            {
+                lock (Jslock)
+                {
+                    _jst.UpdateStatus();
+                    for (int i = 0; i < _jst.Axis.Length; i++)
+                    {
+                        if (_jst.Axis[i] != _axisLast[i])
+                        {
+                            if (_curAxis != null)
+                            {
+                                _curAxis.ID = (i + 1);
+                            }
+                        }
+                        _axisLast[i] = _jst.Axis[i];
+
+                    }
+
+                    for (int i = 0; i < _jst.Buttons.Length; i++)
+                    {
+                         
+                        if (_jst.Buttons[i] != _buttonsLast[i])
+                        {
+                            if (_curButton!=null)
+                            {
+                                _curButton.ID = (i + 1);
+                            }
+                        }
+
+                        _buttonsLast[i] = _jst.Buttons[i];
+
+                    }
+
+                    for (int i = 0; i < _jst.Dpads.Length; i++)
+                    {
+                        if (_jst.Dpads[i] != _dPadsLast[i])
+                        {
+                            if (_curAxis!=null && _curAxis == jaxis1)
+                            {
+                                //dpads do x-y plane
+                                jaxis2.ID = _curAxis.ID = 0 - (i + 1);
+                            }
+                        }
+
+                        _dPadsLast[i] = _jst.Dpads[i];
+                        
+                    }
+                }
+
+
+            }
+        }
+
+        private void btnCenterAxes_Click(object sender, EventArgs e)
+        {
+            CenterAxes();
+            MessageBox.Show(this, "Axes Centered");
+        }
+
+        private void CenterAxes()
+        {
+            MainForm.Conf.Joystick.CenterXAxis = jaxis1.ID > 0 ? _jst.Axis[jaxis1.ID - 1] : 0;
+
+            MainForm.Conf.Joystick.CenterYAxis = jaxis2.ID > 0 ? _jst.Axis[jaxis2.ID - 1] : 0;
+
+            MainForm.Conf.Joystick.CenterZAxis = jaxis3.ID > 0 ? _jst.Axis[jaxis3.ID - 1] : 0;
+        }       
     }
 }

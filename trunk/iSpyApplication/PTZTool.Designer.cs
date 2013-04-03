@@ -69,7 +69,7 @@
             this.pnlController.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlController.Location = new System.Drawing.Point(0, 0);
             this.pnlController.Name = "pnlController";
-            this.pnlController.Size = new System.Drawing.Size(237, 207);
+            this.pnlController.Size = new System.Drawing.Size(237, 202);
             this.pnlController.TabIndex = 7;
             // 
             // tmrRepeater
@@ -83,7 +83,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(237, 207);
+            this.ClientSize = new System.Drawing.Size(237, 202);
             this.ControlBox = false;
             this.Controls.Add(this.pnlController);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;

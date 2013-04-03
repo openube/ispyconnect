@@ -22,6 +22,7 @@ namespace iSpyApplication
         private void RenderResources()
         {
             _btnOk.Text = LocRm.GetString("Ok");
+            chkShowGettingStarted.Text = LocRm.GetString("ShowGettingStarted");
         }
 
         private void GettingStarted_Load(object sender, EventArgs e)
@@ -42,6 +43,8 @@ namespace iSpyApplication
             _wbGettingStarted.Location = new Point(0, 0);
             _wbGettingStarted.Dock = DockStyle.Fill;
             _wbGettingStarted.Navigate(MainForm.Website + "/getting_started.aspx");
+
+            chkShowGettingStarted.Checked = MainForm.Conf.Enabled_ShowGettingStarted;
         }
 
         private void _ddlLanguage_SelectedIndexChanged(object sender, EventArgs e)
@@ -60,6 +63,11 @@ namespace iSpyApplication
         {
             _wbGettingStarted.Dispose();
             Close();
+        }
+
+        private void GettingStarted_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
         }
     }
 }

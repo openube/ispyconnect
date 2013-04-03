@@ -15,6 +15,35 @@ namespace iSpyApplication
         const double Arc = Math.PI / 8;
         private string _nextcommand = "";
 
+        private PTZSettings2Camera _ptzSettings;
+        private bool _ptzNull;
+        internal PTZSettings2Camera PTZSettings
+        {
+            get
+            {
+                if (_ptzSettings != null || _ptzNull)
+                    return _ptzSettings;
+                _ptzSettings = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
+                _ptzNull = _ptzSettings == null;
+                return _ptzSettings;
+            }
+            set { 
+                _ptzSettings = value;
+                _ptzNull = _ptzSettings == null;
+            }
+        }
+
+        internal bool DigitalZoom
+        {
+            get { return (PTZSettings == null || String.IsNullOrEmpty(PTZSettings.Commands.ZoomIn)); }
+        }
+
+        internal bool DigitalPTZ
+        {
+            get { return PTZSettings == null; }
+        }
+
+
         public PTZController(CameraWindow cameraControl)
         {
             _cameraControl = cameraControl;
@@ -51,48 +80,55 @@ namespace iSpyApplication
                 angle = angle*-1;
             }
 
-            PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
-            if (ptz==null)
+            if (PTZSettings == null)
+            {
+                //digital ptz
+                _cameraControl.Camera.ZPoint.X -= Convert.ToInt32(15 * Math.Cos(angle));
+                _cameraControl.Camera.ZPoint.Y -= Convert.ToInt32(15 * Math.Sin(angle));
                 return;
-            
-            string command = ptz.Commands.Center;
+            }
+
+            _cameraControl.CalibrateCount = 0;
+            _cameraControl.Calibrating = true;
+
+            string command = PTZSettings.Commands.Center;
             string diag = "";
 
             if (angle < Arc && angle > -Arc)
             {
-                command = ptz.Commands.Left;
+                command = PTZSettings.Commands.Left;
 
             }
             if (angle >= Arc && angle < 3 * Arc)
             {
-                command = ptz.Commands.LeftUp;
+                command = PTZSettings.Commands.LeftUp;
                 diag = "leftup";
             }
             if (angle >= 3 * Arc && angle < 5 * Arc)
             {
-                command = ptz.Commands.Up;
+                command = PTZSettings.Commands.Up;
             }
             if (angle >= 5 * Arc && angle < 7 * Arc)
             {
-                command = ptz.Commands.RightUp;
+                command = PTZSettings.Commands.RightUp;
                 diag = "rightup";
             }
             if (angle >= 7 * Arc || angle < -7 * Arc)
             {
-                command = ptz.Commands.Right;
+                command = PTZSettings.Commands.Right;
             }
             if (angle <= -5 * Arc && angle > -7 * Arc)
             {
-                command = ptz.Commands.RightDown;
+                command = PTZSettings.Commands.RightDown;
                 diag = "rightdown";
             }
             if (angle <= -3 * Arc && angle > -5 * Arc)
             {
-                command = ptz.Commands.Down;
+                command = PTZSettings.Commands.Down;
             }
             if (angle <= -Arc && angle > -3 * Arc)
             {
-                command = ptz.Commands.LeftDown;
+                command = PTZSettings.Commands.LeftDown;
                 diag = "leftdown";
             }
 
@@ -101,20 +137,20 @@ namespace iSpyApplication
                 switch (diag)
                 {
                     case "leftup":
-                        _nextcommand = ptz.Commands.Up;
-                        SendPTZCommand(ptz.Commands.Left);
+                        _nextcommand = PTZSettings.Commands.Up;
+                        SendPTZCommand(PTZSettings.Commands.Left);
                         break;
                     case "rightup":
-                        _nextcommand = ptz.Commands.Up;
-                        SendPTZCommand(ptz.Commands.Right);
+                        _nextcommand = PTZSettings.Commands.Up;
+                        SendPTZCommand(PTZSettings.Commands.Right);
                         break;
                     case "rightdown":
-                        _nextcommand = ptz.Commands.Down;
-                        SendPTZCommand(ptz.Commands.Right);
+                        _nextcommand = PTZSettings.Commands.Down;
+                        SendPTZCommand(PTZSettings.Commands.Right);
                         break;
                     case "leftdown":
-                        _nextcommand = ptz.Commands.Down;
-                        SendPTZCommand(ptz.Commands.Left);
+                        _nextcommand = PTZSettings.Commands.Down;
+                        SendPTZCommand(PTZSettings.Commands.Left);
                         break;
                 }
             }
@@ -151,9 +187,6 @@ namespace iSpyApplication
 
             if (!d)
             {
-                _cameraControl.CalibrateCount = 0;
-                _cameraControl.Calibrating = true;
-
                 switch (command)
                 {
                     case Enums.PtzCommand.Left:
@@ -249,11 +282,12 @@ namespace iSpyApplication
                     {
                         _cameraControl.Camera.ZPoint.X -= Convert.ToInt32(15 * Math.Cos(angle));
                         _cameraControl.Camera.ZPoint.Y -= Convert.ToInt32(15 * Math.Sin(angle));
-                    }
+                    }   
 
                 }
             }
         }
+
         public void SendPTZCommand(string cmd)
         {
             SendPTZCommand(cmd,false);
@@ -274,6 +308,10 @@ namespace iSpyApplication
                 return;
             Uri uri;
             bool absURL = false;
+            
+            _cameraControl.CalibrateCount = 0;
+            _cameraControl.Calibrating = true;
+
             string url = _cameraControl.Camobject.settings.videosourcestring;
 
             if (_cameraControl.Camobject.settings.ptzurlbase.Contains("://"))
