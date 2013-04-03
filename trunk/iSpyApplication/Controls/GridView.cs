@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using PictureBox = AForge.Controls.PictureBox;
@@ -17,36 +18,20 @@ namespace iSpyApplication.Controls
 
         internal MainForm _parent;
 
-        private int _rows = 2, _cols = 2;
         private const int Itempadding = 5;
         private const int MaxItems = 36;
         private readonly List<GridViewConfig> _controls;
         private int _itemwidth;
         private int _itemheight;
         private readonly Timer _tmrRefresh;
-
-        #endregion
-
-        #region Public
-
-        public int Rows
-        {
-            get { return _rows; }
-            set { _rows = value; }
-
-        }
-        public int Cols
-        {
-            get { return _cols; }
-            set { _cols = value; }
-
-        }
+        public configurationGrid Cg;
 
         #endregion
 
 
-        public GridView()
+        public GridView(ref configurationGrid cg)
         {
+            Cg = cg;
             InitializeComponent();
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer |
@@ -60,12 +45,39 @@ namespace iSpyApplication.Controls
             for (int i = 0; i < MaxItems; i++)
                 _controls.Add(null);
 
+            
+
+            Text = cg.name;
+
+            if (cg.GridItem == null)
+                cg.GridItem = new configurationGridGridItem[]{};
+
+            foreach (var o in cg.GridItem)
+            {
+                if (o.Item != null)
+                {
+                    var li = new List<int>();
+                    foreach (var c in o.Item)
+                    {
+                        if (c.TypeID == 2)
+                            li.Add(c.ObjectID);
+                    }
+                    if (li.Count == 0)
+                        _controls[o.GridIndex] = null;
+                    else
+                    {
+                        _controls[o.GridIndex] = new GridViewConfig(li, o.CycleDelay);
+                    }
+                }
+            }
+
             _tmrRefresh = new Timer(200);
-            _tmrRefresh.Elapsed += tmrRefresh_Elapsed;
+            _tmrRefresh.Elapsed += TmrRefreshElapsed;
             _tmrRefresh.Start();
+
         }
 
-        void tmrRefresh_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        void TmrRefreshElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             Invalidate();
 
@@ -98,16 +110,16 @@ namespace iSpyApplication.Controls
             try
             {
                 Rectangle rc = ClientRectangle;
-                _itemwidth = (rc.Width - Cols*Itempadding)/Cols;
-                _itemheight = (rc.Height - Rows*Itempadding) / Rows;
+                _itemwidth = (rc.Width - Cg.Columns * Itempadding) / Cg.Columns;
+                _itemheight = (rc.Height - Cg.Rows * Itempadding) / Cg.Rows;
 
                 //draw lines
-                for (var i = 0; i < Cols; i++)
+                for (var i = 0; i < Cg.Columns; i++)
                 {
                     var x = (i*(_itemwidth + Itempadding) - Itempadding/2);
                     gGrid.DrawLine(pline, x, 0, x, rc.Height);
                 }
-                for (var i = 0; i < Rows; i++)
+                for (var i = 0; i < Cg.Rows; i++)
                 {
                     var y = (i*(_itemheight + Itempadding) - Itempadding/2);
 
@@ -117,7 +129,7 @@ namespace iSpyApplication.Controls
                 var ind = 0;
                 var j = 0;
                 var k = 0;
-                for(var i =0; i<Cols*Rows; i++)
+                for (var i = 0; i < Cg.Columns * Cg.Rows; i++)
                 {
                     var x = j * (_itemwidth + Itempadding);
                     var y = k * (_itemheight + Itempadding);
@@ -171,7 +183,7 @@ namespace iSpyApplication.Controls
                     }
                     ind ++;
                     j++;
-                    if (j==Cols)
+                    if (j==Cg.Columns)
                     {
                         j = 0;
                         k++;
@@ -201,7 +213,7 @@ namespace iSpyApplication.Controls
                 var x = e.Location.X;
                 var y = e.Location.Y;
 
-                for (var i = 1; i <= Cols; i++)
+                for (var i = 1; i <= Cg.Columns; i++)
                 {
                     if (i * (_itemwidth + Itempadding) - Itempadding / 2 > x)
                     {
@@ -209,7 +221,7 @@ namespace iSpyApplication.Controls
                         break;
                     }
                 }
-                for (var i = 1; i <= Rows; i++)
+                for (var i = 1; i <= Cg.Rows; i++)
                 {
                     if (i * (_itemheight + Itempadding) - Itempadding / 2 > y)
                     {
@@ -220,7 +232,7 @@ namespace iSpyApplication.Controls
 
                 if (row != -1 && col != -1)
                 {
-                    var io = row * Cols + col;
+                    var io = row * Cg.Columns + col;
                     var cgv = _controls[io];
                     var gvc = new GridViewCamera();
                     if (cgv!=null)
@@ -235,6 +247,28 @@ namespace iSpyApplication.Controls
                     if (gvc.ShowDialog(this)==DialogResult.OK)
                     {
                         cgv = gvc.SelectedIDs.Count>0 ? new GridViewConfig(gvc.SelectedIDs,gvc.Delay) : null;
+
+                        if (Cg != null)
+                        {
+                            var gi = Cg.GridItem.FirstOrDefault(p => p.GridIndex == io);
+                            if (gi == null)
+                            {
+                                gi = new configurationGridGridItem {CycleDelay = gvc.Delay, GridIndex = io};
+                                var lgi = Cg.GridItem.ToList();
+                                lgi.Add(gi);
+                                Cg.GridItem = lgi.ToArray();
+                            }
+
+                            gi.CycleDelay = gvc.Delay;
+
+                            var l = new List<configurationGridGridItemItem>();
+                            foreach (int i in gvc.SelectedIDs)
+                            {
+                                l.Add(new configurationGridGridItemItem {ObjectID = i, TypeID = 2});
+                            }
+
+                            gi.Item = l.ToArray();
+                        }
                         _controls[io] = cgv;
                         Invalidate();
                     }

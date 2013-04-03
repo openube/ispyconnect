@@ -144,21 +144,18 @@ namespace iSpyApplication.Controls
                             {
                                 try
                                 {
-                                    try
-                                    {
-                                        _plugin.GetType().GetProperty("VideoSource").SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
-                                    }
-                                    catch { }
+                                    var o = _plugin.GetType();
+                                    if (o.GetProperty("WorkingDirectory") != null)
+                                        o.GetProperty("WorkingDirectory").SetValue(_plugin, Program.AppDataPath, null);
+                                    if (o.GetProperty("VideoSource") != null)
+                                        o.GetProperty("VideoSource").SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
+                                    if (o.GetProperty("Configuration") != null)
+                                        o.GetProperty("Configuration").SetValue(_plugin,CW.Camobject.alerts.pluginconfig,null);
 
-                                    _plugin.GetType().GetProperty("Configuration").SetValue(_plugin,CW.Camobject.alerts.pluginconfig,null);
-                                    try
-                                    {
-                                        //used for plugins that store their configuration elsewhere
-                                        _plugin.GetType().GetMethod("LoadConfiguration").Invoke(_plugin, null);
-                                    }
-                                    catch { }
+                                    if (o.GetMethod("LoadConfiguration") != null)
+                                        o.GetMethod("LoadConfiguration").Invoke(_plugin, null);
                                     
-                                    try
+                                    if (o.GetProperty("DeviceList")!=null)
                                     {
                                         //used for network kinect setting syncing
                                         string dl = "";
@@ -174,16 +171,11 @@ namespace iSpyApplication.Controls
                                             }
                                         }
                                         if (dl!="")
-                                            _plugin.GetType().GetProperty("DeviceList").SetValue(_plugin, dl, null);
+                                            o.GetProperty("DeviceList").SetValue(_plugin, dl, null);
                                     }
-                                    catch { }
-                                    
-                                    
-                                    try
-                                    {
-                                        _plugin.GetType().GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
-                                    }
-                                    catch { }
+
+                                    if (o.GetProperty("CameraName") != null)
+                                        o.GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
                                 }
                                 catch (Exception)
                                 {
@@ -525,7 +517,7 @@ namespace iSpyApplication.Controls
                             g.DrawImage(Mask, 0, 0, _width, _height);
                         }
 
-                        if (Plugin != null)
+                        if (Plugin != null && Alarm!=null)
                         {
                             bool runplugin = true;
                             if (CW.Camobject.alerts.processmode == "motion")
@@ -535,9 +527,16 @@ namespace iSpyApplication.Controls
                             }
                             if (runplugin)
                             {
-                                bmOrig =
-                                    (Bitmap)
-                                    Plugin.GetType().GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
+                                try
+                                {
+                                    bmOrig =
+                                        (Bitmap)
+                                        Plugin.GetType().GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
+                                }
+                                catch(Exception ex)
+                                {
+                                    MainForm.LogExceptionToFile(ex);
+                                }
                                 var pluginAlert = (String) Plugin.GetType().GetField("Alert").GetValue(Plugin);
                                 if (pluginAlert != "")
                                     Alarm(pluginAlert, EventArgs.Empty);
