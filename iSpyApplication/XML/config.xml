@@ -90,7 +90,7 @@
   <Vendor></Vendor>
   <TalkMic></TalkMic>
   <PlaybackMode>1</PlaybackMode>
-  <JPEGQuality>80</JPEGQuality>
+  <JPEGQuality>90</JPEGQuality>
   <StopSavingOnStorageLimit>false</StopSavingOnStorageLimit>
   <ViewController>false</ViewController>
   <LayoutMode>0</LayoutMode>
@@ -101,4 +101,7 @@
   <WebServer>http://www.ispyconnect.com</WebServer>
   <IPv6_Support_Disabled>true</IPv6_Support_Disabled>
   <SpeechRecognition>false</SpeechRecognition>
+  <DefaultManufacturer></DefaultManufacturer>
+  <GridViews></GridViews>
+  <Joystick id="" XAxis="0" CenterX="0" YAxis="0" CenterY="0" ZAxis="0" CenterZ="0" Record="0" Snapshot="0" Listen="0" Play="0" Stop="0" Next="0" Previous="0" Talk="0"></Joystick>
 </configuration>

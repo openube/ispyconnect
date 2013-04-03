@@ -4387,4 +4387,102 @@
       <Command Name="iris small">opType=set&amp;cmd=ptz&amp;ptz_cmd=7&amp;protocol=1&amp;band=2400&amp;speed=60&amp;addr=1</Command>
     </ExtendedCommands>
   </Camera>
+  <Camera id="178">
+    <Makes>
+      <Make Name="X10" Model="AirSight Pro" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi</CommandURL>
+    <Commands>
+      <Left>command=2</Left>
+      <Right>command=6</Right>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <Stop>command=1</Stop>
+      <ZoomIn>command=18</ZoomIn>
+      <ZoomOut>command=16</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Start HPatrol">command=20</Command>
+      <Command Name="GO Preset 1">command=31</Command>
+      <Command Name="GO Preset 2">command=33</Command>
+      <Command Name="GO Preset 3">command=35</Command>
+      <Command Name="GO Preset 4">command=37</Command>
+      <Command Name="GO Preset 5">command=39</Command>
+      <Command Name="GO Preset 6">command=41</Command>
+      <Command Name="GO Preset 7">command=43</Command>
+      <Command Name="GO Preset 8">command=45</Command>
+      <Command Name="Save Preset 1">command=30</Command>
+      <Command Name="Save Preset 2">command=32</Command>
+      <Command Name="Save Preset 3">command=34</Command>
+      <Command Name="Save Preset 4">command=36</Command>
+      <Command Name="Save Preset 5">command=38</Command>
+      <Command Name="Save Preset 6">command=40</Command>
+      <Command Name="Save Preset 7">command=42</Command>
+      <Command Name="Save Preset 8">command=44</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="179">
+    <Makes>
+      <Make Name="Maginon" Model="IP Security Camera IPC-1" />
+      <Make Name="Supra" Model="Traveler IPC-1" />
+    </Makes>
+    <CommandURL>/</CommandURL>
+    <Commands>
+      <Center></Center>
+      <Left>decoder_control.cgi?command=4</Left>
+      <LeftUp>decoder_control.cgi?command=90</LeftUp>
+      <Right>decoder_control.cgi?command=6</Right>
+            <RightUp>decoder_control.cgi?command=91</RightUp>
+              <Up>decoder_control.cgi?command=0</Up>
+                <Down>decoder_control.cgi?command=2</Down>
+                  <LeftDown>decoder_control.cgi?command=92</LeftDown>
+                    <RightDown>decoder_control.cgi?command=93</RightDown>
+                      <Stop>decoder_control.cgi?command=1</Stop>
+                      </Commands>
+    <ExtendedCommands>
+      <Command Name="Recalibrate Center">decoder_control.cgi?command=25</Command>
+        <Command Name="Start Horizontal Patrol">decoder_control.cgi?command=28</Command>
+          <Command Name="Stop Horizontal Patrol">decoder_control.cgi?command=29</Command>
+            <Command Name="Start Vertical Patrol">decoder_control.cgi?command=26</Command>
+              <Command Name="Stop Vertical Patrol">decoder_control.cgi?command=27</Command>
+                <Command Name="Goto Preset 1">decoder_control.cgi?command=31</Command>
+                  <Command Name="Goto Preset 2">decoder_control.cgi?command=33</Command>
+                    <Command Name="Goto Preset 3">decoder_control.cgi?command=35</Command>
+                      <Command Name="Save current as Preset 1">decoder_control.cgi?command=30</Command>
+                        <Command Name="Save current as Preset 2">decoder_control.cgi?command=32</Command>
+                          <Command Name="Save current as Preset 3">decoder_control.cgi?command=34</Command>
+                            <Command Name="Digital Output ON">decoder_control.cgi?command=94</Command>
+                              <Command Name="Digital Output OFF">decoder_control.cgi?command=95</Command>
+                                <Command Name="IR LED Off">set_misc.cgi?led_mode=0</Command>
+                                  <Command Name="IR LED On in darkness">set_misc.cgi?led_mode=2</Command>
+                                    <Command Name="AntiFlicker OFF">camera_control.cgi?param=3&amp;value=2</Command>
+                                    <Command Name="AntiFlicker ON 50Hz">camera_control.cgi?param=3&amp;value=0</Command>
+                                    <Command Name="AntiFlicker ON 60Hz">camera_control.cgi?param=3&amp;value=1</Command>
+                                    <Command Name="Video NO Flip">camera_control.cgi?param=5&amp;value=0</Command>
+                                    <Command Name="Video H Flip">camera_control.cgi?param=5&amp;value=2</Command>
+                                    <Command Name="Video V Flip">camera_control.cgi?param=5&amp;value=1</Command>
+                                    <Command Name="Video H+V Flip">camera_control.cgi?param=5&amp;value=3</Command>
+                                    <Command Name="Set Video Feed 320x240(re-init feed required)">camera_control.cgi?param=0&amp;value=8</Command>
+                                    <Command Name="Set Video Feed 640x480(re-init feed required)">camera_control.cgi?param=0&amp;value=32</Command>
+                                    <Command Name="Default power on exercise">set_misc.cgi?ptz_center_onstart=0&amp;ptz_preset_onstart=0</Command>
+                                    <Command Name="Center on power on">set_misc.cgi?ptz_center_onstart=1&amp;ptz_preset_onstart=0</Command>
+                                    <Command Name="Preset 1 on power on">set_misc.cgi?ptz_center_onstart=0&amp;ptz_preset_onstart=1</Command>
+                                    <Command Name="Preset 2 on power on">set_misc.cgi?ptz_center_onstart=0&amp;ptz_preset_onstart=2</Command>
+                                    <Command Name="Preset 3 on power on">set_misc.cgi?ptz_center_onstart=0&amp;ptz_preset_onstart=3</Command>
+                                    <Command Name="Brightness 0">camera_control.cgi?param=1&amp;value=0</Command>
+                                    <Command Name="Brightness 1">camera_control.cgi?param=1&amp;value=48</Command>
+                                    <Command Name="Brightness 2">camera_control.cgi?param=1&amp;value=96</Command>
+                                    <Command Name="Brightness 3">camera_control.cgi?param=1&amp;value=128</Command>
+                                    <Command Name="Brightness 4">camera_control.cgi?param=1&amp;value=168</Command>
+                                    <Command Name="Brightness 5">camera_control.cgi?param=1&amp;value=210</Command>
+                                    <Command Name="Brightness 6">camera_control.cgi?param=1&amp;value=255</Command>
+                                    <Command Name="Contrast 0">camera_control.cgi?param=2&amp;value=0</Command>
+                                    <Command Name="Contrast 1">camera_control.cgi?param=2&amp;value=1</Command>
+                                    <Command Name="Contrast 2">camera_control.cgi?param=2&amp;value=2</Command>
+                                    <Command Name="Contrast 3">camera_control.cgi?param=2&amp;value=3</Command>
+                                    <Command Name="Contrast 4">camera_control.cgi?param=2&amp;value=4</Command>
+                                    <Command Name="Contrast 5">camera_control.cgi?param=2&amp;value=5</Command>
+                                    <Command Name="Contrast 6">camera_control.cgi?param=2&amp;value=6</Command>
+                                  </ExtendedCommands>
+  </Camera>
 </PTZSettings2>
