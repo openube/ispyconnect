@@ -233,7 +233,7 @@
     </Reference>
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Program Files (x86)\SlimDX SDK (January 2012)\Bin\net40\x86\SlimDX.dll</HintPath>
+      <HintPath>DLLS\SlimDX.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
