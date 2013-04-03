@@ -88,6 +88,7 @@ namespace iSpyApplication
             this.btnColorArea = new System.Windows.Forms.Button();
             this.btnTimestampColor = new System.Windows.Forms.Button();
             this.btnBorderHighlight = new System.Windows.Forms.Button();
+            this.btnBorderDefault = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.gbStorage = new System.Windows.Forms.GroupBox();
@@ -130,13 +131,42 @@ namespace iSpyApplication
             this.Microphone = new System.Windows.Forms.Label();
             this.ddlTalkMic = new System.Windows.Forms.ComboBox();
             this.chkSpeechRecognition = new System.Windows.Forms.CheckBox();
+            this.tabPage8 = new System.Windows.Forms.TabPage();
+            this.tblJoystick = new System.Windows.Forms.TableLayoutPanel();
+            this.label34 = new System.Windows.Forms.Label();
+            this.label32 = new System.Windows.Forms.Label();
+            this.label30 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.label36 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.label33 = new System.Windows.Forms.Label();
+            this.label31 = new System.Windows.Forms.Label();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.btnCenterAxes = new System.Windows.Forms.Button();
+            this.label37 = new System.Windows.Forms.Label();
+            this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
+            this.label26 = new System.Windows.Forms.Label();
+            this.ddlJoystick = new System.Windows.Forms.ComboBox();
             this.cdColorChooser = new System.Windows.Forms.ColorDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnBorderDefault = new System.Windows.Forms.Button();
+            this.tmrJSUpdate = new System.Windows.Forms.Timer(this.components);
+            this.label38 = new System.Windows.Forms.Label();
+            this.jbutton1 = new iSpyApplication.Controls.jbutton();
+            this.jbutton2 = new iSpyApplication.Controls.jbutton();
+            this.jbutton3 = new iSpyApplication.Controls.jbutton();
+            this.jbutton4 = new iSpyApplication.Controls.jbutton();
+            this.jbutton5 = new iSpyApplication.Controls.jbutton();
+            this.jbutton6 = new iSpyApplication.Controls.jbutton();
+            this.jbutton7 = new iSpyApplication.Controls.jbutton();
+            this.jaxis1 = new iSpyApplication.Controls.jaxis();
+            this.jaxis2 = new iSpyApplication.Controls.jaxis();
+            this.jaxis3 = new iSpyApplication.Controls.jaxis();
+            this.jbutton8 = new iSpyApplication.Controls.jbutton();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -166,6 +196,9 @@ namespace iSpyApplication
             this.panel1.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
+            this.tabPage8.SuspendLayout();
+            this.tblJoystick.SuspendLayout();
+            this.tableLayoutPanel8.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -275,6 +308,7 @@ namespace iSpyApplication
             this.tcTabs.Controls.Add(this.tabPage4);
             this.tcTabs.Controls.Add(this.tabPage7);
             this.tcTabs.Controls.Add(this.tabPage5);
+            this.tcTabs.Controls.Add(this.tabPage8);
             this.tcTabs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcTabs.Location = new System.Drawing.Point(3, 3);
             this.tcTabs.Margin = new System.Windows.Forms.Padding(6);
@@ -925,6 +959,18 @@ namespace iSpyApplication
             this.btnBorderHighlight.UseVisualStyleBackColor = true;
             this.btnBorderHighlight.Click += new System.EventHandler(this.btnBorderHighlight_Click);
             // 
+            // btnBorderDefault
+            // 
+            this.btnBorderDefault.AutoSize = true;
+            this.btnBorderDefault.Location = new System.Drawing.Point(0, 132);
+            this.btnBorderDefault.Margin = new System.Windows.Forms.Padding(0);
+            this.btnBorderDefault.Name = "btnBorderDefault";
+            this.btnBorderDefault.Size = new System.Drawing.Size(184, 44);
+            this.btnBorderDefault.TabIndex = 26;
+            this.btnBorderDefault.Text = "Border Default";
+            this.btnBorderDefault.UseVisualStyleBackColor = true;
+            this.btnBorderDefault.Click += new System.EventHandler(this.button4_Click);
+            // 
             // tabPage2
             // 
             this.tabPage2.AutoScroll = true;
@@ -1467,6 +1513,222 @@ namespace iSpyApplication
             this.chkSpeechRecognition.Text = "Enable Speech Recognition";
             this.chkSpeechRecognition.UseVisualStyleBackColor = true;
             // 
+            // tabPage8
+            // 
+            this.tabPage8.Controls.Add(this.tblJoystick);
+            this.tabPage8.Controls.Add(this.tableLayoutPanel8);
+            this.tabPage8.Location = new System.Drawing.Point(4, 22);
+            this.tabPage8.Name = "tabPage8";
+            this.tabPage8.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage8.Size = new System.Drawing.Size(638, 519);
+            this.tabPage8.TabIndex = 10;
+            this.tabPage8.Text = "Joysticks";
+            this.tabPage8.UseVisualStyleBackColor = true;
+            // 
+            // tblJoystick
+            // 
+            this.tblJoystick.ColumnCount = 2;
+            this.tblJoystick.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tblJoystick.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblJoystick.Controls.Add(this.label34, 0, 4);
+            this.tblJoystick.Controls.Add(this.label32, 0, 2);
+            this.tblJoystick.Controls.Add(this.label30, 0, 1);
+            this.tblJoystick.Controls.Add(this.label28, 0, 0);
+            this.tblJoystick.Controls.Add(this.label36, 0, 11);
+            this.tblJoystick.Controls.Add(this.label35, 0, 10);
+            this.tblJoystick.Controls.Add(this.label33, 0, 8);
+            this.tblJoystick.Controls.Add(this.label31, 0, 7);
+            this.tblJoystick.Controls.Add(this.label29, 0, 5);
+            this.tblJoystick.Controls.Add(this.label27, 0, 6);
+            this.tblJoystick.Controls.Add(this.jbutton1, 1, 4);
+            this.tblJoystick.Controls.Add(this.jbutton2, 1, 5);
+            this.tblJoystick.Controls.Add(this.jbutton3, 1, 6);
+            this.tblJoystick.Controls.Add(this.jbutton4, 1, 7);
+            this.tblJoystick.Controls.Add(this.jbutton5, 1, 8);
+            this.tblJoystick.Controls.Add(this.jbutton6, 1, 10);
+            this.tblJoystick.Controls.Add(this.jbutton7, 1, 11);
+            this.tblJoystick.Controls.Add(this.jaxis1, 1, 0);
+            this.tblJoystick.Controls.Add(this.jaxis2, 1, 1);
+            this.tblJoystick.Controls.Add(this.jaxis3, 1, 2);
+            this.tblJoystick.Controls.Add(this.btnCenterAxes, 1, 3);
+            this.tblJoystick.Controls.Add(this.label37, 0, 9);
+            this.tblJoystick.Controls.Add(this.jbutton8, 1, 9);
+            this.tblJoystick.Controls.Add(this.label38, 1, 12);
+            this.tblJoystick.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblJoystick.Location = new System.Drawing.Point(3, 34);
+            this.tblJoystick.Name = "tblJoystick";
+            this.tblJoystick.RowCount = 13;
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tblJoystick.Size = new System.Drawing.Size(632, 482);
+            this.tblJoystick.TabIndex = 0;
+            // 
+            // label34
+            // 
+            this.label34.AutoSize = true;
+            this.label34.Location = new System.Drawing.Point(6, 130);
+            this.label34.Margin = new System.Windows.Forms.Padding(6);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(42, 13);
+            this.label34.TabIndex = 8;
+            this.label34.Text = "Record";
+            // 
+            // label32
+            // 
+            this.label32.AutoSize = true;
+            this.label32.Location = new System.Drawing.Point(6, 68);
+            this.label32.Margin = new System.Windows.Forms.Padding(6);
+            this.label32.Name = "label32";
+            this.label32.Size = new System.Drawing.Size(56, 13);
+            this.label32.TabIndex = 6;
+            this.label32.Text = "Zoom Axis";
+            // 
+            // label30
+            // 
+            this.label30.AutoSize = true;
+            this.label30.Location = new System.Drawing.Point(6, 37);
+            this.label30.Margin = new System.Windows.Forms.Padding(6);
+            this.label30.Name = "label30";
+            this.label30.Size = new System.Drawing.Size(43, 13);
+            this.label30.TabIndex = 4;
+            this.label30.Text = "Tilt Axis";
+            // 
+            // label28
+            // 
+            this.label28.AutoSize = true;
+            this.label28.Location = new System.Drawing.Point(6, 6);
+            this.label28.Margin = new System.Windows.Forms.Padding(6);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(48, 13);
+            this.label28.TabIndex = 2;
+            this.label28.Text = "Pan Axis";
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Location = new System.Drawing.Point(6, 347);
+            this.label36.Margin = new System.Windows.Forms.Padding(6);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(84, 13);
+            this.label36.TabIndex = 10;
+            this.label36.Text = "Previous Control";
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Location = new System.Drawing.Point(6, 316);
+            this.label35.Margin = new System.Windows.Forms.Padding(6);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(65, 13);
+            this.label35.TabIndex = 9;
+            this.label35.Text = "Next Control";
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(6, 254);
+            this.label33.Margin = new System.Windows.Forms.Padding(6);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(27, 13);
+            this.label33.TabIndex = 7;
+            this.label33.Text = "Play";
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Location = new System.Drawing.Point(6, 223);
+            this.label31.Margin = new System.Windows.Forms.Padding(6);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(35, 13);
+            this.label31.TabIndex = 5;
+            this.label31.Text = "Listen";
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(6, 161);
+            this.label29.Margin = new System.Windows.Forms.Padding(6);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(52, 13);
+            this.label29.TabIndex = 3;
+            this.label29.Text = "Snapshot";
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(6, 192);
+            this.label27.Margin = new System.Windows.Forms.Padding(6);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(28, 13);
+            this.label27.TabIndex = 1;
+            this.label27.Text = "Talk";
+            // 
+            // btnCenterAxes
+            // 
+            this.btnCenterAxes.Location = new System.Drawing.Point(153, 96);
+            this.btnCenterAxes.Name = "btnCenterAxes";
+            this.btnCenterAxes.Size = new System.Drawing.Size(75, 23);
+            this.btnCenterAxes.TabIndex = 33;
+            this.btnCenterAxes.Text = "Center Axes";
+            this.btnCenterAxes.UseVisualStyleBackColor = true;
+            this.btnCenterAxes.Click += new System.EventHandler(this.btnCenterAxes_Click);
+            // 
+            // label37
+            // 
+            this.label37.AutoSize = true;
+            this.label37.Location = new System.Drawing.Point(6, 285);
+            this.label37.Margin = new System.Windows.Forms.Padding(6);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(29, 13);
+            this.label37.TabIndex = 34;
+            this.label37.Text = "Stop";
+            // 
+            // tableLayoutPanel8
+            // 
+            this.tableLayoutPanel8.ColumnCount = 2;
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel8.Controls.Add(this.label26, 0, 0);
+            this.tableLayoutPanel8.Controls.Add(this.ddlJoystick, 1, 0);
+            this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel8.Name = "tableLayoutPanel8";
+            this.tableLayoutPanel8.RowCount = 1;
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel8.Size = new System.Drawing.Size(632, 31);
+            this.tableLayoutPanel8.TabIndex = 1;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(6, 6);
+            this.label26.Margin = new System.Windows.Forms.Padding(6);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(45, 13);
+            this.label26.TabIndex = 0;
+            this.label26.Text = "Joystick";
+            // 
+            // ddlJoystick
+            // 
+            this.ddlJoystick.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlJoystick.FormattingEnabled = true;
+            this.ddlJoystick.Location = new System.Drawing.Point(153, 3);
+            this.ddlJoystick.Name = "ddlJoystick";
+            this.ddlJoystick.Size = new System.Drawing.Size(205, 21);
+            this.ddlJoystick.TabIndex = 11;
+            this.ddlJoystick.SelectedIndexChanged += new System.EventHandler(this.ddlJoystick_SelectedIndexChanged);
+            // 
             // button2
             // 
             this.button2.AutoSize = true;
@@ -1517,17 +1779,111 @@ namespace iSpyApplication
             this.flowLayoutPanel2.Size = new System.Drawing.Size(646, 40);
             this.flowLayoutPanel2.TabIndex = 92;
             // 
-            // btnBorderDefault
+            // tmrJSUpdate
             // 
-            this.btnBorderDefault.AutoSize = true;
-            this.btnBorderDefault.Location = new System.Drawing.Point(0, 132);
-            this.btnBorderDefault.Margin = new System.Windows.Forms.Padding(0);
-            this.btnBorderDefault.Name = "btnBorderDefault";
-            this.btnBorderDefault.Size = new System.Drawing.Size(184, 44);
-            this.btnBorderDefault.TabIndex = 26;
-            this.btnBorderDefault.Text = "Border Default";
-            this.btnBorderDefault.UseVisualStyleBackColor = true;
-            this.btnBorderDefault.Click += new System.EventHandler(this.button4_Click);
+            this.tmrJSUpdate.Enabled = true;
+            this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
+            // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.Location = new System.Drawing.Point(156, 378);
+            this.label38.Margin = new System.Windows.Forms.Padding(6);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(340, 13);
+            this.label38.TabIndex = 36;
+            this.label38.Text = "Note: Control must be focused to receive joystick input (click on it first).";
+            // 
+            // jbutton1
+            // 
+            this.jbutton1.ID = 0;
+            this.jbutton1.Location = new System.Drawing.Point(153, 127);
+            this.jbutton1.Name = "jbutton1";
+            this.jbutton1.Size = new System.Drawing.Size(174, 25);
+            this.jbutton1.TabIndex = 23;
+            // 
+            // jbutton2
+            // 
+            this.jbutton2.ID = 0;
+            this.jbutton2.Location = new System.Drawing.Point(153, 158);
+            this.jbutton2.Name = "jbutton2";
+            this.jbutton2.Size = new System.Drawing.Size(174, 25);
+            this.jbutton2.TabIndex = 24;
+            // 
+            // jbutton3
+            // 
+            this.jbutton3.ID = 0;
+            this.jbutton3.Location = new System.Drawing.Point(153, 189);
+            this.jbutton3.Name = "jbutton3";
+            this.jbutton3.Size = new System.Drawing.Size(174, 25);
+            this.jbutton3.TabIndex = 25;
+            // 
+            // jbutton4
+            // 
+            this.jbutton4.ID = 0;
+            this.jbutton4.Location = new System.Drawing.Point(153, 220);
+            this.jbutton4.Name = "jbutton4";
+            this.jbutton4.Size = new System.Drawing.Size(174, 25);
+            this.jbutton4.TabIndex = 26;
+            // 
+            // jbutton5
+            // 
+            this.jbutton5.ID = 0;
+            this.jbutton5.Location = new System.Drawing.Point(153, 251);
+            this.jbutton5.Name = "jbutton5";
+            this.jbutton5.Size = new System.Drawing.Size(174, 25);
+            this.jbutton5.TabIndex = 27;
+            // 
+            // jbutton6
+            // 
+            this.jbutton6.ID = 0;
+            this.jbutton6.Location = new System.Drawing.Point(153, 313);
+            this.jbutton6.Name = "jbutton6";
+            this.jbutton6.Size = new System.Drawing.Size(174, 25);
+            this.jbutton6.TabIndex = 28;
+            // 
+            // jbutton7
+            // 
+            this.jbutton7.ID = 0;
+            this.jbutton7.Location = new System.Drawing.Point(153, 344);
+            this.jbutton7.Name = "jbutton7";
+            this.jbutton7.Size = new System.Drawing.Size(174, 25);
+            this.jbutton7.TabIndex = 29;
+            // 
+            // jaxis1
+            // 
+            this.jaxis1.ID = 0;
+            this.jaxis1.Invert = false;
+            this.jaxis1.Location = new System.Drawing.Point(153, 3);
+            this.jaxis1.Name = "jaxis1";
+            this.jaxis1.Size = new System.Drawing.Size(419, 25);
+            this.jaxis1.TabIndex = 30;
+            // 
+            // jaxis2
+            // 
+            this.jaxis2.ID = 0;
+            this.jaxis2.Invert = false;
+            this.jaxis2.Location = new System.Drawing.Point(153, 34);
+            this.jaxis2.Name = "jaxis2";
+            this.jaxis2.Size = new System.Drawing.Size(419, 25);
+            this.jaxis2.TabIndex = 31;
+            // 
+            // jaxis3
+            // 
+            this.jaxis3.ID = 0;
+            this.jaxis3.Invert = false;
+            this.jaxis3.Location = new System.Drawing.Point(153, 65);
+            this.jaxis3.Name = "jaxis3";
+            this.jaxis3.Size = new System.Drawing.Size(419, 25);
+            this.jaxis3.TabIndex = 32;
+            // 
+            // jbutton8
+            // 
+            this.jbutton8.ID = 0;
+            this.jbutton8.Location = new System.Drawing.Point(153, 282);
+            this.jbutton8.Name = "jbutton8";
+            this.jbutton8.Size = new System.Drawing.Size(174, 25);
+            this.jbutton8.TabIndex = 35;
             // 
             // Settings
             // 
@@ -1588,6 +1944,11 @@ namespace iSpyApplication
             this.tabPage5.ResumeLayout(false);
             this.tableLayoutPanel6.ResumeLayout(false);
             this.tableLayoutPanel6.PerformLayout();
+            this.tabPage8.ResumeLayout(false);
+            this.tblJoystick.ResumeLayout(false);
+            this.tblJoystick.PerformLayout();
+            this.tableLayoutPanel8.ResumeLayout(false);
+            this.tableLayoutPanel8.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
@@ -1703,5 +2064,35 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkRecycle;
         private System.Windows.Forms.CheckBox chkSpeechRecognition;
         private System.Windows.Forms.Button btnBorderDefault;
+        private System.Windows.Forms.TabPage tabPage8;
+        private System.Windows.Forms.TableLayoutPanel tblJoystick;
+        private System.Windows.Forms.Label label34;
+        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Label label30;
+        private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label label36;
+        private System.Windows.Forms.Label label35;
+        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.Label label31;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
+        private System.Windows.Forms.ComboBox ddlJoystick;
+        private System.Windows.Forms.Timer tmrJSUpdate;
+        private Controls.jbutton jbutton1;
+        private Controls.jbutton jbutton2;
+        private Controls.jbutton jbutton3;
+        private Controls.jbutton jbutton4;
+        private Controls.jbutton jbutton5;
+        private Controls.jbutton jbutton6;
+        private Controls.jbutton jbutton7;
+        private Controls.jaxis jaxis1;
+        private Controls.jaxis jaxis2;
+        private Controls.jaxis jaxis3;
+        private System.Windows.Forms.Button btnCenterAxes;
+        private System.Windows.Forms.Label label37;
+        private Controls.jbutton jbutton8;
+        private System.Windows.Forms.Label label38;
     }
 }

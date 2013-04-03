@@ -14,7 +14,8 @@ namespace iSpyApplication
         public string Format;
 
         private bool success;
-        private bool cancel;
+        private bool aborting;
+        //private bool cancel;
 
         public downloader()
         {
@@ -34,77 +35,72 @@ namespace iSpyApplication
             var request = WebRequest.Create(url);
             var response = request.GetResponse();
             // gets the size of the file in bytes
-            if (response != null)
+            
+            Int64 iSize = response.ContentLength;
+
+            // keeps track of the total bytes downloaded so we can update the progress bar
+            int iRunningByteTotal = 0;
+
+            // use the webclient object to download the file
+
+            using (Stream streamRemote = response.GetResponseStream())
             {
-                Int64 iSize = response.ContentLength;
-
-                // keeps track of the total bytes downloaded so we can update the progress bar
-                int iRunningByteTotal = 0;
-
-                // use the webclient object to download the file
-
-                using (Stream streamRemote = response.GetResponseStream())
+                if (streamRemote != null)
                 {
-                    if (streamRemote != null)
+                    streamRemote.ReadTimeout = 8000;
+                    // loop the stream and get the file into the byte buffer
+                    var byteBuffer = new byte[iSize];
+                    int iByteSize;
+                    while ((iByteSize = streamRemote.Read(byteBuffer, iRunningByteTotal, byteBuffer.Length - iRunningByteTotal)) > 0 && !backgroundWorker1.CancellationPending)
                     {
-                        streamRemote.ReadTimeout = 8000;
-                        // loop the stream and get the file into the byte buffer
-                        var byteBuffer = new byte[iSize];
-                        int iByteSize;
-                        while ((iByteSize = streamRemote.Read(byteBuffer, iRunningByteTotal, byteBuffer.Length - iRunningByteTotal)) > 0 && !backgroundWorker1.CancellationPending)
-                        {
-                            iRunningByteTotal += iByteSize;
+                        iRunningByteTotal += iByteSize;
 
-                            // calculate the progress out of a base "100"
-                            var dIndex = (double) (iRunningByteTotal);
-                            var dTotal = (double) byteBuffer.Length;
-                            var dProgressPercentage = (dIndex/dTotal);
-                            var iProgressPercentage = (int) (dProgressPercentage*100);
+                        // calculate the progress out of a base "100"
+                        var dIndex = (double) (iRunningByteTotal);
+                        var dTotal = (double) byteBuffer.Length;
+                        var dProgressPercentage = (dIndex/dTotal);
+                        var iProgressPercentage = (int) (dProgressPercentage*100);
 
-                            // update the progress bar
-                            backgroundWorker1.ReportProgress(iProgressPercentage);
-                            int total = iRunningByteTotal;
-                            UISync.Execute(() => lblProgress.Text = "Downloaded " + total + " of " + iSize);
-                        }
-                        if (!backgroundWorker1.CancellationPending)
+                        // update the progress bar
+                        backgroundWorker1.ReportProgress(iProgressPercentage);
+                        int total = iRunningByteTotal;
+                        UISync.Execute(() => lblProgress.Text = "Downloaded " + total + " of " + iSize);
+                    }
+                    if (!backgroundWorker1.CancellationPending)
+                    {
+                        if (SaveLocation.EndsWith(".xml"))
                         {
-                            if (SaveLocation.EndsWith(".xml"))
+                            var ms = new MemoryStream(byteBuffer);
+                            var doc = new XmlDocument();
+                            try
                             {
-                                var ms = new MemoryStream(byteBuffer);
-                                var doc = new XmlDocument();
-                                try
-                                {
-                                    doc.Load(ms);
-                                    doc.Save(SaveLocation);
-                                    success = true;
+                                doc.Load(ms);
+                                doc.Save(SaveLocation);
+                                success = true;
 
-                                }
-                                catch (Exception ex)
-                                {
-                                    MainForm.LogExceptionToFile(ex);
-                                    DialogResult = DialogResult.Cancel;
-                                    Close();
-                                    return;
-                                }
-                                ms.Dispose();
                             }
-                        }
-                        else
-                        {
-                            MainForm.LogMessageToFile("Update cancelled");
+                            catch (Exception ex)
+                            {
+                                MainForm.LogExceptionToFile(ex);
+                                DialogResult = DialogResult.Cancel;
+                                aborting = true;
+                                Close();
+                                return;
+                            }
+                            ms.Dispose();
                         }
                     }
                     else
                     {
-                        MainForm.LogErrorToFile("Response stream from " + Url + " failed");
+                        MainForm.LogMessageToFile("Update cancelled");
                     }
                 }
-                response.Close();
+                else
+                {
+                    MainForm.LogErrorToFile("Response stream from " + Url + " failed");
+                }
             }
-            else
-            {
-                MainForm.LogErrorToFile("Response from "+Url+" failed");
-            }
+            response.Close();
             
         }
 
@@ -144,7 +140,7 @@ namespace iSpyApplication
 
         private void downloader_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (backgroundWorker1.IsBusy)
+            if (backgroundWorker1.IsBusy && !aborting)
             {
                 if (MessageBox.Show(this, "Cancel update?","Confirm", MessageBoxButtons.YesNo)==DialogResult.Yes)
                 {

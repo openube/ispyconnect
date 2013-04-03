@@ -196,7 +196,7 @@ namespace iSpyApplication
                 CameraControl.VolumeControl.IsEdit = true;
             ddlTimestamp.Text = CameraControl.Camobject.settings.timestampformatter;
 
-            chkUploadYouTube.Checked = CameraControl.Camobject.settings.youtube.autoupload;
+            //chkUploadYouTube.Checked = CameraControl.Camobject.settings.youtube.autoupload;
             chkPublic.Checked = CameraControl.Camobject.settings.youtube.@public;
             txtTags.Text = CameraControl.Camobject.settings.youtube.tags;
             chkMovement.Checked = CameraControl.Camobject.alerts.active;
@@ -247,8 +247,8 @@ namespace iSpyApplication
             ranger1.Minimum = 0.001;
             ranger1.ValueMin = CameraControl.Camobject.detector.minsensitivity;
             ranger1.ValueMax = CameraControl.Camobject.detector.maxsensitivity;
-            ranger1.ValueMinChanged += ranger1_ValueMinChanged;
-            ranger1.ValueMaxChanged += ranger1_ValueMaxChanged;
+            ranger1.ValueMinChanged += Ranger1ValueMinChanged;
+            ranger1.ValueMaxChanged += Ranger1ValueMaxChanged;
             
             rdoRecordDetect.Checked = CameraControl.Camobject.detector.recordondetect;
             rdoRecordAlert.Checked = CameraControl.Camobject.detector.recordonalert;
@@ -406,16 +406,10 @@ namespace iSpyApplication
             chkTwitter.Checked = CameraControl.Camobject.notifications.sendtwitter;
 
             var m = MainForm.Microphones.SingleOrDefault(p => p.id == CameraControl.Camobject.settings.micpair);
-            if (m != null)
-                lblMicSource.Text = m.name;
-            else
-                lblMicSource.Text = LocRm.GetString("None");
+            lblMicSource.Text = m != null ? m.name : LocRm.GetString("None");
 
             PopulateCodecsCombo();
-            if (CameraControl.Camobject.settings.audioport > -1)
-                numTalkPort.Value = CameraControl.Camobject.settings.audioport;
-            else
-                numTalkPort.Value = 80;
+            numTalkPort.Value = CameraControl.Camobject.settings.audioport > -1 ? CameraControl.Camobject.settings.audioport : 80;
             txtAudioOutIP.Text = CameraControl.Camobject.settings.audioip;
             txtTalkUsername.Text = CameraControl.Camobject.settings.audiousername;
             txtTalkPassword.Text = CameraControl.Camobject.settings.audiopassword;
@@ -499,7 +493,7 @@ namespace iSpyApplication
             ddlAlertMode.SelectedIndex = iMode;
         }
 
-        void ranger1_ValueMinChanged()
+        void Ranger1ValueMinChanged()
         {
             CameraControl.Camobject.detector.minsensitivity = ranger1.ValueMin;
             if (CameraControl.Camera != null)
@@ -509,7 +503,7 @@ namespace iSpyApplication
         
         }
 
-        void ranger1_ValueMaxChanged()
+        void Ranger1ValueMaxChanged()
         {
             CameraControl.Camobject.detector.maxsensitivity = ranger1.ValueMax;
             if (CameraControl.Camera != null)
@@ -582,7 +576,7 @@ namespace iSpyApplication
             chkSuppressNoise.Text = LocRm.GetString("SupressNoise");
             chkThu.Text = LocRm.GetString("Thu");
             chkTue.Text = LocRm.GetString("Tue");
-            chkUploadYouTube.Text = LocRm.GetString("AutomaticallyUploadGenera");
+            //chkUploadYouTube.Text = LocRm.GetString("AutomaticallyUploadGenera");
             chkUsePassive.Text = LocRm.GetString("PassiveMode");
             chkWed.Text = LocRm.GetString("Wed");
             chkScheduleTimelapse.Text = LocRm.GetString("TimelapseEnabled");
@@ -984,7 +978,7 @@ namespace iSpyApplication
                     return;
                 }
                 string localFilename=txtLocalFilename.Text.Trim();
-                if (localFilename.IndexOf("\\", System.StringComparison.Ordinal)!=-1)
+                if (localFilename.IndexOf("\\", StringComparison.Ordinal)!=-1)
                 {
                     MessageBox.Show("Please enter a filename only for local saving (no path information)");
                     return;
@@ -1142,7 +1136,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.recorder.timelapse = timelapsemovie;
                 CameraControl.Camobject.recorder.profile = ddlProfile.SelectedIndex;
 
-                CameraControl.Camobject.settings.youtube.autoupload = chkUploadYouTube.Checked;
+                //CameraControl.Camobject.settings.youtube.autoupload = chkUploadYouTube.Checked;
                 CameraControl.Camobject.settings.youtube.category = ddlCategory.SelectedItem.ToString();
                 CameraControl.Camobject.settings.youtube.@public = chkPublic.Checked;
                 CameraControl.Camobject.settings.youtube.tags = txtTags.Text;
@@ -1169,9 +1163,7 @@ namespace iSpyApplication
                 MainForm.NeedsSync = true;
                 IsNew = false;
                 Close();
-                return;
             }
-            return;
         }
 
         private static bool IsNumeric(IEnumerable<char> numberString)
@@ -1286,13 +1278,13 @@ namespace iSpyApplication
 
         private void DdlMovementDetectorSelectedIndexChanged1(object sender, EventArgs e)
         {
-            ddlProcessor.Enabled = rdoMotion.Enabled = _detectortypes[ddlMotionDetector.SelectedIndex] != "None";
+            ddlProcessor.Enabled = rdoMotion.Enabled = (string) _detectortypes[ddlMotionDetector.SelectedIndex] != "None";
             if (!rdoMotion.Enabled)
                 rdoContinuous.Checked = true;
 
             if (CameraControl.Camera != null && CameraControl.Camera.VideoSource != null)
             {
-                if (_detectortypes[ddlMotionDetector.SelectedIndex] != CameraControl.Camobject.detector.type)
+                if ((string) _detectortypes[ddlMotionDetector.SelectedIndex] != CameraControl.Camobject.detector.type)
                 {
                     CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
                     SetDetector();
@@ -1760,6 +1752,7 @@ namespace iSpyApplication
             {
                 CameraControl.Camobject.ptz = -1;
                 CameraControl.Camobject.ptzentryindex = -1;
+                CameraControl.PTZ.PTZSettings = null;
             }
            
 
@@ -1772,6 +1765,7 @@ namespace iSpyApplication
             if (CameraControl.Camobject.ptz > -1)
             {
                 PTZSettings2Camera ptz = MainForm.PTZs.Single(p => p.id == CameraControl.Camobject.ptz);
+                CameraControl.PTZ.PTZSettings = ptz;
                 if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command!=null)
                 {
                     foreach (var extcmd in ptz.ExtendedCommands.Command)
@@ -1853,29 +1847,29 @@ namespace iSpyApplication
         {
         }
 
-        private void ChkUploadYouTubeCheckedChanged(object sender, EventArgs e)
-        {
-            if (chkUploadYouTube.Checked)
-            {
-                if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
-                {
-                    if (
-                        MessageBox.Show(LocRm.GetString("Validate_Camera_YouTubeDetails"), LocRm.GetString("Confirm"),
-                                        MessageBoxButtons.OKCancel) == DialogResult.OK)
-                    {
-                        string lang = MainForm.Conf.Language;
-                        ((MainForm) Owner).ShowSettings(3);
-                        if (lang != MainForm.Conf.Language)
-                            RenderResources();
-                    }
-                }
-            }
+        //private void ChkUploadYouTubeCheckedChanged(object sender, EventArgs e)
+        //{
+        //    if (chkUploadYouTube.Checked)
+        //    {
+        //        if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
+        //        {
+        //            if (
+        //                MessageBox.Show(LocRm.GetString("Validate_Camera_YouTubeDetails"), LocRm.GetString("Confirm"),
+        //                                MessageBoxButtons.OKCancel) == DialogResult.OK)
+        //            {
+        //                string lang = MainForm.Conf.Language;
+        //                ((MainForm) Owner).ShowSettings(3);
+        //                if (lang != MainForm.Conf.Language)
+        //                    RenderResources();
+        //            }
+        //        }
+        //    }
 
-            if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
-            {
-                chkUploadYouTube.Checked = false;
-            }
-        }
+        //    if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
+        //    {
+        //        chkUploadYouTube.Checked = false;
+        //    }
+        //}
 
         private void LinkLabel6LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -1904,41 +1898,6 @@ namespace iSpyApplication
             if (lang != MainForm.Conf.Language)
                 RenderResources();
         }
-
-        //private void GbAdvancedEnabledChanged(object sender, EventArgs e)
-        //{
-        //    if (gbAdvanced.Enabled)
-        //    {
-        //        if (CameraControl.Camera != null && CameraControl.Camera.VideoSource is VideoCaptureDevice)
-        //        {
-        //            ddlFrameSize.Items.Clear();
-        //            try
-        //            {
-        //                //var vscap = new VideoCaptureDevice(CameraControl.Camobject.settings.videosourcestring);
-        //                foreach (VideoCapabilities capabilityInfo in ((VideoCaptureDevice)CameraControl.Camera.VideoSource).VideoCapabilities)
-        //                {
-        //                    ddlFrameSize.Items.Add(string.Format("{0}x{1} (max {2} fps)"+Environment.NewLine,
-        //                                                         capabilityInfo.FrameSize.Width,
-        //                                                         capabilityInfo.FrameSize.Height,
-        //                                                         capabilityInfo.FrameRate));
-        //                }
-        //                for (int i = 0; i < ddlFrameSize.Items.Count; i++)
-        //                {
-        //                    if (ddlFrameSize.Items[i].ToString().StartsWith(CameraControl.Camobject.resolution))
-        //                    {
-        //                        ddlFrameSize.SelectedIndex = i;
-        //                        break;
-        //                    }
-        //                }
-        //            }
-        //            catch
-        //            {
-        //            }
-        //        }
-        //        else
-        //            gbAdvanced.Enabled = false;
-        //    }
-        //}
 
         private void LinkLabel4LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -1972,7 +1931,7 @@ namespace iSpyApplication
                     if (CameraControl.Camera != null)
                         CameraControl.Camera.Mask = Image.FromFile(txtMaskImage.Text);
                 }
-                catch (Exception)
+                catch
                 {
                 }
             }
@@ -2143,7 +2102,9 @@ namespace iSpyApplication
                         default:
                             if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
                             {
-                                var config = (string)CameraControl.Camera.Plugin.GetType().GetMethod("Configure").Invoke(CameraControl.Camera.Plugin, null);
+                                var o = CameraControl.Camera.Plugin.GetType();
+                                var config = (string)o.GetMethod("Configure").Invoke(CameraControl.Camera.Plugin, null);
+
                                 CameraControl.Camobject.alerts.pluginconfig = config;
                             }
                             else
@@ -2540,7 +2501,7 @@ namespace iSpyApplication
         {
             try
             {
-                ((VideoCaptureDevice) CameraControl.Camera.VideoSource).DisplayPropertyPage(this.Handle);
+                ((VideoCaptureDevice) CameraControl.Camera.VideoSource).DisplayPropertyPage(Handle);
             }
             catch (Exception ex)
             {
@@ -2551,7 +2512,7 @@ namespace iSpyApplication
         private void btnCrossbar_Click(object sender, EventArgs e)
         {
             try {
-                ((VideoCaptureDevice)CameraControl.Camera.VideoSource).DisplayCrossbarPropertyPage(this.Handle);
+                ((VideoCaptureDevice)CameraControl.Camera.VideoSource).DisplayCrossbarPropertyPage(Handle);
             }
             catch (Exception ex)
             {

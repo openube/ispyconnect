@@ -231,6 +231,10 @@
     <Reference Include="Renderers">
       <HintPath>DLLS\Renderers.dll</HintPath>
     </Reference>
+    <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Program Files (x86)\SlimDX SDK (January 2012)\Bin\net40\x86\SlimDX.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
@@ -274,6 +278,19 @@
     <Compile Include="Audio\SpeechStreamer.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
+    <Compile Include="Controls\jaxis.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\jaxis.Designer.cs">
+      <DependentUpon>jaxis.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\jbutton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\jbutton.Designer.cs">
+      <DependentUpon>jbutton.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Joystick\JoystickDevice.cs" />
     <Compile Include="Kinect\ConfigureTripWires.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -851,6 +868,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AddFloorPlan.resx">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\jaxis.resx">
+      <DependentUpon>jaxis.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\jbutton.resx">
+      <DependentUpon>jbutton.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Kinect\ConfigureTripWires.resx">
       <DependentUpon>ConfigureTripWires.cs</DependentUpon>

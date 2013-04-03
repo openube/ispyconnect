@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GettingStarted));
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this._btnOk = new System.Windows.Forms.Button();
             this._ddlLanguage = new System.Windows.Forms.ComboBox();
             this.pnlWBContainer = new System.Windows.Forms.Panel();
+            this.chkShowGettingStarted = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -39,6 +41,7 @@
             // 
             this.flowLayoutPanel2.Controls.Add(this._btnOk);
             this.flowLayoutPanel2.Controls.Add(this._ddlLanguage);
+            this.flowLayoutPanel2.Controls.Add(this.chkShowGettingStarted);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 429);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
@@ -78,6 +81,17 @@
             this.pnlWBContainer.Size = new System.Drawing.Size(581, 429);
             this.pnlWBContainer.TabIndex = 3;
             // 
+            // chkShowGettingStarted
+            // 
+            this.chkShowGettingStarted.AutoSize = true;
+            this.chkShowGettingStarted.Location = new System.Drawing.Point(274, 6);
+            this.chkShowGettingStarted.Margin = new System.Windows.Forms.Padding(6);
+            this.chkShowGettingStarted.Name = "chkShowGettingStarted";
+            this.chkShowGettingStarted.Size = new System.Drawing.Size(127, 17);
+            this.chkShowGettingStarted.TabIndex = 53;
+            this.chkShowGettingStarted.Text = "Show Getting Started";
+            this.chkShowGettingStarted.UseVisualStyleBackColor = true;
+            // 
             // GettingStarted
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -85,9 +99,11 @@
             this.ClientSize = new System.Drawing.Size(581, 464);
             this.Controls.Add(this.pnlWBContainer);
             this.Controls.Add(this.flowLayoutPanel2);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "GettingStarted";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Getting Started";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GettingStarted_FormClosing);
             this.Load += new System.EventHandler(this.GettingStarted_Load);
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
@@ -101,5 +117,6 @@
         private System.Windows.Forms.Button _btnOk;
         private System.Windows.Forms.ComboBox _ddlLanguage;
         private System.Windows.Forms.Panel pnlWBContainer;
+        private System.Windows.Forms.CheckBox chkShowGettingStarted;
     }
 }

@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
 {
     public partial class MainForm
     {
+        private static readonly StringBuilder LogFile = new StringBuilder(100000);
+        private static readonly StringBuilder PluginLogFile = new StringBuilder(100000);
+
         internal static void LogExceptionToFile(Exception ex, string info)
         {
             ex.HelpLink = info + ": " + ex.Message;
@@ -46,6 +50,12 @@ namespace iSpyApplication
             }
         }
 
+        internal static void LogPluginToFile(string name, int id, string action, string detail)
+        {
+            DateTime dt = DateTime.Now;
+            PluginLogFile.Append("<message name=\"" + name + "\" id=\"" + id + "\" action=\"" + action + "\" timestamp=\"" + dt.Ticks+"\">" + detail.Replace("&", "&amp;") + "</message>");
+        }
+
         internal static void LogErrorToFile(String message)
         {
             if (!_logging)
@@ -78,7 +88,7 @@ namespace iSpyApplication
             }
         }
 
-        private void WriteLog()
+        private void WriteLogs()
         {
             if (_logging)
             {
@@ -106,6 +116,20 @@ namespace iSpyApplication
                 {
                     _logging = false;
                 }
+            }
+
+            try
+            {
+                if (_lastPluginLog.Length != PluginLogFile.Length)
+                {
+                    string fc = PluginLogTemplate.Replace("<!--CONTENT-->", PluginLogFile.ToString());
+                    File.WriteAllText(Program.AppDataPath + @"plugin_log_" + NextLog + ".xml", fc);
+                    _lastPluginLog = PluginLogFile.ToString();
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
     }

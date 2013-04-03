@@ -10,13 +10,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
 using iSpyApplication.Controls;
+using iSpyApplication.Joystick;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
 using Microsoft.Win32;
@@ -99,7 +99,7 @@ namespace iSpyApplication
 
         public static string PurchaseLink = "http://www.ispyconnect.com/astore.aspx";
         private static int _storageCounter;
-        private static Timer _rescanIPTimer;
+        private static Timer _rescanIPTimer, _tmrJoystick;
         private string _lastPath = Program.AppDataPath;
         private static bool _logging;
         private static string _counters = "";
@@ -107,13 +107,16 @@ namespace iSpyApplication
         private static ViewController _vc;
         private static int _pingCounter;
         private static ImageCodecInfo _encoder;
-        private static readonly StringBuilder LogFile = new StringBuilder(100000);
+        
         private PTZTool _ptzTool;
         private static readonly string LogTemplate =
             "<html><head><title>iSpy v<!--VERSION--> Log File</title><style type=\"text/css\">body,td,th,div {font-family:Verdana;font-size:10px}</style></head><body><h1>Log Start (v<!--VERSION-->): " +
             DateTime.Now.ToLongDateString() +
             "</h1><p><table cellpadding=\"2px\"><!--CONTENT--></table></p></body></html>";
-        private static string _lastlog = "";
+        private static readonly string PluginLogTemplate =
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><PluginLog username=\""+Environment.UserName+"\"><!--CONTENT--></PluginLog>";
+
+        private static string _lastlog = "", _lastPluginLog="";
         private static List<objectsMicrophone> _microphones;
         private static string _browser = String.Empty;
         private static List<objectsFloorplan> _floorplans;
@@ -309,17 +312,14 @@ namespace iSpyApplication
         private ToolStripMenuItem saveToToolStripMenuItem;
         private static List<LayoutItem> SavedLayout = new List<LayoutItem>();
         private MenuItem menuItem25;
-        private MenuItem menuItem26;
-        private MenuItem menuItem27;
-        private MenuItem menuItem28;
-        private MenuItem menuItem29;
-        private MenuItem menuItem30;
         private MenuItem menuItem31;
         private FolderBrowserDialog fbdSaveTo = new FolderBrowserDialog()
         {
             ShowNewFolderButton = true,
             Description = "Select a folder to copy the file to"
         };
+
+        
 
         public MainForm(bool silent, string command)
         {
@@ -334,7 +334,6 @@ namespace iSpyApplication
             RenderResources();
 
             _startCommand = command;
-
 
             var r = Antiufo.Controls.Windows7Renderer.Instance;
             toolStripMenu.Renderer = r;
@@ -355,6 +354,34 @@ namespace iSpyApplication
             
             SetPriority();
             Arrange(false);
+
+
+            _jst = new JoystickDevice();
+            bool jsactive = false;
+            var sticks = _jst.FindJoysticks();
+            foreach (string js in sticks)
+            {
+                string[] nameid = js.Split('|');
+                if (nameid[1] == Conf.Joystick.id)
+                {
+                    Guid g = Guid.Parse(nameid[1]);
+                    jsactive = _jst.AcquireJoystick(g);
+                }
+            }
+
+            if (!jsactive)
+            {
+                _jst.ReleaseJoystick();
+                _jst = null;
+            }
+            else
+            {
+                _tmrJoystick = new Timer(100);
+                _tmrJoystick.Elapsed += TmrJoystickElapsed;
+                _tmrJoystick.Start();    
+            }
+
+            
 
         }
 
@@ -777,9 +804,9 @@ namespace iSpyApplication
             _updateTimer.Start();
             _houseKeepingTimer.Start();
 
-            if (Conf.RunTimes == 0)
+            if (Conf.Enabled_ShowGettingStarted)
                 ShowGettingStarted();
-
+            
             if (File.Exists(Program.AppDataPath+"custom.txt"))
             {
                 string[] cfg = File.ReadAllText(Program.AppDataPath + "custom.txt").Split(Environment.NewLine.ToCharArray());
@@ -914,7 +941,10 @@ namespace iSpyApplication
 
             if (Conf.ShowPTZController)
                 ShowHidePTZTool();
-            
+
+
+            ListGridViews();
+
             Conf.RunTimes++;
 
             try
@@ -1332,7 +1362,7 @@ namespace iSpyApplication
             {
                 LogExceptionToFile(ex);
             }
-            WriteLog();
+            WriteLogs();
             if (!_shuttingDown)
                 _houseKeepingTimer.Start();
         }
@@ -1608,6 +1638,58 @@ namespace iSpyApplication
             {
                 _pnlCameras.BackColor = Conf.MainColor.ToColor();
                 notifyIcon1.Text = Conf.TrayIconText;
+
+                if (!String.IsNullOrEmpty(Conf.Joystick.id))
+                {
+                    if (_jst == null)
+                    {
+                        _jst = new JoystickDevice();
+                    }
+                    _jst.ReleaseJoystick();
+                    if (_tmrJoystick!=null)
+                    {
+                        _tmrJoystick.Stop();
+                        _tmrJoystick = null;
+                    }
+
+                    bool jsactive = false;
+                    var sticks = _jst.FindJoysticks();
+                    foreach (string js in sticks)
+                    {
+                        string[] nameid = js.Split('|');
+                        if (nameid[1] == Conf.Joystick.id)
+                        {
+                            Guid g = Guid.Parse(nameid[1]);
+                            jsactive = _jst.AcquireJoystick(g);
+                        }
+                    }
+
+                    if (!jsactive)
+                    {
+                        _jst.ReleaseJoystick();
+                        _jst = null;
+                    }
+                    else
+                    {
+                        _tmrJoystick = new Timer(100);
+                        _tmrJoystick.Elapsed += TmrJoystickElapsed;
+                        _tmrJoystick.Start();
+                    }
+                }
+                else
+                {
+                    if (_tmrJoystick != null)
+                    {
+                        _tmrJoystick.Stop();
+                        _tmrJoystick = null;
+                    }
+
+                    if (_jst != null)
+                    {
+                        _jst.ReleaseJoystick();
+                        _jst = null;
+                    }                   
+                }
             }
 
             if (settings.ReloadResources)
@@ -1706,6 +1788,8 @@ namespace iSpyApplication
                 _houseKeepingTimer.Stop();
             if (_updateTimer != null)
                 _updateTimer.Stop();
+            if (_tmrJoystick !=null)
+                _tmrJoystick.Stop();
             _shuttingDown = true;
 
             if (Conf.ShowMediaPanel)
@@ -1810,7 +1894,7 @@ namespace iSpyApplication
                 LogExceptionToFile(ex);
             }
 
-            WriteLog();
+            WriteLogs();
         }
 
         
@@ -2855,7 +2939,7 @@ namespace iSpyApplication
             var ofd = new OpenFileDialog
                           {
                               InitialDirectory = Program.AppDataPath,
-                              Filter = "iSpy Log Files (*.htm)|*.htm"
+                              Filter = "iSpy Log Files (*.htm)|*.htm|XML Files (*.xml)|*.xml|All Files (*.*)|*.*"
                           };
 
             if (ofd.ShowDialog(this) != DialogResult.OK) return;
@@ -3602,11 +3686,6 @@ namespace iSpyApplication
             this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.menuItem3 = new System.Windows.Forms.MenuItem();
             this.menuItem25 = new System.Windows.Forms.MenuItem();
-            this.menuItem26 = new System.Windows.Forms.MenuItem();
-            this.menuItem27 = new System.Windows.Forms.MenuItem();
-            this.menuItem28 = new System.Windows.Forms.MenuItem();
-            this.menuItem29 = new System.Windows.Forms.MenuItem();
-            this.menuItem30 = new System.Windows.Forms.MenuItem();
             this.menuItem31 = new System.Windows.Forms.MenuItem();
             this.menuItem4 = new System.Windows.Forms.MenuItem();
             this.menuItem5 = new System.Windows.Forms.MenuItem();
@@ -3729,6 +3808,7 @@ namespace iSpyApplication
             this.llblDelete = new System.Windows.Forms.LinkLabel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();
@@ -3742,7 +3822,6 @@ namespace iSpyApplication
             this.uploadToYouTubePublicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -4048,49 +4127,14 @@ namespace iSpyApplication
             // 
             this.menuItem25.Index = 15;
             this.menuItem25.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem26,
-            this.menuItem27,
-            this.menuItem28,
-            this.menuItem29,
-            this.menuItem30,
             this.menuItem31});
-            this.menuItem25.Text = "New Grid View";
+            this.menuItem25.Text = "Grid View";
             this.menuItem25.Click += new System.EventHandler(this.menuItem25_Click);
-            // 
-            // menuItem26
-            // 
-            this.menuItem26.Index = 0;
-            this.menuItem26.Text = "1x1";
-            this.menuItem26.Click += new System.EventHandler(this.menuItem26_Click);
-            // 
-            // menuItem27
-            // 
-            this.menuItem27.Index = 1;
-            this.menuItem27.Text = "2x2";
-            this.menuItem27.Click += new System.EventHandler(this.menuItem27_Click);
-            // 
-            // menuItem28
-            // 
-            this.menuItem28.Index = 2;
-            this.menuItem28.Text = "3x3";
-            this.menuItem28.Click += new System.EventHandler(this.menuItem28_Click);
-            // 
-            // menuItem29
-            // 
-            this.menuItem29.Index = 3;
-            this.menuItem29.Text = "4x4";
-            this.menuItem29.Click += new System.EventHandler(this.menuItem29_Click);
-            // 
-            // menuItem30
-            // 
-            this.menuItem30.Index = 4;
-            this.menuItem30.Text = "5x5";
-            this.menuItem30.Click += new System.EventHandler(this.menuItem30_Click);
             // 
             // menuItem31
             // 
-            this.menuItem31.Index = 5;
-            this.menuItem31.Text = "Custom";
+            this.menuItem31.Index = 0;
+            this.menuItem31.Text = "New...";
             this.menuItem31.Click += new System.EventHandler(this.menuItem31_Click);
             // 
             // menuItem4
@@ -5162,6 +5206,22 @@ namespace iSpyApplication
             this.splitContainer1.SplitterDistance = 278;
             this.splitContainer1.TabIndex = 21;
             // 
+            // _pnlCameras
+            // 
+            this._pnlCameras.AutoScroll = true;
+            this._pnlCameras.AutoSize = true;
+            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
+            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
+            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
+            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
+            this._pnlCameras.Name = "_pnlCameras";
+            this._pnlCameras.Size = new System.Drawing.Size(810, 278);
+            this._pnlCameras.TabIndex = 19;
+            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
+            // 
             // panel1
             // 
             this.panel1.AutoSize = true;
@@ -5273,22 +5333,6 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
-            // 
-            // _pnlCameras
-            // 
-            this._pnlCameras.AutoScroll = true;
-            this._pnlCameras.AutoSize = true;
-            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
-            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
-            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
-            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
-            this._pnlCameras.Name = "_pnlCameras";
-            this._pnlCameras.Size = new System.Drawing.Size(810, 278);
-            this._pnlCameras.TabIndex = 19;
-            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
             // 
             // MainForm
             // 
@@ -5431,38 +5475,7 @@ namespace iSpyApplication
         private void menuItem25_Click(object sender, EventArgs e)
         {
             
-        }
-
-        private void menuItem26_Click(object sender, EventArgs e)
-        {
-            ShowGrid("1x1");
-        }      
-
-        private void ShowGrid(string cfg)
-        {
-            var gv = new GridView(this,cfg);
-            gv.Show();
-        }
-
-        private void menuItem27_Click(object sender, EventArgs e)
-        {
-            ShowGrid("2x2");
-        }
-
-        private void menuItem28_Click(object sender, EventArgs e)
-        {
-            ShowGrid("3x3");
-        }
-
-        private void menuItem29_Click(object sender, EventArgs e)
-        {
-            ShowGrid("4x4");
-        }
-
-        private void menuItem30_Click(object sender, EventArgs e)
-        {
-            ShowGrid("5x5");
-        }
+        }     
 
         private void menuItem31_Click(object sender, EventArgs e)
         {
@@ -5470,7 +5483,21 @@ namespace iSpyApplication
             gvc.ShowDialog(this);
             if (gvc.DialogResult== DialogResult.OK)
             {
-                ShowGrid(gvc.Cols+"x"+gvc.Rows);
+                var cg = new configurationGrid
+                                           {
+                                               Columns = gvc.Cols,
+                                               Rows = gvc.Rows,
+                                               name = gvc.GridName,
+                                               GridItem = new configurationGridGridItem[]{}
+                                           };
+                var l = Conf.GridViews.ToList();
+                l.Add(cg);
+                Conf.GridViews = l.ToArray();
+
+                var gv = new GridView(this, ref cg);
+                gv.Show();
+
+                ListGridViews();
             }
             gvc.Dispose();
         }
@@ -5498,6 +5525,45 @@ namespace iSpyApplication
                 }    
             }
             
+        }
+
+
+        private void ListGridViews()
+        {
+            while(menuItem25.MenuItems.Count>1)
+                menuItem25.MenuItems.RemoveAt(0);
+
+            foreach(var gv in Conf.GridViews)
+            {
+                var mi = new MenuItem(gv.name);
+                var mis = new MenuItem("show");
+                mis.Click += mis_Click;
+                mis.Tag = gv.name;
+                mi.MenuItems.Add(mis);
+
+                var mid2 = new MenuItem("delete");
+                mid2.Click += midel_Click;
+                mid2.Tag = gv.name;
+                mi.MenuItems.Add(mid2);
+                menuItem25.MenuItems.Add(0,mi);
+            }
+        }
+
+        void mis_Click(object sender, EventArgs e)
+        {
+            var mi = (MenuItem) sender;
+            var cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Tag.ToString());
+            var gv = new GridView(this, ref cg);
+            gv.Show();
+        }
+
+        void midel_Click(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender).Tag;
+            var l = Conf.GridViews.ToList();
+            l.RemoveAll(p => p.name == mi.ToString());
+            Conf.GridViews = l.ToArray();
+            ListGridViews();
         }
 
 
