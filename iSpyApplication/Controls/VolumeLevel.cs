@@ -810,50 +810,55 @@ namespace iSpyApplication.Controls
                     {
                         InactiveRecord += secondCount;
                     }
-
-                    DateTime dtnow = DateTime.Now;
-                    foreach (objectsMicrophoneScheduleEntry entry in Micobject.schedule.entries.Where(p => p.active))
+                    if (Micobject.schedule.active)
                     {
-                        if (entry.daysofweek.IndexOf(((int) dtnow.DayOfWeek).ToString(CultureInfo.InvariantCulture), StringComparison.Ordinal) != -1)
+                        DateTime dtnow = DateTime.Now;
+                        foreach (objectsMicrophoneScheduleEntry entry in Micobject.schedule.entries.Where(p => p.active))
                         {
-                            string[] stop = entry.stop.Split(':');
-                            if (stop[0] != "-")
+                            if (
+                                entry.daysofweek.IndexOf(
+                                    ((int) dtnow.DayOfWeek).ToString(CultureInfo.InvariantCulture),
+                                    StringComparison.Ordinal) != -1)
                             {
-                                if (Convert.ToInt32(stop[0]) == dtnow.Hour)
+                                string[] stop = entry.stop.Split(':');
+                                if (stop[0] != "-")
                                 {
-                                    if (Convert.ToInt32(stop[1]) == dtnow.Minute && dtnow.Second < 2)
+                                    if (Convert.ToInt32(stop[0]) == dtnow.Hour)
                                     {
-                                        Micobject.detector.recordondetect = entry.recordondetect;
-                                        Micobject.detector.recordonalert = entry.recordonalert;
-                                        Micobject.alerts.active = entry.alerts;
-
-                                        if (Micobject.settings.active)
-                                            Disable();
-                                        goto skip;
-                                    }
-                                }
-                            }
-
-                            string[] start = entry.start.Split(':');
-                            if (start[0] != "-")
-                            {
-                                if (Convert.ToInt32(start[0]) == dtnow.Hour)
-                                {
-                                    if (Convert.ToInt32(start[1]) == dtnow.Minute && dtnow.Second < 3)
-                                    {
-                                        if (!Micobject.settings.active)
-                                            Enable();
-                                        if ((dtnow - _lastScheduleCheck).TotalSeconds > 60)
+                                        if (Convert.ToInt32(stop[1]) == dtnow.Minute && dtnow.Second < 2)
                                         {
                                             Micobject.detector.recordondetect = entry.recordondetect;
                                             Micobject.detector.recordonalert = entry.recordonalert;
                                             Micobject.alerts.active = entry.alerts;
-                                            if (entry.recordonstart)
-                                            {
-                                                ForcedRecording = true;
-                                            }
+
+                                            if (Micobject.settings.active)
+                                                Disable();
+                                            goto skip;
                                         }
-                                        goto skip;
+                                    }
+                                }
+
+                                string[] start = entry.start.Split(':');
+                                if (start[0] != "-")
+                                {
+                                    if (Convert.ToInt32(start[0]) == dtnow.Hour)
+                                    {
+                                        if (Convert.ToInt32(start[1]) == dtnow.Minute && dtnow.Second < 3)
+                                        {
+                                            if (!Micobject.settings.active)
+                                                Enable();
+                                            if ((dtnow - _lastScheduleCheck).TotalSeconds > 60)
+                                            {
+                                                Micobject.detector.recordondetect = entry.recordondetect;
+                                                Micobject.detector.recordonalert = entry.recordonalert;
+                                                Micobject.alerts.active = entry.alerts;
+                                                if (entry.recordonstart)
+                                                {
+                                                    ForcedRecording = true;
+                                                }
+                                            }
+                                            goto skip;
+                                        }
                                     }
                                 }
                             }

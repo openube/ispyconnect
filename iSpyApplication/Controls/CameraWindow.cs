@@ -1774,7 +1774,7 @@ namespace iSpyApplication.Controls
 
             var fpath = MainForm.Conf.MediaDirectory + "video\\" + Camobject.directory + "\\"+TimeLapseVideoFileName+CodecExtension;
 
-            bool yt = Camobject.settings.youtube.autoupload && MainForm.Conf.Subscribed;
+            bool yt = false;// Camobject.settings.youtube.autoupload && MainForm.Conf.Subscribed;
 
             var fi = new FileInfo(fpath);
             var dSeconds = Convert.ToInt32((DateTime.Now - TimelapseStart).TotalSeconds);
@@ -1813,11 +1813,11 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                if (yt && CodecExtension==".mp4")
-                {
-                    YouTubeUploader.AddUpload(Camobject.id,fpath, Camobject.settings.youtube.@public, "",
-                                              "");
-                }
+                //if (yt && CodecExtension==".mp4")
+                //{
+                //    YouTubeUploader.AddUpload(Camobject.id,fpath, Camobject.settings.youtube.@public, "",
+                //                              "");
+                //}
             }
         }
         
@@ -2252,11 +2252,9 @@ namespace iSpyApplication.Controls
                 string avifilename = folder + VideoFileName + CodecExtension;
                 bool error = false;
                 double maxAlarm = 0;
-                
+                LogPluginMessage("record", avifilename);
                 try
-                {
-                    
-                    
+                {                    
                     int w, h;
                     GetVideoSize(out w, out h);
                     Program.WriterMutex.WaitOne();
@@ -3573,26 +3571,44 @@ namespace iSpyApplication.Controls
                                 case "flash":
                                     FlashCounter = 10;
                                     break;
-                            }
-                            if (action.StartsWith("border:") && action.Length>7)
-                            {
-                                string col = action.Substring(7);
-                                try
-                                {
-                                    _customColor = Color.FromArgb(Convert.ToInt32(col));
-                                    Custom = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    MainForm.LogExceptionToFile(e);
-                                }
+                                default:
+                                    if (action.StartsWith("border:") && action.Length > 7)
+                                    {
+                                        string col = action.Substring(7);
+                                        try
+                                        {
+                                            _customColor = Color.FromArgb(Convert.ToInt32(col));
+                                            Custom = true;
+                                        }
+                                        catch (Exception e)
+                                        {
+                                            MainForm.LogExceptionToFile(e);
+                                        }
 
+                                    }
+                                    if (action.StartsWith("log:") && action.Length > 4)
+                                    {
+                                        string[] log = action.Substring(4).Split('|');
+                                        if (log.Length>=2)
+                                        {
+                                            LogPluginMessage(log[0], log[1]);
+                                        }
+                                        
+                                    }
+                                    break;
                             }
+                            
                         }
                     }
                 }
             }
             
+        }
+
+        private void LogPluginMessage(string action, string detail)
+        {
+            if (Camobject.alerts.mode == "KinectPlugin")
+                MainForm.LogPluginToFile(Camobject.name, Camobject.id, action, detail);
         }
 
         public void StopSaving()
