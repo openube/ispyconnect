@@ -69,9 +69,11 @@ namespace iSpyApplication
                 _websitelive = value;
                 if (!_websitelive)
                 {
-                    MainForm.LogErrorToFile("Disconnected");
                     if (!ReconnectTimer.Enabled)
+                    {
+                        MainForm.LogErrorToFile("Disconnected");
                         ReconnectTimer.Start();
+                    }
                 }
             }
         }

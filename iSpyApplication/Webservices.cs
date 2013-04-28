@@ -328,6 +328,7 @@ namespace iSpyApplication
             Text = LocRm.GetString("WebServerSettings");
             btnTroubleshooting.Text = LocRm.GetString("troubleshooting");
             llblHelp.Text = LocRm.GetString("help");
+            LocRm.SetString(chkEnableIPv6, "EnableIPv6");
         }
 
 

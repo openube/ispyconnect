@@ -387,7 +387,8 @@ namespace iSpyApplication.Video
 			if ( IsRunning )
 			{
                 _stopEvent.Set( );
-                _thread.Abort( );
+                if (_thread!=null && _thread.IsAlive)
+                    _thread.Abort( );
 				WaitForStop( );
 			}
 		}

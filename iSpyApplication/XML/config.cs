@@ -224,6 +224,10 @@ public partial class configuration {
     
     private string defaultManufacturerField;
     
+    private string appendLinkTextField;
+
+    private string startupFormField;
+    
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
@@ -258,6 +262,8 @@ public partial class configuration {
         this.iPv6DisabledField = false;
         this.deleteToRecycleBinField = false;
         this.speechRecognitionField = false;
+        this.appendLinkTextField = "http://www.ispyconnect.com/watch_new.aspx";
+        this.startupFormField = "iSpy";
     }
     
     /// <remarks/>
@@ -1261,6 +1267,29 @@ public partial class configuration {
     }
     
     /// <remarks/>
+    public string AppendLinkText {
+        get {
+            return this.appendLinkTextField;
+        }
+        set {
+            this.appendLinkTextField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string StartupFormField
+    {
+        get
+        {
+            return this.startupFormField;
+        }
+        set
+        {
+            this.startupFormField = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("Grid", IsNullable=false)]
     public configurationGrid[] GridViews {
         get {
@@ -1435,39 +1464,74 @@ public partial class configurationGridGridItemItem {
 public partial class configurationJoystick {
     
     private string idField;
-
+    
     private int xAxisField;
-
+    
+    private bool xAxisFieldSpecified;
+    
     private int centerXAxisField;
-
+    
+    private bool centerXAxisFieldSpecified;
+    
     private bool invertXAxisField;
-
+    
+    private bool invertXAxisFieldSpecified;
+    
     private int yAxisField;
-
+    
+    private bool yAxisFieldSpecified;
+    
     private int centerYAxisField;
-
+    
+    private bool centerYAxisFieldSpecified;
+    
     private bool invertYAxisField;
-
+    
+    private bool invertYAxisFieldSpecified;
+    
     private int zAxisField;
-
+    
+    private bool zAxisFieldSpecified;
+    
     private int centerZAxisField;
-
+    
+    private bool centerZAxisFieldSpecified;
+    
     private bool invertZAxisField;
-
+    
+    private bool invertZAxisFieldSpecified;
+    
     private int recordField;
-
+    
+    private bool recordFieldSpecified;
+    
     private int snapshotField;
-
+    
+    private bool snapshotFieldSpecified;
+    
     private int listenField;
-
+    
+    private bool listenFieldSpecified;
+    
     private int talkField;
-
+    
+    private bool talkFieldSpecified;
+    
     private int playField;
+    
+    private bool playFieldSpecified;
+    
     private int stopField;
-
+    
+    private bool stopFieldSpecified;
+    
     private int nextField;
-
+    
+    private bool nextFieldSpecified;
+    
     private int previousField;
+    
+    private bool previousFieldSpecified;
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -1490,40 +1554,65 @@ public partial class configurationJoystick {
             this.xAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool XAxisSpecified {
+        get {
+            return this.xAxisFieldSpecified;
+        }
+        set {
+            this.xAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int CenterXAxis
-    {
-        get
-        {
+    public int CenterXAxis {
+        get {
             return this.centerXAxisField;
         }
-        set
-        {
+        set {
             this.centerXAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool CenterXAxisSpecified {
+        get {
+            return this.centerXAxisFieldSpecified;
+        }
+        set {
+            this.centerXAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public bool InvertXAxis
-    {
-        get
-        {
+    public bool InvertXAxis {
+        get {
             return this.invertXAxisField;
         }
-        set
-        {
+        set {
             this.invertXAxisField = value;
         }
     }
     
-
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool InvertXAxisSpecified {
+        get {
+            return this.invertXAxisFieldSpecified;
+        }
+        set {
+            this.invertXAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int YAxis
-    {
+    public int YAxis {
         get {
             return this.yAxisField;
         }
@@ -1531,39 +1620,65 @@ public partial class configurationJoystick {
             this.yAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool YAxisSpecified {
+        get {
+            return this.yAxisFieldSpecified;
+        }
+        set {
+            this.yAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int CenterYAxis
-    {
-        get
-        {
+    public int CenterYAxis {
+        get {
             return this.centerYAxisField;
         }
-        set
-        {
+        set {
             this.centerYAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool CenterYAxisSpecified {
+        get {
+            return this.centerYAxisFieldSpecified;
+        }
+        set {
+            this.centerYAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public bool InvertYAxis
-    {
-        get
-        {
+    public bool InvertYAxis {
+        get {
             return this.invertYAxisField;
         }
-        set
-        {
+        set {
             this.invertYAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool InvertYAxisSpecified {
+        get {
+            return this.invertYAxisFieldSpecified;
+        }
+        set {
+            this.invertYAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int ZAxis
-    {
+    public int ZAxis {
         get {
             return this.zAxisField;
         }
@@ -1571,40 +1686,65 @@ public partial class configurationJoystick {
             this.zAxisField = value;
         }
     }
-
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool ZAxisSpecified {
+        get {
+            return this.zAxisFieldSpecified;
+        }
+        set {
+            this.zAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int CenterZAxis
-    {
-        get
-        {
+    public int CenterZAxis {
+        get {
             return this.centerZAxisField;
         }
-        set
-        {
+        set {
             this.centerZAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool CenterZAxisSpecified {
+        get {
+            return this.centerZAxisFieldSpecified;
+        }
+        set {
+            this.centerZAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public bool InvertZAxis
-    {
-        get
-        {
+    public bool InvertZAxis {
+        get {
             return this.invertZAxisField;
         }
-        set
-        {
+        set {
             this.invertZAxisField = value;
         }
     }
-
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool InvertZAxisSpecified {
+        get {
+            return this.invertZAxisFieldSpecified;
+        }
+        set {
+            this.invertZAxisFieldSpecified = value;
+        }
+    }
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Record
-    {
+    public int Record {
         get {
             return this.recordField;
         }
@@ -1614,9 +1754,19 @@ public partial class configurationJoystick {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool RecordSpecified {
+        get {
+            return this.recordFieldSpecified;
+        }
+        set {
+            this.recordFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Snapshot
-    {
+    public int Snapshot {
         get {
             return this.snapshotField;
         }
@@ -1626,9 +1776,19 @@ public partial class configurationJoystick {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool SnapshotSpecified {
+        get {
+            return this.snapshotFieldSpecified;
+        }
+        set {
+            this.snapshotFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Listen
-    {
+    public int Listen {
         get {
             return this.listenField;
         }
@@ -1636,25 +1796,43 @@ public partial class configurationJoystick {
             this.listenField = value;
         }
     }
-
+    
     /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Talk
-    {
-        get
-        {
-            return this.talkField;
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool ListenSpecified {
+        get {
+            return this.listenFieldSpecified;
         }
-        set
-        {
-            this.talkField = value;
+        set {
+            this.listenFieldSpecified = value;
         }
     }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Play
-    {
+    public int Talk {
+        get {
+            return this.talkField;
+        }
+        set {
+            this.talkField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool TalkSpecified {
+        get {
+            return this.talkFieldSpecified;
+        }
+        set {
+            this.talkFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public int Play {
         get {
             return this.playField;
         }
@@ -1662,25 +1840,43 @@ public partial class configurationJoystick {
             this.playField = value;
         }
     }
-
+    
     /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Stop
-    {
-        get
-        {
-            return this.stopField;
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool PlaySpecified {
+        get {
+            return this.playFieldSpecified;
         }
-        set
-        {
-            this.stopField = value;
+        set {
+            this.playFieldSpecified = value;
         }
     }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Next
-    {
+    public int Stop {
+        get {
+            return this.stopField;
+        }
+        set {
+            this.stopField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool StopSpecified {
+        get {
+            return this.stopFieldSpecified;
+        }
+        set {
+            this.stopFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public int Next {
         get {
             return this.nextField;
         }
@@ -1690,14 +1886,35 @@ public partial class configurationJoystick {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool NextSpecified {
+        get {
+            return this.nextFieldSpecified;
+        }
+        set {
+            this.nextFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Previous
-    {
+    public int Previous {
         get {
             return this.previousField;
         }
         set {
             this.previousField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool PreviousSpecified {
+        get {
+            return this.previousFieldSpecified;
+        }
+        set {
+            this.previousFieldSpecified = value;
         }
     }
 }

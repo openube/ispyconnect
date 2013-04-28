@@ -65,17 +65,17 @@ namespace iSpyApplication.Controls
             if (GetInput!=null)
                 GetInput(this, EventArgs.Empty);
 
-            lblButton.Text = "Move an axis";
+            LocRm.SetString(lblButton,"MoveAnAxis");
             if (SupportDPad)
-                lblButton.Text+=" or press a D pad...";
-            button1.Text = "Clear";
+                LocRm.SetString(lblButton, "MoveOrPress");
+            LocRm.SetString(button1, "Clear");
             _input = true;
 
         }
 
         private void jaxis_Load(object sender, EventArgs e)
         {
-
+            LocRm.SetString(chkInvert, "Invert");
         }
 
         private void chkInvert_CheckedChanged(object sender, EventArgs e)

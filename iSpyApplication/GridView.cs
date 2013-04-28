@@ -6,10 +6,13 @@ namespace iSpyApplication
     public partial class GridView : Form
     {
         private readonly Controls.GridView _gv;
+        private bool _fullscreen;
+
         public GridView(MainForm parent, ref configurationGrid layout)
         {
             InitializeComponent();
             _gv = new Controls.GridView(ref layout);
+            _gv.KeyDown += GridView_KeyDown;
             Controls.Add(_gv);
             _gv.Dock = DockStyle.Fill;
             _gv._parent = parent;
@@ -21,5 +24,28 @@ namespace iSpyApplication
             Text = _gv.Text;
         }
 
+        private void MaxMin()
+        {
+            if (!_fullscreen)
+            {
+                WindowState = FormWindowState.Maximized;
+                FormBorderStyle = FormBorderStyle.None;
+                WinApi.SetWinFullScreen(Handle);
+            }
+            else
+            {
+                WindowState = FormWindowState.Maximized;
+                FormBorderStyle = FormBorderStyle.Sizable;
+            }
+            _fullscreen = !_fullscreen;
+        }
+
+        private void GridView_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Alt && e.KeyCode==Keys.Enter)
+            {
+                MaxMin();
+            }
+        }
     }
 }

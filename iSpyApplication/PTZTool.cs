@@ -22,7 +22,7 @@ namespace iSpyApplication
                 ddlExtended.Items.Clear();
                 if (_cameraControl == null)
                 {
-                    ddlExtended.Items.Add(new ListItem("Click on a Camera", ""));
+                    ddlExtended.Items.Add(new ListItem(LocRm.GetString("ClickCamera"),""));
                     ddlExtended.SelectedIndex = 0;
                 }
 
@@ -31,7 +31,7 @@ namespace iSpyApplication
                 {
                     if (CameraControl.Camobject.ptz > -1)
                     {
-                        ddlExtended.Items.Add(new ListItem("Select Command", ""));
+                        ddlExtended.Items.Add(new ListItem(LocRm.GetString("SelectCommand"), ""));
                         PTZSettings2Camera ptz = MainForm.PTZs.Single(p => p.id == CameraControl.Camobject.ptz);
                         if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command!=null)
                         {
@@ -44,7 +44,7 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        ddlExtended.Items.Add(new ListItem("Digital PTZ only", ""));
+                        ddlExtended.Items.Add(new ListItem(LocRm.GetString("DigitalPTZonly"), ""));
                         pnlController.Enabled = true;
                     }
                     Text = "PTZ: "+CameraControl.Camobject.name;
@@ -85,8 +85,7 @@ namespace iSpyApplication
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    LocRm.GetString("Validate_Camera_PTZIPOnly") + Environment.NewLine + Environment.NewLine +
-                    ex.Message, LocRm.GetString("Error"));
+                    LocRm.GetString("Validate_Camera_PTZIPOnly"), LocRm.GetString("Error"));
             }
         }
 

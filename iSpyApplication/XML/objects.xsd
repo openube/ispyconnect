@@ -79,6 +79,7 @@
                                                 <xs:attribute name="desktopresizeheight" type="xs:int" use="required"/>
                                                 <xs:attribute name="resize" type="xs:boolean" use="required"/>
                                                 <xs:attribute name="desktopmouse" type="xs:boolean" use="required"/>
+                                                <xs:attribute name="calibrateonreconnect" type="xs:boolean" default="true"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="ftp">
@@ -406,6 +407,7 @@
                                     <xs:attribute name="width" type="xs:int" use="required" />
                                     <xs:attribute name="height" type="xs:int" use="required" />
                                     <xs:attribute name="image" type="xs:string" use="required" />
+                                    <xs:attribute name="accessgroups" type="xs:string" use="optional" />
                                     <xs:attribute name="originalsize" type="xs:boolean" use="optional" />
                                     <xs:attribute name="fov" type="xs:int" default="90"/>
                                     <xs:attribute name="radius" type="xs:int" default="80"/>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -124,6 +125,8 @@ namespace iSpyApplication
             MainForm.Conf.BigButtons = chkBigButtons.Checked;
             MainForm.Conf.DeleteToRecycleBin = chkRecycle.Checked;
             MainForm.Conf.SpeechRecognition = chkSpeechRecognition.Checked;
+            MainForm.Conf.AppendLinkText = txtAppendLinkText.Text;
+            MainForm.Conf.StartupFormField = ddlStartUpForm.SelectedItem.ToString();
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             if (ddlTalkMic.Items.Count == 0)
@@ -146,7 +149,7 @@ namespace iSpyApplication
             if (lang != MainForm.Conf.Language)
             {
                 ReloadResources = true;
-                LocRm.CurrentSet = null;
+                LocRm.Reset();
             }
             MainForm.Conf.Language = lang;
 
@@ -210,7 +213,7 @@ namespace iSpyApplication
             }
             else
                 MainForm.Conf.Joystick.id = "";
-           
+          
             DialogResult = DialogResult.OK;
             Close();
         }
@@ -330,6 +333,17 @@ namespace iSpyApplication
             chkInterrupt.Checked = MainForm.Conf.ScreensaverWakeup;
             chkEnableIPv6.Checked = !MainForm.Conf.IPv6Disabled;
             chkRecycle.Checked = MainForm.Conf.DeleteToRecycleBin;
+            txtAppendLinkText.Text = MainForm.Conf.AppendLinkText;
+
+            foreach(var grid in MainForm.Conf.GridViews)
+            {
+                ddlStartUpForm.Items.Add(grid.name);
+            }
+
+            ddlStartUpForm.SelectedItem = MainForm.Conf.StartupFormField;
+            if (ddlStartUpForm.SelectedItem==null)
+                ddlStartUpForm.SelectedIndex = 0;
+            
             var pbModes = LocRm.GetString("PlaybackModes").Split(',');
             foreach (var s in pbModes)
                 ddlPlayback.Items.Add(s.Trim());
@@ -431,7 +445,6 @@ namespace iSpyApplication
             jaxis1.GetInput += jaxis_GetInput;
             jaxis2.GetInput += jaxis_GetInput;
             jaxis3.GetInput += jaxis_GetInput;
-            
         }
 
         private void RenderResources()
@@ -464,7 +477,6 @@ namespace iSpyApplication
             label12.Text = LocRm.GetString("DaysOld0ForNoDeletions");
             label14.Text = LocRm.GetString("IspyServerName");
             label16.Text = LocRm.GetString("ispyOpacitymayNotW");
-            label19.Text = LocRm.GetString("ispyCanAutomaticallyUploa");
             label2.Text = LocRm.GetString("ServerReceiveTimeout");
             label20.Text = LocRm.GetString("additionalControlsForYout");
             label21.Text = LocRm.GetString("TrayIconText");
@@ -496,7 +508,44 @@ namespace iSpyApplication
             label17.Text = LocRm.GetString("IPAccessExplainer");
             chkStopRecording.Text = LocRm.GetString("StopRecordingOnLimit");
             label24.Text = LocRm.GetString("MediaPanelItems");
-            //chkRecycle.Text = LocRm.GetString("DeleteToRecycleBin");
+
+            LocRm.SetString(lblMicrophone, "Microphone");
+            LocRm.SetString(chkBigButtons, "BigButtons");
+            LocRm.SetString(chkMinimise, "MinimiseOnClose");
+            LocRm.SetString(chkRecycle, "DeleteToRecycle");
+            LocRm.SetString(chkEnableIPv6,"EnableIPv6");
+            LocRm.SetString(label15, "MaxCPUTarget");
+            LocRm.SetString(label22, "MaxRedrawRate");
+            LocRm.SetString(btnBorderDefault, "BorderDefault");
+            LocRm.SetString(btnRunNow, "RunNow");
+            LocRm.SetString(label25,"YouCanUseRegularExpressions");
+            LocRm.SetString(tabPage5,"Talk");
+            LocRm.SetString(tabPage8, "Joystick");
+            LocRm.SetString(label26, "Joystick");
+            LocRm.SetString(tabPage9, "Messaging");
+            LocRm.SetString(label19, "AppendLinkText");
+
+            LocRm.SetString(label28, "PanAxis");
+            LocRm.SetString(label30, "TiltAxis");
+            LocRm.SetString(label32, "ZoomAxis");
+            LocRm.SetString(btnCenterAxes, "CenterAxes");
+
+
+            LocRm.SetString(label34, "Record");
+            LocRm.SetString(label29, "Snapshot");
+            LocRm.SetString(label27, "Talk");
+            LocRm.SetString(label31, "Listen");
+            LocRm.SetString(label33, "Play");
+            LocRm.SetString(label37, "Stop");
+            LocRm.SetString(label35, "Next");
+            LocRm.SetString(label36, "Previous");
+            LocRm.SetString(label38, "JoystickNote");
+            LocRm.SetString(label39, "StartupForm");
+
+
+
+            //future
+            chkSpeechRecognition.Visible = false;
         }
 
 
@@ -682,7 +731,7 @@ namespace iSpyApplication
             d.ShowDialog(this);
             if (d.DialogResult == DialogResult.OK)
             {
-                LocRm.TranslationsList = null;
+                LocRm.Reset();
                 UISync.Execute(ReloadLanguages);
             }
             d.Dispose();
@@ -733,6 +782,23 @@ namespace iSpyApplication
             internal readonly string[] Value;
 
             public ListItem(string name, string[] value)
+            {
+                _name = name;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return _name;
+            }
+        }
+
+        private struct ListItem2
+        {
+            private readonly string _name;
+            internal readonly string Value;
+
+            public ListItem2(string name, string value)
             {
                 _name = name;
                 Value = value;
@@ -862,7 +928,7 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    MessageBox.Show(this, "Could not acquire joystick");
+                    MessageBox.Show(this, LocRm.GetString("NoJoystick"));
                     tblJoystick.Enabled = false;
                 }
 
@@ -936,7 +1002,7 @@ namespace iSpyApplication
         private void btnCenterAxes_Click(object sender, EventArgs e)
         {
             CenterAxes();
-            MessageBox.Show(this, "Axes Centered");
+            MessageBox.Show(this, LocRm.GetString("AxesCentered"));
         }
 
         private void CenterAxes()
@@ -946,6 +1012,11 @@ namespace iSpyApplication
             MainForm.Conf.Joystick.CenterYAxis = jaxis2.ID > 0 ? _jst.Axis[jaxis2.ID - 1] : 0;
 
             MainForm.Conf.Joystick.CenterZAxis = jaxis3.ID > 0 ? _jst.Axis[jaxis3.ID - 1] : 0;
-        }       
+        }
+
+        private void jaxis1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

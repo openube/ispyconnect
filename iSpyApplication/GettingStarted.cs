@@ -53,7 +53,7 @@ namespace iSpyApplication
             if (lang != MainForm.Conf.Language)
             {
                 MainForm.Conf.Language = lang;
-                LocRm.CurrentSet = null;
+                LocRm.Reset();
                 RenderResources();
                 LangChanged = true;
             }

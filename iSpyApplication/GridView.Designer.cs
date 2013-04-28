@@ -40,6 +40,7 @@
             this.Name = "GridView";
             this.Text = "iSpy Grid View";
             this.Load += new System.EventHandler(this.GridView_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GridView_KeyDown);
             this.ResumeLayout(false);
 
         }

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using SlimDX.DirectInput;
+using SharpDX.DirectInput;
 
 namespace iSpyApplication.Joystick
 {
     public class JoystickDevice
     {
-        private SlimDX.DirectInput.Joystick _joystick;
+        private SharpDX.DirectInput.Joystick _joystick;
         private JoystickState _state;
         private readonly int[] _axis = new int[21];
 
@@ -25,6 +25,8 @@ namespace iSpyApplication.Joystick
 
         private void Poll()
         {
+            if (_joystick == null)
+                return;
             try
             {
                 _joystick.Poll();
@@ -38,8 +40,19 @@ namespace iSpyApplication.Joystick
 
         public string[] FindJoysticks()
         {
-            var dinput = new DirectInput();
-            return dinput.GetDevices(DeviceClass.GameController, DeviceEnumerationFlags.AttachedOnly).Select(device => device.InstanceName + "|" + device.InstanceGuid.ToString()).ToArray();
+            var ret = new string[]{};
+            try
+            {
+                var dinput = new DirectInput();
+
+                ret = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).Select(
+                        device => device.InstanceName + "|" + device.InstanceGuid.ToString()).ToArray();
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            return ret;
         }
 
         public bool AcquireJoystick(Guid guid)
@@ -53,11 +66,11 @@ namespace iSpyApplication.Joystick
                 }
 
                 var dinput = new DirectInput();
-                foreach (DeviceInstance device in dinput.GetDevices(DeviceClass.GameController, DeviceEnumerationFlags.AttachedOnly))
+                foreach (DeviceInstance device in dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly))
                 {
                     if (device.InstanceGuid==guid)
                     {
-                        _joystick = new SlimDX.DirectInput.Joystick(dinput, device.InstanceGuid);
+                        _joystick = new SharpDX.DirectInput.Joystick(dinput, device.InstanceGuid);
                     }
                 }
 
@@ -65,14 +78,33 @@ namespace iSpyApplication.Joystick
                 {
                     foreach (DeviceObjectInstance deviceObject in _joystick.GetObjects())
                     {
-                        if ((deviceObject.ObjectType & ObjectDeviceType.Axis) != 0)
-                            _joystick.GetObjectPropertiesById((int)deviceObject.ObjectType).SetRange(-100, 100);
+                        
+                        //if ((deviceObject.ObjectType & ObjectDeviceType.Axis) != 0)
+                        switch (deviceObject.ObjectId.Flags)
+                        {
+                            case DeviceObjectTypeFlags.Axis:
+                            case DeviceObjectTypeFlags.AbsoluteAxis:
+                            case DeviceObjectTypeFlags.RelativeAxis:
+                                var ir = _joystick.GetObjectPropertiesById(deviceObject.ObjectId);
+                                if (ir != null)
+                                {
+                                    try
+                                    {
+                                        ir.Range = new InputRange(-100, 100);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MainForm.LogExceptionToFile(ex);
+                                    }
+                                }
+                                break;
+                        }
                     }
 
                     _joystick.Acquire();
 
                     var cps = _joystick.Capabilities;
-                    AxisCount = cps.AxesCount;
+                    AxisCount = cps.AxeCount;
 
                     UpdateStatus();
                 }               
@@ -119,13 +151,19 @@ namespace iSpyApplication.Joystick
                 _axis[19] = _state.Y;
                 _axis[20] = _state.Z;
 
-                Buttons = _state.GetButtons();
+                Buttons = _state.Buttons;
             }
         }
 
         public int[] Dpads
         {
-            get { int[] pow = _state.GetPointOfViewControllers(); return pow; }
+            get
+            {
+                if (_state == null)
+                    return new int[]{};
+                int[] pow = _state.PointOfViewControllers; 
+                return pow;
+            }
         }
 
         public int[] Axis

@@ -119,6 +119,7 @@ namespace iSpyApplication
             this.tlpVLC = new System.Windows.Forms.TableLayoutPanel();
             this.label21 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
+            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.lblInstallVLC = new System.Windows.Forms.Label();
@@ -157,6 +158,7 @@ namespace iSpyApplication
             this.label36 = new System.Windows.Forms.Label();
             this.ddlKinectDevice = new System.Windows.Forms.ComboBox();
             this.chkKinectSkeletal = new System.Windows.Forms.CheckBox();
+            this.chkTripWires = new System.Windows.Forms.CheckBox();
             this.tabPage9 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.label45 = new System.Windows.Forms.Label();
@@ -178,8 +180,7 @@ namespace iSpyApplication
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel9 = new System.Windows.Forms.TableLayoutPanel();
-            this.chkTripWires = new System.Windows.Forms.CheckBox();
-            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
+            this.chkCalibrate = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numBorderTimeout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtFrameInterval2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtResizeWidth)).BeginInit();
@@ -1267,6 +1268,15 @@ namespace iSpyApplication
             this.label19.TabIndex = 53;
             this.label19.Text = "eg: http://username:password@192.168.1.4/videostream.asf";
             // 
+            // txtVLCArgs
+            // 
+            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
+            this.txtVLCArgs.Multiline = true;
+            this.txtVLCArgs.Name = "txtVLCArgs";
+            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
+            this.txtVLCArgs.TabIndex = 61;
+            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            // 
             // label18
             // 
             this.label18.AutoSize = true;
@@ -1705,6 +1715,17 @@ namespace iSpyApplication
             this.chkKinectSkeletal.UseVisualStyleBackColor = true;
             this.chkKinectSkeletal.CheckedChanged += new System.EventHandler(this.chkKinectSkeletal_CheckedChanged);
             // 
+            // chkTripWires
+            // 
+            this.chkTripWires.AutoSize = true;
+            this.chkTripWires.Location = new System.Drawing.Point(87, 68);
+            this.chkTripWires.Margin = new System.Windows.Forms.Padding(6);
+            this.chkTripWires.Name = "chkTripWires";
+            this.chkTripWires.Size = new System.Drawing.Size(104, 17);
+            this.chkTripWires.TabIndex = 15;
+            this.chkTripWires.Text = "Show Trip Wires";
+            this.chkTripWires.UseVisualStyleBackColor = true;
+            // 
             // tabPage9
             // 
             this.tabPage9.Controls.Add(this.tableLayoutPanel6);
@@ -1909,6 +1930,7 @@ namespace iSpyApplication
             // 
             this.flowLayoutPanel9.Controls.Add(this.txtReconnect);
             this.flowLayoutPanel9.Controls.Add(this.label48);
+            this.flowLayoutPanel9.Controls.Add(this.chkCalibrate);
             this.flowLayoutPanel9.Location = new System.Drawing.Point(121, 3);
             this.flowLayoutPanel9.Name = "flowLayoutPanel9";
             this.flowLayoutPanel9.Size = new System.Drawing.Size(438, 24);
@@ -1941,25 +1963,16 @@ namespace iSpyApplication
             this.tableLayoutPanel9.Size = new System.Drawing.Size(612, 100);
             this.tableLayoutPanel9.TabIndex = 62;
             // 
-            // chkTripWires
+            // chkCalibrate
             // 
-            this.chkTripWires.AutoSize = true;
-            this.chkTripWires.Location = new System.Drawing.Point(87, 68);
-            this.chkTripWires.Margin = new System.Windows.Forms.Padding(6);
-            this.chkTripWires.Name = "chkTripWires";
-            this.chkTripWires.Size = new System.Drawing.Size(104, 17);
-            this.chkTripWires.TabIndex = 15;
-            this.chkTripWires.Text = "Show Trip Wires";
-            this.chkTripWires.UseVisualStyleBackColor = true;
-            // 
-            // txtVLCArgs
-            // 
-            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
-            this.txtVLCArgs.Multiline = true;
-            this.txtVLCArgs.Name = "txtVLCArgs";
-            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
-            this.txtVLCArgs.TabIndex = 61;
-            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            this.chkCalibrate.AutoSize = true;
+            this.chkCalibrate.Location = new System.Drawing.Point(127, 6);
+            this.chkCalibrate.Margin = new System.Windows.Forms.Padding(6);
+            this.chkCalibrate.Name = "chkCalibrate";
+            this.chkCalibrate.Size = new System.Drawing.Size(138, 17);
+            this.chkCalibrate.TabIndex = 82;
+            this.chkCalibrate.Text = "Calibrate on Reconnect";
+            this.chkCalibrate.UseVisualStyleBackColor = true;
             // 
             // VideoSource
             // 
@@ -2212,5 +2225,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label45;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel15;
         private System.Windows.Forms.CheckBox chkTripWires;
+        private System.Windows.Forms.CheckBox chkCalibrate;
     }
 }

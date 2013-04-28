@@ -1985,7 +1985,7 @@ namespace iSpyApplication.Controls
                             break;
                     }
 
-                    message = message.Replace("[BODY]", body + "<br/><a href=\"http://www.ispyconnect.com\">http://www.ispyconnect.com</a>");
+                    message = message.Replace("[BODY]", body + "<br/>" + MainForm.Conf.AppendLinkText);
 
 
                     if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)

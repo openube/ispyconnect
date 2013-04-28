@@ -103,6 +103,8 @@
         <xs:element name="DeleteToRecycleBin" type="xs:boolean" default="false"/>
         <xs:element name="SpeechRecognition" type="xs:boolean" default="false"/>
         <xs:element name="DefaultManufacturer" type="xs:string"/>
+        <xs:element name="AppendLinkText" type="xs:string"/>
+        <xs:element name="StartupForm" type="xs:string" default="iSpy"/>
         <xsd:element name="GridViews">
           <xsd:complexType>
             <xsd:sequence>
@@ -136,14 +138,14 @@
           <xsd:complexType>
             <xsd:attribute name="id" type="xsd:string" use="optional" />
             <xsd:attribute name="XAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterX" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertX" type="xsd:boolean" use="optional" />
+            <xsd:attribute name="CenterXAxis" type="xsd:int" use="optional" />
+            <xsd:attribute name="InvertXAxis" type="xsd:boolean" use="optional" />
             <xsd:attribute name="YAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterY" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertY" type="xsd:boolean" use="optional" />
+            <xsd:attribute name="CenterYAxis" type="xsd:int" use="optional" />
+            <xsd:attribute name="InvertYAxis" type="xsd:boolean" use="optional" />
             <xsd:attribute name="ZAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterZ" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertZ" type="xsd:boolean" use="optional" />
+            <xsd:attribute name="CenterZAxis" type="xsd:int" use="optional" />
+            <xsd:attribute name="InvertZAxis" type="xsd:boolean" use="optional" />
             <xsd:attribute name="Record" type="xsd:int" use="optional" />
             <xsd:attribute name="Snapshot" type="xsd:int" use="optional" />
             <xsd:attribute name="Listen" type="xsd:int" use="optional" />

@@ -225,6 +225,8 @@ namespace iSpyApplication
             cmbMJPEGURL.Items.AddRange(MainForm.Conf.RecentMJPGList.Split('|'));
             cmbFile.Items.AddRange(MainForm.Conf.RecentFileList.Split('|'));
             cmbVLCURL.Items.AddRange(MainForm.Conf.RecentVLCList.Split('|'));
+
+            chkCalibrate.Checked = Convert.ToBoolean(CameraControl.Camobject.settings.calibrateonreconnect);
            
             int selectedCameraIndex = 0;
 
@@ -426,20 +428,39 @@ namespace iSpyApplication
             label37.Text = LocRm.GetString("VideoInput");
             snapshotsLabel.Text = LocRm.GetString("SnapshotsResolution");
 
-            //label20.Text = LocRm.GetString("Resolution");
-            //label21.Text = LocRm.GetString("FrameRate");
-            //label23.Text = LocRm.GetString("dependsOnYourWebcamCapabi");
-
             label18.Text = LocRm.GetString("Arguments");
             lblInstallVLC.Text = LocRm.GetString("VLCConnectInfo");
-            linkLabel3.Text = LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin + " or greater";
-            //btnGetStreamSize.Text = LocRm.GetString("GetStreamSize");
+            linkLabel3.Text = LocRm.GetString("DownloadVLC");
             linkLabel4.Text = LocRm.GetString("UseiSpyServerText");
             label48.Text = LocRm.GetString("Seconds");
             label43.Text = LocRm.GetString("ReconnectEvery");
-            chkForceBasic.Text = LocRm.GetString("ForceBasic");
+            chkForceBasic.Text = chkForceBasic1.Text = LocRm.GetString("ForceBasic");
 
             llblHelp.Text = LocRm.GetString("help");
+            
+            
+            LocRm.SetString(label35,"Cookies");
+            LocRm.SetString(label44, "Cookies");
+            LocRm.SetString(label20, "DecodeKey");
+            LocRm.SetString(label22, "OptionaliSpyServer");
+            LocRm.SetString(chkNoResize, "NoResize");
+            LocRm.SetString(label3, "FileURL");
+            LocRm.SetString(label4, "FFMPEGHelp");
+            LocRm.SetString(label42,"DesktopHelp");
+            LocRm.SetString(chkMousePointer, "MousePointer");
+            LocRm.SetString(btnGetStreamSize, "Test");
+            LocRm.SetString(linkLabel5, "Help");
+            LocRm.SetString(label18, "Arguments");
+            LocRm.SetString(lblInstallVLC, "VLCHelp");
+            LocRm.SetString(linkLabel3, "DownloadVLC");
+            LocRm.SetString(chkKinectSkeletal, "ShowSkeleton");
+            LocRm.SetString(chkTripWires, "ShowTripWires");
+            LocRm.SetString(label34, "Provider");
+            LocRm.SetString(label45, "BorderTimeout");
+            LocRm.SetString(chkCalibrate, "CalibrateOnReconnect");
+  
+
+
         }
 
         private void Button1Click(object sender, EventArgs e)
@@ -697,7 +718,7 @@ namespace iSpyApplication
                     (MainForm.Conf.RecentVLCList + "|" + MainForm.Conf.VLCURL).Trim('|');
             }
             CameraControl.Camobject.settings.reconnectinterval = iReconnect;
-            
+            CameraControl.Camobject.settings.calibrateonreconnect = chkCalibrate.Checked;
             
             //wh must be even for stride calculations
             int w = Convert.ToInt32(txtResizeWidth.Value);

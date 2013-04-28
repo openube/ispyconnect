@@ -54,6 +54,9 @@ namespace iSpyApplication
             label83.Text = LocRm.GetString("ExecuteFile");
             linkLabel3.Text = LocRm.GetString("Reset");
             llblHelp.Text = LocRm.GetString("help");
+
+            LocRm.SetString(linkLabel1,"Test");
+            LocRm.SetString(linkLabel2, "Examples");
         }
 
 
