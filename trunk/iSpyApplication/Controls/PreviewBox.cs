@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
-using iSpyApplication.Properties;
 using iSpyApplication.Video;
 
 namespace iSpyApplication.Controls
@@ -61,7 +60,7 @@ namespace iSpyApplication.Controls
                 g.DrawString(">", MainForm.DrawfontBig, brush, Width/2 - 10, 20);
             }
 
-            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, brush, 2, Height - 18);
+            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, brush, 0, Height - 18);
 
             bSel.Dispose();
             brush.Dispose();

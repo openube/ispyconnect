@@ -56,11 +56,10 @@ namespace iSpyApplication.Controls
             {
                 if (o.Item != null)
                 {
-                    var li = new List<int>();
+                    var li = new List<GridItem>();
                     foreach (var c in o.Item)
                     {
-                        if (c.TypeID == 2)
-                            li.Add(c.ObjectID);
+                        li.Add(new GridItem("",c.ObjectID,c.TypeID));
                     }
                     if (li.Count == 0)
                         _controls[o.GridIndex] = null;
@@ -135,50 +134,82 @@ namespace iSpyApplication.Controls
                     var y = k * (_itemheight + Itempadding);
 
                     var gvc = _controls[ind];
-                    if (gvc == null || gvc.CameraIDs.Count==0)
+                    if (gvc == null || gvc.ObjectIDs.Count == 0)
                     {
-                        gGrid.DrawString("+ Cameras", MainForm.Iconfont, MainForm.OverlayBrush, x + _itemwidth / 2 - 40,
-                                         y + _itemheight/2);
+                        int txtOffline = Convert.ToInt32(gGrid.MeasureString(LocRm.GetString("AddObjects"),
+                                                                             MainForm.Iconfont).Width);
+                        gGrid.DrawString(LocRm.GetString("AddObjects"), MainForm.Iconfont, MainForm.OverlayBrush,
+                                         x + _itemwidth / 2 - (txtOffline / 2),
+                                         y + _itemheight / 2);
                     }
                     else
                     {
                         
                         if ((DateTime.Now -gvc.LastCycle).TotalSeconds>gvc.Delay)
                         {
-                            gvc.CurrentIndex++;
+                            gvc.CurrentIndex++; 
                             gvc.LastCycle = DateTime.Now;
                         }
-                        if (gvc.CurrentIndex >= gvc.CameraIDs.Count)
+                        if (gvc.CurrentIndex >= gvc.ObjectIDs.Count)
                         {
                             gvc.CurrentIndex = 0;
                         }
-                        var cw = _parent.GetCameraWindow(gvc.CameraIDs[gvc.CurrentIndex]);
-                        if (cw!=null)
+                        var obj = gvc.ObjectIDs[gvc.CurrentIndex];
+                        switch (obj.TypeID)
                         {
-                            if (cw.Camera != null && !cw.Camera.LastFrameNull)
-                            {
-                                gGrid.DrawImage(cw.Camera.LastFrame, x, y, _itemwidth, _itemheight);
-                                if (cw.Alerted)
+                            case 2:
+                                var cw = _parent.GetCameraWindow(obj.ObjectID);
+                                if (cw != null)
                                 {
-                                    gGrid.DrawRectangle(pAlert,x-1,y-1,_itemwidth+2,_itemheight+2);
-                                }
-                            }
-                            else
-                            {
-                                gGrid.DrawString("Offline", MainForm.Iconfont, MainForm.OverlayBrush, x + _itemwidth / 2 - 40,
-                                        y + _itemheight/2);
-                            }
-                            if (cw.Camobject != null)
-                            {
-                                gGrid.FillRectangle(bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
-                                gGrid.DrawString(cw.Camobject.name, MainForm.Drawfont, MainForm.OverlayBrush, x + 5,
-                                                 y + _itemheight - 16);
-                            }
+                                    if (cw.Camera != null && !cw.Camera.LastFrameNull)
+                                    {
+                                        gGrid.DrawImage(cw.Camera.LastFrame, x, y, _itemwidth, _itemheight);
+                                        if (cw.Alerted)
+                                        {
+                                            gGrid.DrawRectangle(pAlert, x - 1, y - 1, _itemwidth + 2, _itemheight + 2);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        int txtOffline = Convert.ToInt32(gGrid.MeasureString(LocRm.GetString("Offline"),
+                                                                             MainForm.Iconfont).Width);
+                                        gGrid.DrawString(LocRm.GetString("Offline"), MainForm.Iconfont, MainForm.OverlayBrush,
+                                                         x + _itemwidth / 2 - (txtOffline/2),
+                                                         y + _itemheight/2);
+                                    }
+                                    if (cw.Camobject != null)
+                                    {
+                                        gGrid.FillRectangle(bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        gGrid.DrawString(cw.Camobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
+                                                         x + 5,
+                                                         y + _itemheight - 16);
+                                    }
 
-                        }
-                        else
-                        {
-                            gvc.CameraIDs.Remove(gvc.CameraIDs[gvc.CurrentIndex]);
+                                }
+                                else
+                                {
+                                    gvc.ObjectIDs.Remove(gvc.ObjectIDs[gvc.CurrentIndex]);
+                                }
+                                break;
+                            case 3:
+                                var fp = _parent.GetFloorPlan(obj.ObjectID);
+                                if (fp != null)
+                                {
+                                    if (fp.Fpobject != null && fp.ImgPlan!=null)
+                                    {
+                                        gGrid.DrawImage(fp.ImgView, x, y, _itemwidth, _itemheight);
+                                        gGrid.FillRectangle(bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        gGrid.DrawString(fp.Fpobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
+                                                         x + 5,
+                                                         y + _itemheight - 16);
+                                    }
+
+                                }
+                                else
+                                {
+                                    gvc.ObjectIDs.Remove(gvc.ObjectIDs[gvc.CurrentIndex]);
+                                }
+                                break;
                         }
                     }
                     ind ++;
@@ -238,11 +269,11 @@ namespace iSpyApplication.Controls
                     if (cgv!=null)
                     {
                         gvc.Delay = cgv.Delay;
-                        gvc.SelectedIDs = cgv.CameraIDs;
+                        gvc.SelectedIDs = cgv.ObjectIDs;
                     }
                     else
                     {
-                        gvc.SelectedIDs = new List<int>();
+                        gvc.SelectedIDs = new List<GridItem>();
                     }
                     if (gvc.ShowDialog(this)==DialogResult.OK)
                     {
@@ -262,9 +293,9 @@ namespace iSpyApplication.Controls
                             gi.CycleDelay = gvc.Delay;
 
                             var l = new List<configurationGridGridItemItem>();
-                            foreach (int i in gvc.SelectedIDs)
+                            foreach (var i in gvc.SelectedIDs)
                             {
-                                l.Add(new configurationGridGridItemItem {ObjectID = i, TypeID = 2});
+                                l.Add(new configurationGridGridItemItem {ObjectID = i.ObjectID, TypeID = i.TypeID});
                             }
 
                             gi.Item = l.ToArray();
@@ -298,12 +329,12 @@ namespace iSpyApplication.Controls
         private class GridViewConfig
         {
             public readonly int Delay;
-            public readonly List<int> CameraIDs;
+            public readonly List<GridItem> ObjectIDs;
             public DateTime LastCycle;
             public int CurrentIndex;
-            public GridViewConfig(List<int> cameraIDs, int delay)
+            public GridViewConfig(List<GridItem> objectIDs, int delay)
             {
-                CameraIDs = cameraIDs;
+                ObjectIDs = objectIDs;
                 Delay = delay;
                 LastCycle = DateTime.Now;
             }

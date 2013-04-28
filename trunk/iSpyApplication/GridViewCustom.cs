@@ -12,6 +12,7 @@ namespace iSpyApplication
         public GridViewCustom()
         {
             InitializeComponent();
+            RenderResources();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -21,7 +22,7 @@ namespace iSpyApplication
             GridName = txtName.Text.Trim();
             if (String.IsNullOrEmpty(GridName) || MainForm.Conf.GridViews.Any(p=>p.name.ToLower()==GridName.ToLower()))
             {
-                MessageBox.Show(this, "Please enter a unique name");
+                MessageBox.Show(this, LocRm.GetString("validate_uniquename"));
                 return;
             }
             DialogResult = DialogResult.OK;
@@ -44,6 +45,14 @@ namespace iSpyApplication
                     i++;
             }
             txtName.Text = "Grid " + i;
+        }
+
+        private void RenderResources()
+        {
+            LocRm.SetString(this,"CustomiseGrid");
+            LocRm.SetString(label3, "Name");
+            LocRm.SetString(label1, "Columns");
+            LocRm.SetString(label2, "Rows");
         }
     }
 }

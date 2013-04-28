@@ -1146,9 +1146,8 @@ namespace iSpyApplication.Controls
                                 {
                                     IsReconnect = true;
                                     _camera.Stop();
-                                    if (_camera.VideoSource is VideoCaptureDevice)
+                                    if (Camobject.settings.calibrateonreconnect)//_camera.VideoSource is VideoCaptureDevice)
                                     {
-                                        //need to calibrate as most do auto brightness on enable
                                         Calibrating = true;
                                         CalibrateCount = 0;
                                         _calibrateTarget = Camobject.detector.calibrationdelay;
@@ -1946,7 +1945,7 @@ namespace iSpyApplication.Controls
                         }
                         if (Recording)
                         {
-                            gCam.FillEllipse(recBrush, new Rectangle(rc.Width - 10, 2, 8, 8));
+                            gCam.FillEllipse(recBrush, new Rectangle(rc.Width - 12, 4, 8, 8));
                         }
                         if (PTZNavigate)
                         {
@@ -2803,7 +2802,7 @@ namespace iSpyApplication.Controls
                                 break;
                         }
 
-                        message = message.Replace("[BODY]", body + "<br/><a href=\"http://www.ispyconnect.com\">http://www.ispyconnect.com</a>");
+                        message = message.Replace("[BODY]", body + "<br/>" + MainForm.Conf.AppendLinkText);
 
 
                         if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
@@ -2826,9 +2825,7 @@ namespace iSpyApplication.Controls
                                 int minutes = Convert.ToInt32(Camobject.detector.nomovementinterval/60);
                                 int seconds = (Camobject.detector.nomovementinterval%60);
 
-                                message +=
-                                    LocRm.GetString("SMSNoMovementDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).
-                                        Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
+                                message += LocRm.GetString("SMSNoMovementDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
                                 break;
                             default:
                                 message += LocRm.GetString("SMSMovementDetected");

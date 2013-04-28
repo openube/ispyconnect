@@ -65,6 +65,7 @@ namespace iSpyApplication
             _pnlPlan.Paint += PnlPlanPaint;
 
             chkOriginalSize.Checked = Fpc.Fpobject.originalsize;
+            txtAccessGroups.Text = Fpc.Fpobject.accessgroups;
 
             _pnlPlan.Invalidate();
             if (Fpc.Fpobject.id > -1)
@@ -134,9 +135,10 @@ namespace iSpyApplication
             label1.Text = LocRm.GetString("Name");
             label2.Text = LocRm.GetString("Image");
             label3.Text = LocRm.GetString("addremoveObjectsdr");
-            label4.Text = LocRm.GetString("useAnyGraphicsPackageToCr");
             label6.Text = LocRm.GetString("FloorPlanControlInstructions");
-            llblHelp.Text = LocRm.GetString("help");
+            llblHelp.Text = linkLabel14.Text = LocRm.GetString("help");
+            lblAccessGroups.Text = LocRm.GetString("AccessGroups");
+            LocRm.SetString(chkOriginalSize,"OriginalSize");
         }
 
 
@@ -168,6 +170,7 @@ namespace iSpyApplication
             DialogResult = DialogResult.OK;
             Fpc.Fpobject.name = txtName.Text;
             Fpc.Fpobject.originalsize = chkOriginalSize.Checked;
+            Fpc.Fpobject.accessgroups = txtAccessGroups.Text;
             Fpc.NeedsRefresh = true;
             Fpc.RefreshImage = true;
             Close();
@@ -437,6 +440,11 @@ namespace iSpyApplication
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MainForm.OpenUrl( MainForm.Website+"/userguide-floorplans.aspx");
+        }
+
+        private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
         }
 
         //private void pnlPlan_MouseDown(object sender, MouseEventArgs e)

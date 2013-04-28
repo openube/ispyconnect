@@ -261,12 +261,17 @@ namespace iSpyApplication
                 if (String.IsNullOrEmpty(_conf.BorderDefaultColor))
                     _conf.BorderDefaultColor = "0,0,0";
 
+                if (String.IsNullOrEmpty(_conf.StartupFormField))
+                    _conf.StartupFormField = "iSpy";
+
                 if (_conf.GridViews==null)
                     _conf.GridViews = new configurationGrid[]{};
 
                 if (_conf.Joystick==null)
                     _conf.Joystick = new configurationJoystick();
-                
+
+                if (String.IsNullOrEmpty(_conf.AppendLinkText))
+                    _conf.AppendLinkText = "<a href=\"http://www.ispyconnect.com\">http://www.ispyconnect.com</a>";
                 return _conf;
             }
         }
@@ -673,7 +678,6 @@ namespace iSpyApplication
                         Directory.CreateDirectory(path2);
                     if (cam.alerts.trigger == null)
                         cam.alerts.trigger = "";
-
                 }
                 int micid = 0;
                 foreach (objectsMicrophone mic in _microphones)
@@ -711,6 +715,8 @@ namespace iSpyApplication
                         ofp.x = 0;
                     if (ofp.y < 0)
                         ofp.y = 0;
+                    if (ofp.accessgroups == null)
+                        ofp.accessgroups = "";
                 }
                 int rcid = 0;
                 foreach (objectsCommand ocmd in _remotecommands)

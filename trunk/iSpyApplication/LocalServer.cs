@@ -1672,12 +1672,12 @@ namespace iSpyApplication
                             if (fpc != null && fpc.ImgPlan != null)
                             {
                                 cfg += "{oid: " + ofp.id + ", name: \"" +
-                                       ofp.name.Replace("\"", "") + "\", refreshTimestamp: " + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + ", alertTimestamp: " + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + ", width:" + fpc.ImageWidth + ", height:" + fpc.ImageHeight + ",areas:[";
+                                       ofp.name.Replace("\"", "") + "\", refreshTimestamp: " + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + ", alertTimestamp: " + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + ", width:" + fpc.ImageWidth + ", height:" + fpc.ImageHeight + ", groups:\"" + ofp.accessgroups.Replace("\n", " ").Replace("\"", "") + "\",areas:[";
 
                                 cfg += ofp.objects.@object.Aggregate(temp,
                                                                      (current, ofpo) =>
                                                                      current +
-                                                                     ("{oid: " + ofpo.id + ",ot: " + (ofpo.type=="camera"?2:1) + ", x:" + (ofpo.x) + ",y:" + (ofpo.y) + "},"));
+                                                                     ("{oid: " + ofpo.id + ",ot: " + (ofpo.type == "camera" ? 2 : 1) + ", x:" + (ofpo.x) + ",y:" + (ofpo.y) + "},"));
                                 cfg = cfg.Trim(',');
                                 cfg += "]},";
                             }
@@ -2955,7 +2955,7 @@ namespace iSpyApplication
                                     var r = b.Width/w;
                                     h = b.Height/r;
                                 }
-                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
+                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback; 
                                 Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
 
                                 // put the image into the memory stream

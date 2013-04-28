@@ -54,8 +54,8 @@ namespace iSpyApplication.Controls
             if (GetInput!=null)
                 GetInput(this, EventArgs.Empty);
 
-            lblButton.Text = "Press a button...";
-            button1.Text = "Clear";
+            LocRm.SetString(lblButton, "PressButton");
+            LocRm.SetString(button1, "Clear");
             _input = true;
 
         }

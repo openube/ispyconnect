@@ -208,7 +208,7 @@ namespace iSpyApplication
                 Int32.TryParse(Mic.settings.sourcename, out i);
                 var c = MainForm.Cameras.SingleOrDefault(p => p.id == i);
                 if (c == null)
-                    lblCamera.Text = "Removed";
+                    lblCamera.Text = LocRm.GetString("Removed");
                 else
                 {
                     lblCamera.Text = c.name;
@@ -237,13 +237,22 @@ namespace iSpyApplication
 
             label18.Text = LocRm.GetString("Arguments");
             lblInstallVLC.Text = LocRm.GetString("VLCConnectInfo");
-            linkLabel3.Text = LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin + " or greater";
+            linkLabel3.Text = LocRm.GetString("DownloadVLC");
             linkLabel1.Text = LocRm.GetString("UseiSpyServerText");
 
             label43.Text = LocRm.GetString("ReconnectEvery");
             label48.Text = LocRm.GetString("Seconds");
 
             llblHelp.Text = LocRm.GetString("help");
+            LocRm.SetString(label21,"FileURL");
+            LocRm.SetString(label18, "Arguments");
+            LocRm.SetString(lblInstallVLC, "VLCHelp");
+            LocRm.SetString(label2, "FileURL");
+            LocRm.SetString(btnTest, "Test");
+            LocRm.SetString(lblCamera, "NoCamera");
+
+            LocRm.SetString(tabPage5, "Camera");
+
         }
 
 

@@ -399,9 +399,10 @@ namespace iSpyApplication
             this.tableLayoutPanel1.SetColumnSpan(this.ddlPlayback, 2);
             this.ddlPlayback.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlPlayback.FormattingEnabled = true;
-            this.ddlPlayback.Location = new System.Drawing.Point(115, 220);
+            this.ddlPlayback.Location = new System.Drawing.Point(118, 223);
+            this.ddlPlayback.Margin = new System.Windows.Forms.Padding(6);
             this.ddlPlayback.Name = "ddlPlayback";
-            this.ddlPlayback.Size = new System.Drawing.Size(353, 21);
+            this.ddlPlayback.Size = new System.Drawing.Size(285, 21);
             this.ddlPlayback.TabIndex = 0;
             this.ddlPlayback.SelectedIndexChanged += new System.EventHandler(this.ddlPlayback_SelectedIndexChanged);
             // 

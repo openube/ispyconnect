@@ -102,6 +102,7 @@
   <IPv6_Support_Disabled>true</IPv6_Support_Disabled>
   <SpeechRecognition>false</SpeechRecognition>
   <DefaultManufacturer></DefaultManufacturer>
+  <AppendLinkText>http://www.ispyconnect.com/watch_new.aspx</AppendLinkText>
   <GridViews></GridViews>
-  <Joystick id="" XAxis="0" CenterX="0" YAxis="0" CenterY="0" ZAxis="0" CenterZ="0" Record="0" Snapshot="0" Listen="0" Play="0" Stop="0" Next="0" Previous="0" Talk="0"></Joystick>
+  <Joystick></Joystick>
 </configuration>

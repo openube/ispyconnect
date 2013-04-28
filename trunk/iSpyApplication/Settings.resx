@@ -179,10 +179,6 @@
         AABJRU5ErkJggg==
 </value>
   </data>
-  <data name="label19.Text" xml:space="preserve">
-    <value>iSpy can automatically upload your captured movies to YouTube. Uploading your movies to YouTube will let you access them on any devices and also provide backup support and access if your home connection goes offline.
-</value>
-  </data>
   <metadata name="cdColorChooser.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>159, 17</value>
   </metadata>

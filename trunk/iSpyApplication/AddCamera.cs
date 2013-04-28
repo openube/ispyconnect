@@ -125,7 +125,7 @@ namespace iSpyApplication
             if (CameraControl == null || CameraControl.Camera == null)
                 return;
 
-            if (LocRm.CurrentSet.CultureCode != "en")
+            if (LocRm.CultureCode != "en")
                 return;
 
             CameraControl.Camera.NewFrame -= NewCameraNewFrame;
@@ -218,8 +218,15 @@ namespace iSpyApplication
             
             gpbSubscriber.Enabled = gpbSubscriber2.Enabled = MainForm.Conf.Subscribed;
 
-            ddlMotionDetector.Items.AddRange(_detectortypes);
-            ddlProcessor.Items.AddRange(_processortypes);
+            foreach(string dt in _detectortypes)
+            {
+                ddlMotionDetector.Items.Add(LocRm.GetString(dt));
+            }
+
+            foreach (string dt in _processortypes)
+            {
+                ddlProcessor.Items.Add(LocRm.GetString(dt));
+            }
 
             for (int j = 0; j < _detectortypes.Length; j++)
             {
@@ -656,7 +663,6 @@ namespace iSpyApplication
             label82.Text = LocRm.GetString("YourSmsNumber");
             label83.Text = LocRm.GetString("ClickAndDragTodraw");
             label84.Text = LocRm.GetString("MaskImage");
-            label85.Text = LocRm.GetString("createATransparentpngImag");
             label86.Text = LocRm.GetString("OverlayText");
             label9.Text = LocRm.GetString("Stop");
             //lblVideoSource.Text = LocRm.GetString("VideoSource");
@@ -723,6 +729,23 @@ namespace iSpyApplication
             linkLabel3.Text = LocRm.GetString("Plugins");
             chkTrack.Text = LocRm.GetString("TrackObjects");
             linkLabel10.Text = LocRm.GetString("Reload");
+
+            LocRm.SetString(chkTwitter,"MessageOnAlert");
+            LocRm.SetString(label3,"TriggerRange");
+            LocRm.SetString(groupBox8, "Talk");
+            LocRm.SetString(label23, "CameraModel");
+            LocRm.SetString(linkLabel13, "Settings");
+            LocRm.SetString(label65, "IPAddress");
+            LocRm.SetString(label21, "Port");
+            LocRm.SetString(label66, "Username");
+            LocRm.SetString(label88, "Password");
+            LocRm.SetString(button8, "Delete All");
+            LocRm.SetString(button7, "Repeat");
+            LocRm.SetString(chkSuspendOnMovement, "SuspendOnMovement");
+            LocRm.SetString(label81,"FTPFileTip");
+            LocRm.SetString(label93, "CounterMax");
+            LocRm.SetString(linkLabel12, "AuthoriseTwitter");
+            LocRm.SetString(label90, "TriggerRecording");
         }
 
 
@@ -868,7 +891,7 @@ namespace iSpyApplication
                 foreach (string s in smss)
                 {
                     string sms2 = s.Trim();
-                    if (!String.IsNullOrEmpty(sms))
+                    if (!String.IsNullOrEmpty(sms2))
                     {
                         if (sms2.StartsWith("00"))
                             sms2 = sms2.Substring(2);
@@ -2594,7 +2617,7 @@ namespace iSpyApplication
             }
             else
             {
-                MessageBox.Show(this, "Select a ptz schedule to repeat");
+                MessageBox.Show(this, LocRm.GetString("SelectPTZRepeat"));
             }
         }
 

@@ -56,7 +56,7 @@ namespace iSpyApplication
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.lblFFMPEG = new System.Windows.Forms.Label();
-            this.Test = new System.Windows.Forms.Button();
+            this.btnTest = new System.Windows.Forms.Button();
             this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
             this.cmbFFMPEGURL = new System.Windows.Forms.ComboBox();
             this.button4 = new System.Windows.Forms.Button();
@@ -340,8 +340,8 @@ namespace iSpyApplication
             this.lblInstallVLC.Size = new System.Drawing.Size(402, 75);
             this.lblInstallVLC.TabIndex = 58;
             this.lblInstallVLC.Text = "You can use VLC to connect to many different sources including .asf, .mp4, rtsp s" +
-    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy to ena" +
-    "ble this functionality";
+    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy " +
+    "to enable this functionality";
             // 
             // label19
             // 
@@ -388,7 +388,7 @@ namespace iSpyApplication
             this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 81.23249F));
             this.tableLayoutPanel5.Controls.Add(this.label2, 0, 0);
             this.tableLayoutPanel5.Controls.Add(this.lblFFMPEG, 1, 1);
-            this.tableLayoutPanel5.Controls.Add(this.Test, 1, 2);
+            this.tableLayoutPanel5.Controls.Add(this.btnTest, 1, 2);
             this.tableLayoutPanel5.Controls.Add(this.flowLayoutPanel4, 1, 0);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(6, 6);
@@ -419,15 +419,15 @@ namespace iSpyApplication
             this.lblFFMPEG.TabIndex = 54;
             this.lblFFMPEG.Text = "eg: http://username:password@192.168.1.4/videostream.asf";
             // 
-            // Test
+            // btnTest
             // 
-            this.Test.Location = new System.Drawing.Point(94, 65);
-            this.Test.Name = "Test";
-            this.Test.Size = new System.Drawing.Size(75, 23);
-            this.Test.TabIndex = 1;
-            this.Test.Text = "Test";
-            this.Test.UseVisualStyleBackColor = true;
-            this.Test.Click += new System.EventHandler(this.Test_Click);
+            this.btnTest.Location = new System.Drawing.Point(94, 65);
+            this.btnTest.Name = "btnTest";
+            this.btnTest.Size = new System.Drawing.Size(75, 23);
+            this.btnTest.TabIndex = 1;
+            this.btnTest.Text = "Test";
+            this.btnTest.UseVisualStyleBackColor = true;
+            this.btnTest.Click += new System.EventHandler(this.Test_Click);
             // 
             // flowLayoutPanel4
             // 
@@ -655,7 +655,7 @@ namespace iSpyApplication
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.Button Test;
+        private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.Label label2;

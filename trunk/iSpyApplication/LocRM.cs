@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace iSpyApplication
@@ -9,8 +11,9 @@ namespace iSpyApplication
     public static class LocRm
     {
         private static Translations _translationsList;
-        public static TranslationsTranslationSet CurrentSet;
-        private static Dictionary<string, string> Res = new Dictionary<string, string>();
+        private static TranslationsTranslationSet _currentSet;
+        private static readonly Dictionary<string, string> Res = new Dictionary<string, string>();
+        private static bool _inited;
 
         public static List<TranslationsTranslationSet> TranslationSets
         {
@@ -37,13 +40,169 @@ namespace iSpyApplication
 
                 return _translationsList;
             }
-            set { 
-                _translationsList = value;
-                CurrentSet = null;
+        }
+
+        public static void Reset()
+        {
+
+            _translationsList = null;
+            _inited = false;
+        }
+
+        public static string CultureCode
+        {
+            get
+            {
+                if (_currentSet!=null)
+                    return _currentSet.CultureCode;
+                return "en";
             }
         }
 
         public static string GetString(string identifier)
+        {
+            if (!_inited)
+            {
+                Init();
+            }
+            try
+            {
+                return Res[identifier];
+            }
+            catch (KeyNotFoundException ex)
+            {
+                if (CultureCode != "en")
+                {
+                    var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
+                    if (eng != null)
+                    {
+                        var token = eng.Translation.FirstOrDefault(p => p.Token == identifier);
+                        if (token != null)
+                        {
+                            Res.Add(identifier, token.Value);
+                            return Res[identifier];
+                        }
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+                //possible threading error where language is reset
+            }
+            return identifier;
+        }
+
+        
+
+        public static void SetString(Control ctrl, string identifier)
+        {
+            if (!_inited)
+            {
+                Init();
+            }
+
+            try
+            {
+                ctrl.Text = Res[identifier];
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ctrl.Text = identifier;
+                if (CultureCode != "en")
+                {
+                    var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
+                    if (eng != null)
+                    {
+                        var token = eng.Translation.FirstOrDefault(p => p.Token == identifier);
+                        if (token != null)
+                        {
+                            Res.Add(identifier, token.Value);
+                            ctrl.Text = Res[identifier];
+                        }
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+                //possible threading error where language is reset
+            }
+        }
+
+        public static void SetString(ToolStripStatusLabel ctrl, string identifier)
+        {
+            if (!_inited)
+            {
+                Init();
+            }
+
+            try
+            {
+                ctrl.Text = Res[identifier];
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ctrl.Text = identifier;
+                if (CultureCode!="en")
+                {
+                    var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
+                    if (eng != null)
+                    {
+                        var token = eng.Translation.FirstOrDefault(p => p.Token == identifier);
+                        if (token != null)
+                        {
+                            Res.Add(identifier, token.Value);
+                            ctrl.Text = Res[identifier];
+                        }
+                    }
+                }
+                
+            }
+            catch (Exception)
+            {
+                //possible threading error where language is reset
+            }
+            //dont modify design time text
+        }
+
+        public static void SetString(MenuItem ctrl, string identifier)
+        {
+            if (!_inited)
+            {
+                Init();
+            }
+
+            try
+            {
+                ctrl.Text = Res[identifier];
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ctrl.Text = identifier;
+                if (CultureCode != "en")
+                {
+                    var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
+                    if (eng != null)
+                    {
+                        var token = eng.Translation.FirstOrDefault(p => p.Token == identifier);
+                        if (token != null)
+                        {
+                            Res.Add(identifier, token.Value);
+                            ctrl.Text = Res[identifier];
+                        }
+                    }
+                }
+
+            }
+            catch (Exception)
+            {
+                //possible threading error where language is reset
+            }
+        }
+
+
+        private static void Init()
         {
             string lang = MainForm.Conf.Language;
             if (lang == "NotSet")
@@ -63,28 +222,18 @@ namespace iSpyApplication
                 }
             }
 
-            
-            if (CurrentSet == null)
+            Res.Clear();
+            _currentSet = TranslationSets.FirstOrDefault(p => p.CultureCode == lang);
+            if (_currentSet != null)
             {
-                Res.Clear();
-                CurrentSet = TranslationSets.FirstOrDefault(p => p.CultureCode == lang);
-                if (CurrentSet != null)
-                    foreach (TranslationsTranslationSetTranslation tran in CurrentSet.Translation)
-                    {
-                        Res.Add(tran.Token,tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ","));
-                    }
+                foreach (TranslationsTranslationSetTranslation tran in _currentSet.Translation)
+                {
+                    Res.Add(tran.Token, tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，",","));
+                }
             }
-            try
-            {
-                return Res[identifier];
-            }
-            catch
-            {
-                //possible threading error where language is reset
-            }
-            return "!" + identifier + "!";
-        }
 
+            _inited = true;
+        }
 
     }
 }

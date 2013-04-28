@@ -292,6 +292,11 @@ namespace iSpyApplication
             label72.Text = LocRm.GetString("arguments");
             lblAccessGroups.Text = LocRm.GetString("AccessGroups");
             label74.Text = LocRm.GetString("Directory");
+
+            LocRm.SetString(label23,"Listen");
+            LocRm.SetString(chkTwitter, "MessageOnAlert");
+            LocRm.SetString(linkLabel12, "AuthoriseTwitter");
+            LocRm.SetString(label22, "TriggerRecording");
         }
 
 
@@ -349,6 +354,31 @@ namespace iSpyApplication
                     txtSMSNumber.Text.Trim() == "")
                     err += LocRm.GetString("Validate_Camera_MobileNumber") + Environment.NewLine;
 
+                string[] smss = txtSMSNumber.Text.Trim().Replace(" ", "").Split(';');
+                string sms = "";
+                foreach (string s in smss)
+                {
+                    string sms2 = s.Trim();
+                    if (!String.IsNullOrEmpty(sms2))
+                    {
+                        if (sms2.StartsWith("00"))
+                            sms2 = sms2.Substring(2);
+                        if (sms2.StartsWith("+"))
+                            sms2 = sms2.Substring(1);
+                        if (sms2 != "")
+                        {
+                            sms += sms2 + ";";
+                            if (!IsNumeric(sms2))
+                            {
+                                err += LocRm.GetString("Validate_Camera_SMSNumbers") + Environment.NewLine;
+                                break;
+                            }
+
+                        }
+                    }
+                }
+                sms = sms.Trim(';');
+
                 int nosoundinterval;
                 if (!int.TryParse(txtNoSound.Text, out nosoundinterval))
                     err += LocRm.GetString("Validate_Microphone_NoSound") + Environment.NewLine;
@@ -356,17 +386,6 @@ namespace iSpyApplication
                 if (!int.TryParse(txtSound.Text, out soundinterval))
                     err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
 
-
-                string sms = txtSMSNumber.Text.Trim().Replace(" ", "");
-                if (sms.StartsWith("00"))
-                    sms = sms.Substring(2);
-                if (sms.StartsWith("+"))
-                    sms = sms.Substring(1);
-                if (sms != "")
-                {
-                    if (!IsNumeric(sms))
-                        err += LocRm.GetString("Validate_Camera_SMSNumbers") + Environment.NewLine;
-                }
                 string email = txtEmailAlert.Text.Replace(" ", "");
                 if (email != "" && !email.IsValidEmail())
                 {
