@@ -65,6 +65,7 @@
             this.btnNext = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
             this.llblDownloadVLC = new System.Windows.Forms.LinkLabel();
+            this.llblScan = new System.Windows.Forms.LinkLabel();
             this.pnlOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlConfig = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
@@ -87,7 +88,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this.pnlmain = new System.Windows.Forms.Panel();
-            this.llblScan = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.tbl2.SuspendLayout();
@@ -449,9 +449,9 @@
             // 
             this.panel1.Controls.Add(this.flowLayoutPanel3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(3, 436);
+            this.panel1.Location = new System.Drawing.Point(3, 428);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(673, 32);
+            this.panel1.Size = new System.Drawing.Size(706, 32);
             this.panel1.TabIndex = 5;
             // 
             // flowLayoutPanel3
@@ -464,13 +464,13 @@
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(673, 32);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(706, 32);
             this.flowLayoutPanel3.TabIndex = 3;
             // 
             // btnNext
             // 
             this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.Location = new System.Drawing.Point(595, 3);
+            this.btnNext.Location = new System.Drawing.Point(628, 3);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 0;
@@ -481,7 +481,7 @@
             // btnBack
             // 
             this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.Location = new System.Drawing.Point(514, 3);
+            this.btnBack.Location = new System.Drawing.Point(547, 3);
             this.btnBack.Name = "btnBack";
             this.btnBack.Size = new System.Drawing.Size(75, 23);
             this.btnBack.TabIndex = 1;
@@ -492,7 +492,7 @@
             // llblDownloadVLC
             // 
             this.llblDownloadVLC.AutoSize = true;
-            this.llblDownloadVLC.Location = new System.Drawing.Point(318, 6);
+            this.llblDownloadVLC.Location = new System.Drawing.Point(351, 6);
             this.llblDownloadVLC.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.llblDownloadVLC.Name = "llblDownloadVLC";
             this.llblDownloadVLC.Size = new System.Drawing.Size(190, 13);
@@ -500,6 +500,18 @@
             this.llblDownloadVLC.TabStop = true;
             this.llblDownloadVLC.Text = "Install VLC (x86) to enable VLC options";
             this.llblDownloadVLC.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDownloadVLC_LinkClicked);
+            // 
+            // llblScan
+            // 
+            this.llblScan.AutoSize = true;
+            this.llblScan.Location = new System.Drawing.Point(201, 6);
+            this.llblScan.Margin = new System.Windows.Forms.Padding(6);
+            this.llblScan.Name = "llblScan";
+            this.llblScan.Size = new System.Drawing.Size(141, 13);
+            this.llblScan.TabIndex = 3;
+            this.llblScan.TabStop = true;
+            this.llblScan.Text = "Scan camera for more URLs";
+            this.llblScan.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblScan_LinkClicked);
             // 
             // pnlOptions
             // 
@@ -729,9 +741,9 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsslCurrent});
-            this.statusStrip1.Location = new System.Drawing.Point(3, 468);
+            this.statusStrip1.Location = new System.Drawing.Point(3, 460);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(673, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(706, 22);
             this.statusStrip1.TabIndex = 11;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -750,26 +762,14 @@
             this.pnlmain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlmain.Location = new System.Drawing.Point(3, 3);
             this.pnlmain.Name = "pnlmain";
-            this.pnlmain.Size = new System.Drawing.Size(673, 433);
+            this.pnlmain.Size = new System.Drawing.Size(706, 425);
             this.pnlmain.TabIndex = 12;
-            // 
-            // llblScan
-            // 
-            this.llblScan.AutoSize = true;
-            this.llblScan.Location = new System.Drawing.Point(168, 6);
-            this.llblScan.Margin = new System.Windows.Forms.Padding(6);
-            this.llblScan.Name = "llblScan";
-            this.llblScan.Size = new System.Drawing.Size(141, 13);
-            this.llblScan.TabIndex = 3;
-            this.llblScan.TabStop = true;
-            this.llblScan.Text = "Scan camera for more URLs";
-            this.llblScan.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblScan_LinkClicked);
             // 
             // FindCameras
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(679, 493);
+            this.ClientSize = new System.Drawing.Size(712, 485);
             this.Controls.Add(this.pnlmain);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);

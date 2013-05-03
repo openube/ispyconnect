@@ -1015,10 +1015,19 @@ namespace iSpyServer
 
         private void Exit()
         {
-            _houseKeepingTimer.Stop();
-            _updateTimer.Stop();
+            if (_houseKeepingTimer!=null)
+                _houseKeepingTimer.Stop();
+            if (_updateTimer!=null)
+                _updateTimer.Stop();
             _shuttingDown = true;
-            MWS.StopServer();
+            try
+            {
+                MWS.StopServer();
+            }
+            catch (Exception ex)
+            {
+                LogExceptionToFile(ex);
+            }
             if (iSpyServer.Default.BalloonTips)
             {
                 if (iSpyServer.Default.BalloonTips)
@@ -1052,14 +1061,7 @@ namespace iSpyServer
             {
                 LogExceptionToFile(ex);
             }
-            try
-            {
-                MWS.StopServer();
-            }
-            catch (Exception ex)
-            {
-                LogExceptionToFile(ex);
-            }
+            
             Application.DoEvents();
             //restore screensaver
             try

@@ -273,6 +273,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7D6881175E840677F7FC9044189CB432"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_80C81B799553429F96AEB1D8B56C55FA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -425,6 +431,18 @@
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B5E3977EF85993025CD0778DCFDB4715"
+        "OwnerKey" = "8:_7D6881175E840677F7FC9044189CB432"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B5E3977EF85993025CD0778DCFDB4715"
+        "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -593,6 +611,18 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_70702D06275C7AF87CB736866B49D940"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_7D6881175E840677F7FC9044189CB432"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_B5E3977EF85993025CD0778DCFDB4715"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -845,7 +875,7 @@
             "Sequence" = "3:1"
             "Identifier" = "8:_5E4DFE8D_7EDF_4CCA_97C5_81BA6D4D14FD"
             "InstallerClass" = "11:TRUE"
-            "CustomActionData" = "8:/SourceDir=\"[SourceDir]\\\""
+            "CustomActionData" = "8:/SourceDir=\"[SourceDir]\\ \""
             }
         }
         "DefaultFeature"
@@ -1662,6 +1692,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7D6881175E840677F7FC9044189CB432"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:SharpDX.DirectInput, Version=2.4.2.0, Culture=neutral, PublicKeyToken=627a3d6d1956f55a, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_7D6881175E840677F7FC9044189CB432"
+                    {
+                    "Name" = "8:SharpDX.DirectInput.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:SharpDX.DirectInput.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_80C81B799553429F96AEB1D8B56C55FA"
             {
             "SourcePath" = "8:..\\iSpyApplication\\lgpl-3.0.txt"
@@ -2113,6 +2174,37 @@
                     }
                 }
             "SourcePath" = "8:AForge.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B5E3977EF85993025CD0778DCFDB4715"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:SharpDX, Version=2.4.2.0, Culture=neutral, PublicKeyToken=627a3d6d1956f55a, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_B5E3977EF85993025CD0778DCFDB4715"
+                    {
+                    "Name" = "8:SharpDX.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:SharpDX.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -2685,15 +2777,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{F4CEEC3F-38C7-4E36-BAAF-54B1F2EE956C}"
-        "PackageCode" = "8:{8B9201FC-68AB-4935-B1A4-C7C5FC694B19}"
+        "ProductCode" = "8:{3074B78B-B0B9-4FEE-A16E-64A3DE1A0317}"
+        "PackageCode" = "8:{C49ED2B2-FB66-4E5A-A484-7DB1CA027147}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:4.8.6"
+        "ProductVersion" = "8:4.9.8"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"

@@ -528,11 +528,11 @@ public partial class objectsCameraSettings {
         this.timestampoffsetField = ((decimal)(0m));
         this.ptzusernameField = "";
         this.ptzpasswordField = "";
-        this.ptzflipxField = true;
-        this.ptzflipyField = true;
-        this.ptzrotate90Field = true;
-        this.ptzautotrackField = true;
-        this.ptzautotrackreverseField = true;
+        this.ptzflipxField = false;
+        this.ptzflipyField = false;
+        this.ptzrotate90Field = false;
+        this.ptzautotrackField = false;
+        this.ptzautotrackreverseField = false;
         this.ptzautohomeField = false;
         this.ptzchannelField = "0";
         this.ptzautohomecommandField = "";
@@ -1468,7 +1468,7 @@ public partial class objectsCameraDetector {
     public objectsCameraDetector() {
         this.minwidthField = 20;
         this.minheightField = 20;
-        this.highlightField = true;
+        this.highlightField = false;
         this.colourprocessingField = "";
         this.colourprocessingenabledField = false;
     }

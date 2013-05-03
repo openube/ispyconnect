@@ -1,4 +1,5 @@
-﻿using System.Net.Security;
+﻿using System.Globalization;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System;
 using System.Drawing;
@@ -75,6 +76,9 @@ namespace iSpyApplication.Video
         private ManualResetEvent _reloadEvent;
 
         private string _userAgent = "Mozilla/5.0";
+
+        private bool _needsPrivacyEnabled;
+        private DateTime _needsPrivacyEnabledTarget = DateTime.MinValue;
 
         /// <summary>
         /// New frame event.
@@ -472,61 +476,7 @@ namespace iSpyApplication.Video
                 try
                 {
                     // create request
-                    request = (HttpWebRequest)WebRequest.Create(_source);
-                    // set user agent
-                    if (_userAgent != null)
-                    {
-                        request.UserAgent = _userAgent;
-                    }
-
-                    // set proxy
-                    if (_proxy != null)
-                    {
-                        request.Proxy = _proxy;
-                    }
-
-                    if (_usehttp10)
-                        request.ProtocolVersion = HttpVersion.Version10;
-
-                    // set timeout value for the request
-                    request.Timeout = _requestTimeout;
-                    request.AllowAutoRedirect = true;
-
-                    // set login and password
-                    if ((_login != null) && (_password != null) && (_login != string.Empty))
-                        request.Credentials = new NetworkCredential(_login, _password);
-                    // set connection group name
-                    if (_useSeparateConnectionGroup)
-                        request.ConnectionGroupName = GetHashCode().ToString();
-                    // force basic authentication through extra headers if required
-                    
-                    var authInfo = "";
-                    if (!String.IsNullOrEmpty(_login))
-                    {
-                        authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(_login + ":" + _password));
-                        request.Headers["Authorization"] = "Basic " + authInfo;
-                    }
-
-
-                    if (!String.IsNullOrEmpty(_cookies))
-                    {
-                        _cookies = _cookies.Replace("[AUTH]", authInfo);
-                        var myContainer = new CookieContainer();
-                        string[] coll = _cookies.Split(';');
-                        foreach (var ckie in coll)
-                        {
-                            if (!String.IsNullOrEmpty(ckie))
-                            {
-                                string[] nv = ckie.Split('=');
-                                if (nv.Length == 2)
-                                {
-                                    var cookie = new Cookie(nv[0].Trim(), nv[1].Trim());
-                                    myContainer.Add(new Uri(request.RequestUri.ToString()), cookie);
-                                }
-                            }
-                        }
-                        request.CookieContainer = myContainer;
-                    }
+                    request = GenerateRequest(_source);
                     // get response
                     response = request.GetResponse();
 
@@ -544,10 +494,10 @@ namespace iSpyApplication.Video
                     else if ((contentTypeArray[0] == "multipart") && (contentType.Contains("mixed")))
                     {
                         // get boundary
-                        int boundaryIndex = contentType.IndexOf("boundary", 0);
+                        int boundaryIndex = contentType.IndexOf("boundary", 0, StringComparison.Ordinal);
                         if (boundaryIndex != -1)
                         {
-                            boundaryIndex = contentType.IndexOf("=", boundaryIndex + 8);
+                            boundaryIndex = contentType.IndexOf("=", boundaryIndex + 8, StringComparison.Ordinal);
                         }
 
                         if (boundaryIndex == -1)
@@ -569,6 +519,29 @@ namespace iSpyApplication.Video
                     }
                     else
                     {
+                        if (contentType=="text/html")
+                        {
+                            try
+                            {
+                                //read body
+                                var sr = new StreamReader(response.GetResponseStream());
+                                var html = sr.ReadToEnd();
+                                if (html.IndexOf("setup_kakulens.html", StringComparison.Ordinal) != -1)
+                                {
+                                    //hack for panasonic cameras that redirect on reboot in privacy mode - POST a command to disable privacy
+                                    DisablePrivacy(request, encoding);
+
+                                    _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(3);
+                                    _needsPrivacyEnabled = true;
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                MainForm.LogExceptionToFile(ex);
+                            }
+                            //continue to throw the invalid content type error as the next retry should connect
+                        }
                         throw new Exception("Invalid content type.");
                     }
 
@@ -699,6 +672,11 @@ namespace iSpyApplication.Video
                                     // release the image
                                     bitmap.Dispose();
                                     bitmap = null;
+                                    if (_needsPrivacyEnabled && _needsPrivacyEnabledTarget < DateTime.Now)
+                                    {
+                                        _needsPrivacyEnabled = false;
+                                        EnablePrivacy(request, encoding);
+                                    }
                                 }
 
                                 // shift array
@@ -782,6 +760,106 @@ namespace iSpyApplication.Video
             {
                 PlayingFinished(this, ReasonToFinishPlaying.StoppedByUser);
             }
+        }
+
+        private void DisablePrivacy(HttpWebRequest request, ASCIIEncoding encoding)
+        {
+            string uri = request.RequestUri.AbsoluteUri;
+            uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
+
+            var request2 = GenerateRequest(uri + "/cgi-bin/powerdown?Language=0");
+            byte[] data = encoding.GetBytes("priv_mode=0&Language=0");
+
+            request2.Method = "POST";
+            request2.ContentType = "application/x-www-form-urlencoded";
+            request2.ContentLength = data.Length;
+
+            using (Stream stream2 = request2.GetRequestStream())
+            {
+                stream2.Write(data, 0, data.Length);
+            }
+            var resp = request2.GetResponse();
+            resp.Close();
+        }
+
+        private void EnablePrivacy(HttpWebRequest request, ASCIIEncoding encoding)
+        {
+            string uri = request.RequestUri.AbsoluteUri;
+            uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
+
+            var request2 = GenerateRequest(uri + "/cgi-bin/powerdown?Language=0");
+            byte[] data = encoding.GetBytes("priv_mode=1&Language=0");
+
+            request2.Method = "POST";
+            request2.ContentType = "application/x-www-form-urlencoded";
+            request2.ContentLength = data.Length;
+
+            using (Stream stream2 = request2.GetRequestStream())
+            {
+                stream2.Write(data, 0, data.Length);
+            }
+            var resp = request2.GetResponse();
+            resp.Close();
+        }
+
+        private HttpWebRequest GenerateRequest(string source)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(source);
+            // set user agent
+            if (_userAgent != null)
+            {
+                request.UserAgent = _userAgent;
+            }
+
+            // set proxy
+            if (_proxy != null)
+            {
+                request.Proxy = _proxy;
+            }
+
+            if (_usehttp10)
+                request.ProtocolVersion = HttpVersion.Version10;
+
+            // set timeout value for the request
+            request.Timeout = _requestTimeout;
+            request.AllowAutoRedirect = true;
+
+            // set login and password
+            if ((_login != null) && (_password != null) && (_login != string.Empty))
+                request.Credentials = new NetworkCredential(_login, _password);
+            // set connection group name
+            if (_useSeparateConnectionGroup)
+                request.ConnectionGroupName = GetHashCode().ToString(CultureInfo.InvariantCulture);
+            // force basic authentication through extra headers if required
+
+            var authInfo = "";
+            if (!String.IsNullOrEmpty(_login))
+            {
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(_login + ":" + _password));
+                request.Headers["Authorization"] = "Basic " + authInfo;
+            }
+
+
+            if (!String.IsNullOrEmpty(_cookies))
+            {
+                _cookies = _cookies.Replace("[AUTH]", authInfo);
+                var myContainer = new CookieContainer();
+                string[] coll = _cookies.Split(';');
+                foreach (var ckie in coll)
+                {
+                    if (!String.IsNullOrEmpty(ckie))
+                    {
+                        string[] nv = ckie.Split('=');
+                        if (nv.Length == 2)
+                        {
+                            var cookie = new Cookie(nv[0].Trim(), nv[1].Trim());
+                            myContainer.Add(new Uri(request.RequestUri.ToString()), cookie);
+                        }
+                    }
+                }
+                request.CookieContainer = myContainer;
+            }
+            return request;
         }
     }
 

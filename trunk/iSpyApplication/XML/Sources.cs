@@ -100,11 +100,11 @@ public partial class ManufacturersManufacturerUrl {
     private int portField;
 
     private string cookiesField;
-    
+
     public ManufacturersManufacturerUrl() {
         this.fixedField = false;
     }
-
+   
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     public string cookies

@@ -325,21 +325,7 @@ namespace iSpyApplication
         {
             SilentStartup = silent || Conf.Enable_Password_Protect;
 
-            
-            InitializeComponent();
-
-            RenderResources();
-
-            _startCommand = command;
-
-            var r = Antiufo.Controls.Windows7Renderer.Instance;
-            toolStripMenu.Renderer = r;
-            statusStrip1.Renderer = r;
-
-            _pnlCameras.BackColor = Conf.MainColor.ToColor();
-
-          
-            if (!SilentStartup && Conf.StartupFormField!="iSpy" )
+            if (Conf.StartupForm!="iSpy" )
             {
                 SilentStartup = true;
             }
@@ -355,6 +341,17 @@ namespace iSpyApplication
                 _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
             }
 
+            InitializeComponent();
+
+            RenderResources();
+
+            _startCommand = command;
+
+            var r = Antiufo.Controls.Windows7Renderer.Instance;
+            toolStripMenu.Renderer = r;
+            statusStrip1.Renderer = r;
+
+            _pnlCameras.BackColor = Conf.MainColor.ToColor();
             
             RemoteManager = new McRemoteControlManager.RemoteControlDevice();
             RemoteManager.ButtonPressed += RemoteManagerButtonPressed;
@@ -385,27 +382,23 @@ namespace iSpyApplication
             {
                 _tmrJoystick = new Timer(100);
                 _tmrJoystick.Elapsed += TmrJoystickElapsed;
-                _tmrJoystick.Start();    
+                _tmrJoystick.Start();
             }
-
-            
-
         }
 
         private bool IsOnScreen(Form form)
         {
             var screens = Screen.AllScreens;
-            foreach (Screen screen in screens)
+            var formTopLeft = new Point(form.Left, form.Top);
+            //hack for maximised window
+            if (form.WindowState == FormWindowState.Maximized)
             {
-                var formTopLeft = new Point(form.Left, form.Top);
 
-                if (screen.WorkingArea.Contains(formTopLeft))
-                {
-                    return true;
-                }
+                formTopLeft.X += 8;
+                formTopLeft.Y += 8;
             }
 
-            return false;
+            return screens.Any(screen => screen.WorkingArea.Contains(formTopLeft));
         }
 
         protected override void WndProc(ref Message message)
@@ -987,9 +980,9 @@ namespace iSpyApplication
             }
 
 
-            if (Conf.StartupFormField != "iSpy")
+            if (Conf.StartupForm != "iSpy")
             {
-                var cg = Conf.GridViews.FirstOrDefault(p => p.name == Conf.StartupFormField);
+                var cg = Conf.GridViews.FirstOrDefault(p => p.name == Conf.StartupForm);
                 if (cg != null)
                 {
                     var gv = new GridView(this, ref cg);
@@ -3841,6 +3834,7 @@ namespace iSpyApplication
             this.llblDelete = new System.Windows.Forms.LinkLabel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();
@@ -3854,7 +3848,6 @@ namespace iSpyApplication
             this.uploadToYouTubePublicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -5084,7 +5077,7 @@ namespace iSpyApplication
             this._tsslStats,
             this.tsslMonitor,
             this.tsslPerformance});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 214);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 567);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(810, 30);
             this.statusStrip1.TabIndex = 0;
@@ -5126,7 +5119,7 @@ namespace iSpyApplication
             this._pnlContent.Location = new System.Drawing.Point(0, 0);
             this._pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this._pnlContent.Name = "_pnlContent";
-            this._pnlContent.Size = new System.Drawing.Size(810, 45);
+            this._pnlContent.Size = new System.Drawing.Size(810, 144);
             this._pnlContent.TabIndex = 20;
             // 
             // splitContainer2
@@ -5145,7 +5138,7 @@ namespace iSpyApplication
             // 
             this.splitContainer2.Panel2.Controls.Add(this.flCommands);
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer2.Size = new System.Drawing.Size(810, 45);
+            this.splitContainer2.Size = new System.Drawing.Size(810, 144);
             this.splitContainer2.SplitterDistance = 576;
             this.splitContainer2.TabIndex = 88;
             // 
@@ -5158,7 +5151,7 @@ namespace iSpyApplication
             this.flowPreview.Location = new System.Drawing.Point(0, 0);
             this.flowPreview.Margin = new System.Windows.Forms.Padding(0);
             this.flowPreview.Name = "flowPreview";
-            this.flowPreview.Size = new System.Drawing.Size(576, 45);
+            this.flowPreview.Size = new System.Drawing.Size(576, 144);
             this.flowPreview.TabIndex = 87;
             this.flowPreview.Click += new System.EventHandler(this.flowPreview_Click);
             this.flowPreview.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.flowPreview_ControlRemoved);
@@ -5172,7 +5165,7 @@ namespace iSpyApplication
             this.flCommands.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flCommands.Location = new System.Drawing.Point(0, 0);
             this.flCommands.Name = "flCommands";
-            this.flCommands.Size = new System.Drawing.Size(230, 45);
+            this.flCommands.Size = new System.Drawing.Size(230, 144);
             this.flCommands.TabIndex = 0;
             this.flCommands.MouseEnter += new System.EventHandler(this.flCommands_MouseEnter);
             // 
@@ -5235,9 +5228,25 @@ namespace iSpyApplication
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this._pnlContent);
             this.splitContainer1.Panel2MinSize = 20;
-            this.splitContainer1.Size = new System.Drawing.Size(810, 175);
-            this.splitContainer1.SplitterDistance = 126;
+            this.splitContainer1.Size = new System.Drawing.Size(810, 528);
+            this.splitContainer1.SplitterDistance = 380;
             this.splitContainer1.TabIndex = 21;
+            // 
+            // _pnlCameras
+            // 
+            this._pnlCameras.AutoScroll = true;
+            this._pnlCameras.AutoSize = true;
+            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
+            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
+            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
+            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
+            this._pnlCameras.Name = "_pnlCameras";
+            this._pnlCameras.Size = new System.Drawing.Size(810, 380);
+            this._pnlCameras.TabIndex = 19;
+            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
             // 
             // panel1
             // 
@@ -5351,26 +5360,10 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // _pnlCameras
-            // 
-            this._pnlCameras.AutoScroll = true;
-            this._pnlCameras.AutoSize = true;
-            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
-            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
-            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
-            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
-            this._pnlCameras.Name = "_pnlCameras";
-            this._pnlCameras.Size = new System.Drawing.Size(810, 126);
-            this._pnlCameras.TabIndex = 19;
-            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
-            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(810, 244);
+            this.ClientSize = new System.Drawing.Size(810, 597);
             this.ContextMenuStrip = this.ctxtTaskbar;
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStripMenu);

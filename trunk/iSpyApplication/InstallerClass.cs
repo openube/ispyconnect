@@ -103,7 +103,7 @@ namespace OffLine.Installer
             {
                 string path = Context.Parameters["SourceDir"];
 
-                path = path.Trim('\\') + @"\";
+                path = path.Trim().Trim('\\') + @"\";
                 try
                 {
                     if (File.Exists(path + "custom.txt"))

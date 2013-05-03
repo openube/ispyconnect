@@ -261,8 +261,8 @@ namespace iSpyApplication
                 if (String.IsNullOrEmpty(_conf.BorderDefaultColor))
                     _conf.BorderDefaultColor = "0,0,0";
 
-                if (String.IsNullOrEmpty(_conf.StartupFormField))
-                    _conf.StartupFormField = "iSpy";
+                if (String.IsNullOrEmpty(_conf.StartupForm))
+                    _conf.StartupForm = "iSpy";
 
                 if (_conf.GridViews==null)
                     _conf.GridViews = new configurationGrid[]{};
@@ -624,6 +624,8 @@ namespace iSpyApplication
                         cam.settings.ptztimetohome = 100;
                     if (cam.settings.ptzautohomedelay == 0)
                         cam.settings.ptzautohomedelay = 30;
+                    if (cam.settings.ptzurlbase == null)
+                        cam.settings.ptzurlbase = "";
                     if (cam.settings.audioport <= 0)
                         cam.settings.audioport = 80;
 

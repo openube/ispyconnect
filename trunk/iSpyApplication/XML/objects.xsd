@@ -43,12 +43,12 @@
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="ptzusername" type="xs:string" default=""/>
                                                     <xs:element name="ptzpassword" type="xs:string" default=""/>
-                                                    <xs:element name="ptzflipx" type="xs:boolean" default="true"/>
-                                                    <xs:element name="ptzflipy" type="xs:boolean" default="true"/>
-                                                    <xs:element name="ptzrotate90" type="xs:boolean" default="true"/>
+                                                    <xs:element name="ptzflipx" type="xs:boolean" default="false"/>
+                                                    <xs:element name="ptzflipy" type="xs:boolean" default="false"/>
+                                                    <xs:element name="ptzrotate90" type="xs:boolean" default="false"/>
                                                     <xs:element name="ptzurlbase" type="xs:string"/>
-                                                    <xs:element name="ptzautotrack" type="xs:boolean" default="true"/>
-                                                    <xs:element name="ptzautotrackreverse" type="xs:boolean" default="true"/>
+                                                    <xs:element name="ptzautotrack" type="xs:boolean" default="false"/>
+                                                    <xs:element name="ptzautotrackreverse" type="xs:boolean" default="false"/>
                                                     <xs:element name="ptzautohome" type="xs:boolean" default="false"/>
                                                     <xs:element name="ptzchannel" type="xs:string" default="0"/>
                                                     <xs:element name="ptzautohomecommand" type="xs:string" default=""/>
@@ -138,7 +138,7 @@
                                                 <xs:attribute name="processeveryframe" type="xs:int" use="required" />
                                                 <xs:attribute name="minwidth" type="xs:int" default="20"/>
                                                 <xs:attribute name="minheight" type="xs:int" default="20"/>
-                                                <xs:attribute name="highlight" type="xs:boolean" default="true"/>
+                                                <xs:attribute name="highlight" type="xs:boolean" default="false"/>
                                                 <xs:attribute name="colourprocessing" type="xs:string" default=""/>
                                                 <xs:attribute name="colourprocessingenabled" type="xs:boolean" default="false"/>
                                             </xs:complexType>
@@ -151,7 +151,7 @@
                                                 <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
                                                 <xs:attribute name="timelapse" type="xs:int" use="required" />
                                                 <xs:attribute name="timelapseframes" type="xs:int" use="required" />
-                                                <xs:attribute name="timelapseenabled" type="xs:boolean" default="true" />
+                                                <xs:attribute name="timelapseenabled" type="xs:boolean" default="false" />
                                                 <xs:attribute name="quality" type="xs:int" default="8" />
                                                 <xs:attribute name="timelapsesave" type="xs:int" default="60" />
                                                 <xs:attribute name="timelapseframerate" type="xs:int" default="5" />
