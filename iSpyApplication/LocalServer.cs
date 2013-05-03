@@ -985,7 +985,7 @@ namespace iSpyApplication
 
                     break;
                 case "shutdown":
-                    _parent.ExternalClose();
+                    (new Thread(() => _parent.ExternalClose())).Start();
                     break;
                 case "recordonalerton":
                     if (otid == 1)

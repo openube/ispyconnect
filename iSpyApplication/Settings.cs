@@ -126,7 +126,7 @@ namespace iSpyApplication
             MainForm.Conf.DeleteToRecycleBin = chkRecycle.Checked;
             MainForm.Conf.SpeechRecognition = chkSpeechRecognition.Checked;
             MainForm.Conf.AppendLinkText = txtAppendLinkText.Text;
-            MainForm.Conf.StartupFormField = ddlStartUpForm.SelectedItem.ToString();
+            MainForm.Conf.StartupForm = ddlStartUpForm.SelectedItem.ToString();
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             if (ddlTalkMic.Items.Count == 0)
@@ -340,7 +340,7 @@ namespace iSpyApplication
                 ddlStartUpForm.Items.Add(grid.name);
             }
 
-            ddlStartUpForm.SelectedItem = MainForm.Conf.StartupFormField;
+            ddlStartUpForm.SelectedItem = MainForm.Conf.StartupForm;
             if (ddlStartUpForm.SelectedItem==null)
                 ddlStartUpForm.SelectedIndex = 0;
             

@@ -1277,7 +1277,7 @@ public partial class configuration {
     }
 
     /// <remarks/>
-    public string StartupFormField
+    public string StartupForm
     {
         get
         {
