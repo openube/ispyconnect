@@ -221,6 +221,10 @@
       <HintPath>DLLS\Interop.NetFwTypeLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="iSpy.Video.FFMPEG, Version=3.2.1.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\iSpy.Video.FFMPEG.dll</HintPath>
+    </Reference>
     <Reference Include="LibVlcWrapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\LibVlcWrapper.dll</HintPath>
@@ -229,6 +233,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files\Microsoft SDKs\Kinect\v1.5\Assemblies\Microsoft.Kinect.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="NAudio, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="NSpeex">
       <HintPath>DLLS\NSpeex.dll</HintPath>
@@ -1270,16 +1278,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\NAudio\NAudio\NAudio.csproj">
-      <Project>{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}</Project>
-      <Name>NAudio</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
-      <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
-      <Name>Video.FFMPEG</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="NATUPNPLib">
