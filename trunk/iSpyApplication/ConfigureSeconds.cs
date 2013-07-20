@@ -5,7 +5,7 @@ namespace iSpyApplication
 {
     public partial class ConfigureSeconds : Form
     {
-        public int Seconds = 0;
+        public double Seconds = 0;
 
         public ConfigureSeconds()
         {
@@ -23,12 +23,12 @@ namespace iSpyApplication
 
         private void ForSecondsLoad(object sender, EventArgs e)
         {
-            try {txtSeconds.Value = Seconds;} catch{}
+            try {txtSeconds.Value = Convert.ToDecimal(Seconds);} catch{}
         }
 
         private void Button1Click(object sender, EventArgs e)
         {
-            Seconds = Convert.ToInt32(txtSeconds.Value);
+            Seconds = Convert.ToDouble(txtSeconds.Value);
             DialogResult = DialogResult.OK;
             Close();
         }

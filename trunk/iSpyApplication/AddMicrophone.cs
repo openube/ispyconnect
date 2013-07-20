@@ -297,8 +297,24 @@ namespace iSpyApplication
             LocRm.SetString(chkTwitter, "MessageOnAlert");
             LocRm.SetString(linkLabel12, "AuthoriseTwitter");
             LocRm.SetString(label22, "TriggerRecording");
+
+            HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
+            HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
+            HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
+
+            if (!Helper.HasFeature(Enums.Features.Web_Settings))
+            {
+                gpbSubscriber.Visible = linkLabel5.Visible = false;
+            }
         }
 
+        private void HideTab(TabPage t, bool show)
+        {
+            if (!show)
+            {
+                tcMicrophone.TabPages.Remove(t);
+            }
+        }
 
         private void TbSensitivityScroll(object sender, EventArgs e)
         {
@@ -797,18 +813,18 @@ namespace iSpyApplication
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string url = MainForm.Website+"/userguide-microphone-settings.aspx";
-            switch (tcMicrophone.SelectedIndex)
+            switch (tcMicrophone.SelectedTab.Name)
             {
-                case 0:
+                case "tabPage1":
                     url = MainForm.Website+"/userguide-microphone-settings.aspx#1";
                     break;
-                case 1:
+                case "tabPage2":
                     url = MainForm.Website+"/userguide-microphone-alerts.aspx";
                     break;
-                case 2:
+                case "tabPage4":
                     url = MainForm.Website+"/userguide-microphone-recording.aspx#2";
                     break;
-                case 3:
+                case "tabPage3":
                     url = MainForm.Website+"/userguide-scheduling.aspx#6";
                     break;
             }

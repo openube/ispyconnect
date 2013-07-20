@@ -4,14 +4,18 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using iSpyApplication.Properties;
 using iSpyApplication.Video;
 
 namespace iSpyApplication.Controls
 {
-    class PreviewBox: AForge.Controls.PictureBox
+    public class PreviewBox: AForge.Controls.PictureBox
     {
+        private static readonly Color COverlay = Color.FromArgb(190, 0, 0, 0);
+        private static readonly Brush BOverlay = new SolidBrush(Color.White);
         public bool Selected;
         public string FileName = "";
+        public string DisplayName;
         public DateTime CreatedDate = DateTime.MinValue;
         public int Duration;
         private bool _linkPlay, _linkHover;
@@ -21,50 +25,40 @@ namespace iSpyApplication.Controls
             if (Image != null)
             {
                 Image.Dispose();
-                Image = null;
             }
 
             base.Dispose(disposing);
         }
+
         protected override void OnPaint(PaintEventArgs pe)
         {
             base.OnPaint(pe);
-
-            var brush = new SolidBrush(Color.White);
-            var bSel = new SolidBrush(Color.FromArgb(255, 255,128,0));
-
             var g = pe.Graphics;
 
             if (_linkPlay)
             {
-                Color c = Color.FromArgb(150, 41, 176, 211); 
-                var bPlay = new SolidBrush(c);
-                g.FillRectangle(bPlay, 0, 0, Width, Height - 20);
+                var bPlay = new SolidBrush(COverlay);
+                g.FillRectangle(bPlay, 0, 0, Width,Height-20);
                 bPlay.Dispose();
-            }
-            if (_linkHover)
-            {
-                Color c = Color.FromArgb(44,44,44);
-                var bHover = new SolidBrush(c);
-                g.FillRectangle(bHover, 0, Height-20 , Width, 20);
-                bHover.Dispose();
             }
             if (Selected)
             {
-                //g.DrawImage(Resources.checkbox, Width - 18, Height-35, 16, 14);
-                g.FillRectangle(bSel, 0, Height - 20, Width, 20);
+                g.DrawImage(Resources.checkbox, Width - 17, Height - 19, 17, 16);
+            }
+            else
+            {
+                if (_linkHover)
+                {
+                    g.DrawImage(Resources.checkbox_off, Width - 17, Height - 19, 17, 16);
+                }
             }
 
             if (_linkPlay)
             {
-                g.DrawString(">", MainForm.DrawfontBig, brush, Width/2 - 10, 20);
+                g.DrawString(">", MainForm.DrawfontBig, BOverlay, Width / 2 - 10, 20);
             }
 
-            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, brush, 0, Height - 18);
-
-            bSel.Dispose();
-            brush.Dispose();
-
+            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, BOverlay, 0, Height - 18);
         }
         private static string RecordTime(decimal sec)
         {
@@ -153,19 +147,29 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                MessageBox.Show(this, "Can only upload MP4 Files.");
+                MessageBox.Show(this, "You can only upload MP4 Files.");
 
             }
         }
         public void PlayMedia(int mode)
         {
+            //0=website,1=ispy,2=default player
+            //if (mode < 0)
+            //    MainForm.Conf.PlaybackMode = 0; //ffmpeg
+            //if (!VlcHelper.VlcInstalled && mode == 3)
+            //{
+            //    MessageBox.Show(this, "VLC player is not installed (" + VlcHelper.VMin + " or greater required). Using the web player instead. Install VLC (" + Program.Platform + ") and then see settings to enable ispy local playback.");
+            //    MainForm.Conf.PlaybackMode = mode = 0;
+            //}
+
             if (mode < 0)
                 MainForm.Conf.PlaybackMode = 0;
             if (!VlcHelper.VlcInstalled && mode == 1)
             {
-                MessageBox.Show(this, "VLC player is not installed ("+VlcHelper.VMin+" or greater required). Using the web player instead. Install VLC (x86) and then see settings to enable ispy local playback.");
+                MessageBox.Show(this, "VLC player is not installed (" + VlcHelper.VMin + " or greater required). Using the web player instead. Install VLC (" + Program.Platform + ") and then see settings to enable ispy local playback.");
                 MainForm.Conf.PlaybackMode = mode = 0;
             }
+
 
             //play video          
             
@@ -173,7 +177,7 @@ namespace iSpyApplication.Controls
             int j = mode;
             if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
             {
-                j = VlcHelper.VlcInstalled ? 1 : 2;
+                j = 1;
             }
             if (!File.Exists(movie))
             {
@@ -205,8 +209,9 @@ namespace iSpyApplication.Controls
                     }
                     break;
                 case 1:
+                case 3:
                     if (TopLevelControl != null)
-                        ((MainForm) TopLevelControl).Play(movie,Convert.ToInt32(id));
+                        ((MainForm)TopLevelControl).Play(movie, Convert.ToInt32(id), DisplayName);
                     break;
                 case 2:
                     try
@@ -216,7 +221,7 @@ namespace iSpyApplication.Controls
                     catch (Exception ex)
                     {
                         MainForm.LogExceptionToFile(ex);
-                        MessageBox.Show("Could not find a player for this file. Try using iSpyConnect or install VLC (x86) and use that instead ("+ex.Message+")");
+                        MessageBox.Show("I could not find a player for this file. Try using iSpyConnect or install VLC (" + Program.Platform + ") and use that instead (" + ex.Message + ")");
                     }
                     break;
             }

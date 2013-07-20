@@ -78,22 +78,21 @@ namespace iSpyApplication.Audio.codecs
             byte[] outputBufferTemp = new byte[length]; // contains more than enough space
             int bytesWritten = encoder.Encode(encoderInputBuffer.ShortBuffer, 0, samplesToEncode, outputBufferTemp, 0, length);
             byte[] encoded = new byte[bytesWritten];
-            Array.Copy(outputBufferTemp, 0, encoded, 0, bytesWritten);
+            System.Array.Copy(outputBufferTemp, 0, encoded, 0, bytesWritten);
             ShiftLeftoverSamplesDown(samplesToEncode);
-            Debug.WriteLine(String.Format("NSpeex: In {0} bytes, encoded {1} bytes [enc frame size = {2}]",length,bytesWritten, encoder.FrameSize));
             return encoded;
         }
 
         private void ShiftLeftoverSamplesDown(int samplesEncoded)
         {
             int leftoverSamples = encoderInputBuffer.ShortBufferCount - samplesEncoded;
-            Array.Copy(encoderInputBuffer.ByteBuffer, samplesEncoded * 2, encoderInputBuffer.ByteBuffer, 0, leftoverSamples * 2);
+            System.Array.Copy(encoderInputBuffer.ByteBuffer, samplesEncoded * 2, encoderInputBuffer.ByteBuffer, 0, leftoverSamples * 2);
             encoderInputBuffer.ShortBufferCount = leftoverSamples;
         }
 
         private void FeedSamplesIntoEncoderInputBuffer(byte[] data, int offset, int length)
         {
-            Array.Copy(data, offset, encoderInputBuffer.ByteBuffer, encoderInputBuffer.ByteBufferCount, length);
+            System.Array.Copy(data, offset, encoderInputBuffer.ByteBuffer, encoderInputBuffer.ByteBufferCount, length);
             encoderInputBuffer.ByteBufferCount += length;
         }
 
@@ -104,8 +103,7 @@ namespace iSpyApplication.Audio.codecs
             int samplesDecoded = decoder.Decode(data, offset, length, wb.ShortBuffer, 0, false);
             int bytesDecoded = samplesDecoded * 2;
             byte[] decoded = new byte[bytesDecoded];
-            Array.Copy(outputBufferTemp, 0, decoded, 0, bytesDecoded);
-            Debug.WriteLine(String.Format("NSpeex: In {0} bytes, decoded {1} bytes [dec frame size = {2}]", length, bytesDecoded, decoder.FrameSize));
+            System.Array.Copy(outputBufferTemp, 0, decoded, 0, bytesDecoded);
             return decoded;
         }
 

@@ -30,19 +30,40 @@ namespace iSpyApplication.Controls
             _motionZonesRectangles = new List<Rectangle>();
         }
 
+        private int _rectIndex = -1;
+        private Rectangle _rectOrig;
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            //clicked on an existing rectangle?
+            _bMouseDown = true;
             int startX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int startY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
+
             if (startX > 100)
                 startX = 100;
             if (startY > 100)
                 startY = 100;
+
+            int i = 0;
+            foreach(var r in _motionZonesRectangles)
+            {
+                if (startX>r.X && startX<r.X+r.Width && startY>r.Y && startY<r.Y+r.Height)
+                {
+                    _rectIndex = i;
+                    _rectOrig = new Rectangle(r.X,r.Y,r.Width,r.Height);
+                    RectStart = new Point(startX, startY);
+                    return;
+                }
+                i++;
+            }
+            _rectIndex = -1;
+            
             RectStop = new Point(startX, startY);
             RectStart = new Point(startX, startY);
             OnBoundsChanged();
-            _bMouseDown = true;
+            
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -50,12 +71,24 @@ namespace iSpyApplication.Controls
             base.OnMouseDown(e);
             int endX = Convert.ToInt32((e.X * 1.0) / (Width * 1.0) * 100);
             int endY = Convert.ToInt32((e.Y * 1.0) / (Height * 1.0) * 100);
+            
+            RectStop = new Point(endX, endY);
+            _bMouseDown = false;
+            if (_rectIndex>-1)
+            {
+                RectStart = Point.Empty;
+                RectStop = Point.Empty;
+                if (endX>100 || endY>100 || endX<0 || endY<0)
+                {
+                    _motionZonesRectangles.RemoveAt(_rectIndex);
+                }
+                _rectIndex = -1;
+                return;
+            }
             if (endX > 100)
                 endX = 100;
             if (endY > 100)
                 endY = 100;
-            RectStop = new Point(endX, endY);
-            _bMouseDown = false;
             if (Math.Sqrt(Math.Pow(endX - RectStart.X, 2) + Math.Pow(endY - RectStart.Y, 2)) < 5)
             {
                 RectStart = new Point(0, 0);
@@ -99,6 +132,13 @@ namespace iSpyApplication.Controls
                     endY = 100;
 
                 RectStop = new Point(endX, endY);
+                if (_rectIndex>-1)
+                {
+                    var mz = _motionZonesRectangles[_rectIndex];
+                    mz.X = _rectOrig.X + (RectStop.X - RectStart.X);
+                    mz.Y = _rectOrig.Y + (RectStop.Y - RectStart.Y);
+                    _motionZonesRectangles[_rectIndex] = mz;
+                }
                 OnBoundsChanged();
             }
             Invalidate();
@@ -174,13 +214,17 @@ namespace iSpyApplication.Controls
                         g.DrawRectangle(p, rMod);
                     }
                 }
-                var p1 = new Point(Convert.ToInt32(RectStart.X * wmulti), Convert.ToInt32(RectStart.Y * hmulti));
-                var p2 = new Point(Convert.ToInt32(RectStop.X * wmulti), Convert.ToInt32(RectStop.Y * hmulti));
 
-                var ps = new[] { p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1 };
-                g.FillPolygon(h, ps);
-                g.DrawPolygon(p, ps);
-                
+                if (_rectIndex == -1)
+                {
+                    var p1 = new Point(Convert.ToInt32(RectStart.X*wmulti), Convert.ToInt32(RectStart.Y*hmulti));
+                    var p2 = new Point(Convert.ToInt32(RectStop.X*wmulti), Convert.ToInt32(RectStop.Y*hmulti));
+
+                    var ps = new[] {p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1};
+                    g.FillPolygon(h, ps);
+                    g.DrawPolygon(p, ps);
+                }
+
             }
             catch
             {

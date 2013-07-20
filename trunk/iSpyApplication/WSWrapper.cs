@@ -71,7 +71,7 @@ namespace iSpyApplication
                 {
                     if (!ReconnectTimer.Enabled)
                     {
-                        MainForm.LogErrorToFile("Disconnected");
+                        MainForm.LogErrorToFile("Starting reconnect timer");
                         ReconnectTimer.Start();
                     }
                 }
@@ -86,9 +86,10 @@ namespace iSpyApplication
                 if (s == "OK")
                 {
                     ReconnectTimer.Stop();
-                    MainForm.LogMessageToFile("Reconnecting...");
+                    
                     if (MainForm.Conf.ServicesEnabled)
                     {
+                        MainForm.LogMessageToFile("Reconnecting...");
                         try
                         {
                             s = Connect(MainForm.Conf.Loopback);
@@ -216,6 +217,7 @@ namespace iSpyApplication
                 try
                 {
                     _externalIP = Wsa.RemoteAddress();
+                    
                 }
                 catch (Exception ex)
                 {
@@ -322,16 +324,17 @@ namespace iSpyApplication
             return LocRm.GetString("iSpyDown");
         }
 
-        public static void ForceSync()
+        public static bool ForceSync()
         {
-            ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort,
+            return ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort,
                              MainForm.MWS.GetObjectList());
         }
 
-        private static void ForceSync(string internalIPAddress, int internalPort, string settings)
+        private static bool _forcesyncprocessing;
+        private static bool ForceSync(string internalIPAddress, int internalPort, string settings)
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return;
+            if (!MainForm.Conf.ServicesEnabled || _forcesyncprocessing)
+                return false;
             if (WebsiteLive)
             {
                 int port = MainForm.Conf.ServerPort;
@@ -339,14 +342,17 @@ namespace iSpyApplication
                     port = MainForm.Conf.LANPort;
                 
                 string ip = MainForm.IPAddressExternal;
-                if (WebsiteLive)
+                if (WebsiteLive && !_forcesyncprocessing)
                 {
-                    Wsa.SyncCompleted += WsaSyncCompleted;
+                    Wsa.SyncCompleted+=WsaSyncCompleted;
+                    _forcesyncprocessing = true;
                     Wsa.SyncAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
                                         internalIPAddress, internalPort, settings, MainForm.Conf.IPMode == "IPv4", ip);
+                    return true;
                 }
                 
             }
+            return false;
         }
 
         public static void PingServer()
@@ -366,7 +372,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                _websitelive = false;
+                WebsiteLive = false;
                 MainForm.LogExceptionToFile(ex);
             }
 
@@ -375,14 +381,14 @@ namespace iSpyApplication
 
         static void WsaPingAlive4Completed(object sender, PingAlive4CompletedEventArgs e)
         {
-            bool islive = _websitelive;
+            bool islive = WebsiteLive;
             if (e.Error == null)
             {
                 string[] r = e.Result;
                 
                 if (r.Length > 1)
                 {
-                    _websitelive = true;
+                    WebsiteLive = true;
                     if (MainForm.Conf.ServicesEnabled)
                     {
                         if (!MainForm.MWS.Running)
@@ -395,24 +401,23 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    _websitelive = false;
+                    WebsiteLive = false;
                 }
             }
             else
             {
-                _websitelive = false;
+                WebsiteLive = false;
             }
-            if (!islive && _websitelive)
+            if (!islive && WebsiteLive)
             {
                 Connect();
                 ForceSync();
             }
         }
 
-        
-
         static void WsaSyncCompleted(object sender, SyncCompletedEventArgs e)
         {
+            _forcesyncprocessing = false;
             if (e.Error != null)
             {
                 WebsiteLive = false;
@@ -470,20 +475,29 @@ namespace iSpyApplication
                                       MainForm.Identifier, tryLoopback, Application.ProductVersion,
                                       MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.AFFILIATEID);
                     if (r == "OK" && tryLoopback)
+                    {
                         MainForm.LoopBack = true;
+                    }
+                    //MainForm.LogMessageToFile("Webservices: " + r);
                 }
                 catch (Exception ex)
                 {
                     MainForm.LogExceptionToFile(ex);
                     WebsiteLive = false;
                 }
+                LoginFailed = false;
                 if (WebsiteLive && r != "OK")
+                {
+                    LoginFailed = true;
                     return LocRm.GetString(r);
+                }
                 if (WebsiteLive)
                     return r;
             }
             return LocRm.GetString("iSpyDown");
         }
+
+        public static bool LoginFailed = true;
 
         public static string[] TestConnection(string username, string password, bool tryLoopback)
         {
@@ -495,21 +509,28 @@ namespace iSpyApplication
 
             try
             {
-                _websitelive = true;
                 r = Wsa.TestConnection(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal);
+                WebsiteLive = true;
             }
             catch (Exception ex)
             {
-                _websitelive = false;
+                WebsiteLive = false;
                 MainForm.LogExceptionToFile(ex);
             }
-            if (_websitelive)
+            if (WebsiteLive)
             {
-                if (r.Length == 1 && r[0] != "OK") //login failed
+                LoginFailed = false;
+                if (r.Length == 1 && r[0] != "OK")
+                {
                     r[0] = LocRm.GetString(r[0]);
+                    LoginFailed = true;
+                    MainForm.LogErrorToFile("Webservices: "+r[0]);
+                }
                 if (r.Length > 3 && r[3] != "")
                 {
                     r[3] = LocRm.GetString(r[3]);
+                    LoginFailed = true;
+                    MainForm.LogErrorToFile("Webservices: " + r[3]);
                 }
                 return r;
             }

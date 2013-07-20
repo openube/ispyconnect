@@ -3,8 +3,8 @@
     <xs:element name="Files">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="File">
-                    <xs:complexType>
+              <xs:element maxOccurs="unbounded" name="File">
+                <xs:complexType>
                         <xs:attribute name="Filename" type="xs:string" use="required" />
                         <xs:attribute name="SizeBytes" type="xs:long" use="required" />
                         <xs:attribute name="CreatedDateTicks" type="xs:long" use="required" />
@@ -13,6 +13,7 @@
                         <xs:attribute name="IsTimelapse" type="xs:boolean" use="required" />
                         <xs:attribute name="AlertData" type="xs:string" use="required" />
                         <xs:attribute name="TriggerLevel" type="xs:double" use="required" />
+                        <xs:attribute name="TriggerLevelMax" type="xs:double" use="optional" />
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

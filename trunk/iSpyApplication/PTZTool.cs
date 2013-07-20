@@ -44,8 +44,36 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        ddlExtended.Items.Add(new ListItem(LocRm.GetString("DigitalPTZonly"), ""));
-                        pnlController.Enabled = true;
+                        switch (CameraControl.Camobject.ptz)    
+                        {
+                            case -1:
+                                ddlExtended.Items.Add(new ListItem(LocRm.GetString("DigitalPTZonly"), ""));
+                                pnlController.Enabled = true;
+                                break;
+                            case -2:
+                                ddlExtended.Items.Add(new ListItem("IAM-Control", ""));
+                                pnlController.Enabled = true;
+                                break;
+                            case -3:
+                            case -4:
+                                //Pelco extended
+                                ddlExtended.Items.Add(new ListItem(LocRm.GetString("SelectCommand"), ""));
+                                foreach(string cmd in PTZController.PelcoCommands)
+                                {
+                                    ddlExtended.Items.Add(new ListItem(cmd, cmd));
+                                }
+                                pnlController.Enabled = true;
+                                break;
+                            case -5:
+                                //ONVIF
+                                ddlExtended.Items.Add(new ListItem(LocRm.GetString("SelectCommand"), ""));
+                                foreach(string cmd in CameraControl.PTZ.ONVIFPresets)
+                                {
+                                    ddlExtended.Items.Add(new ListItem(cmd, cmd));
+                                }
+                                pnlController.Enabled = true;
+                                break;
+                        }
                     }
                     Text = "PTZ: "+CameraControl.Camobject.name;
                     
@@ -93,7 +121,7 @@ namespace iSpyApplication
         {
             if (CameraControl.Camera == null)
                 return;
-            bool d = MainForm.PTZs.SingleOrDefault(q => q.id == CameraControl.Camobject.ptz) == null;
+
             var comm = Enums.PtzCommand.Center;
             if (p.X < 60 && p.Y > 60 && p.Y < 106)
             {
@@ -127,93 +155,19 @@ namespace iSpyApplication
             {
                 comm = Enums.PtzCommand.DownLeft;
             }
+
             if (p.X > 170 && p.Y < 45)
             {
                 comm = Enums.PtzCommand.ZoomIn;
-                if (!d)
-                {
-                    PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == CameraControl.Camobject.ptz);
-                    if (ptz == null || String.IsNullOrEmpty(ptz.Commands.ZoomIn))
-                        d = true;
-                }
-            
             }
             if (p.X > 170 && p.Y > 45 && p.Y < 90)
             {
                 comm = Enums.PtzCommand.ZoomOut;
-                if (!d)
-                {
-                    PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == CameraControl.Camobject.ptz);
-                    if (ptz == null || String.IsNullOrEmpty(ptz.Commands.ZoomIn)) //use zoomin just in case zoomout is defined and zoomin isn't
-                        d = true;
-                }
             }
 
-            if (d)
-            {
+            CameraControl.PTZ.SendPTZCommand(comm);
 
-                Rectangle r = CameraControl.Camera.ViewRectangle;
-                if (r != Rectangle.Empty)
-                {
-                    if (comm==Enums.PtzCommand.ZoomOut || comm==Enums.PtzCommand.ZoomIn)
-                        CameraControl.Camera.ZPoint = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2);
-                    double angle = 0;
-                    bool isangle = true;
-                    switch (comm)
-                    {
-                        case Enums.PtzCommand.Left:
-                            angle=0;
-                            break;
-                        case Enums.PtzCommand.Upleft:
-                            angle = Math.PI/4;
-                            break;
-                        case Enums.PtzCommand.Up:
-                            angle= Math.PI / 2;
-                            break;
-                        case Enums.PtzCommand.UpRight:
-                            angle = 3 * Math.PI / 4;
-                            break;
-                        case Enums.PtzCommand.Right:
-                            angle = Math.PI;
-                            break;
-                        case Enums.PtzCommand.DownRight:
-                            angle = -3 * Math.PI / 4;
-                            break;
-                        case Enums.PtzCommand.Down:
-                            angle = -Math.PI / 2;
-                            break;
-                        case Enums.PtzCommand.DownLeft:
-                            angle = -Math.PI / 4;
-                            break;
-                        case Enums.PtzCommand.ZoomIn:
-                            isangle = false;
-                            CameraControl.Camera.ZFactor += 0.2f;
-                            break;
-                        case Enums.PtzCommand.ZoomOut:
-                            isangle = false;
-                            CameraControl.Camera.ZFactor -= 0.2f;
-                            if (CameraControl.Camera.ZFactor < 1)
-                                CameraControl.Camera.ZFactor = 1;
-                            break;
-                        case Enums.PtzCommand.Center:
-                            isangle = false;
-                            CameraControl.Camera.ZFactor = 1;
-                            break;
-                        
-                    }
-                    if (isangle)
-                    {
-                        CameraControl.Camera.ZPoint.X -= Convert.ToInt32(15 * Math.Cos(angle));
-                        CameraControl.Camera.ZPoint.Y -= Convert.ToInt32(15 * Math.Sin(angle));
-                    }
 
-                }
-            }
-            else
-            {
-                CameraControl.PTZ.SendPTZCommand(comm, false);    
-            }
-            
         }
 
         

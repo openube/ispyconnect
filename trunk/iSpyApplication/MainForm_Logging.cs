@@ -33,7 +33,10 @@ namespace iSpyApplication
 
             }
         }
-
+        internal static void LogMessageToFile(String message, string e)
+        {
+            LogMessageToFile(String.Format(message, e));
+        }
         internal static void LogMessageToFile(String message)
         {
             if (!_logging)
@@ -56,6 +59,11 @@ namespace iSpyApplication
             PluginLogFile.Append("<message name=\"" + name + "\" id=\"" + id + "\" action=\"" + action + "\" timestamp=\"" + dt.Ticks+"\">" + detail.Replace("&", "&amp;") + "</message>");
         }
 
+        
+        internal static void LogErrorToFile(String message, string e)
+        {
+            LogErrorToFile(String.Format(message,e));
+        }
         internal static void LogErrorToFile(String message)
         {
             if (!_logging)

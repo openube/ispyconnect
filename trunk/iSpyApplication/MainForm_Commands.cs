@@ -333,12 +333,14 @@ namespace iSpyApplication
                 if (c is CameraWindow)
                 {
                     var cameraControl = (CameraWindow)c;
-                    cameraControl.RecordSwitch(record);
+                    if (cameraControl.IsEnabled)
+                        cameraControl.RecordSwitch(record);
                 }
                 if (c is VolumeLevel)
                 {
                     var volumeControl = (VolumeLevel)c;
-                    volumeControl.RecordSwitch(record);
+                    if (volumeControl.IsEnabled)
+                        volumeControl.RecordSwitch(record);
                 }
             }
         }

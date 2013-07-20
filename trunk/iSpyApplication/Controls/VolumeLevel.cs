@@ -17,7 +17,7 @@ using iSpyApplication.Audio.streams;
 using iSpyApplication.MP3Stream;
 using iSpyApplication.Video;
 using NAudio.Wave;
-using AForge.Video.FFMPEG;
+using iSpy.Video.FFMPEG;
 using PictureBox = AForge.Controls.PictureBox;
 using ReasonToFinishPlaying = iSpyApplication.Audio.ReasonToFinishPlaying;
 using WaveFormat = NAudio.Wave.WaveFormat;
@@ -49,7 +49,7 @@ namespace iSpyApplication.Controls
         private DateTime _lastAlertCheck = DateTime.MinValue;
         private bool _isTrigger;
         private readonly DateTime _lastScheduleCheck = DateTime.MinValue;
-        private List<FilesFile> _filelist;
+        private List<FilesFile> _filelist = new List<FilesFile>();
         private readonly AutoResetEvent _newRecordingFrame = new AutoResetEvent(false);
         private readonly object _obj = new object();
         private Thread _recordingThread;
@@ -85,7 +85,14 @@ namespace iSpyApplication.Controls
 
         #region Public
         public volatile bool IsEnabled;
-        public bool AudioSourceErrorState;
+        private bool _audioSourceErrorState;
+        public bool AudioSourceErrorState
+        {
+            get { return _audioSourceErrorState; }
+            set { _audioSourceErrorState = value;
+                Invalidate();
+            }
+        }
         public bool Paired
         {
             get { return Micobject != null && MainForm.Cameras.FirstOrDefault(p => p.settings.micpair == Micobject.id) != null; }
@@ -107,13 +114,17 @@ namespace iSpyApplication.Controls
         }
 
         #region Delegates
-
         public delegate void NewDataAvailable(object sender, NewDataAvailableArgs eventArgs);
-
         public delegate void NotificationEventHandler(object sender, NotificationType e);
-
         public delegate void RemoteCommandEventHandler(object sender, ThreadSafeCommand e);
+        public delegate void FileListUpdatedEventHandler(object sender);
+        #endregion
 
+        #region Events
+        public event RemoteCommandEventHandler RemoteCommand;
+        public event NotificationEventHandler Notification;
+        public event NewDataAvailable DataAvailable;
+        public event FileListUpdatedEventHandler FileListUpdated;
         #endregion
 
         public List<AudioAction> AudioBuffer;
@@ -137,7 +148,246 @@ namespace iSpyApplication.Controls
         public IAudioSource AudioSource;
 
         public List<Socket> OutSockets = new List<Socket>();
-        
+
+        private Thread _tFiles;
+        public void GetFiles()
+        {
+            if (_tFiles == null || !_tFiles.IsAlive)
+            {
+                _tFiles = new Thread(GenerateFileList);
+                _tFiles.Start();
+            }
+        }
+
+        private void GenerateFileList()
+        {
+            string dir = MainForm.Conf.MediaDirectory + "audio\\" +Micobject.directory + "\\";
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            bool failed = false;
+            if (File.Exists(dir + "data.xml"))
+            {
+                var s = new XmlSerializer(typeof(Files));
+                try
+                {
+                    using (var fs = new FileStream(dir + "data.xml", FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        try
+                        {
+                            using (TextReader reader = new StreamReader(fs))
+                            {
+                                fs.Position = 0;
+                                lock (_filelist)
+                                {
+                                    var t = ((Files)s.Deserialize(reader));
+                                    if (t.File == null || !t.File.Any())
+                                    {
+                                        _filelist = new List<FilesFile>();
+                                    }
+                                    else
+                                        _filelist = t.File.ToList();
+                                }
+                                reader.Close();
+                            }
+                            ScanForMissingFiles();
+                        }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                            failed = true;
+                        }
+                        fs.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                    failed = true;
+                }
+                if (!failed)
+                {
+                    return;
+                }
+                    
+
+            }
+
+            //else build from directory contents
+
+            _filelist = new List<FilesFile>();
+            lock (_filelist)
+            {
+                var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "audio\\" + Micobject.directory + "\\");
+
+                var lFi = new List<FileInfo>();
+                lFi.AddRange(dirinfo.GetFiles());
+                lFi = lFi.FindAll(f => f.Extension.ToLower() == ".mp3");
+                lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
+
+                //sanity check existing data
+                foreach (FileInfo fi in lFi)
+                {
+                    FileInfo fi1 = fi;
+                    if (_filelist.Count(p => p.Filename == fi1.Name) == 0)
+                    {
+                        _filelist.Add(new FilesFile
+                                          {
+                                              CreatedDateTicks = fi.CreationTime.Ticks,
+                                              Filename = fi.Name,
+                                              SizeBytes = fi.Length,
+                                              MaxAlarm = 0,
+                                              AlertData = "0",
+                                              DurationSeconds = 0,
+                                              IsTimelapse = false
+                                          });
+                    }
+                }
+                for (int index = 0; index < _filelist.Count; index++)
+                {
+                    FilesFile ff = _filelist[index];
+                    if (lFi.All(p => p.Name != ff.Filename))
+                    {
+                        _filelist.Remove(ff);
+                        index--;
+                    }
+                }
+                _filelist = _filelist.OrderByDescending(p => p.CreatedDateTicks).ToList();
+            }
+            if (FileListUpdated != null)
+                FileListUpdated(this);
+        }
+        public List<FilesFile> FileList
+        {
+            get
+            {
+                return _filelist;
+            }
+        }
+
+        public void ClearFileList()
+        {
+            lock(_filelist)
+            {
+                _filelist.Clear();
+            }
+            lock (MainForm.MasterFileList)
+            {
+                MainForm.MasterFileList.RemoveAll(p=>p.ObjectTypeId==1 && p.ObjectId==Micobject.id);
+            }
+
+        }
+
+        public void RemoveFile(string filename)
+        {
+            lock (_filelist)
+            {
+                FileList.RemoveAll(p => p.Filename == filename);
+            }
+            lock (MainForm.MasterFileList)
+            {
+                MainForm.MasterFileList.RemoveAll(p => p.Filename == filename);
+            }
+        }
+
+        public void SaveFileList()
+        {
+            try
+            {
+                if (FileList != null)
+                    lock (FileList)
+                    {
+                        var fl = new Files {File = FileList.ToArray()};
+                        string dir = MainForm.Conf.MediaDirectory + "audio\\" +
+                                    Micobject.directory + "\\";
+                        if (!Directory.Exists(dir))
+                            Directory.CreateDirectory(dir);
+                        var s = new XmlSerializer(typeof (Files));
+                        using (var fs = new FileStream(dir+"data.xml", FileMode.Create))
+                        {
+                            using (TextWriter writer = new StreamWriter(fs))
+                            {
+                                fs.Position = 0;
+                                s.Serialize(writer, fl);
+                                writer.Close();
+                            }
+                            fs.Close();
+                        }
+                    }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
+        private Thread _tScan;
+        private void ScanForMissingFiles()
+        {
+            if (_tScan == null || !_tScan.IsAlive)
+            {
+                _tScan = new Thread(ScanFiles);
+                _tScan.Start();
+            }
+        }
+
+        private void ScanFiles()
+        {
+            try
+            {
+                //check files exist
+                var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "audio\\" + Micobject.directory + "\\");
+
+                var lFi = new List<FileInfo>();
+                lFi.AddRange(dirinfo.GetFiles());
+                lFi = lFi.FindAll(f => f.Extension.ToLower() == ".mp3" || f.Extension.ToLower() == ".mp4");
+                lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
+
+                //var farr = _filelist.ToArray();
+                lock (_filelist)
+                {
+                    for (int j = 0; j < _filelist.Count; j++)
+                    {
+                        var t = _filelist[j];
+                        if (t != null)
+                        {
+                            var fe = lFi.FirstOrDefault(p => p.Name == t.Filename);
+                            if (fe == null)
+                            {
+                                //file not found
+                                _filelist.RemoveAt(j);
+                                j--;
+                                continue;
+                            }
+                            lFi.Remove(fe);
+                        }
+                    }
+                    //add missing files
+                    foreach (var fi in lFi)
+                    {
+                        _filelist.Add(new FilesFile
+                                            {
+                                                CreatedDateTicks = fi.CreationTime.Ticks,
+                                                Filename = fi.Name,
+                                                SizeBytes = fi.Length,
+                                                MaxAlarm = 0,
+                                                AlertData = "0",
+                                                DurationSeconds = 0,
+                                                IsTimelapse =
+                                                    fi.Name.ToLower().IndexOf("timelapse", StringComparison.Ordinal) !=
+                                                    -1
+                                            });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            if (FileListUpdated != null)
+                FileListUpdated(this);
+        }
+
         public bool Recording
         {
             get
@@ -188,154 +438,6 @@ namespace iSpyApplication.Controls
                 Micobject.settings.gain = value;
             }
         }
-
-        public void ScanForMissingFiles()
-        {
-            //check files exist
-            try
-            {
-                string dir = MainForm.Conf.MediaDirectory + "audio\\" +
-                             Micobject.directory + "\\";
-                var farr = FileList.ToArray();
-                int j = 0;
-                for (int i = 0; i < farr.Length; i++)
-                {
-                    if (!File.Exists(dir + farr[i].Filename))
-                    {
-                        _filelist.RemoveAt(j);
-                        continue;
-                    }
-                    j++;
-                }
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-        }
-        public List<FilesFile> FileList
-        {
-            get
-            {
-                if (_filelist != null)
-                    return _filelist;
-                string dir = MainForm.Conf.MediaDirectory + "audio\\" +
-                                                      Micobject.directory + "\\";
-
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-
-                bool failed = false;
-                if (File.Exists(dir + "data.xml"))
-                {
-                    var s = new XmlSerializer(typeof(Files));
-
-                    using (var fs = new FileStream(dir + "data.xml", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    {
-                        fs.Position = 0;
-                        try
-                        {
-                            using (TextReader reader = new StreamReader(fs))
-                            {
-                                _filelist = ((Files) s.Deserialize(reader)).File.ToList();
-                                reader.Close();
-                            }
-                            ScanForMissingFiles();
-                        }
-                        catch (Exception ex)
-                        {
-                            MainForm.LogExceptionToFile(ex);
-                            failed = true;
-                        }
-                        fs.Close();
-                    }
-
-                    if (!failed)
-                        return _filelist;
-                }
-
-                //else build from directory contents
-                
-                _filelist = new List<FilesFile>();
-                var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "audio\\" +
-                                                      Micobject.directory + "\\");
-
-                var lFi = new List<FileInfo>();
-                lFi.AddRange(dirinfo.GetFiles());
-                lFi = lFi.FindAll(f => f.Extension.ToLower() == ".mp3");
-                lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
-                //sanity check existing data
-                foreach (var fi in lFi)
-                {
-                    FileInfo fi1 = fi;
-                    if (_filelist.Count(p => p.Filename == fi1.Name)==0)
-                    {
-                        _filelist.Add(new FilesFile
-                        {
-                            CreatedDateTicks = fi.CreationTime.Ticks,
-                            Filename = fi.Name,
-                            SizeBytes = fi.Length,
-                            MaxAlarm = 0,
-                            AlertData = "0",
-                                              DurationSeconds = 0,
-                                              IsTimelapse = false
-                        });
-                    }
-                }
-                for (int index = 0; index < _filelist.Count; index++)
-                {
-                    FilesFile ff = _filelist[index];
-                    if (lFi.Count(p => p.Name == ff.Filename) == 0)
-                    {
-                        _filelist.Remove(ff);
-                        index--;
-                    }
-                }
-                _filelist = _filelist.OrderByDescending(p => p.CreatedDateTicks).ToList();
-                return _filelist;
-            }
-            set { lock (_filelist)
-            {
-                _filelist = value; 
-            } }
-        }
-
-        public void SaveFileList()
-        {
-            try
-            {
-                if (FileList != null)
-                    lock (FileList)
-                    {
-                        var fl = new Files {File = FileList.ToArray()};
-                        string fn = MainForm.Conf.MediaDirectory + "audio\\" +
-                                    Micobject.directory + "\\data.xml";
-                        var s = new XmlSerializer(typeof (Files));
-                        using (var fs = new FileStream(fn, FileMode.Create))
-                        {
-                            using (TextWriter writer = new StreamWriter(fs))
-                            {
-                                fs.Position = 0;
-                                s.Serialize(writer, fl);
-                                writer.Close();
-                            }
-                            fs.Close();
-                        }
-                    }
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-        }
-
-        public event RemoteCommandEventHandler RemoteCommand;
-
-        public event NotificationEventHandler Notification;
-
-        public event NewDataAvailable DataAvailable;
-
         #endregion
 
         #region SizingControls
@@ -568,15 +670,19 @@ namespace iSpyApplication.Controls
 
         protected override void OnResize(EventArgs eventargs)
         {
-            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
+            if (CameraControl == null)
             {
-                var ar = Convert.ToDouble(MinimumSize.Width)/Convert.ToDouble(MinimumSize.Height);
-                Width = Convert.ToInt32(ar*Height);
-            }
+                if ((ModifierKeys & Keys.Shift) == Keys.Shift)
+                {
+                    var ar = Convert.ToDouble(MinimumSize.Width)/Convert.ToDouble(MinimumSize.Height);
+                    Width = Convert.ToInt32(ar*Height);
+                }
 
+               
+                if (Width < MinimumSize.Width) Width = MinimumSize.Width;
+                if (Height < MinimumSize.Height) Height = MinimumSize.Height;
+            }
             base.OnResize(eventargs);
-            if (Width < MinimumSize.Width) Width = MinimumSize.Width;
-            if (Height < MinimumSize.Height) Height = MinimumSize.Height;
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -1008,9 +1114,7 @@ namespace iSpyApplication.Controls
         {
             get
             {
-                if (Highlighted || Focused)
-                    return 4;
-                return 2;
+                return (Highlighted || Focused) ? 2 : 1;
             }
         }
 
@@ -1026,9 +1130,9 @@ namespace iSpyApplication.Controls
             var grabBrush = new SolidBrush(BorderColor);
             var borderPen = new Pen(grabBrush,BorderWidth);
             var lgb = new SolidBrush(MainForm.VolumeLevelColor);
-            var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
-            var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-            var drawPen = new Pen(drawBrush);
+            //var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
+            //var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+            //var drawPen = new Pen(drawBrush);
            
             if (Micobject.settings.active && _levels != null && !AudioSourceErrorState)
             {
@@ -1056,16 +1160,14 @@ namespace iSpyApplication.Controls
                 
                 if (Listening)
                 {
-                    gMic.DrawString("LIVE", MainForm.Drawfont, drawBrush, new PointF(5, 4));
+                    gMic.DrawString("LIVE", MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 4));
                 }    
                 
                 
 
                 if (Recording)
                 {
-                    var recBrush = new SolidBrush(Color.Red);
-                    gMic.FillEllipse(recBrush, new Rectangle(rc.Width - 14, 2, 8, 8));
-                    recBrush.Dispose();
+                    gMic.FillEllipse(MainForm.RecordBrush, new Rectangle(rc.Width - 14, 2, 8, 8));
                 }
                 
                 string m = "";
@@ -1093,7 +1195,7 @@ namespace iSpyApplication.Controls
                     }
 
                 }
-                gMic.DrawString(m+ Micobject.name, MainForm.Drawfont, drawBrush, new PointF(5, rc.Height - 18));
+                gMic.DrawString(m+ Micobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, rc.Height - 18));
 
                 lgb.Dispose();
             }
@@ -1102,19 +1204,19 @@ namespace iSpyApplication.Controls
                 if (NoSource || AudioSourceErrorState)
                 {
                     gMic.DrawString(LocRm.GetString("NoSource") + ": " + Micobject.name,
-                                     MainForm.Drawfont, drawBrush, new PointF(5, 5));
+                                     MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                 }
                 else
                 {
                     if (Micobject.schedule.active)
                     {
                         gMic.DrawString("S: " + Micobject.name,
-                                         MainForm.Drawfont, drawBrush, new PointF(5, 5));
+                                         MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                     }
                     else
                     {
                         gMic.DrawString(LocRm.GetString("Inactive") + ": " + Micobject.name,
-                                         MainForm.Drawfont, drawBrush, new PointF(5, 5));
+                                         MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                     }
                 }
             }
@@ -1124,7 +1226,7 @@ namespace iSpyApplication.Controls
                 int leftpoint = Width - ButtonPanelWidth-1;
                 const int ypoint = 0;
 
-                gMic.FillRectangle(sbTs, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
+                gMic.FillRectangle(MainForm.TimestampBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
 
 
 
@@ -1173,9 +1275,6 @@ namespace iSpyApplication.Controls
 
             borderPen.Dispose();
             grabBrush.Dispose();
-            drawBrush.Dispose();
-            drawPen.Dispose();
-            sbTs.Dispose();
             Monitor.Exit(this);
 
             base.OnPaint(pe);
@@ -1185,7 +1284,7 @@ namespace iSpyApplication.Controls
         {
             _stopWrite = true;
             if (_recordingThread != null)
-                _recordingThread.Join(4000);
+                _recordingThread.Join();
         }
 
         public void StartSaving()
@@ -1209,12 +1308,12 @@ namespace iSpyApplication.Controls
                 {
                     case "1":
                         VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null)
+                        if (vl != null && !vl.Recording)
                             vl.RecordSwitch(true);
                         break;
                     case "2":
                         CameraWindow cw = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (cw != null)
+                        if (cw != null && !cw.Recording)
                             cw.RecordSwitch(true);
                         break;
                 }
@@ -1351,13 +1450,16 @@ namespace iSpyApplication.Controls
                         ff.AlertData = Helper.GetMotionDataPoints(_soundData);
                         _soundData.Clear();
                         ff.TriggerLevel = Micobject.detector.sensitivity;
+                        ff.TriggerLevelMax = 100;
 
                         if (newfile)
                         {
                             FileList.Insert(0, ff);
-                            if (MainForm.MasterFileList.Count(p => p.Filename.EndsWith(fn)) == 0)
+                            lock (MainForm.MasterFileList)
                             {
-                                MainForm.MasterFileList.Add(new FilePreview(fn, dSeconds, Micobject.name, DateTime.Now.Ticks, 1,Micobject.id, ff.MaxAlarm));
+                                MainForm.MasterFileList.Add(new FilePreview(fn, dSeconds, Micobject.name,
+                                                                            DateTime.Now.Ticks, 1, Micobject.id,
+                                                                            ff.MaxAlarm));
                             }
                         }
 
@@ -1454,8 +1556,8 @@ namespace iSpyApplication.Controls
             IsEnabled = false;
             _processing = true;
 
-            if (CameraControl != null && CameraControl.IsEnabled)
-                CameraControl.Disable();
+            //if (CameraControl != null && CameraControl.IsEnabled)
+            //    CameraControl.Disable();
             
             if (_recordingThread != null)
                 RecordSwitch(false);
@@ -1512,10 +1614,18 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            if (CameraControl != null && !CameraControl.IsEnabled)
+            
+            if (CameraControl!=null)
             {
-                CameraControl.Enable(); //will then enable this
-                return;
+                Width = CameraControl.Width;
+                Location = new Point(CameraControl.Location.X, CameraControl.Location.Y + CameraControl.Height);
+                Width = Width;
+                Height = 40;
+                if (!CameraControl.IsEnabled)
+                {
+                    CameraControl.Enable(); //will then enable this
+                    return;
+                }
             }
 
             IsEnabled = true;
@@ -1596,7 +1706,6 @@ namespace iSpyApplication.Controls
             WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout) ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100) : new DirectSoundOut(100);
 
 
-            //Debug.WriteLine("Adding events");
             AudioSource.AudioFinished += AudioDeviceAudioFinished;
             AudioSource.AudioSourceError += AudioDeviceAudioSourceError;
             AudioSource.DataAvailable += AudioDeviceDataAvailable;
@@ -1648,9 +1757,12 @@ namespace iSpyApplication.Controls
             {
                 if (WriterBuffer == null)
                 {
-                    var dt = DateTime.Now.AddSeconds(0 - Micobject.settings.buffer);
-                    AudioBuffer.RemoveAll(p => p.TimeStamp < dt);
-                    AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
+                    if (Micobject.settings.buffer > 0)
+                    {
+                        var dt = DateTime.Now.AddSeconds(0 - Micobject.settings.buffer);
+                        AudioBuffer.RemoveAll(p => p.TimeStamp < dt);
+                        AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
+                    }
                 }
                 else
                 {
@@ -1670,42 +1782,11 @@ namespace iSpyApplication.Controls
                 {
                     if (_mp3Writer == null)
                     {
-                        //_as = new AudioStreamer();
-                        //_as.Open(AudioCodec.AAC, AudioSource.RecordingFormat.BitsPerSample * AudioSource.RecordingFormat.SampleRate * AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate, AudioSource.RecordingFormat.Channels);
-
                         _audioStreamFormat = new WaveFormat(22050, 16, Micobject.settings.channels);
                         var wf = new MP3Stream.WaveFormat(_audioStreamFormat.SampleRate, _audioStreamFormat.BitsPerSample, _audioStreamFormat.Channels);
                         _mp3Writer = new Mp3Writer(_outStream, wf, false);
                     }
-                    //unsafe
-                    //{
-                    //    fixed (byte* p = e.RawData)
-                    //    {
-                    //        int byteLength = 0;
-                    //        int* l = &byteLength;
-                    //        byte* outStream = _as.WriteAudio(p, e.RawData.Length,  l);
-                    //        byteLength = *l;
 
-                    //        if (byteLength > 0)
-                    //        {
-                    //            var toSend = new byte[byteLength];
-                    //            for (var i = 0; i < byteLength;i++ )
-                    //            {
-                    //                if (i==0)
-                    //                    Debug.Write(toSend[0]);
-                    //                toSend[i] = *(outStream + i);
-                                    
-                    //            }
-                            
-                    //            foreach (Socket s in OutSockets)
-                    //            {
-                    //                s.Send(Encoding.ASCII.GetBytes(byteLength.ToString("X") + "\r\n"));
-                    //                s.Send(toSend);
-                    //                s.Send(Encoding.ASCII.GetBytes("\r\n"));
-                    //            }
-                    //        }
-                    //    }
-                    //}
                     byte[] bSrc = e.RawData;
                     int totBytes = bSrc.Length;
 
@@ -1747,13 +1828,6 @@ namespace iSpyApplication.Controls
                         _mp3Writer.Close();
                         _mp3Writer = null;
                     }
-
-                    //if (_as!=null)
-                    //{
-                    //    _as.Close();
-                    //    _as.Dispose();
-                    //    _as = null;
-                    //}
                 }
 
 
@@ -1810,7 +1884,7 @@ namespace iSpyApplication.Controls
                     }
                     break;
                 case ReasonToFinishPlaying.StoppedByUser:
-                    Micobject.settings.active = false;
+                    Disable();
                     break;
             }
             if (!ShuttingDown)

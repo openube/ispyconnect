@@ -38,10 +38,10 @@ namespace iSpyApplication
                         if (c is CameraWindow)
                         {
                             var cw = ((CameraWindow)c);
-                            if (cw.Camera != null && cw.Camera.LastFrame != null)
+                            if (cw.Camera != null && !cw.LastFrameNull)
                             {
-                                p.Width = cw.Camera.LastFrame.Width + 2;
-                                p.Height = cw.Camera.LastFrame.Height + 32;
+                                p.Width = cw.LastFrame.Width + 2;
+                                p.Height = cw.LastFrame.Height + 32;
                             }
                         }
                         else
@@ -238,7 +238,7 @@ namespace iSpyApplication
                         else
                         {
                             cameraControl.Width = _pnlCameras.Width;
-                            cameraControl.Height = Convert.ToInt32((Convert.ToDouble(_pnlCameras.Width)*wFact)/hFact);
+                            cameraControl.Height = Convert.ToInt32((Convert.ToDouble(_pnlCameras.Height)*wFact)/hFact);
                         }
                         cameraControl.Location = new Point(((_pnlCameras.Width - cameraControl.Width)/2),
                                                            ((_pnlCameras.Height - cameraControl.Height)/2));

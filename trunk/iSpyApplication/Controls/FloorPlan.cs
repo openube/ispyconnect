@@ -105,7 +105,7 @@ namespace iSpyApplication.Controls
 
         private MousePos GetMousePos(Point location)
         {
-            MousePos result = MousePos.NoWhere;
+            var result = MousePos.NoWhere;
             int rightSize = Padding.Right;
             int bottomSize = Padding.Bottom;
             var testRect = new Rectangle(Width - rightSize, 0, Width - rightSize, Height - bottomSize);
@@ -349,18 +349,24 @@ namespace iSpyApplication.Controls
                         {
                             case "camera":
                                 CameraWindow cw = Owner.GetCameraWindow(fpoe.id);
-                                //cw.Location = new Point(Location.X + e.X, Location.Y + e.Y);
-                                cw.BringToFront();
-                                cw.Focus();
-                                
+                                if (cw != null)
+                                {
+                                    //cw.Location = new Point(Location.X + e.X, Location.Y + e.Y);
+                                    cw.BringToFront();
+                                    cw.Focus();
+                                }
+
                                 changeHighlight = false;
                                 break;
                             case "microphone":
                                 VolumeLevel vl = Owner.GetMicrophone(fpoe.id);
-                                //vl.Location = new Point(Location.X + e.X, Location.Y + e.Y);
-                                vl.BringToFront();
-                                vl.Focus();
-                                
+                                if (vl != null)
+                                {
+                                    //vl.Location = new Point(Location.X + e.X, Location.Y + e.Y);
+                                    vl.BringToFront();
+                                    vl.Focus();
+                                }
+
                                 changeHighlight = false;
                                 break;
                         }
@@ -384,11 +390,13 @@ namespace iSpyApplication.Controls
                     {
                         case "camera":
                             CameraWindow cw = Owner.GetCameraWindow(fpoe.id);
-                            cw.Highlighted = true;
+                            if (cw!=null)
+                                cw.Highlighted = true;
                             break;
                         case "microphone":
                             VolumeLevel vl = Owner.GetMicrophone(fpoe.id);
-                            vl.Highlighted = true;
+                            if (vl!=null)
+                                vl.Highlighted = true;
 
                             break;
                     }
@@ -431,9 +439,7 @@ namespace iSpyApplication.Controls
         {
             get
             {
-                if (Highlighted)
-                    return 4;
-                return 2;
+                return Highlighted ? 2 : 1;
             }
         }
 
@@ -446,7 +452,6 @@ namespace iSpyApplication.Controls
             //gPlan.PixelOffsetMode = PixelOffsetMode.HighSpeed;
             //gPlan.SmoothingMode = SmoothingMode.None;
             //gPlan.InterpolationMode = InterpolationMode.Default;
-
             
             Rectangle rc = ClientRectangle;
 
@@ -690,9 +695,9 @@ namespace iSpyApplication.Controls
                     }
 
                     if (itemRemoved)
-                    {
                         Fpobject.objects.@object = Fpobject.objects.@object.Where(fpoe => fpoe.id > -2).ToArray();
-                    }
+                    
+
                     gLf.Dispose();
                     alertBrush.Dispose();
                     noalertBrush.Dispose();

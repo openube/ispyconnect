@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -13,6 +14,7 @@ using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
+using iSpyApplication.Pelco;
 using iSpyApplication.Video;
 
 
@@ -71,8 +73,6 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.sourceindex = vs.SourceIndex;
                 CameraControl.Camobject.settings.login = vs.CameraLogin;
                 CameraControl.Camobject.settings.password = vs.CameraPassword;
-                CameraControl.Camobject.settings.useragent = vs.UserAgent;
-                CameraControl.Camobject.settings.forcebasic = vs.ForceBasic;
 
                 bool su = CameraControl.Camobject.resolution != vs.CaptureSize.Width + "x" + vs.CaptureSize.Height;
                 if (vs.SourceIndex==3)
@@ -91,17 +91,10 @@ namespace iSpyApplication
                 if (CameraControl.VolumeControl == null && CameraControl.Camera!=null)
                 {
                     //do we need to add a paired volume control?
-                    if (CameraControl.Camera.VideoSource is VlcStream)
+                    var c = CameraControl.Camera.VideoSource as ISupportsAudio;
+                    if (c!=null)
                     {
-                        ((VlcStream)CameraControl.Camera.VideoSource).HasAudioStream += AddCameraHasAudioStream;
-                    }
-                    if (CameraControl.Camera.VideoSource is FFMPEGStream)
-                    {
-                        ((FFMPEGStream)CameraControl.Camera.VideoSource).HasAudioStream += AddCameraHasAudioStream;
-                    }
-                    if (CameraControl.Camera.VideoSource is KinectStream)
-                    {
-                        ((KinectStream)CameraControl.Camera.VideoSource).HasAudioStream += AddCameraHasAudioStream;
+                        c.HasAudioStream += AddCameraHasAudioStream;
                     }
                     if (FindCameras.LastConfig.PromptSave)
                     {
@@ -278,7 +271,7 @@ namespace iSpyApplication
             txtArguments.Text = CameraControl.Camobject.alerts.arguments;
             txtDirectory.Text = CameraControl.Camobject.directory;
             chkAutoHome.Checked = CameraControl.Camobject.settings.ptzautohome;
-            chkCRF.Checked = CameraControl.Camobject.recorder.crf;
+            //chkCRF.Checked = CameraControl.Camobject.recorder.crf;
             numTTH.Value = CameraControl.Camobject.settings.ptztimetohome;
             rdoContinuous.Checked = CameraControl.Camobject.alerts.processmode == "continuous";
             rdoMotion.Checked = CameraControl.Camobject.alerts.processmode == "motion";
@@ -293,10 +286,9 @@ namespace iSpyApplication
             txtSound.Text = CameraControl.Camobject.alerts.playsound;
             ShowSchedule(-1);
 
-            chkActive.Checked = CameraControl.Camobject.settings.active;
             if (CameraControl.Camera==null)
             {
-                chkActive.Checked = CameraControl.Camobject.settings.active = false;
+                chkActive.Checked = false;
                 btnAdvanced.Enabled = btnCrossbar.Enabled = false;
             }
             else
@@ -452,6 +444,8 @@ namespace iSpyApplication
 
             dtpSchedulePTZ.Value = new DateTime(2012,1,1,0,0,0,0);
             numMaxCounter.Value = CameraControl.Camobject.ftp.countermax;
+
+            chkIgnoreAudio.Checked = CameraControl.Camobject.settings.ignoreaudio;
             _loaded = true;
         }
 
@@ -460,9 +454,14 @@ namespace iSpyApplication
             ddlAlertMode.Items.Clear();
             int iMode = 0;
 
-            foreach (string s in _alertmodes)
+            var items = new List<string>();
+            if (Helper.HasFeature(Enums.Features.Motion_Detection))
             {
-                ddlAlertMode.Items.Add(LocRm.GetString(s));
+                foreach (string s in _alertmodes)
+                {
+                    ddlAlertMode.Items.Add(LocRm.GetString(s));
+                    items.Add(s);
+                }
             }
 
             //provider specific alert options
@@ -470,6 +469,7 @@ namespace iSpyApplication
             {
                 case 7:
                     ddlAlertMode.Items.Add("Virtual Trip Wires");
+                    items.Add("Virtual Trip Wires");
                     break;
             }
 
@@ -479,13 +479,14 @@ namespace iSpyApplication
                 string name = plugin.Substring(plugin.LastIndexOf("\\", StringComparison.Ordinal) + 1);
                 name = name.Substring(0, name.LastIndexOf(".", StringComparison.Ordinal));
                 ddlAlertMode.Items.Add(name);
+                items.Add(name);
             }
 
 
             int iCount = 0;
             if (CameraControl.Camobject.alerts.mode != null)
             {
-                foreach (string name in ddlAlertMode.Items)
+                foreach (string name in items)
                 {
                     if (name.ToLower() == CameraControl.Camobject.alerts.mode.ToLower())
                     {
@@ -496,8 +497,8 @@ namespace iSpyApplication
                 }
             }
 
-
-            ddlAlertMode.SelectedIndex = iMode;
+            if (ddlAlertMode.Items.Count>0)
+                ddlAlertMode.SelectedIndex = iMode;
         }
 
         void Ranger1ValueMinChanged()
@@ -545,7 +546,7 @@ namespace iSpyApplication
             btnSaveFTP.Text = LocRm.GetString("Test");
             btnSelectSource.Text = LocRm.GetString("chars_3014702301470230147");
             btnUpdate.Text = LocRm.GetString("Update");
-            button1.Text = LocRm.GetString("ClearAll");
+            llblClearAll.Text = LocRm.GetString("ClearAll");
             button2.Text = LocRm.GetString("Add");
             chkActive.Text = LocRm.GetString("CameraActive");
             chkBeep.Text = LocRm.GetString("Beep");
@@ -561,7 +562,7 @@ namespace iSpyApplication
             chkSchedulePTZ.Text = LocRm.GetString("Scheduler");
             rdoMotion.Text = LocRm.GetString("WhenMotionDetected");
             rdoContinuous.Text = LocRm.GetString("Continuous");
-            chkCRF.Text = LocRm.GetString("Auto");
+            //chkCRF.Text = LocRm.GetString("Auto");
             chkMMS.Text = LocRm.GetString("SendAsMmsWithImage2Credit");
             chkMon.Text = LocRm.GetString("Mon");
             chkMovement.Text = LocRm.GetString("AlertsEnabled");
@@ -693,7 +694,7 @@ namespace iSpyApplication
             toolTip1.SetToolTip(txtTimeLapse, LocRm.GetString("ToolTip_TimeLapseVideo"));
             toolTip1.SetToolTip(txtMaxRecordTime, LocRm.GetString("ToolTip_MaxDuration"));
             toolTip1.SetToolTip(txtInactiveRecord, LocRm.GetString("ToolTip_InactiveRecord"));
-            toolTip1.SetToolTip(txtBuffer, LocRm.GetString("ToolTip_BufferFrames"));
+            //toolTip1.SetToolTip(txtBuffer, LocRm.GetString("ToolTip_BufferFrames"));
             toolTip1.SetToolTip(txtCalibrationDelay, LocRm.GetString("ToolTip_DelayAlerts"));
             toolTip1.SetToolTip(lbSchedule, LocRm.GetString("ToolTip_PressDelete"));
             label16.Text = LocRm.GetString("PTZNote");
@@ -746,13 +747,52 @@ namespace iSpyApplication
             LocRm.SetString(label93, "CounterMax");
             LocRm.SetString(linkLabel12, "AuthoriseTwitter");
             LocRm.SetString(label90, "TriggerRecording");
+            LocRm.SetString(chkIgnoreAudio, "IgnoreAudio");
+
+
+            HideTab(tabPage3, Helper.HasFeature(Enums.Features.Motion_Detection));
+            HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
+            HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
+            HideTab(tabPage8, Helper.HasFeature(Enums.Features.PTZ));
+            HideTab(tabPage7, Helper.HasFeature(Enums.Features.Save_Frames));
+            HideTab(tabPage9, Helper.HasFeature(Enums.Features.YouTube) && Helper.HasFeature(Enums.Features.Web_Settings));
+            HideTab(tabPage5, Helper.HasFeature(Enums.Features.Scheduling));
+
+            if (!Helper.HasFeature(Enums.Features.Web_Settings))
+            {
+                gpbSubscriber.Visible = linkLabel4.Visible = linkLabel9.Visible = false;
+            }
+
+
+        }
+        private void HideTab(TabPage t, bool show)
+        {
+            if (!show)
+            {
+                tcCamera.TabPages.Remove(t);
+            }
         }
 
 
         private void LoadPTZs()
         {
             ddlPTZ.Items.Clear();
-            ddlPTZ.Items.Add(new ListItem("Digital", "-1"));
+            ddlPTZ.Items.Add(new ListItem(":: DIGITAL", "-1"));
+            ddlPTZ.Items.Add(new ListItem(":: IAM-CONTROL", "-2"));
+            ddlPTZ.Items.Add(new ListItem(":: ONVIF", "-5"));
+            ddlPTZ.Items.Add(new ListItem(":: PELCO-P", "-3"));
+            ddlPTZ.Items.Add(new ListItem(":: PELCO-D", "-4"));
+
+
+            foreach(ListItem li in ddlPTZ.Items)
+            {
+                if (li.Value == CameraControl.Camobject.ptz.ToString(CultureInfo.InvariantCulture))
+                {
+                    ddlPTZ.SelectedItem = li;
+                    break;
+                }
+            }
+
             if (MainForm.PTZs != null)
             {
                 var ptzEntries = new List<PTZEntry>();
@@ -782,7 +822,9 @@ namespace iSpyApplication
                     }
                 }
                 if (ddlPTZ.SelectedIndex == -1)
+                {
                     ddlPTZ.SelectedIndex = 0;
+                }
             }
         }
 
@@ -821,13 +863,13 @@ namespace iSpyApplication
 
         private void CameraNewFrame(object sender, EventArgs e)
         {
-            AreaControl.LastFrame = CameraControl.Camera.LastFrame;
+            AreaControl.LastFrame = CameraControl.LastFrame;
             if (_filterForm != null)
-                _filterForm.ImageProcess = CameraControl.Camera.LastFrame;
+                _filterForm.ImageProcess = CameraControl.LastFrame;
 
             if (_ctw != null && _ctw.TripWireEditor1 != null)
             {
-                _ctw.TripWireEditor1.LastFrame = CameraControl.Camera.LastFrame;
+                _ctw.TripWireEditor1.LastFrame = CameraControl.LastFrame;
             }
         }
 
@@ -1079,6 +1121,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.ptzschedule.suspend = chkSuspendOnMovement.Checked;
                 CameraControl.Camobject.alerts.playsound = txtSound.Text;
                 CameraControl.Camobject.ftp.countermax = (int) numMaxCounter.Value;
+                CameraControl.Camobject.settings.ignoreaudio = chkIgnoreAudio.Checked;
                 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -1182,6 +1225,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.alerts.trigger = ((ListItem) ddlTrigger.SelectedItem).Value;
                 CameraControl.Camobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
+                CameraControl.SetVideoSize();
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
                 IsNew = false;
@@ -1268,8 +1312,7 @@ namespace iSpyApplication
             if (CameraControl.Camera != null && CameraControl.Camera.VideoSource is VideoCaptureDevice)
             {
                 btnAdvanced.Enabled = true;
-                btnCrossbar.Enabled = CameraControl.Camobject.settings.crossbarindex > -1 &&
-                                      ((VideoCaptureDevice) CameraControl.Camera.VideoSource).CheckIfCrossbarAvailable();
+                btnCrossbar.Enabled = ((VideoCaptureDevice) CameraControl.Camera.VideoSource).CheckIfCrossbarAvailable();
             }
         }
 
@@ -1437,11 +1480,7 @@ namespace iSpyApplication
 
         private void Button1Click1(object sender, EventArgs e)
         {
-            AreaControl.ClearRectangles();
-            if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
-            {
-                CameraControl.Camera.ClearMotionZones();
-            }
+            
         }
 
         private void DdlProcessorSelectedIndexChanged(object sender, EventArgs e)
@@ -1592,8 +1631,8 @@ namespace iSpyApplication
 
                 try
                 {
-                    if (CameraControl.Camera != null && CameraControl.Camera.LastFrame != null)
-                        myThumbnail = CameraControl.Camera.LastFrame;
+                    if (CameraControl.Camera != null && !CameraControl.LastFrameNull)
+                        myThumbnail = CameraControl.LastFrame;
                         //CameraControl.Camera.LastFrame.GetThumbnailImage(320, 240, myCallback, IntPtr.Zero);
                     else
                         myThumbnail =
@@ -1765,19 +1804,19 @@ namespace iSpyApplication
 
         private void DdlPtzSelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ddlPTZ.SelectedIndex > 0)
+            if (ddlPTZ.SelectedItem is ListItem)
             {
-                var entry = (PTZEntry) ddlPTZ.SelectedItem;
-                CameraControl.Camobject.ptz = entry.Id;
-                CameraControl.Camobject.ptzentryindex = entry.Index;
-            }
-            else
-            {
-                CameraControl.Camobject.ptz = -1;
+                var li = (ListItem) ddlPTZ.SelectedItem;
+                CameraControl.Camobject.ptz = Convert.ToInt32(li.Value);
                 CameraControl.Camobject.ptzentryindex = -1;
                 CameraControl.PTZ.PTZSettings = null;
             }
-           
+            else
+            {
+                var entry = (PTZEntry)ddlPTZ.SelectedItem;
+                CameraControl.Camobject.ptz = entry.Id;
+                CameraControl.Camobject.ptzentryindex = entry.Index;
+            }
 
             lbExtended.Items.Clear();
             ddlScheduleCommand.Items.Clear();
@@ -1805,6 +1844,35 @@ namespace iSpyApplication
                 if (_loaded)    
                     txtPTZURL.Text = ptz.CommandURL;
             }
+            if (CameraControl.Camobject.ptz==-3 || CameraControl.Camobject.ptz==-4)
+            {
+                foreach(string cmd in PTZController.PelcoCommands)
+                {
+                    lbExtended.Items.Add(new ListItem(cmd, cmd));
+                    ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
+                    ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
+                    if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
+                    {
+                        ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
+                    }
+                }
+                
+            }
+
+            if (CameraControl.Camobject.ptz == -5)
+            {
+                foreach (string cmd in CameraControl.PTZ.ONVIFPresets)
+                {
+                    lbExtended.Items.Add(new ListItem(cmd, cmd));
+                    ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
+                    ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
+                    if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
+                    {
+                        ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
+                    }
+                }
+
+            }
             if (ddlScheduleCommand.Items.Count > 0)
                 ddlScheduleCommand.SelectedIndex = 0;
 
@@ -1813,9 +1881,17 @@ namespace iSpyApplication
                 ddlHomeCommand.SelectedIndex = 0;
             }
 
-            pnlPTZControls.Enabled = CameraControl.Camobject.ptz > -1;   
+            pnlPTZControls.Enabled = CameraControl.Camobject.ptz != -1;   
             if (!pnlPTZControls.Enabled)
                 chkTrack.Checked = false;
+
+            bool bPelco = CameraControl.Camobject.ptz == -3 || CameraControl.Camobject.ptz == -4;
+            bool bConfig = CameraControl.Camobject.ptz >= 0;
+
+             txtPTZChannel.Visible =label91.Visible = txtPTZPassword.Visible = label42.Visible = txtPTZUsername.Visible =label22.Visible = txtPTZURL.Visible =label18.Visible = bConfig;
+
+            btnConfigurePelco.Visible = bPelco;
+
         }
 
         private void PnlPtzPaint(object sender, PaintEventArgs e)
@@ -1952,7 +2028,7 @@ namespace iSpyApplication
                 {
                     CameraControl.Camobject.settings.maskimage = txtMaskImage.Text;
                     if (CameraControl.Camera != null)
-                        CameraControl.Camera.Mask = Image.FromFile(txtMaskImage.Text);
+                        CameraControl.Camera.Mask = (Bitmap)Image.FromFile(txtMaskImage.Text);
                 }
                 catch
                 {
@@ -2073,82 +2149,91 @@ namespace iSpyApplication
 
         private void Button3Click3(object sender, EventArgs e)
         {
-            ConfigureSeconds cf;
-            switch (ddlAlertMode.SelectedIndex)
+            if (Helper.HasFeature(Enums.Features.Motion_Detection))
             {
-                case 0:
-                    cf = new ConfigureSeconds
-                             {
-                                 Seconds = CameraControl.Camobject.detector.movementinterval
-                             };
-                    cf.ShowDialog(this);
-                    if (cf.DialogResult == DialogResult.OK)
-                        CameraControl.Camobject.detector.movementinterval = cf.Seconds;
-                    cf.Dispose();
-                    break;
-                case 1:
-                    cf = new ConfigureSeconds
-                             {
-                                 Seconds = CameraControl.Camobject.detector.nomovementinterval
-                             };
-                    cf.ShowDialog(this);
-                    if (cf.DialogResult == DialogResult.OK)
-                        CameraControl.Camobject.detector.nomovementinterval = cf.Seconds;
-                    cf.Dispose();
-                    break;
-                case 2:
-                    var coc = new ConfigureObjectCount
-                    {
-                        Objects = CameraControl.Camobject.alerts.objectcountalert
-                    };
-                    coc.ShowDialog(this);
+                ConfigureSeconds cf;
+                switch (ddlAlertMode.SelectedIndex)
+                {
+                    case 0:
+                        cf = new ConfigureSeconds
+                                 {
+                                     Seconds = CameraControl.Camobject.detector.movementinterval
+                                 };
+                        cf.ShowDialog(this);
+                        if (cf.DialogResult == DialogResult.OK)
+                            CameraControl.Camobject.detector.movementintervalnew = cf.Seconds;
+                        cf.Dispose();
+                        return;
+                    case 1:
+                        cf = new ConfigureSeconds
+                                 {
+                                     Seconds = CameraControl.Camobject.detector.nomovementintervalnew
+                                 };
+                        cf.ShowDialog(this);
+                        if (cf.DialogResult == DialogResult.OK)
+                            CameraControl.Camobject.detector.nomovementintervalnew = cf.Seconds;
+                        cf.Dispose();
+                        return;
+                    case 2:
+                        var coc = new ConfigureObjectCount
+                                      {
+                                          Objects = CameraControl.Camobject.alerts.objectcountalert
+                                      };
+                        coc.ShowDialog(this);
 
-                    if (coc.DialogResult == DialogResult.OK)
-                        CameraControl.Camobject.alerts.objectcountalert = coc.Objects;
-                    coc.Dispose();
+                        if (coc.DialogResult == DialogResult.OK)
+                            CameraControl.Camobject.alerts.objectcountalert = coc.Objects;
+                        coc.Dispose();
+                        return;
+                }
+            }
+
+            if (ddlAlertMode.SelectedIndex == -1)
+                return;
+
+            switch (ddlAlertMode.SelectedItem.ToString())
+            {
+                case "Virtual Trip Wires":
+                    _ctw = new ConfigureTripWires();
+                    _ctw.TripWireEditor1.Init(CameraControl.Camobject.alerts.pluginconfig);
+                    _ctw.ShowDialog(this);
+                    CameraControl.Camobject.alerts.pluginconfig = _ctw.TripWireEditor1.Config;
+                    if (CameraControl.Camera != null && CameraControl.Camera.VideoSource is KinectStream)
+                    {
+                        ((KinectStream) CameraControl.Camera.VideoSource).InitTripWires(
+                            CameraControl.Camobject.alerts.pluginconfig);
+                    }
+                    _ctw.Dispose();
                     break;
                 default:
-                    switch (ddlAlertMode.SelectedItem.ToString())
+                    if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
                     {
-                        case  "Virtual Trip Wires":
-                            _ctw = new ConfigureTripWires();
-                            _ctw.TripWireEditor1.Init(CameraControl.Camobject.alerts.pluginconfig);
-                            _ctw.ShowDialog(this);
-                            CameraControl.Camobject.alerts.pluginconfig = _ctw.TripWireEditor1.Config;
-                            if (CameraControl.Camera!=null && CameraControl.Camera.VideoSource is KinectStream)
-                            {
-                                ((KinectStream) CameraControl.Camera.VideoSource).InitTripWires(
-                                    CameraControl.Camobject.alerts.pluginconfig);
-                            }
-                            _ctw.Dispose();
-                            break;
-                        default:
-                            if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
-                            {
-                                var o = CameraControl.Camera.Plugin.GetType();
-                                var config = (string)o.GetMethod("Configure").Invoke(CameraControl.Camera.Plugin, null);
+                        var o = CameraControl.Camera.Plugin.GetType();
+                        var config = (string) o.GetMethod("Configure").Invoke(CameraControl.Camera.Plugin, null);
 
-                                CameraControl.Camobject.alerts.pluginconfig = config;
-                            }
-                            else
-                            {
-                                MessageBox.Show(this, "You need to initialise the camera before you can configure the plugin.");
-                            }
-                            break;
+                        CameraControl.Camobject.alerts.pluginconfig = config;
                     }
-                    
-                    
+                    else
+                    {
+                        MessageBox.Show(this,
+                                        "You need to initialise the camera before you can configure the plugin.");
+                    }
                     break;
             }
+
+
         }        
 
         private void DdlAlertModeSelectedIndexChanged(object sender, EventArgs e)
         {
             string last = CameraControl.Camobject.alerts.mode;
-            flowLayoutPanel5.Enabled = ddlAlertMode.SelectedIndex > _alertmodes.Length-1;
+            flowLayoutPanel5.Enabled = Helper.HasFeature(Enums.Features.Motion_Detection);
+            if (flowLayoutPanel5.Enabled)
+                flowLayoutPanel5.Enabled = ddlAlertMode.SelectedIndex > _alertmodes.Length-1;
             if (!flowLayoutPanel5.Enabled)
                 rdoContinuous.Checked = true;
-            if (ddlAlertMode.SelectedIndex < _alertmodes.Length)
+
+            if (Helper.HasFeature(Enums.Features.Motion_Detection) && ddlAlertMode.SelectedIndex < _alertmodes.Length)
             {
                 CameraControl.Camobject.alerts.mode = _alertmodes[ddlAlertMode.SelectedIndex];
                 if (ddlAlertMode.SelectedIndex==2)
@@ -2160,6 +2245,7 @@ namespace iSpyApplication
             {
                 CameraControl.Camobject.alerts.mode = ddlAlertMode.SelectedItem.ToString();
             }
+
             if (last != ddlAlertMode.SelectedItem.ToString())
             {
                 if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
@@ -2300,7 +2386,7 @@ namespace iSpyApplication
 
         private bool ConfigFilter()
         {
-            _filterForm = new HSLFilteringForm(CameraControl.Camobject.detector.colourprocessing) { ImageProcess = CameraControl.Camera==null?null: CameraControl.Camera.LastFrame };
+            _filterForm = new HSLFilteringForm(CameraControl.Camobject.detector.colourprocessing) { ImageProcess = CameraControl.Camera==null?null: CameraControl.LastFrame };
             _filterForm.ShowDialog(this);
             if (_filterForm.DialogResult == DialogResult.OK)
             {
@@ -2326,30 +2412,30 @@ namespace iSpyApplication
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string url = MainForm.Website+"/userguide-camera-settings.aspx";
-            switch (tcCamera.SelectedIndex)
+            switch (tcCamera.SelectedTab.Name)
             {
-                case 0:
+                case "tabPage1":
                     url=MainForm.Website+"/userguide-camera-settings.aspx";
                     break;
-                case 1:
+                case "tabPage3":
                     url = MainForm.Website+"/userguide-motion-detection.aspx";
                     break;
-                case 2:
+                case "tabPage2":
                     url = MainForm.Website+"/userguide-alerts.aspx";
                     break;
-                case 3:
+                case "tabPage4":
                     url = MainForm.Website+"/userguide-recording.aspx";
                     break;
-                case 4:
+                case "tabPage8":
                     url = MainForm.Website+"/userguide-ptz.aspx";
                     break;
-                case 5:
+                case "tabPage7":
                     url = MainForm.Website+"/userguide-ftp.aspx";
                     break;
-                case 6:
+                case "tabPage9":
                     url = MainForm.Website+"/userguide-youtube.aspx";
                     break;
-                case 7:
+                case "tabPage5":
                     url = MainForm.Website+"/userguide-scheduling.aspx";
                     break;
             }
@@ -2467,11 +2553,11 @@ namespace iSpyApplication
             LoadPTZs();
         }
 
-        private void chkCRF_CheckedChanged(object sender, EventArgs e)
-        {
-            CameraControl.Camobject.recorder.crf = chkCRF.Checked;
-            tbQuality.Enabled = !chkCRF.Checked;
-        }
+        //private void chkCRF_CheckedChanged(object sender, EventArgs e)
+        //{
+        //    CameraControl.Camobject.recorder.crf = chkCRF.Checked;
+        //    tbQuality.Enabled = !chkCRF.Checked;
+        //}
 
         private void txtBuffer_ValueChanged(object sender, EventArgs e)
         {
@@ -2503,16 +2589,16 @@ namespace iSpyApplication
 
         private void ddlProfile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (ddlProfile.SelectedIndex > 2)
-            {
-                chkCRF.Enabled = true;
-                chkCRF.Checked = false;
-            }
-            else
-            {
-                chkCRF.Enabled = false;
-                chkCRF.Checked = true;
-            }
+            //if (ddlProfile.SelectedIndex > 2)
+            //{
+            //    chkCRF.Enabled = true;
+            //    chkCRF.Checked = false;
+            //}
+            //else
+            //{
+            //    chkCRF.Enabled = false;
+            //    chkCRF.Checked = true;
+            //}
         }
 
         private void linkLabel12_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -2558,6 +2644,8 @@ namespace iSpyApplication
                 {
                     lblMicSource.Text = m.name;
                     m.settings.buffer = CameraControl.Camobject.recorder.bufferseconds;
+                    CameraControl.SetVolumeLevelLocation();
+                    chkIgnoreAudio.Checked = false;
                 }
             }
             else
@@ -2667,6 +2755,55 @@ namespace iSpyApplication
 
         private void label81_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void chkIgnoreAudio_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkIgnoreAudio.Checked)
+            {
+                if (CameraControl.VolumeControl!=null)
+                {
+                   ((MainForm)Owner).RemoveMicrophone(CameraControl.VolumeControl, false);
+                }
+            }
+        }
+
+        private void linkLabel15_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            AreaControl.ClearRectangles();
+            if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
+            {
+                CameraControl.Camera.ClearMotionZones();
+            }
+            AreaControl.Invalidate();
+        }
+
+        private void txtPTZChannel_TextChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void txtPTZChannel_Leave(object sender, EventArgs e)
+        {
+            CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
+        }
+
+        private void btnConfigurePelco_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrEmpty(CameraControl.Camobject.settings.ptzpelcoconfig))
+            {
+                //default
+                CameraControl.Camobject.settings.ptzpelcoconfig = "COM1|9600|8|One|Odd|1";
+            }
+            var pc = new PelcoConfig { Config = CameraControl.Camobject.settings.ptzpelcoconfig};
+            if (pc.ShowDialog(this) == DialogResult.OK)
+            {
+                CameraControl.Camobject.settings.ptzpelcoconfig = pc.Config;
+                CameraControl.PTZ.ConfigurePelco();
+            }
+
+            pc.Dispose();
 
         }
     }

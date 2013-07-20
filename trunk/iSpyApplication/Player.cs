@@ -2,68 +2,112 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using AForge.Imaging;
 using Declarations;
 using Declarations.Events;
-using Declarations.Media;
-using Declarations.Players;
-using Implementation;
+using NAudio.Wave;
+using iSpyApplication.Controls;
+using iSpyApplication.Video;
 
 namespace iSpyApplication
 {
     public partial class Player : Form
     {
-        readonly IMediaPlayerFactory _mFactory;
-        readonly IDiskPlayer _mPlayer;
-        IMedia _mMedia;
+        private FFMPEGStream _mStream;
+        public DirectSoundOut WaveOut;
+        private readonly string _titleText;
 
-        private bool _needsSize = true;
         public int ObjectID = -1;
+
+        private readonly FolderBrowserDialog _fbdSaveTo = new FolderBrowserDialog()
+        {
+            ShowNewFolderButton = true,
+            Description = "Select a folder to copy the file to"
+        };
 
         private void RenderResources()
         {
-            btnPlayPause.Text = LocRm.GetString("Pause");
-            btnStop.Text = LocRm.GetString("StopPlayer");
-            linkLabel1.Text = LocRm.GetString("OpenLocalFolder");
+            openFolderToolStripMenuItem.Text = LocRm.GetString("OpenLocalFolder");
+            saveAsToolStripMenuItem.Text = LocRm.GetString("SaveAs");
         }
 
-        public Player()
+         public Player(string titleText)
         {
+            
             InitializeComponent();
-
-            _mFactory = new MediaPlayerFactory();
-            _mPlayer = _mFactory.CreatePlayer<IDiskPlayer>();
-
-            _mPlayer.Events.PlayerPositionChanged += EventsPlayerPositionChanged;
-            _mPlayer.Events.TimeChanged += EventsTimeChanged;
-            _mPlayer.Events.MediaEnded += EventsMediaEnded;
-            _mPlayer.Events.PlayerStopped += EventsPlayerStopped;
-
-            _mPlayer.WindowHandle = pnlMovie.Handle;
-            trackBar2.Value = _mPlayer.Volume;
             RenderResources();
+             _titleText = titleText;
 
         }
 
         private void Player_Load(object sender, EventArgs e)
         {
-            UISync.Init(this);
-            _mPlayer.MouseInputEnabled = true;
-            vNav.Seek += vNav_Seek;
+            videoPlayback1.Seek += VNavSeek;
+            videoPlayback1.VolumeChanged += videoPlayback1_VolumeChanged;
+            videoPlayback1.SpeedChanged += VideoPlayback1SpeedChanged;
+            videoPlayback1.PlayPause += videoPlayback1_PlayPause;
+            Text = _titleText;
         }
 
-        void vNav_Seek(object sender, float percent)
+        void videoPlayback1_PlayPause(object sender)
         {
-            if (!_mPlayer.IsPlaying)
+            if (_mStream!=null)
             {
-                if (_mPlayer.PlayerWillPlay)
-                    _mPlayer.Play();
+                if (_mStream.IsRunning)
+                {
+                    if (_mStream.IsPaused)
+                    {
+                        _mStream.Play();
+                        videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Playing;
+                    }
+                    else
+                    {
+                        _mStream.Pause();
+                        videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Paused;
+                    }
+                }
                 else
-                    Play(_filename);
+                {
+                    _mStream.Start();
+                    _mStream.Play();
+                    videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Playing;
+                }
             }
+        }
 
-            _mPlayer.Position = percent / 100;
+        void VideoPlayback1SpeedChanged(object sender, int percent)
+        {
+            if (_mStream != null)
+            {
+                _mStream.PlaybackRate = Convert.ToDouble((percent*2))/100.0d;
+            }
+        }
+
+        void videoPlayback1_VolumeChanged(object sender, int percent)
+        {
+            if (WaveOut != null)
+            {
+                _mStream.VolumeProvider.Volume = (float)(Convert.ToDouble(percent*2) / 100.0);
+            }
+        }
+
+        void VNavSeek(object sender, float percent)
+        {
+            if (!_mStream.IsRunning)
+            {
+                _mStream.Start();
+                _mStream.Play();
+            }
+            if (_mStream.IsPaused)
+            {
+                _mStream.Play();
+            }
+            _mStream.Seek(percent / 100);
+
+            videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Playing;
         }
 
         private string _filename = "";
@@ -75,159 +119,147 @@ namespace iSpyApplication
                 Invoke(new PlayDelegate(Play), filename);
             else
             {
-                _needsSize = _filename != filename;
-                _filename = filename;
-                _mMedia = _mFactory.CreateMedia<IMedia>(filename);
-                _mMedia.Events.DurationChanged += EventsDurationChanged;
-                _mMedia.Events.StateChanged += EventsStateChanged;
-                _mMedia.Events.ParsedChanged += Events_ParsedChanged;
-                _mPlayer.Open(_mMedia);
-                _mMedia.Parse(true);
+                if (_mStream != null)
+                {
+                    _mStream.Stop();
+                }
 
-                _mPlayer.Play();
-                
+                if (WaveOut != null)
+                {
+                    WaveOut.Stop();
+                    WaveOut.Dispose();
+                    WaveOut = null;
+                }
+
+                _mStream = new FFMPEGStream(filename);
+                _mStream.NewFrame += MStreamNewFrame;
+                _mStream.DataAvailable += _mStream_DataAvailable;
+                _mStream.LevelChanged += _mStream_LevelChanged;
+                _mStream.PlayingFinished += _mStream_PlayingFinished;
+                _mStream.RecordingFormat = null;
+
+                _firstFrame = true;
+
+                _filename = filename;
+                _mStream.Start();
+                _mStream.Play();
+
                 string[] parts = filename.Split('\\');
                 string fn = parts[parts.Length - 1];
                 FilesFile ff =
                     ((MainForm) Owner).GetCameraWindow(ObjectID).FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
-                if (ff!=null)
-                    vNav.Render(ff);
+                videoPlayback1.Init(ff);
+                
+
+                videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Playing;
+                
+                
             }
         }
-        void EventsPlayerStopped(object sender, EventArgs e)
+
+        void _mStream_PlayingFinished(object sender, AForge.Video.ReasonToFinishPlaying reason)
         {
-            UISync.Execute(InitControls);
+            videoPlayback1.CurrentState = VideoPlayback.PlaybackState.Stopped;
         }
 
-        void EventsMediaEnded(object sender, EventArgs e)
+        void _mStream_LevelChanged(object sender, Audio.LevelChangedEventArgs eventArgs)
         {
-            UISync.Execute(InitControls);
+            //throw new NotImplementedException();
         }
 
-        private void InitControls()
+        void _mStream_DataAvailable(object sender, Audio.DataAvailableEventArgs eventArgs)
         {
-            lblTime.Text = "00:00:00";
-            lblDuration.Text = "00:00:00";
+            //throw new NotImplementedException();
         }
 
-        void EventsTimeChanged(object sender, MediaPlayerTimeChanged e)
-        {
-            UISync.Execute(() => lblTime.Text = TimeSpan.FromMilliseconds(e.NewTime).ToString().Substring(0, 8));
-        }
 
-        void EventsPlayerPositionChanged(object sender, MediaPlayerPositionChanged e)
-        {
-            var newpos = (int) (e.NewPosition*100);
-            if (newpos<0)
-                newpos = 0;
-            if (newpos>100)
-                newpos = 100;
-            UISync.Execute(() => vNav.Value = newpos);
-            if (_needsSize)
+        private bool _firstFrame = true;
+        
+        void MStreamNewFrame(object sender, AForge.Video.NewFrameEventArgs eventArgs)
+        {  
+            if (eventArgs.Frame != null)
             {
-                Size sz = _mPlayer.GetVideoSize(0);
-                if (sz.Width > 0)
+                
+                UnmanagedImage umi = UnmanagedImage.FromManagedImage(eventArgs.Frame);
+                videoPlayback1.LastFrame = umi.ToManagedImage();
+
+                
+            }
+
+            if (_firstFrame)
+            {
+                videoPlayback1.ResetActivtyGraph();
+                videoPlayback1.Duration =  TimeSpan.FromMilliseconds(_mStream.Duration).ToString().Substring(0, 8);
+                
+                _firstFrame = false;
+
+                if (_mStream.RecordingFormat != null)
                 {
-                    if (sz.Width < 320)
-                        sz.Width = 320;
-                    if (sz.Height < 240)
-                        sz.Height = 240;
+                    _mStream.Listening = true;
+                    _mStream.WaveOutProvider.BufferLength = _mStream.WaveOutProvider.WaveFormat.AverageBytesPerSecond*2;
+                    _mStream.VolumeProvider = new VolumeWaveProvider16(_mStream.WaveOutProvider);
+                    WaveOut = new DirectSoundOut(100);
+                    WaveOut.Init(_mStream.VolumeProvider);
+                    WaveOut.Play();
 
-                    if (Width != sz.Width)
-                        UISync.Execute(() => Width = sz.Width);
-                    if (Height != sz.Height + tableLayoutPanel1.Height)
-                        UISync.Execute(() => Height = sz.Height + tableLayoutPanel1.Height);
-                    _needsSize = false;
                 }
+
             }
+            
+            videoPlayback1.Time = TimeSpan.FromMilliseconds(_mStream.Time).ToString().Substring(0, 8);
+
+            var pc = Convert.ToDouble(_mStream.Time)/_mStream.Duration;
+
+            var newpos = pc * 100d;
+            if (newpos < 0)
+                newpos = 0;
+            if (newpos > 100)
+                newpos = 100;
+            videoPlayback1.Value = newpos;
         }
 
-
-        void EventsStateChanged(object sender, MediaStateChange e)
-        {
-            UISync.Execute(() => label1.Text = e.NewState.ToString());
-            switch (e.NewState)
-            {
-                case MediaState.Playing:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("Pause"));
-                    break;
-                default:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("Play"));
-                    break;
-            }
-        }
-
-        void EventsDurationChanged(object sender, MediaDurationChange e)
-        {
-            UISync.Execute(() => lblDuration.Text = TimeSpan.FromMilliseconds(e.NewDuration).ToString().Substring(0, 8));
-        }
-
-
-        void Events_ParsedChanged(object sender, MediaParseChange e)
-        {
-            Console.WriteLine(e.Parsed);
-        }
-
-        private void trackBar2_Scroll(object sender, EventArgs e)
-        {
-            _mPlayer.Volume = trackBar2.Value;
-        }
-
-        private void button4_Click(object sender, EventArgs e)
-        {
-            _mPlayer.Stop();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (_mPlayer.IsPlaying)
-            {
-                _mPlayer.Pause();
-            }
-            else
-            {
-                if (_mPlayer.PlayerWillPlay)
-                    _mPlayer.Play();
-                else
-                    Play(_filename);
-            }
-        }
-
-        private class UISync
-        {
-            private static ISynchronizeInvoke Sync;
-
-            public static void Init(ISynchronizeInvoke sync)
-            {
-                Sync = sync;
-            }
-
-            public static void Execute(Action action)
-            {
-                try {Sync.BeginInvoke(action, null);}
-                catch{}
-            }
-        }
+        
 
         private void Player_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try {_mPlayer.Stop();} catch
+            try {_mStream.Stop();} catch
             {
             }
-            _mFactory.Dispose();
-            _mMedia.Dispose();
-            _mPlayer.Dispose();
+
+            if (WaveOut != null)
+            {
+                WaveOut.Stop();
+                WaveOut.Dispose();
+                WaveOut = null;
+            }
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void openFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string argument = @"/select, " + _filename;
             Process.Start("explorer.exe", argument);
         }
 
-        private void tbSpeed_Scroll(object sender, EventArgs e)
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _mPlayer.PlaybackRate = ((float) tbSpeed.Value)/10;
+            try
+            {
+                var fi = new FileInfo(_filename);
+
+                if (_fbdSaveTo.ShowDialog(this) == DialogResult.OK)
+                {
+                    File.Copy(_filename, _fbdSaveTo.SelectedPath + @"\" + fi.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }

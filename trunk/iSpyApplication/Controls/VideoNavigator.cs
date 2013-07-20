@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
     public partial class VideoNavigator : UserControl
     {
-        private bool _mouseDown;
+        private bool _navTimeline;
         private FilesFile _ff;
         public event SeekEventHandler Seek;
         public delegate void SeekEventHandler(object sender, float percent);
@@ -25,6 +26,7 @@ namespace iSpyApplication.Controls
         }
 
         private int _value;
+        private int _mouseX;
         public int Value
         {
             get { return _value; }
@@ -43,81 +45,151 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
 
             if (_ff != null)
-            {
-                var datapoints = _ff.AlertData.Split(',');
-                if (datapoints.Length>0)
-                {
-                    var pxStep = ((float)Width)/datapoints.Length;
-                    float cx = 0;
-                    var pAlarm = new Pen(Color.Red);
-                    var pOk = new Pen(Color.Black);
-                    var trigger = (float) _ff.TriggerLevel;
-                    pe.Graphics.Clear(Color.White);
-                    var h = (float) Height;
-                    for(int i=0;i<datapoints.Length;i++)
-                    {
-                        float d;
-                        if (float.TryParse(datapoints[i], out d))
-                        {
-                            if (d > trigger)
-                            {
-                                pe.Graphics.DrawLine(pAlarm, cx, h, cx, h - (d * (h / 100)));
-                            }
-                            else
-                                pe.Graphics.DrawLine(pOk, cx, h, cx, h - (d * (h / 100)));
-                        }
-                        cx += pxStep;
-                    }
-                    pe.Graphics.DrawLine(pOk,0,h/2,Width,h/2);
+            { 
+                //draw scrolling graph
+                var pxCursor = ((float)Value / 100) * Width;
+                if (_navTimeline)
+                    pxCursor = _mouseX;
 
-                    var pxCursor = ((float) Value/100)*Width;
-                    Brush bPosition = new SolidBrush(Color.Black);
-                    pe.Graphics.FillEllipse(bPosition,pxCursor-4,h/2-4,8,8);
-                    
-                    pOk.Dispose();
-                    pAlarm.Dispose();
-                    bPosition.Dispose();
+                Graphics g = pe.Graphics;
+                int w = Width;
+                int xoff = 0;
+                if (ActivityGraph.Width > w)
+                {
+                    w = ActivityGraph.Width;
+                    double val = ((float)Value / 100d);
+                    if (_navTimeline)
+                        val = Convert.ToDouble(pxCursor) / Width;
+                    xoff = 0 - Convert.ToInt32(Convert.ToDouble(ActivityGraph.Width - Width) * val);
                 }
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(ActivityGraph, xoff, 0, w, _timelineHeight);
+
+
+                Brush bPosition = new SolidBrush(Color.Black);
+
+
+                int x2 = (int)pxCursor - 4;
+                int y2 = Height - _timelineHeight / 2;
+                var navPoints = new[]
+                    {
+                        new Point(x2-4,y2-6), 
+                        new Point(x2+4,y2),
+                        new Point(x2-4,y2+6)
+                    };
+
+                g.FillPolygon(Brushes.White, navPoints);
+                g.DrawPolygon(Pens.Black, navPoints);
+
+
+                bPosition.Dispose();
             }
 
+        }
+        
+        public void Init(FilesFile fileData)
+        {
+            _ff = fileData ?? new FilesFile { AlertData = "0" };
+
+            _datapoints = _ff.AlertData.Split(',');
+            _timelineHeight = Height;
+            Invalidate();
+        }
+
+
+        private string[] _datapoints = null;
+        private int _timelineHeight = 30;
+        readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+        
+        private Bitmap _activityGraph;
+        private Bitmap ActivityGraph
+        {
+            get
+            {
+                if (_activityGraph == null)
+                {
+                    if (_datapoints == null)
+                    {
+                        _activityGraph = new Bitmap(320, _timelineHeight);
+                    }
+                    else
+                    {
+                        _activityGraph = new Bitmap(_datapoints.Length, _timelineHeight);
+                        Graphics gGraph = Graphics.FromImage(_activityGraph);
+                        gGraph.FillRectangle(_bTimeLine, 0, 0, _activityGraph.Width, _activityGraph.Height);
+
+                        if (_ff != null && _datapoints.Length > 0)
+                        {
+                            var pAlarm = new Pen(Color.Red);
+                            var pOk = new Pen(Color.Black);
+                            var trigger = (float)_ff.TriggerLevel;
+                            var triggermax = (float)100;
+                            if (_ff.TriggerLevelMaxSpecified)
+                            {
+                                triggermax = (float)_ff.TriggerLevelMax;
+                            }
+
+
+                            for (int i = 0; i < _datapoints.Length; i++)
+                            {
+                                float d;
+                                if (float.TryParse(_datapoints[i], out d))
+                                {
+                                    if (d >= trigger && d <= triggermax)
+                                    {
+                                        gGraph.DrawLine(pAlarm, i, _timelineHeight, i,
+                                                      _timelineHeight - Convert.ToInt32(d * (_timelineHeight / 100d)));
+                                    }
+                                    else
+                                        gGraph.DrawLine(pOk, i, _timelineHeight, i, _timelineHeight - Convert.ToInt32(d * (_timelineHeight / 100d)));
+                                }
+
+                            }
+                            gGraph.DrawLine(pOk, 0, _timelineHeight / 2, _activityGraph.Width, _timelineHeight / 2);
+                            pOk.Dispose();
+                            pAlarm.Dispose();
+                        }
+                        gGraph.Dispose();
+                    }
+                }
+                return _activityGraph;
+            }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (_mouseDown)
+            base.OnMouseMove(e);
+            Cursor = Cursors.Default;
+            if (e.Location.Y > Height - _timelineHeight)
             {
-                var v = (float)e.Location.X;
-                var val = (v/Width)*100;
-                if (Seek != null) Seek(this, val);
+                Cursor = Cursors.Hand;
             }
+
+            _mouseX = e.Location.X;
+            if (_mouseX < 0)
+                _mouseX = 0;
+            if (_mouseX > Width)
+                _mouseX = Width;
+            Invalidate();
         }
 
-        
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            base.OnMouseDown(e);
+            _navTimeline = true;
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            _navTimeline = false;
             if (e.Button == MouseButtons.Left)
             {
-                _mouseDown = true;
                 var v = (float)e.Location.X;
                 var val = (v / Width) * 100;
                 if (Seek != null) Seek(this, val);
             }
         }
 
-        protected override void OnMouseUp(MouseEventArgs e)
-        {
-            base.OnMouseUp(e);
-            if (e.Button == MouseButtons.Left)
-            {
-                _mouseDown = false;
-            }
-        }
-
-        public void Render(FilesFile FileData)
-        {
-            _ff = FileData;
-            Invalidate();
-        }
     }
 }

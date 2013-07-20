@@ -61,7 +61,6 @@ namespace iSpyApplication
         private static void Upload()
         {           
             UserState us = UploadFiles.Dequeue();
-            //Console.WriteLine("youtube: upload " + us.AbsoluteFilePath);
 
             var settings = new YouTubeRequestSettings("iSpy", MainForm.Conf.YouTubeKey, MainForm.Conf.YouTubeUsername, MainForm.Conf.YouTubePassword);
             var request = new YouTubeRequest(settings);
@@ -122,7 +121,6 @@ namespace iSpyApplication
             }
             if (success)
             {
-                //Console.WriteLine("Uploaded: http://www.youtube.com/watch?v=" + vCreated.VideoId);
 
                 string msg = "YouTube video uploaded: <a href=\"http://www.youtube.com/watch?v=" + vCreated.VideoId + "\">" +
                                 vCreated.VideoId + "</a>";

@@ -37,7 +37,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <PublishUrl>ftp://216.119.95.247/hosting/ispy/</PublishUrl>
+    <PublishUrl>
+    </PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -75,7 +76,7 @@
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -97,7 +98,7 @@
     <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
@@ -156,6 +157,9 @@
   <PropertyGroup>
     <ManifestKeyFile>iSpyApplication_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge, Version=2.2.3.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -180,6 +184,10 @@
     <Reference Include="AForge.Video">
       <HintPath>DLLS\AForge.Video.dll</HintPath>
     </Reference>
+    <Reference Include="AForge.Video.DirectShow, Version=2.5.9.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Video.DirectShow.dll</HintPath>
+    </Reference>
     <Reference Include="AForge.Video.Ximea, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5cdcd64958730f99, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
@@ -192,6 +200,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\Declarations.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Google.GData.Client, Version=1.8.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\Google.GData.Client.dll</HintPath>
@@ -221,12 +230,20 @@
       <HintPath>..\..\..\Program Files\Microsoft SDKs\Kinect\v1.5\Assemblies\Microsoft.Kinect.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NAudio, Version=1.5.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLS\NAudio.dll</HintPath>
-    </Reference>
     <Reference Include="NSpeex">
       <HintPath>DLLS\NSpeex.dll</HintPath>
+    </Reference>
+    <Reference Include="onvif.discovery">
+      <HintPath>Onvif\onvif.discovery.dll</HintPath>
+    </Reference>
+    <Reference Include="onvif.services">
+      <HintPath>Onvif\onvif.services.dll</HintPath>
+    </Reference>
+    <Reference Include="onvif.session">
+      <HintPath>Onvif\onvif.session.dll</HintPath>
+    </Reference>
+    <Reference Include="onvif.utils">
+      <HintPath>Onvif\onvif.utils.dll</HintPath>
     </Reference>
     <Reference Include="Renderers">
       <HintPath>DLLS\Renderers.dll</HintPath>
@@ -250,6 +267,15 @@
     </Reference>
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>Onvif\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>Onvif\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>Onvif\System.Reactive.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Speech" />
     <Reference Include="System.Web.Services" />
@@ -259,6 +285,15 @@
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
+    </Reference>
+    <Reference Include="utils.common">
+      <HintPath>Onvif\utils.common.dll</HintPath>
+    </Reference>
+    <Reference Include="utils.diagnostics">
+      <HintPath>Onvif\utils.diagnostics.dll</HintPath>
+    </Reference>
+    <Reference Include="utils.fsharp">
+      <HintPath>Onvif\utils.fsharp.dll</HintPath>
     </Reference>
     <Reference Include="Windows7ToolStripRenderer">
       <HintPath>DLLS\Windows7ToolStripRenderer.dll</HintPath>
@@ -280,6 +315,11 @@
     <Compile Include="Audio\SpeechStreamer.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
+    <Compile Include="Audio\VolumeWaveProvider16.cs" />
+    <Compile Include="Controls\FlowLayoutPanelTransparent.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\GraphicsHelper.cs" />
     <Compile Include="Controls\jaxis.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -291,6 +331,28 @@
     </Compile>
     <Compile Include="Controls\jbutton.Designer.cs">
       <DependentUpon>jbutton.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MediaPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\MediaPanel.Designer.cs">
+      <DependentUpon>MediaPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VideoNavigator.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\VideoNavigator.Designer.cs">
+      <DependentUpon>VideoNavigator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VideoPlayback.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DeviceDescriptionHolder.cs" />
+    <Compile Include="Features.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Features.Designer.cs">
+      <DependentUpon>Features.cs</DependentUpon>
     </Compile>
     <Compile Include="Joystick\JoystickDevice.cs" />
     <Compile Include="Kinect\ConfigureTripWires.cs">
@@ -424,6 +486,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="LayoutItem.cs" />
+    <Compile Include="LocalServer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MainForm_Commands.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -451,8 +516,38 @@
     </Compile>
     <Compile Include="MP3Stream\WaveWriter.cs" />
     <Compile Include="MP3Stream\WriterConfig.cs" />
+    <Compile Include="Pager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Pager.Designer.cs">
+      <DependentUpon>Pager.cs</DependentUpon>
+    </Compile>
     <Compile Include="Pelco\D.cs" />
     <Compile Include="Pelco\P.cs" />
+    <Compile Include="Pelco\PelcoConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Pelco\PelcoConfig.Designer.cs">
+      <DependentUpon>PelcoConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Player.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Player.Designer.cs">
+      <DependentUpon>Player.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PlayerVLC.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PlayerVLC.Designer.cs">
+      <DependentUpon>PlayerVLC.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Prompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Prompt.Designer.cs">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </Compile>
     <Compile Include="PTZController.cs" />
     <Compile Include="PTZTool.cs">
       <SubType>Form</SubType>
@@ -466,13 +561,22 @@
     <Compile Include="ShareCamera.Designer.cs">
       <DependentUpon>ShareCamera.cs</DependentUpon>
     </Compile>
+    <Compile Include="VideoSourceAdvanced.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VideoSourceAdvanced.Designer.cs">
+      <DependentUpon>VideoSourceAdvanced.cs</DependentUpon>
+    </Compile>
     <Compile Include="Video\AlertEvents.cs" />
     <Compile Include="Video\ByteArrayUtils.cs" />
+    <Compile Include="Video\FFMPEGStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Video\ISupportsAudio.cs" />
     <Compile Include="Video\JPEGStream2.cs" />
     <Compile Include="Video\KinectNetworkStream.cs" />
     <Compile Include="Video\KinectStream.cs" />
     <Compile Include="Video\MJPEGStream2.cs" />
-    <Compile Include="Video\FFMPEGStream.cs" />
     <Compile Include="Video\ScreenArea.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -512,23 +616,11 @@
     <Compile Include="NetworkTroubleshooter.Designer.cs">
       <DependentUpon>NetworkTroubleshooter.cs</DependentUpon>
     </Compile>
-    <Compile Include="Player.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Player.Designer.cs">
-      <DependentUpon>Player.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\PreviewBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="QueueWithEvents.cs" />
     <Compile Include="Screensaver.cs" />
-    <Compile Include="Controls\VideoNavigator.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\VideoNavigator.Designer.cs">
-      <DependentUpon>VideoNavigator.cs</DependentUpon>
-    </Compile>
     <Compile Include="ViewController.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -585,12 +677,6 @@
     <Compile Include="extensions.cs" />
     <Compile Include="ftp.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="InstallerClass.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="LocalServer.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="LayoutEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -690,33 +776,12 @@
       <DependentUpon>Sources.xsd</DependentUpon>
     </Compile>
     <Compile Include="YouTubeUploader.cs" />
-    <Content Include="avcodec-53.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="avdevice-53.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="avfilter-2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="avformat-53.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="avutil-51.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="backgrounds\demo_mask.png" />
     <Content Include="backgrounds\FloorPlan_House.jpg" />
     <Content Include="backgrounds\FloorPlan_House2.jpg" />
     <Content Include="backgrounds\FloorPlan_Planet.jpg" />
     <None Include="chk.png" />
     <Content Include="Copyright.txt" />
-    <Content Include="lame_enc.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="postproc-51.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Resources\phyxius.jpg" />
     <None Include="Resources\bigdipper.jpg" />
     <None Include="Resources\ALLNET.jpg" />
@@ -724,18 +789,24 @@
     <None Include="Resources\cam_offline.png" />
     <None Include="Resources\cam_removed.png" />
     <None Include="Resources\EOSLogo.png" />
+    <None Include="Resources\checkbox_off.png" />
+    <None Include="Resources\onvif.png" />
+    <Content Include="Onvif\onvif.discovery.dll" />
+    <Content Include="Onvif\onvif.services.dll" />
+    <Content Include="Onvif\onvif.session.dll" />
+    <Content Include="Onvif\onvif.utils.dll" />
+    <Content Include="Onvif\System.Reactive.Core.dll" />
+    <Content Include="Onvif\System.Reactive.Interfaces.dll" />
+    <Content Include="Onvif\System.Reactive.Linq.dll" />
+    <Content Include="Onvif\utils.common.dll" />
+    <Content Include="Onvif\utils.diagnostics.dll" />
+    <Content Include="Onvif\utils.fsharp.dll" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />
     <Content Include="sounds\intruder.mp3" />
     <Content Include="sounds\rottweiler_bark.wav" />
     <Content Include="sounds\spanielgrowlbark.wav" />
-    <Content Include="swresample-0.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="swscale-2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="lgpl-3.0.txt" />
     <Content Include="license.txt" />
     <Content Include="objects.xml" />
@@ -877,6 +948,18 @@
     <EmbeddedResource Include="Controls\jbutton.resx">
       <DependentUpon>jbutton.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MediaPanel.resx">
+      <DependentUpon>MediaPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VideoNavigator.resx">
+      <DependentUpon>VideoNavigator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\VideoPlayback.resx">
+      <DependentUpon>VideoPlayback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Features.resx">
+      <DependentUpon>Features.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Kinect\ConfigureTripWires.resx">
       <DependentUpon>ConfigureTripWires.cs</DependentUpon>
     </EmbeddedResource>
@@ -932,11 +1015,29 @@
     <EmbeddedResource Include="Kinect\EditDepthLine.resx">
       <DependentUpon>EditDepthLine.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Pager.resx">
+      <DependentUpon>Pager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pelco\PelcoConfig.resx">
+      <DependentUpon>PelcoConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Player.resx">
+      <DependentUpon>Player.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PlayerVLC.resx">
+      <DependentUpon>PlayerVLC.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Prompt.resx">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PTZTool.resx">
       <DependentUpon>PTZTool.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ShareCamera.resx">
       <DependentUpon>ShareCamera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VideoSourceAdvanced.resx">
+      <DependentUpon>VideoSourceAdvanced.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Video\ScreenArea.resx">
       <DependentUpon>ScreenArea.cs</DependentUpon>
@@ -974,14 +1075,8 @@
       <DependentUpon>MicrophoneSource.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Player.resx">
-      <DependentUpon>Player.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="RemoteCommands.resx">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\VideoNavigator.resx">
-      <DependentUpon>VideoNavigator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewController.resx">
       <DependentUpon>ViewController.cs</DependentUpon>
@@ -1168,6 +1263,8 @@
   <ItemGroup>
     <Folder Include="bin\x86\" />
     <Folder Include="DLLS\" />
+    <Folder Include="platform\x64\" />
+    <Folder Include="platform\x86\" />
     <Folder Include="WebServerRoot\Media\Audio\" />
     <Folder Include="WebServerRoot\Media\Video\" />
   </ItemGroup>
@@ -1175,11 +1272,11 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
-      <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
-      <Name>Video.DirectShow</Name>
+    <ProjectReference Include="..\..\NAudio\NAudio\NAudio.csproj">
+      <Project>{DA4F02E3-0B5E-42CD-B8D9-5583FA51D66E}</Project>
+      <Name>NAudio</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Video.FFMPEG\Video.FFMPEG.vcxproj">
+    <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
       <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
       <Name>Video.FFMPEG</Name>
     </ProjectReference>
@@ -1206,8 +1303,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>call "$(SolutionDir)signing\iSpyApplication.bat"</PostBuildEvent>
+    <PreBuildEvent>xcopy "D:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(ProjectDir)" /Y</PreBuildEvent>
+    <PostBuildEvent>call "$(SolutionDir)signing\iSpyApplication.bat"
+xcopy "$(ProjectDir)\platform\x86\*.*" "$(TargetDir)" /Y
+xcopy "D:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -8,6 +8,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 using AForge;
@@ -77,12 +78,12 @@ namespace iSpyApplication
             get { 
                 string ret = "";
                 ret += _hue.Min + "|" + _hue.Max + "|" + _fillH+"|";
-                ret += String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Min)+"|";
-                ret += String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Max) + "|";
-                ret += String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", _fillS) + "|";
-                ret += String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", _luminance.Min) + "|";
-                ret += String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", +_luminance.Max) + "|";
-                ret +=String.Format(System.Globalization.CultureInfo.InvariantCulture,"{0:0.000}", _fillL) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Min)+"|";
+                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _saturation.Max) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _fillS) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _luminance.Min) + "|";
+                ret += String.Format(CultureInfo.InvariantCulture,"{0:0.000}", +_luminance.Max) + "|";
+                ret +=String.Format(CultureInfo.InvariantCulture,"{0:0.000}", _fillL) + "|";
                 ret += _fillTypeCombo.SelectedIndex + "|" + _filter.UpdateHue.ToString().ToLower() + "|";
 
                 ret += _filter.UpdateSaturation.ToString().ToLower() + "|" + _filter.UpdateLuminance.ToString().ToLower();
@@ -90,8 +91,17 @@ namespace iSpyApplication
             }
         }
 
+        private T ParseValue<T>(string valueString)
+        {
+            return (T)Convert.ChangeType(
+            valueString.Replace(',', '.'),
+            typeof(T),
+            CultureInfo.InvariantCulture);
+        }
+
+
         private Bitmap _imageprocess;
-        private static object _syncLock = new object();
+        private static readonly object SyncLock = new object();
 
         public Bitmap ImageProcess
         {
@@ -103,7 +113,7 @@ namespace iSpyApplication
             {
                 if (value!=null)
                 {
-                    lock(_syncLock)
+                    lock(SyncLock)
                     {
                         var rz = new ResizeBilinear(_filterPreview.Width, _filterPreview.Height);
                         _imageprocess = rz.Apply(value);  
@@ -122,19 +132,19 @@ namespace iSpyApplication
 
             if (!String.IsNullOrEmpty(Config))
             {
-                string[] config = Config.Split(Config.IndexOf("|")!=-1 ? '|' : ',');
+                string[] config = Config.Split(Config.IndexOf("|", StringComparison.Ordinal)!=-1 ? '|' : ',');
 
                 _hue.Min = Convert.ToInt32(config[0]);
                 _hue.Max = Convert.ToInt32(config[1]);
                 _fillH = Convert.ToInt32(config[2]);
 
-                _saturation.Min = float.Parse(config[3]);
-                _saturation.Max = float.Parse(config[4]);
-                _fillS = float.Parse(config[5]);
+                _saturation.Min = ParseValue<float>(config[3]);
+                _saturation.Max = ParseValue<float>(config[4]);
+                _fillS = ParseValue<float>(config[5]);
 
-                _luminance.Min = float.Parse(config[6]);
-                _luminance.Max = float.Parse(config[7]);
-                _fillL = float.Parse(config[8]);
+                _luminance.Min = ParseValue<float>(config[6]);
+                _luminance.Max = ParseValue<float>(config[7]);
+                _fillL = ParseValue<float>(config[8]);
 
                 _fillTypeCombo.SelectedIndex = Convert.ToInt32(config[9]);
                 _filter.UpdateHue = Convert.ToBoolean(config[10]);
@@ -146,9 +156,9 @@ namespace iSpyApplication
 
 
             //
-            _minHBox.Text = _hue.Min.ToString();
-            _maxHBox.Text = _hue.Max.ToString();
-            _fillHBox.Text = _fillH.ToString();
+            _minHBox.Text = _hue.Min.ToString(CultureInfo.InvariantCulture);
+            _maxHBox.Text = _hue.Max.ToString(CultureInfo.InvariantCulture);
+            _fillHBox.Text = _fillH.ToString(CultureInfo.InvariantCulture);
 
             _minSBox.Text = _saturation.Min.ToString("F3");
             _maxSBox.Text = _saturation.Max.ToString("F3");
@@ -204,7 +214,7 @@ namespace iSpyApplication
             _filter.Saturation = _saturation;
             _filter.Luminance = _luminance;
 
-            lock (_syncLock)
+            lock (SyncLock)
             {
                 if (ImageProcess != null)
                 {
@@ -248,7 +258,7 @@ namespace iSpyApplication
         {
             try
             {
-                _saturation.Min = float.Parse(_minSBox.Text);
+                _saturation.Min = ParseValue<float>(_minSBox.Text);
                 _saturationSlider.Min = (int) (_saturation.Min*255);
                 UpdateFilter();
             }
@@ -262,7 +272,7 @@ namespace iSpyApplication
         {
             try
             {
-                _saturation.Max = float.Parse(_maxSBox.Text);
+                _saturation.Max = ParseValue<float>(_maxSBox.Text);
                 _saturationSlider.Max = (int) (_saturation.Max*255);
                 UpdateFilter();
             }
@@ -276,7 +286,7 @@ namespace iSpyApplication
         {
             try
             {
-                _luminance.Min = float.Parse(_minLBox.Text);
+                _luminance.Min = ParseValue<float>(_minLBox.Text);
                 _luminanceSlider.Min = (int) (_luminance.Min*255);
                 UpdateFilter();
             }
@@ -290,7 +300,7 @@ namespace iSpyApplication
         {
             try
             {
-                _luminance.Max = float.Parse(_maxLBox.Text);
+                _luminance.Max = ParseValue<float>(_maxLBox.Text);
                 _luminanceSlider.Max = (int) (_luminance.Max*255);
                 UpdateFilter();
             }
@@ -338,7 +348,7 @@ namespace iSpyApplication
         {
             try
             {
-                _fillS = float.Parse(_fillSBox.Text);
+                _fillS = ParseValue<float>(_fillSBox.Text);
                 UpdateFillColor();
             }
             catch (Exception)
@@ -351,7 +361,7 @@ namespace iSpyApplication
         {
             try
             {
-                _fillL = float.Parse(_fillLBox.Text);
+                _fillL = ParseValue<float>(_fillLBox.Text);
                 UpdateFillColor();
             }
             catch (Exception)

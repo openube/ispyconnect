@@ -102,7 +102,6 @@ namespace iSpyApplication.Audio.talk
             {
                 lock (_obj)
                 {
-                    Debug.WriteLine("Stopping");
                     if (_bTalking)
                     {
                         _bTalking = false;

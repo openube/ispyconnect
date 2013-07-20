@@ -161,9 +161,9 @@ namespace iSpyApplication.Controls
                                 var cw = _parent.GetCameraWindow(obj.ObjectID);
                                 if (cw != null)
                                 {
-                                    if (cw.Camera != null && !cw.Camera.LastFrameNull)
+                                    if (cw.Camera != null && !cw.LastFrameNull)
                                     {
-                                        gGrid.DrawImage(cw.Camera.LastFrame, x, y, _itemwidth, _itemheight);
+                                        gGrid.DrawImage(cw.LastFrame, x, y, _itemwidth, _itemheight);
                                         if (cw.Alerted)
                                         {
                                             gGrid.DrawRectangle(pAlert, x - 1, y - 1, _itemwidth + 2, _itemheight + 2);

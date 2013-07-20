@@ -25,6 +25,7 @@
  * Version: 1.4
  * ------------------------------------------------------------------------------*/
 using System;
+using System.Globalization;
 
 namespace iSpyApplication.Pelco
 {
@@ -152,7 +153,7 @@ namespace iSpyApplication.Pelco
 			{
 				byte mScrPosition = Convert.ToByte(i/7);
 				byte mAsciIchr = Convert.ToByte(ch);
-				Array.Copy(Message.GetMessage(deviceAddress,0x00,0x15,mScrPosition,mAsciIchr),0,mBytes,i,7);
+                System.Array.Copy(Message.GetMessage(deviceAddress, 0x00, 0x15, mScrPosition, mAsciIchr), 0, mBytes, i, 7);
 				i = i + 7;
 			}
 
@@ -354,9 +355,7 @@ namespace iSpyApplication.Pelco
 			return Message.GetMessage(deviceAddress,mByte,0x00,0x00,0x00);
 
 		}
-
-
-
+        
 		#endregion
 
 
@@ -372,7 +371,7 @@ namespace iSpyApplication.Pelco
 				if (address<1 & address>256)
 					throw new Exception("Protocol Pelco D support 256 devices only");
 				
-				Address = Byte.Parse((address).ToString());
+				Address = Byte.Parse((address).ToString(CultureInfo.InvariantCulture));
 				Data1 = data1;
 				Data2 = data2;
 				Command1 = command1;

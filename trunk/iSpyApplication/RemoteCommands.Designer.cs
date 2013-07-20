@@ -330,6 +330,7 @@
             this.ClientSize = new System.Drawing.Size(625, 387);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.panel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.MinimizeBox = false;
             this.Name = "RemoteCommands";
             this.Padding = new System.Windows.Forms.Padding(6);

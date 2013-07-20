@@ -216,7 +216,6 @@ namespace iSpyApplication.Audio.streams
 
         private void EventsParsedChanged(object sender, MediaParseChange e)
         {
-            Console.WriteLine(e.Parsed);
         }
 
         private SoundFormat SoundFormatCallback(SoundFormat sf)

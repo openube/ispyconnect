@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NAudio.Wave;
 using NAudio.Wave.Compression;
-using System.Diagnostics;
 using NAudio;
 
 namespace iSpyApplication.Audio.codecs
@@ -34,7 +30,6 @@ namespace iSpyApplication.Audio.codecs
             {
                 this.encodeStream = new AcmStream(this.RecordFormat, this.encodeFormat);
             }
-            //Debug.WriteLine(String.Format("Encoding {0} + {1} bytes", length, encodeSourceBytesLeftovers));
             return Convert(encodeStream, data, offset, length, ref encodeSourceBytesLeftovers);
         }
 
@@ -44,25 +39,23 @@ namespace iSpyApplication.Audio.codecs
             {
                 this.decodeStream = new AcmStream(this.encodeFormat, this.RecordFormat);
             }
-            //Debug.WriteLine(String.Format("Decoding {0} + {1} bytes", data.Length, decodeSourceBytesLeftovers));
             return Convert(decodeStream, data, offset, length, ref decodeSourceBytesLeftovers);
         }
 
         private static byte[] Convert(AcmStream conversionStream, byte[] data, int offset, int length, ref int sourceBytesLeftovers)
         {
             int bytesInSourceBuffer = length + sourceBytesLeftovers;
-            Array.Copy(data, offset, conversionStream.SourceBuffer, sourceBytesLeftovers, length);
+            System.Array.Copy(data, offset, conversionStream.SourceBuffer, sourceBytesLeftovers, length);
             int sourceBytesConverted;
             int bytesConverted = conversionStream.Convert(bytesInSourceBuffer, out sourceBytesConverted);
             sourceBytesLeftovers = bytesInSourceBuffer - sourceBytesConverted;
             if (sourceBytesLeftovers > 0)
             {
-                //Debug.WriteLine(String.Format("Asked for {0}, converted {1}", bytesInSourceBuffer, sourceBytesConverted));
                 // shift the leftovers down
-                Array.Copy(conversionStream.SourceBuffer, sourceBytesConverted, conversionStream.SourceBuffer, 0, sourceBytesLeftovers);
+                System.Array.Copy(conversionStream.SourceBuffer, sourceBytesConverted, conversionStream.SourceBuffer, 0, sourceBytesLeftovers);
             }
             byte[] encoded = new byte[bytesConverted];
-            Array.Copy(conversionStream.DestBuffer, 0, encoded, 0, bytesConverted);
+            System.Array.Copy(conversionStream.DestBuffer, 0, encoded, 0, bytesConverted);
             return encoded;
         }
 

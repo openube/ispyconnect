@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using AForge.Video;
-using AForge.Video.FFMPEG;
+using iSpy.Video.FFMPEG;
 using iSpyApplication.Audio;
 using iSpyApplication.Audio.streams;
 using NAudio.Wave;
@@ -11,27 +13,28 @@ using ReasonToFinishPlaying = AForge.Video.ReasonToFinishPlaying;
 
 namespace iSpyApplication.Video
 {
-    public class FFMPEGStream : IVideoSource, IAudioSource
+    public class FFMPEGStream : IVideoSource, IAudioSource, ISupportsAudio
     {
         private int _framesReceived;
         private ManualResetEvent _stopEvent;
         private Thread _thread;
         private string _source;
-
-
+        private double _delay;
+        private int _stopWatchOffset;
+        private int _initialSeek = -1;
+        
         #region Audio
         private float _volume;
         private bool _listening;
+        private Thread _tOutput;
+        private const int MAXBuffer = 60;
+        private volatile bool _waitingOnMutex;
 
-        public int BytePacket = 400;
-
-        private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
-        private MeteringSampleProvider _meteringProvider;
-        private SampleChannel _sampleChannel;
+        public SampleChannel SampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
-
+        public VolumeWaveProvider16 VolumeProvider { get; set; }
         #endregion
         
 
@@ -114,9 +117,9 @@ namespace iSpyApplication.Video
         {
             get
             {
-                long bytes = 0;
+                //long bytes = 0;
                 //bytesReceived = 0;
-                return bytes;
+                return 0;
             }
         }
 
@@ -155,7 +158,7 @@ namespace iSpyApplication.Video
                         return true;
 
                     // the thread is not running, free resources
-                    Free();
+                    _thread = null;
                 }
                 return false;
             }
@@ -176,7 +179,6 @@ namespace iSpyApplication.Video
         {
              if (IsRunning) return;
             _framesReceived = 0;
-            _mFramesReceived = 0;
 
             // create events
             _stopEvent = new ManualResetEvent(false);
@@ -184,136 +186,505 @@ namespace iSpyApplication.Video
             // create and start new thread
             _thread = new Thread(FfmpegListener) { Name = "ffmpeg " + _source };
             _thread.Start();
+
+            Seekable = IsFileSource;
+            _initialSeek = -1;
+            _stopWatchOffset = 0;
         }
 
-        private int _mFramesReceived;
-
-        private void FfmpegListener()
+        private bool _paused;
+        
+        public bool IsPaused
         {
-            ReasonToFinishPlaying reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+            get { return _paused; }
+        }
 
-            VideoFileReader vfr = null;
-            Program.WriterMutex.WaitOne();
+        public void Play()
+        {
+            _paused = false;
+            _sw.Start();
+        }
+
+        public void Pause()
+        {
+            _paused = true;
+            _sw.Stop();
+        }
+
+        public double PlaybackRate = 1;
+
+        private VideoFileReader _vfr;
+        private bool IsFileSource
+        {
+            get { return _source!=null && _source.IndexOf("://", StringComparison.Ordinal) == -1; }
+        }
+
+        private class DelayedFrame
+        {
+            public readonly Bitmap B;
+            public readonly double ShowTime;
+            public DelayedFrame(Bitmap b, double showTime, double delay)
+            {
+                B = b;
+                ShowTime = showTime + delay;
+            }
+        }
+        private class DelayedAudio
+        {
+            public readonly byte[] A;
+            public readonly double ShowTime;
+            public DelayedAudio(byte[] a, double showTime, double delay)
+            {
+                A = a;
+                ShowTime = showTime + delay;
+            }
+        }
+
+        public bool NoBuffer;
+
+        private readonly ConcurrentQueue<DelayedFrame> _videoframes = new ConcurrentQueue<DelayedFrame>();
+        private readonly ConcurrentQueue<DelayedAudio> _audioframes = new ConcurrentQueue<DelayedAudio>();
+        private readonly Stopwatch _sw = new Stopwatch();
+
+        private bool _realtime;
+
+        private void FrameEmitter()
+        {
+            _sw.Reset();
+            bool first = true;
+            while (!_stopEvent.WaitOne(5))
+            {
+                first = EmitFrame(first);
+            }
+           
+        }
+
+        private bool EmitFrame(bool first)
+        {
             try
             {
-                vfr = new VideoFileReader();
-                vfr.Open(_source);
+                if (_videoframes.Count > 0)
+                {
+                    DelayedFrame q;
+                    if (_videoframes.TryPeek(out q))
+                    {
+                        if (first)
+                        {
+                            first = false;
+                            _sw.Start();
+                        }
+                        if (_sw.ElapsedMilliseconds + _stopWatchOffset > q.ShowTime)
+                        {
+                            if (_videoframes.TryDequeue(out q))
+                            {
+                                if (q.B != null)
+                                {
+                                    if (NewFrame != null)
+                                        NewFrame(this, new NewFrameEventArgs(q.B));
+                                    q.B.Dispose();
+                                }
+                            }
+                        }
+                    }
+                }
+                if (_audioframes.Count > 0)
+                {
+                    DelayedAudio q;
+                    if (_audioframes.TryPeek(out q))
+                    {
+                        if (first)
+                        {
+                            first = false;
+                            _sw.Start();
+                        }
+                        var dispTime = _sw.ElapsedMilliseconds + _stopWatchOffset;
+                        if (dispTime > q.ShowTime)
+                        {
+                            if (_audioframes.TryDequeue(out q))
+                            {
+                                if (q.A != null)
+                                {
+                                    ProcessAudio(q.A);
+                                }
+                            }
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            Program.WriterMutex.ReleaseMutex();
-            if (vfr == null || !vfr.IsOpen)
+            return first;
+        }
+
+
+        public string Cookies = "";
+        public string UserAgent = "";
+        public string Headers = "";
+
+        public int AnalyseDuration = 8000;
+        public int Timeout = 8000;
+
+        private volatile bool _bufferFull;
+        ReasonToFinishPlaying _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+
+        private void FfmpegListener()
+        {
+
+            _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+            _vfr = null;
+            _waitingOnMutex = true;
+            Program.WriterMutex.WaitOne();
+            _waitingOnMutex = false;
+            bool open = false;
+            try
+            {
+                _vfr = new VideoFileReader();
+                //ensure http/https is lower case for string compare in ffmpeg library
+                int i = _source.IndexOf("://", StringComparison.Ordinal);
+                if (i > -1)
+                {
+                    _source = _source.Substring(0, i).ToLower() + _source.Substring(i);
+                }
+                _vfr.Open(_source, Timeout, AnalyseDuration, Cookies, UserAgent, Headers, -1, NoBuffer);
+                open = true;
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogErrorToFile(ex.Message);
+            }
+            finally
+            {
+                Program.WriterMutex.ReleaseMutex();
+            }
+            if (_vfr == null || !open)
             {
                 if (PlayingFinished!=null)
                     PlayingFinished(this, ReasonToFinishPlaying.VideoSourceError);
                 return;
             }
             bool hasaudio = false;
-            if (vfr.Channels > 0)
+            _realtime = !IsFileSource;
+
+            if (!_realtime)
+                NoBuffer = false;
+
+            if (_vfr.Channels > 0)
             {
                 hasaudio = true;
-                RecordingFormat = new WaveFormat(vfr.SampleRate, 16, vfr.Channels);
+                RecordingFormat = new WaveFormat(_vfr.SampleRate, 16, _vfr.Channels);
+                _waveProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(2500)};
 
-                WaveOutProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true};
-                _waveProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true};
-
-
-                _sampleChannel = new SampleChannel(_waveProvider);
-                _meteringProvider = new MeteringSampleProvider(_sampleChannel);
-                _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
+                SampleChannel = new SampleChannel(_waveProvider);
+                SampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
                 if (HasAudioStream != null)
                     HasAudioStream(this, EventArgs.Empty);
             }
+            Duration = _vfr.Duration;            
+            bool err = false;
 
-            int interval = 1000 / ((vfr.FrameRate == 0) ? 25 : vfr.FrameRate);
+            if (!NoBuffer)
+            {
+                _tOutput = (new Thread(FrameEmitter));
+                _tOutput.Start();
+            }
+            else
+            {
+                _tOutput = null;
+            }
 
-            byte[] data;
-            Bitmap frame;
-            
+
+            double maxdrift = 0, firstmaxdrift = 0;
+            const int analyseInterval = 10;
+            DateTime dtAnalyse = DateTime.MinValue;
+            _lastFrame = DateTime.Now;
+
+            if (_initialSeek>-1)
+                _vfr.Seek(_initialSeek);
             try
             {
-                while (!_stopEvent.WaitOne(0, false))
+                while (!_stopEvent.WaitOne(5))
                 {
-                    DateTime start = DateTime.Now;
-                    frame = vfr.ReadVideoFrame();
-                    if ( frame == null )
-			        {
-				        reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
-                        break;
-			        }
-                    
-                    if (NewFrame!=null)
-                        NewFrame(this, new NewFrameEventArgs(frame));
-                    frame.Dispose();
-
-                    if (hasaudio)
+                    _bufferFull = !_realtime && (_videoframes.Count > MAXBuffer || _audioframes.Count > MAXBuffer);
+                    if (!_paused && !_bufferFull)
                     {
-                        data = vfr.ReadAudioFrame();
-                        if (DataAvailable != null)
+                        if (DecodeFrame(analyseInterval, hasaudio, ref firstmaxdrift, ref maxdrift, ref dtAnalyse)) break;
+                        if (NoBuffer)
                         {
-                            _waveProvider.AddSamples(data, 0, data.Length);
-
-                            if (Listening)
+                            if (_videoframes.Count > 0)
                             {
-                                WaveOutProvider.AddSamples(data, 0, data.Length);
+                                DelayedFrame q;
+
+                                if (_videoframes.TryDequeue(out q))
+                                {
+                                    if (q.B != null)
+                                    {
+                                        if (NewFrame != null)
+                                            NewFrame(this, new NewFrameEventArgs(q.B));
+                                        q.B.Dispose();
+                                    }
+                                }
                             }
-
-                            _mFramesReceived++;
-
-                            //forces processing of volume level without piping it out
-                            var sampleBuffer = new float[data.Length];
-
-                            _meteringProvider.Read(sampleBuffer, 0, data.Length);
-                            DataAvailable(this, new DataAvailableEventArgs((byte[]) data.Clone()));
+                            if (_audioframes.Count > 0)
+                            {
+                                DelayedAudio q;
+                                if (_audioframes.TryDequeue(out q))
+                                {
+                                    if (q.A != null)
+                                    {
+                                        ProcessAudio(q.A);
+                                    }
+                                }
+                            }
                         }
                     }
-                    
-                    if (interval > 0)
-                    {
-                        // get frame extract duration
-                        TimeSpan span = DateTime.Now.Subtract(start);
-
-                        // miliseconds to sleep
-                        int msec = interval - (int)span.TotalMilliseconds;
-
-                        if ((msec > 0) && (_stopEvent.WaitOne(msec, false)))
-                            break;
-                    }
                 }
+                StopOutput();
             }
             catch (Exception e)
             {
+                StopOutput();
+
                 if (VideoSourceError != null)
                     VideoSourceError(this, new VideoSourceErrorEventArgs(e.Message));
+
                 MainForm.LogExceptionToFile(e);
-                reasonToStop = ReasonToFinishPlaying.DeviceLost;
+                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
+                err = true;
             }
-            if (PlayingFinished != null)
-                PlayingFinished(this, reasonToStop);
-        }
+           
+            if (IsFileSource && !err)
+                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;           
 
-
-        void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
-        {
-            if (LevelChanged != null)
-                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
-
-        }
-
-        /// <summary>
-        /// Free resource.
-        /// </summary>
-        /// 
-        private void Free()
-        {
-            _thread = null;
+            try
+            {
+                 _vfr.Close();
+            }
+            catch(Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }           
 
             // release events
             _stopEvent.Close();
             _stopEvent = null;
+
+            
+            if (PlayingFinished != null)
+                PlayingFinished(this, _reasonToStop);
+
+        }
+
+        private DateTime _lastFrame = DateTime.MinValue;
+
+        private bool DecodeFrame(int analyseInterval, bool hasaudio, ref double firstmaxdrift, ref double maxdrift,
+                                 ref DateTime dtAnalyse)
+        {
+            
+            object frame = _vfr.ReadFrame();
+            switch (_vfr.LastFrameType)
+            {
+                case 0:
+                    //null packet
+                    if (!_realtime) 
+                    {
+                        //end of file
+                        //wait for all frames to be emitted
+                        while (!_stopEvent.WaitOne(2))
+                        {
+                            if (_videoframes.Count == 0 && _audioframes.Count == 0)
+                                break;
+                        }
+                        return true;
+                    }
+                    if ((DateTime.Now - _lastFrame).TotalMilliseconds > Timeout)
+                        throw new TimeoutException("Timeout reading from video stream");
+                    break;
+                case 1:
+                    _lastFrame = DateTime.Now;
+                    if (hasaudio)
+                    {
+                        var data = frame as byte[];
+                        if (data != null)
+                        {
+                            if (data.Length > 0)
+                            {
+                                double t = _vfr.AudioTime;
+                                _audioframes.Enqueue(new DelayedAudio(data, t, _delay));
+                            }
+                        }
+                    }
+                    break;
+                case 2:
+                    _lastFrame = DateTime.Now;
+                    var bmp = frame as Bitmap;
+                    if (bmp != null)
+                    {
+                        if (dtAnalyse == DateTime.MinValue)
+                        {
+                            dtAnalyse = DateTime.Now.AddSeconds(analyseInterval);
+                        }
+
+                        double t = _vfr.VideoTime;
+
+
+                        if (_realtime)
+                        {
+                            double drift = _vfr.VideoTime - _sw.ElapsedMilliseconds;
+
+                            if (dtAnalyse > DateTime.Now)
+                            {
+                                if (Math.Abs(drift) > Math.Abs(maxdrift))
+                                {
+                                    maxdrift = drift;
+                                }
+                            }
+                            else
+                            {
+                                if (firstmaxdrift > 0)
+                                    _delay = 0 - (maxdrift - firstmaxdrift);
+                                else
+                                    firstmaxdrift = maxdrift;
+                                maxdrift = 0;
+                                dtAnalyse = DateTime.Now.AddSeconds(analyseInterval);
+                            }
+
+                            //Console.WriteLine("delay: " + _delay + " firstmaxdrift: "+firstmaxdrift+" drift: " + drift + " maxdrift: " + maxdrift + " buffer: " + _videoframes.Count);
+
+                        }
+
+
+                        _videoframes.Enqueue(new DelayedFrame(bmp, t, _delay));
+                    }
+                    break;
+            }
+            return false;
+        }
+
+        void StopOutput()
+        {
+            ClearBuffer();
+            if (_tOutput != null)
+            {
+                _stopEvent.Set();
+                _tOutput.Join();
+                _tOutput = null;
+            }
+        }
+
+        void ProcessAudio(byte[] data)
+        {
+            try
+            {
+                if (DataAvailable != null)
+                {
+                    _waveProvider.AddSamples(data, 0, data.Length);
+
+                    var sampleBuffer = new float[data.Length];
+                    SampleChannel.Read(sampleBuffer, 0, data.Length);
+
+                    DataAvailable(this, new DataAvailableEventArgs((byte[]) data.Clone()));
+
+                    if (WaveOutProvider != null && Listening)
+                    {
+                        //if (Math.Abs(PlaybackRate - 1) > double.Epsilon)
+                        //{
+                        //    //resample audio if playback speed changed
+                        //    var newRate =
+                        //        Convert.ToInt32(_waveProvider.WaveFormat.SampleRate /
+                        //                        PlaybackRate);
+                        //    var wf = new WaveFormat(newRate, 16,
+                        //                            _waveProvider.WaveFormat.Channels);
+                        //    var resampleInputMemoryStream = new MemoryStream(data) { Position = 0 };
+
+                        //    WaveStream ws =
+                        //        new RawSourceWaveStream(resampleInputMemoryStream,
+                        //                                _waveProvider.WaveFormat);
+                        //    var wfcs = new WaveFormatConversionStream(wf, ws) { Position = 0 };
+                        //    var b = new byte[ws.WaveFormat.AverageBytesPerSecond];
+
+                        //    int bo = wfcs.Read(b, 0, ws.WaveFormat.AverageBytesPerSecond);
+                        //    while (bo > 0)
+                        //    {
+                        //        WaveOutProvider.AddSamples(b, 0, bo);
+                        //        bo = wfcs.Read(b, 0, ws.WaveFormat.AverageBytesPerSecond);
+                        //    }
+                        //    wfcs.Dispose();
+                        //    ws.Dispose();
+
+                        //}
+                        //else
+                        //{
+                        WaveOutProvider.AddSamples(data, 0, data.Length);
+                        //}
+
+                    }
+                }
+            }
+            catch (NullReferenceException)
+            {
+                //DataAvailable can be removed at any time
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
+        {
+            if (LevelChanged != null)
+            {
+                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
+            }
+        }
+
+        public bool Seekable;
+
+        public long Time
+        {
+            get
+            {
+                if (_vfr.IsOpen)
+                    return _vfr.VideoTime;
+                return 0;
+            }
+        }
+        public long Duration;
+
+
+        private void ClearBuffer()
+        {
+            lock (this)
+            {
+                while (_videoframes.Count > 0)
+                {
+                    DelayedFrame f;
+                    if (_videoframes.TryDequeue(out f))
+                    {
+                        f.B.Dispose();
+                    }
+                }
+                DelayedAudio a;
+                while (_audioframes.Count > 0)
+                    _audioframes.TryDequeue(out a);
+            }
+        }
+        public void Seek(float percentage)
+        {
+            int t = Convert.ToInt32((Duration/1000d)*percentage);
+            if (Seekable)
+            {
+                _sw.Stop();
+                ClearBuffer();
+                _initialSeek = t;
+                _vfr.Seek(t);
+                _stopWatchOffset = t*1000;
+                _sw.Reset();
+                _sw.Start();
+            }
         }
 
         #region Audio Stuff
@@ -323,15 +694,17 @@ namespace iSpyApplication.Video
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
 
+
+
         public float Volume
         {
             get { return _volume; }
             set
             {
                 _volume = value;
-                if (_sampleChannel != null)
+                if (SampleChannel != null)
                 {
-                    _sampleChannel.Volume = value;
+                    SampleChannel.Volume = value;
                 }
             }
         }
@@ -356,15 +729,8 @@ namespace iSpyApplication.Video
             }
         }
 
-        public WaveFormat RecordingFormat
-        {
-            get { return _recordingFormat; }
-            set
-            {
-                _recordingFormat = value;
-            }
-        }
-        
+        public WaveFormat RecordingFormat { get; set; }
+
         #endregion
 
         /// <summary>
@@ -383,6 +749,7 @@ namespace iSpyApplication.Video
             Stop();
         }
 
+
         /// <summary>
         /// Stop video source.
         /// </summary>
@@ -391,10 +758,23 @@ namespace iSpyApplication.Video
         {
             if (IsRunning)
             {
+                if (_vfr != null)
+                {
+                    _vfr.Abort();
+                    
+                }
                 _stopEvent.Set();
-                _thread.Join(4000);
-
-                Free();
+                if (!_waitingOnMutex)
+                {
+                    //wait for video source shutdown
+                    _thread.Join();
+                }
+                else
+                {
+                    //thread is waiting on the mutex
+                    _thread.Abort();
+                }
+                _waitingOnMutex = false;
             }
         }
         #endregion

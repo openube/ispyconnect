@@ -37,25 +37,6 @@ namespace iSpyApplication.Controls
                 BrandedImage.Left = Width / 2 - BrandedImage.Width / 2;
                 BrandedImage.Top = Height / 2 - BrandedImage.Height / 2;
             }
-
-            foreach (Control c in Controls)
-            {
-                if (c is CameraWindow)
-                {
-                    var cw = (CameraWindow) c;
-                    if (cw.Camobject.settings.micpair > -1 && TopLevelControl!=null)
-                    {
-                        var vc = ((MainForm)TopLevelControl).GetVolumeLevel(cw.Camobject.settings.micpair);
-                        if (vc!=null)
-                        {
-                            vc.Location = new Point(c.Location.X,c.Location.Y+c.Height);
-                            vc.Width = c.Width;
-                            vc.Height = 40;
-                        }
-                    }
-                }
-            }
-
             
             base.OnPaint(pe);
         }

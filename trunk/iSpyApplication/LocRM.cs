@@ -228,7 +228,7 @@ namespace iSpyApplication
             {
                 foreach (TranslationsTranslationSetTranslation tran in _currentSet.Translation)
                 {
-                    Res.Add(tran.Token, tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，",","));
+                    Res.Add(tran.Token, tran.Value.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">").Replace("，", ",").Replace("#39;", "'"));
                 }
             }
 

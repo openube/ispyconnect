@@ -28,17 +28,15 @@ namespace iSpyApplication.Video
         {
             // Get the current value of the PATH environment variable
             string currentPath = Environment.GetEnvironmentVariable("PATH");
-            Debug.WriteLine("Current path: " + currentPath);
 
             // Concatenate the VLC installation and plugins folders onto the 
             // current path
             if (currentPath != null)
-                if (currentPath.IndexOf(VlcInstallationFolder) == -1)
+                if (currentPath.IndexOf(VlcInstallationFolder, StringComparison.Ordinal) == -1)
                 {
                     string newPath = VlcInstallationFolder + ";"
                                      + VlcPluginsFolder + ";"
                                      + currentPath;
-                    Debug.WriteLine("New path:     " + newPath);
 
                     // Update the PATH environment variable
                     Environment.SetEnvironmentVariable("PATH", newPath);
@@ -59,12 +57,21 @@ namespace iSpyApplication.Video
             {
                 if (_vlcInstallationFolder == null)
                 {
-                    RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC", false);
-                    if (vlcKey != null)
+
+
+                    if (Program.Platform == "x64")
                     {
-                        _vlcInstallationFolder = (string) vlcKey.GetValue("InstallDir")
-                                                 + Path.DirectorySeparatorChar;
-                        vlcKey.Close();
+                        _vlcInstallationFolder = Program.AppPath + "VLC64";
+                    }
+                    else
+                    {
+                        RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC", false);
+                        if (vlcKey != null)
+                        {
+                            _vlcInstallationFolder = (string)vlcKey.GetValue("InstallDir")
+                                                     + Path.DirectorySeparatorChar;
+                            vlcKey.Close();
+                        }
                     }
                 }
                 return _vlcInstallationFolder;
@@ -75,13 +82,15 @@ namespace iSpyApplication.Video
 
         #region VlcInstalled property
 
-        /// <summary>
-        /// Check if VLC is installed
-        /// </summary>
+        ///// <summary>
+        ///// Check if VLC is installed
+        ///// </summary>
         public static bool VlcInstalled
         {
             get
             {
+                if (Program.Platform == "x64")
+                    return true;
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);
@@ -109,6 +118,8 @@ namespace iSpyApplication.Video
         {
             get
             {
+                if (Program.Platform == "x64")
+                    return new Version(2,0,6);
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);

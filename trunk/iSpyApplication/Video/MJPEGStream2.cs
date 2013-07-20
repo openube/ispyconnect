@@ -80,6 +80,8 @@ namespace iSpyApplication.Video
         private bool _needsPrivacyEnabled;
         private DateTime _needsPrivacyEnabledTarget = DateTime.MinValue;
 
+        public string Headers = "";
+
         /// <summary>
         /// New frame event.
         /// </summary>
@@ -682,7 +684,7 @@ namespace iSpyApplication.Video
                                 // shift array
                                 pos = stop + boundaryLen;
                                 todo = total - pos;
-                                Array.Copy(buffer, pos, buffer, 0, todo);
+                                System.Array.Copy(buffer, pos, buffer, 0, todo);
 
                                 total = todo;
                                 pos = 0;
@@ -859,6 +861,24 @@ namespace iSpyApplication.Video
                 }
                 request.CookieContainer = myContainer;
             }
+
+            if (!String.IsNullOrEmpty(Headers))
+            {
+                Headers = Headers.Replace("[AUTH]", authInfo);
+                string[] coll = _cookies.Split(';');
+                foreach (var hdr in coll)
+                {
+                    if (!String.IsNullOrEmpty(hdr))
+                    {
+                        string[] nv = hdr.Split('=');
+                        if (nv.Length == 2)
+                        {
+                            request.Headers.Add(nv[0], nv[1]);
+                        }
+                    }
+                }
+            }
+
             return request;
         }
     }
