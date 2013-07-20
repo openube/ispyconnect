@@ -11,7 +11,7 @@ namespace iSpyApplication.Audio.streams
         private Socket _socket;
         private float _volume;
         private bool _listening;
-        private ManualResetEvent stopEvent = null;
+        private ManualResetEvent _stopEvent;
 
         private Thread _thread;
 
@@ -176,7 +176,7 @@ namespace iSpyApplication.Audio.streams
                 _sampleChannel = new SampleChannel(_waveProvider);
                 _sampleChannel.PreVolumeMeter += new EventHandler<StreamVolumeEventArgs>(_sampleChannel_PreVolumeMeter);
 
-                stopEvent = new ManualResetEvent(false);
+                _stopEvent = new ManualResetEvent(false);
                 _thread = new Thread(WebStreamListener)
                                           {
                                               Name = "WebStream Audio Receiver"
@@ -200,7 +200,7 @@ namespace iSpyApplication.Audio.streams
                 var data = new byte[6400];
                 if (_socket != null)
                 {
-                    while (!stopEvent.WaitOne(0, false))
+                    while (!_stopEvent.WaitOne(0, false))
                     {
                         if (DataAvailable != null)
                         {
@@ -226,7 +226,7 @@ namespace iSpyApplication.Audio.streams
                             break;
                         }
                         // need to stop ?
-                        if (stopEvent.WaitOne(0, false))
+                        if (_stopEvent.WaitOne(0, false))
                             break;
                     }
                 }
@@ -261,7 +261,7 @@ namespace iSpyApplication.Audio.streams
         {
             if (this.IsRunning)
             {
-                stopEvent.Set();
+                _stopEvent.Set();
                 _thread.Join();
 
                 Free();
@@ -277,8 +277,8 @@ namespace iSpyApplication.Audio.streams
             _thread = null;
 
             // release events
-            stopEvent.Close();
-            stopEvent = null;
+            _stopEvent.Close();
+            _stopEvent = null;
         }
 
         public WaveFormat RecordingFormat
