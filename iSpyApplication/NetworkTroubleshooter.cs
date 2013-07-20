@@ -14,7 +14,7 @@ namespace iSpyApplication
         public NetworkTroubleshooter()
         {
             InitializeComponent();
-            this.Text = LocRm.GetString("troubleshooting");
+            Text = LocRm.GetString("troubleshooting");
             button1.Text = LocRm.GetString("OK");
             LocRm.GetString("retry");
         }
@@ -100,25 +100,26 @@ namespace iSpyApplication
             else
             {
                 res = res.ToLower();
-                if (res.IndexOf("access")!=-1 || res.IndexOf("ok")!=-1)
+                if (res.IndexOf("access", StringComparison.Ordinal)!=-1 || res.IndexOf("ok", StringComparison.Ordinal)!=-1)
                 {
                     UISync.Execute(() => rtbOutput.Text += "OK");
                 }
                 else
                 {
-                    UISync.Execute(() => rtbOutput.Text += "Unexpected output: " + res);
+                    string res1 = res;
+                    UISync.Execute(() => rtbOutput.Text += "Unexpected output: " + res1);
                 }
             }
             UISync.Execute(() => rtbOutput.Text += NL);
             UISync.Execute(() => rtbOutput.Text += "Checking WebServer... ");
             Application.DoEvents();
-            if (!loadurl(MainForm.Webserver + "/webservices/ispy.asmx", out res))
+            if (!loadurl(MainForm.Webserver + "/webservices/ispysecure.asmx", out res))
             {
                 UISync.Execute(() => rtbOutput.Text += "Webservices not responding.");
             }
             else
             {
-                if (res.IndexOf("error occurred while")!=-1)
+                if (res.IndexOf("error occurred while", StringComparison.Ordinal)!=-1)
                     UISync.Execute(() => rtbOutput.Text += "Error with webservices. Please try again later.");
                 else
                     UISync.Execute(() => rtbOutput.Text += "OK");
@@ -161,8 +162,8 @@ namespace iSpyApplication
             }
             else
             {
-
-                UISync.Execute(() => rtbOutput.Text += "Found: " + result[2]);
+                string[] result1 = result;
+                UISync.Execute(() => rtbOutput.Text += "Found: " + result1[2]);
                 if (Convert.ToBoolean(result[1]))
                 {
                     UISync.Execute(() => rtbOutput.Text += NL + "Your subscription is valid." + NL);
@@ -312,13 +313,12 @@ namespace iSpyApplication
 
         private bool loadurl(string url, out string result)
         {
-            result = "";
             try
             {
-                var HttpWReq = (HttpWebRequest) WebRequest.Create(url);
-                HttpWReq.Method = "GET";
+                var httpWReq = (HttpWebRequest) WebRequest.Create(url);
+                httpWReq.Method = "GET";
 
-                var myResponse = (HttpWebResponse) HttpWReq.GetResponse();
+                var myResponse = (HttpWebResponse) httpWReq.GetResponse();
 
                 var read = new StreamReader(myResponse.GetResponseStream());
                 result = read.ReadToEnd();
@@ -326,7 +326,7 @@ namespace iSpyApplication
                 
                 return true;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 result = ex.Message;
             }

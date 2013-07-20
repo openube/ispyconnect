@@ -283,22 +283,6 @@ the video frame must have width and height as specified during file opening.</pa
             <exception cref="T:AForge.Video.VideoException">A error occurred while creating new video file. See exception message.</exception>
             <exception cref="T:System.IO.IOException">Cannot open video file with the specified name.</exception>
         </member>
-        <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32)">
-            <summary>
-Create video file with the specified name and attributes.
-</summary>
-            <param name="fileName">Video file name to create.</param>
-            <param name="width">Frame width of the video file.</param>
-            <param name="height">Frame height of the video file.</param>
-            <remarks>
-                <para>See documentation to the <see cref="!:Open( String^, int, int, bool, VideoCodec, int, AudioCodec, int)" />
-for more information and the list of possible exceptions.</para>
-                <para>
-                    <note>The method opens the video file using <see cref="F:AForge.Video.FFMPEG.VideoCodec.Default" />
-codec and 25 fps frame rate.</note>
-                </para>
-            </remarks>
-        </member>
         <member name="M:AForge.Video.FFMPEG.VideoFileWriter.Dispose">
             <summary>
 Disposes the object and frees its resources.
@@ -5382,6 +5366,7 @@ reader.Close( );
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_interleave_packet_per_dts(libffmpeg.AVFormatContext*,libffmpeg.AVPacket*,libffmpeg.AVPacket*,System.Int32)'. -->
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_getCoefficients(System.Int32)'. -->
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.sws_printVec2(libffmpeg.SwsVector*,libffmpeg.AVClass*,System.Int32)'. -->
+        <!-- Discarding badly formed XML document comment for member 'M:AForge.Video.FFMPEG.VideoFileWriter.Open(System.String,System.Int32,System.Int32)'. -->
         <!-- Discarding badly formed XML document comment for member 'T:libffmpeg.AVRational'. -->
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_cmp_q(libffmpeg.AVRational,libffmpeg.AVRational)'. -->
         <!-- Discarding badly formed XML document comment for member 'M:libffmpeg.av_reduce(System.Int32*,System.Int32*,System.Int64,System.Int64,System.Int64)'. -->

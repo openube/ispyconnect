@@ -43,14 +43,10 @@
             // 
             // txtSeconds
             // 
+            this.txtSeconds.DecimalPlaces = 1;
             this.txtSeconds.Location = new System.Drawing.Point(31, 3);
             this.txtSeconds.Maximum = new decimal(new int[] {
             99999999,
-            0,
-            0,
-            0});
-            this.txtSeconds.Minimum = new decimal(new int[] {
-            1,
             0,
             0,
             0});

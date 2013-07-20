@@ -182,7 +182,6 @@ namespace AForge { namespace Video { namespace FFMPEG
 		/// <param name="width">Frame width of the video file.</param>
 		/// <param name="height">Frame height of the video file.</param>
 		///
-		/// <remarks><para>See documentation to the <see cref="Open( String^, int, int, bool, VideoCodec, int, AudioCodec, int)" />
 		/// for more information and the list of possible exceptions.</para>
 		///
 		/// <para><note>The method opens the video file using <see cref="VideoCodec::Default" />

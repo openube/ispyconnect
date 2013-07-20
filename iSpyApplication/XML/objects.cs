@@ -412,6 +412,8 @@ public partial class objectsCameraSettings {
     private string codecField;
     
     private string videosourcestringField;
+
+    private string onvifidentField;
     
     private string loginField;
     
@@ -492,6 +494,8 @@ public partial class objectsCameraSettings {
     private int ptztimetohomeField;
     
     private int ptzautotrackmodeField;
+
+    private string ptzpelcoconfigField;
     
     private int maxframerateField;
     
@@ -522,6 +526,16 @@ public partial class objectsCameraSettings {
     private bool desktopmouseField;
     
     private bool calibrateonreconnectField;
+
+    private bool ignoreaudioField;
+
+    private string headersField;
+
+    private int timeoutField;
+
+    private int analysedurationField;
+
+    private bool nobufferField;
     
     public objectsCameraSettings() {
         this.timestampfontsizeField = 10;
@@ -549,6 +563,66 @@ public partial class objectsCameraSettings {
         this.cookiesField = "";
         this.bordertimeoutField = 0;
         this.calibrateonreconnectField = true;
+        this.ignoreaudioField = false;
+        this.headersField = "";
+        this.analysedurationField = 2000;
+        this.timeoutField = 8000;
+        this.nobufferField = false;
+        this.ptzpelcoconfigField = "";
+        this.onvifidentField = "";
+    }
+
+    /// <remarks/>
+    public string onvifident
+    {
+        get
+        {
+            return this.onvifidentField;
+        }
+        set
+        {
+            this.onvifidentField = value;
+        }
+    }
+
+    /// <remarks/>
+    public bool nobuffer
+    {
+        get
+        {
+            return this.nobufferField;
+        }
+        set
+        {
+            this.nobufferField = value;
+        }
+    }
+
+   
+    /// <remarks/>
+    public int analyseduration
+    {
+        get
+        {
+            return this.analysedurationField;
+        }
+        set
+        {
+            this.analysedurationField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int timeout
+    {
+        get
+        {
+            return this.timeoutField;
+        }
+        set
+        {
+            this.timeoutField = value;
+        }
     }
     
     /// <remarks/>
@@ -570,7 +644,34 @@ public partial class objectsCameraSettings {
             this.codecField = value;
         }
     }
+
+    /// <remarks/>
+    public string ptzpelcoconfig
+    {
+        get
+        {
+            return this.ptzpelcoconfigField;
+        }
+        set
+        {
+            this.ptzpelcoconfigField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string headers
+    {
+        get
+        {
+            return this.headersField;
+        }
+        set
+        {
+            this.headersField = value;
+        }
+    }
     
+
     /// <remarks/>
     public string videosourcestring {
         get {
@@ -1136,6 +1237,21 @@ public partial class objectsCameraSettings {
             this.calibrateonreconnectField = value;
         }
     }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(false)]
+    public bool ignoreaudio
+    {
+        get
+        {
+            return this.ignoreaudioField;
+        }
+        set
+        {
+            this.ignoreaudioField = value;
+        }
+    }
 }
 
 /// <remarks/>
@@ -1432,10 +1548,14 @@ public partial class objectsCameraDetector {
     private string typeField;
     
     private string postprocessorField;
-    
+
     private int nomovementintervalField;
-    
+
     private int movementintervalField;
+
+    private double nomovementintervalnewField;
+
+    private double movementintervalnewField;
     
     private int calibrationdelayField;
     
@@ -1471,6 +1591,8 @@ public partial class objectsCameraDetector {
         this.highlightField = false;
         this.colourprocessingField = "";
         this.colourprocessingenabledField = false;
+        this.nomovementintervalnew = -1;//ispy will copy from old
+        this.movementintervalnew = -1;//ispy will copy from old
     }
     
     /// <remarks/>
@@ -1508,7 +1630,8 @@ public partial class objectsCameraDetector {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int nomovementinterval {
+    public int nomovementinterval
+    {
         get {
             return this.nomovementintervalField;
         }
@@ -1525,6 +1648,34 @@ public partial class objectsCameraDetector {
         }
         set {
             this.movementintervalField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public double nomovementintervalnew
+    {
+        get
+        {
+            return this.nomovementintervalnewField;
+        }
+        set
+        {
+            this.nomovementintervalnewField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public double movementintervalnew
+    {
+        get
+        {
+            return this.movementintervalnewField;
+        }
+        set
+        {
+            this.movementintervalnewField = value;
         }
     }
     
@@ -1756,9 +1907,7 @@ public partial class objectsCameraDetectorZone {
 [System.ComponentModel.DesignerCategoryAttribute("code")]
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
 public partial class objectsCameraRecorder {
-    
-    private int bufferframesField;
-    
+       
     private int buffersecondsField;
     
     private int inactiverecordField;
@@ -1784,7 +1933,6 @@ public partial class objectsCameraRecorder {
     private string triggerField;
     
     public objectsCameraRecorder() {
-        this.buffersecondsField = 3;
         this.timelapseenabledField = true;
         this.qualityField = 8;
         this.timelapsesaveField = 60;
@@ -1796,18 +1944,6 @@ public partial class objectsCameraRecorder {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int bufferframes {
-        get {
-            return this.bufferframesField;
-        }
-        set {
-            this.bufferframesField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlAttributeAttribute()]
-    [System.ComponentModel.DefaultValueAttribute(3)]
     public int bufferseconds {
         get {
             return this.buffersecondsField;
@@ -2265,9 +2401,7 @@ public partial class objectsCameraScheduleEntry {
     private string daysofweekField;
     
     private bool recordonstartField;
-    
-    private bool recordonstartFieldSpecified;
-    
+        
     private bool activeField;
     
     private bool recordondetectField;
@@ -2290,6 +2424,7 @@ public partial class objectsCameraScheduleEntry {
         this.ftpenabledField = false;
         this.savelocalenabledField = false;
         this.alertsField = true;
+        this.recordonstartField = true;
     }
     
     /// <remarks/>
@@ -2335,18 +2470,7 @@ public partial class objectsCameraScheduleEntry {
             this.recordonstartField = value;
         }
     }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool recordonstartSpecified {
-        get {
-            return this.recordonstartFieldSpecified;
-        }
-        set {
-            this.recordonstartFieldSpecified = value;
-        }
-    }
-    
+        
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     [System.ComponentModel.DefaultValueAttribute(true)]
@@ -3341,9 +3465,7 @@ public partial class objectsMicrophoneScheduleEntry {
     private string daysofweekField;
     
     private bool recordonstartField;
-    
-    private bool recordonstartFieldSpecified;
-    
+       
     private bool activeField;
     
     private bool recordondetectField;
@@ -3357,6 +3479,7 @@ public partial class objectsMicrophoneScheduleEntry {
         this.recordondetectField = true;
         this.recordonalertField = true;
         this.alertsField = true;
+        this.recordonstartField = true;
     }
     
     /// <remarks/>
@@ -3402,18 +3525,7 @@ public partial class objectsMicrophoneScheduleEntry {
             this.recordonstartField = value;
         }
     }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool recordonstartSpecified {
-        get {
-            return this.recordonstartFieldSpecified;
-        }
-        set {
-            this.recordonstartFieldSpecified = value;
-        }
-    }
-    
+       
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     [System.ComponentModel.DefaultValueAttribute(true)]
@@ -3491,8 +3603,6 @@ public partial class objectsFloorplan {
     
     private bool originalsizeField;
     
-    private bool originalsizeFieldSpecified;
-    
     private int fovField;
     
     private int radiusField;
@@ -3502,6 +3612,7 @@ public partial class objectsFloorplan {
     public objectsFloorplan() {
         this.fovField = 90;
         this.radiusField = 80;
+        this.originalsizeField = true;
     }
     
     /// <remarks/>
@@ -3613,17 +3724,7 @@ public partial class objectsFloorplan {
         }
     }
     
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool originalsizeSpecified {
-        get {
-            return this.originalsizeFieldSpecified;
-        }
-        set {
-            this.originalsizeFieldSpecified = value;
-        }
-    }
-    
+   
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
     [System.ComponentModel.DefaultValueAttribute(90)]

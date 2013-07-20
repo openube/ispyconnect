@@ -277,7 +277,11 @@ void VideoFileWriter::Close( )
 			}		
 
 			if ( data->AudioStream)	{
-				libffmpeg::avcodec_close( data->AudioStream->codec );
+				try {
+					libffmpeg::avcodec_close( data->AudioStream->codec );
+				}
+				catch (...) {
+				}
 			}
 
 			if ( data->VideoStream )

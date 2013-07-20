@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace iSpyApplication
 {
@@ -14,11 +16,40 @@ namespace iSpyApplication
             return minimum + ((maximum - minimum)/100)*Convert.ToDouble(percent);
         }
 
+        public static bool HasFeature(Enums.Features feature)
+        {
+            return ((1 & MainForm.Conf.FeatureSet) != 0) || (((int)feature & MainForm.Conf.FeatureSet) != 0);
+        }
         public static string ZeroPad(int i)
         {
             if (i < 10)
                 return "0" + i;
-            return i.ToString();
+            return i.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public static void SetTitle(Form f)
+        {
+            string ttl = string.Format("iSpy v{0}", Application.ProductVersion);
+            if (Program.Platform != "x86")
+                ttl = string.Format("iSpy 64 v{0}", Application.ProductVersion);
+
+            if (MainForm.Conf.WSUsername != "")
+            {
+                ttl += string.Format(" ({0})", MainForm.Conf.WSUsername);
+            }
+
+            if (!String.IsNullOrEmpty(MainForm.Conf.Reseller))
+            {
+                ttl += string.Format(" Powered by {0}", MainForm.Conf.Reseller.Split('|')[0]);
+            }
+            else
+            {
+                if (!String.IsNullOrEmpty(MainForm.Conf.Vendor))
+                {
+                    ttl += string.Format(" with {0}", MainForm.Conf.Vendor);
+                }
+            }
+            f.Text = ttl;
         }
 
         public static string GetMotionDataPoints(StringBuilder  motionData)
@@ -83,9 +114,9 @@ namespace iSpyApplication
                     {
                         FileOperations.Delete(fi.FullName);
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        // Debug.WriteLine("Server Error (deleteall video): " + e.Message);
+                        MainForm.LogExceptionToFile(ex);
                     }
                 }
 
@@ -105,12 +136,12 @@ namespace iSpyApplication
                     {
                         FileOperations.Delete(fi.FullName);
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        // Debug.WriteLine("Server Error (deleteall video): " + e.Message);
+                        MainForm.LogExceptionToFile(ex);
                     }
                 }
-                Array.ForEach(Directory.GetFiles(MainForm.Conf.MediaDirectory + "video\\" +
+                System.Array.ForEach(Directory.GetFiles(MainForm.Conf.MediaDirectory + "video\\" +
                                               directoryName + "\\thumbs\\"), delegate(string path)
                                               {
                                                   try

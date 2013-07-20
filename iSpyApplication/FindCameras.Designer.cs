@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FindCameras));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.label1 = new System.Windows.Forms.Label();
             this.ddlMake = new System.Windows.Forms.ComboBox();
@@ -139,11 +140,11 @@
             // 
             // ddlMake
             // 
-            this.ddlMake.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlMake.DropDownStyle = System.Windows.Forms.ComboBoxStyle.Simple;
             this.ddlMake.FormattingEnabled = true;
             this.ddlMake.Location = new System.Drawing.Point(3, 3);
             this.ddlMake.Name = "ddlMake";
-            this.ddlMake.Size = new System.Drawing.Size(231, 21);
+            this.ddlMake.Size = new System.Drawing.Size(231, 99);
             this.ddlMake.TabIndex = 0;
             this.ddlMake.SelectedIndexChanged += new System.EventHandler(this.ddlMake_SelectedIndexChanged);
             // 
@@ -331,15 +332,14 @@
             this.tbl2.Controls.Add(this.chkRTSP, 1, 2);
             this.tbl2.Controls.Add(this.chkHTTP, 1, 3);
             this.tbl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbl2.Location = new System.Drawing.Point(153, 73);
+            this.tbl2.Location = new System.Drawing.Point(153, 153);
             this.tbl2.Name = "tbl2";
-            this.tbl2.RowCount = 5;
+            this.tbl2.RowCount = 4;
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tbl2.Size = new System.Drawing.Size(409, 169);
+            this.tbl2.Size = new System.Drawing.Size(409, 130);
             this.tbl2.TabIndex = 0;
             // 
             // label13
@@ -415,13 +415,13 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(100, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 31);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 105);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 39);
+            this.label11.Location = new System.Drawing.Point(3, 113);
             this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(36, 13);
@@ -432,7 +432,7 @@
             // 
             this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlModel.FormattingEnabled = true;
-            this.ddlModel.Location = new System.Drawing.Point(103, 34);
+            this.ddlModel.Location = new System.Drawing.Point(103, 108);
             this.ddlModel.Name = "ddlModel";
             this.ddlModel.Size = new System.Drawing.Size(149, 21);
             this.ddlModel.TabIndex = 8;
@@ -528,7 +528,7 @@
             this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
             this.pnlConfig.Location = new System.Drawing.Point(17, 16);
             this.pnlConfig.Name = "pnlConfig";
-            this.pnlConfig.Size = new System.Drawing.Size(565, 245);
+            this.pnlConfig.Size = new System.Drawing.Size(565, 286);
             this.pnlConfig.TabIndex = 6;
             // 
             // tableLayoutPanel4
@@ -544,15 +544,15 @@
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 2;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 245);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 286);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // rdoUnlisted
             // 
             this.rdoUnlisted.AutoSize = true;
-            this.rdoUnlisted.Location = new System.Drawing.Point(3, 73);
+            this.rdoUnlisted.Location = new System.Drawing.Point(3, 153);
             this.rdoUnlisted.Name = "rdoUnlisted";
             this.rdoUnlisted.Size = new System.Drawing.Size(95, 17);
             this.rdoUnlisted.TabIndex = 15;
@@ -586,9 +586,9 @@
             this.tbl1.Location = new System.Drawing.Point(153, 3);
             this.tbl1.Name = "tbl1";
             this.tbl1.RowCount = 2;
-            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 105F));
             this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tbl1.Size = new System.Drawing.Size(409, 64);
+            this.tbl1.Size = new System.Drawing.Size(409, 144);
             this.tbl1.TabIndex = 14;
             // 
             // pnlNetwork
@@ -773,6 +773,7 @@
             this.Controls.Add(this.pnlmain);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FindCameras";
             this.Padding = new System.Windows.Forms.Padding(3);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

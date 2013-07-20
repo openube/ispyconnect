@@ -77,7 +77,7 @@ namespace iSpyApplication.Video
             while (sourceLength >= needleLen)
             {
                 // find needle's starting element
-                index = Array.IndexOf(array, needle[0], startIndex, sourceLength - needleLen + 1);
+                index = System.Array.IndexOf(array, needle[0], startIndex, sourceLength - needleLen + 1);
 
                 // if we did not find even the first element of the needls, then the search is failed
                 if (index == -1)

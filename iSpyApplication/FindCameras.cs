@@ -456,7 +456,6 @@ namespace iSpyApplication
             {
                 ddlMake.Items.Add(m.name);
             }
-            ddlMake.Items.Insert(0, LocRm.GetString("PleaseSelect"));
             if (MainForm.IPTYPE != "")
             {
                 try
@@ -761,7 +760,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MainForm.LogExceptionToFile(ex);
             }
             MainForm.LogMessageToFile("Status " + sc + " at " + addr);
 
@@ -811,7 +810,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MainForm.LogExceptionToFile(ex);
             }
             return b;
         }
@@ -827,17 +826,25 @@ namespace iSpyApplication
             }
                       
             var cand = m.url.ToList();
-            if (model!="")
+            var added = new List<string>();
+            if (model!="" && model.ToUpper()!="OTHER")
             {
-                cand = cand.Where(p => String.IsNullOrEmpty(p.version) || p.version.ToUpper() == model).ToList();
+                string mdl = model.ToUpper();
+                cand = cand.Where(p => String.IsNullOrEmpty(p.version) || p.version.ToUpper() == mdl).ToList();
             }
             cand = cand.OrderBy(p => p.Source).ToList();
 
+            pnlOptions.SuspendLayout();
             foreach (var u in cand)
             {
                 string addr = GetAddr(u);
-                AddCamera(addr, m, u);
+                if (!added.Contains(addr))
+                {
+                    AddCamera(addr, m, u);
+                    added.Add(addr);
+                }
             }
+            pnlOptions.ResumeLayout();
 
             const int i = 0;
             while (i < pnlOptions.Controls.Count)
@@ -919,7 +926,7 @@ namespace iSpyApplication
                 MainForm.IPHTTP = chkHTTP.Checked;
                 if (MainForm.IPLISTED)
                 {
-                    if (ddlMake.SelectedIndex == 0)
+                    if (ddlMake.SelectedIndex == -1)
                     {
                         MessageBox.Show(this, "Please choose a make");
                         return;

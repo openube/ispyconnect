@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using AForge.Imaging.Filters;
 using AForge.Video;
 using iSpyApplication.Audio;
 using iSpyApplication.Audio.streams;
@@ -15,7 +16,7 @@ using iSpyApplication.Kinect;
 
 namespace iSpyApplication.Video
 {
-    public class KinectStream : IVideoSource, IAudioSource
+    public class KinectStream : IVideoSource, IAudioSource, ISupportsAudio
     {
         private readonly Pen _inferredBonePen = new Pen(Brushes.Gray, 1);
         private readonly Pen _trackedBonePen = new Pen(Brushes.Green, 2);
@@ -30,6 +31,7 @@ namespace iSpyApplication.Video
         //private readonly bool _bound;
         private ManualResetEvent _stopEvent;
         private DateTime _lastFrameTimeStamp = DateTime.Now;
+        public int StreamMode = 0;//color
 
         private const double MaxInterval = 1000d/15;
         
@@ -37,9 +39,8 @@ namespace iSpyApplication.Video
         private int _framesReceived;
         private string _uniqueKinectId;
         ////Depth Stuff
-        //private short[] depthPixels;
-        //private byte[] colorPixels;
-        //private readonly bool _depth;
+        private short[] _depthPixels;
+        private byte[] _colorPixels;
 
         public IAudioSource OutAudio;
 
@@ -120,7 +121,6 @@ namespace iSpyApplication.Video
             _uniqueKinectId = uniqueKinectId;
             _skeleton = skeleton;
             _tripwires = tripwires;
-            //_depth = depth;
 
         }
 
@@ -218,27 +218,25 @@ namespace iSpyApplication.Video
                 _sensor.SkeletonFrameReady += SensorSkeletonFrameReady;
             }
 
-            //if (_depth)
-            //{
-            //    _sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
-            //    _sensor.DepthFrameReady += SensorDepthFrameReady;
-            //    // Allocate space to put the depth pixels we'll receive
-            //    this.depthPixels = new short[_sensor.DepthStream.FramePixelDataLength];
-
-            //    // Allocate space to put the color pixels we'll create
-            //    this.colorPixels = new byte[_sensor.DepthStream.FramePixelDataLength * sizeof(int)];
-
-            //    // This is the bitmap we'll display on-screen
-            //    _colorBitmap = new WriteableBitmap(this.sensor.DepthStream.FrameWidth, this.sensor.DepthStream.FrameHeight, 96.0, 96.0, PixelFormats.Bgr32, null);
-
-            //}
-            //else
-            //{
-                _sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
-                _sensor.ColorFrameReady += SensorColorFrameReady;
-            //}
-            
-            // Turn on the skeleton stream to receive skeleton frames
+            switch (StreamMode)
+            {
+                case 0://color
+                    _sensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+                    _sensor.ColorFrameReady += SensorColorFrameReady;
+                    break;
+                case 1://depth
+                    _sensor.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30);
+                    _sensor.DepthFrameReady += SensorDepthFrameReady;
+                    // Allocate space to put the depth pixels we'll receive
+                    _depthPixels = new short[_sensor.DepthStream.FramePixelDataLength];
+                    // Allocate space to put the color pixels we'll create
+                    _colorPixels = new byte[_sensor.DepthStream.FramePixelDataLength * sizeof(int)];
+                    break;
+                case 2://infrared
+                    _sensor.ColorStream.Enable(ColorImageFormat.InfraredResolution640x480Fps30);
+                    _sensor.ColorFrameReady += SensorColorFrameReady;
+                    break;
+            }
             
 
             // Start the sensor
@@ -294,56 +292,93 @@ namespace iSpyApplication.Video
                     var sampleBuffer = new float[data];
 
                     _meteringProvider.Read(sampleBuffer, 0, data);
-                    DataAvailable(this, new DataAvailableEventArgs((byte[])_audioBuffer.Clone()));
+                    if (DataAvailable != null)
+                        DataAvailable(this, new DataAvailableEventArgs((byte[])_audioBuffer.Clone()));
                 }
             }
         }
 
-        //void SensorDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
-        //{
-        //    using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
-        //    {
-        //        if (depthFrame != null)
-        //        {
-        //            // Copy the pixel data from the image to a temporary array
-        //            depthFrame.CopyPixelDataTo(this.depthPixels);
+        void SensorDepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+        {
 
-        //            // Convert the depth to RGB
-        //            int colorPixelIndex = 0;
-        //            for (int i = 0; i < this.depthPixels.Length; ++i)
-        //            {
-        //                // discard the portion of the depth that contains only the player index
-        //                short depth = (short)(this.depthPixels[i] >> DepthImageFrame.PlayerIndexBitmaskWidth);
+            using (DepthImageFrame depthFrame = e.OpenDepthImageFrame())
+            {
+                if (depthFrame != null)
+                {
+                    if ((DateTime.Now - _lastFrameTimeStamp).TotalMilliseconds >= MaxInterval)
+                    {
+                        _lastFrameTimeStamp = DateTime.Now;
 
-        //                // to convert to a byte we're looking at only the lower 8 bits
-        //                // by discarding the most significant rather than least significant data
-        //                // we're preserving detail, although the intensity will "wrap"
-        //                // add 1 so that too far/unknown is mapped to black
-        //                byte intensity = (byte)((depth + 1) & byte.MaxValue);
+                        // Copy the pixel data from the image to a temporary array
+                        depthFrame.CopyPixelDataTo(_depthPixels);
 
-        //                // Write out blue byte
-        //                colorPixels[colorPixelIndex++] = intensity;
+                        // Convert the depth to RGB
+                        int colorPixelIndex = 0;
+                        foreach (short t in _depthPixels)
+                        {
+// discard the portion of the depth that contains only the player index
+                            short depth = (short) (t >> DepthImageFrame.PlayerIndexBitmaskWidth);
 
-        //                // Write out green byte
-        //                colorPixels[colorPixelIndex++] = intensity;
+                            // to convert to a byte we're looking at only the lower 8 bits
+                            // by discarding the most significant rather than least significant data
+                            // we're preserving detail, although the intensity will "wrap"
+                            // add 1 so that too far/unknown is mapped to black
+                            byte intensity = (byte) ((depth + 1) & byte.MaxValue);
 
-        //                // Write out red byte                        
-        //                colorPixels[colorPixelIndex++] = intensity;
+                            // Write out blue byte
+                            _colorPixels[colorPixelIndex++] = intensity;
 
-        //                // We're outputting BGR, the last byte in the 32 bits is unused so skip it
-        //                // If we were outputting BGRA, we would write alpha here.
-        //                ++colorPixelIndex;
-        //            }
+                            // Write out green byte
+                            _colorPixels[colorPixelIndex++] = intensity;
 
-        //            // Write the pixel data into our bitmap
-        //            TypeConverter tc = TypeDescriptor.GetConverter(typeof(Bitmap));
-        //            Bitmap bmap = (Bitmap)tc.ConvertFrom(colorPixels);
-        //            NewFrame(this, new NewFrameEventArgs(bmap));
-        //            // release the image
-        //            bmap.Dispose(); 
-        //        }
-        //    }
-        //}
+                            // Write out red byte                        
+                            _colorPixels[colorPixelIndex++] = intensity;
+
+                            // We're outputting BGR, the last byte in the 32 bits is unused so skip it
+                            // If we were outputting BGRA, we would write alpha here.
+                            ++colorPixelIndex;
+                        }
+
+                        // Write the pixel data into our bitmap
+
+                        var bmap = new Bitmap(
+                            depthFrame.Width,depthFrame.Height,
+                            PixelFormat.Format32bppRgb);
+                        BitmapData bmapdata = bmap.LockBits(
+                            new Rectangle(0, 0,
+                                          depthFrame.Width, depthFrame.Height),
+                            ImageLockMode.WriteOnly,
+                            bmap.PixelFormat);
+                        var ptr = bmapdata.Scan0;
+                        Marshal.Copy(_colorPixels, 0, ptr,
+                                     _colorPixels.Length);
+                        bmap.UnlockBits(bmapdata);
+                        
+                        using (Graphics g = Graphics.FromImage(bmap))
+                        {
+                            lock (_skeletons)
+                            {
+                                foreach (Skeleton skel in _skeletons)
+                                {
+                                    DrawBonesAndJoints(skel, g);
+                                }
+                            }
+                            if (_tripwires)
+                            {
+                                foreach (var dl in TripWires)
+                                {
+                                    g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
+                                }
+                            }
+                        }
+                        // notify client
+                        NewFrame(this, new NewFrameEventArgs(bmap));
+                        // release the image
+                        bmap.Dispose();
+                    }
+                }
+            }
+        }
 
         void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
@@ -368,31 +403,43 @@ namespace iSpyApplication.Video
 
                 using (ColorImageFrame imageFrame = e.OpenColorImageFrame())
                 {
-                    
-                    Bitmap bmap = ImageToBitmap(imageFrame);
-                    if (bmap != null)
+                    if (imageFrame != null)
                     {
-                        using (Graphics g = Graphics.FromImage(bmap))
+                        Bitmap bmap;
+                        switch (imageFrame.Format)
                         {
-                            lock (_skeletons)
-                            {
-                                foreach (Skeleton skel in _skeletons)
-                                {
-                                    DrawBonesAndJoints(skel, g);
-                                }
-                            }
-                            if (_tripwires)
-                            {
-                                foreach (var dl in TripWires)
-                                {
-                                    g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
-                                }
-                            }
+                            default:
+                                bmap = ColorImageToBitmap(imageFrame);
+                                break;
+                            case ColorImageFormat.InfraredResolution640x480Fps30:
+                                bmap = GrayScaleImageToBitmap(imageFrame);
+                                break;
                         }
-                        // notify client
-                        NewFrame(this, new NewFrameEventArgs(bmap));
-                        // release the image
-                        bmap.Dispose();
+
+                        if (bmap != null)
+                        {
+                            using (Graphics g = Graphics.FromImage(bmap))
+                            {
+                                lock (_skeletons)
+                                {
+                                    foreach (Skeleton skel in _skeletons)
+                                    {
+                                        DrawBonesAndJoints(skel, g);
+                                    }
+                                }
+                                if (_tripwires)
+                                {
+                                    foreach (var dl in TripWires)
+                                    {
+                                        g.DrawLine(TripWirePen, dl.StartPoint, dl.EndPoint);
+                                    }
+                                }
+                            }
+                            // notify client
+                            NewFrame(this, new NewFrameEventArgs(bmap));
+                            // release the image
+                            bmap.Dispose();
+                        }
                     }
                 }
             }
@@ -560,9 +607,10 @@ namespace iSpyApplication.Video
         {
             try
             {
+                if (_sensor!=null)
                 _sensor.Stop();
             }
-            catch (IOException)
+            catch (Exception)
             {
             }
             if (_stopEvent != null)
@@ -593,7 +641,7 @@ namespace iSpyApplication.Video
             return new Point(depthPoint.X, depthPoint.Y);
         }
 
-        static Bitmap ImageToBitmap(
+        static Bitmap ColorImageToBitmap(
                      ColorImageFrame image)
         {
             try
@@ -605,22 +653,22 @@ namespace iSpyApplication.Video
                     
                     image.CopyPixelDataTo(pixeldata);
 
-                    var bmap = new Bitmap(
-                        image.Width,
-                        image.Height,
-                        PixelFormat.Format32bppRgb);
-                    BitmapData bmapdata = bmap.LockBits(
+                    var bitmapFrame = new Bitmap(image.Width, image.Height, PixelFormat.Format32bppRgb);
+
+                    BitmapData bmapdata = bitmapFrame.LockBits(
                         new Rectangle(0, 0,
                                       image.Width, image.Height),
                         ImageLockMode.WriteOnly,
-                        bmap.PixelFormat);
+                        bitmapFrame.PixelFormat);
                     var ptr = bmapdata.Scan0;
                     Marshal.Copy(pixeldata, 0, ptr,
                                  image.PixelDataLength);
-                    bmap.UnlockBits(bmapdata);
+                    bitmapFrame.UnlockBits(bmapdata);
 
-
-                    return bmap;
+                    bmapdata = null;
+                    pixeldata = null;
+                    
+                    return bitmapFrame;
                 }
             }
             catch (Exception ex)
@@ -629,6 +677,44 @@ namespace iSpyApplication.Video
             }
             return null;
         }
+
+         static Bitmap GrayScaleImageToBitmap(ColorImageFrame image)
+        {
+            try
+            {
+                if (image != null)
+                {
+                    var pixeldata =
+                        new byte[image.PixelDataLength];
+                    
+                    image.CopyPixelDataTo(pixeldata);
+
+                    var bitmapFrame = new Bitmap(image.Width, image.Height, PixelFormat.Format16bppGrayScale);
+
+                    BitmapData bmapdata = bitmapFrame.LockBits(
+                        new Rectangle(0, 0,
+                                      image.Width, image.Height),
+                        ImageLockMode.WriteOnly,
+                        bitmapFrame.PixelFormat);
+                    var ptr = bmapdata.Scan0;
+                    Marshal.Copy(pixeldata, 0, ptr,
+                                 image.PixelDataLength);
+                    bitmapFrame.UnlockBits(bmapdata);
+
+                    bmapdata = null;
+                    pixeldata = null;
+                    
+                    var  filter = new GrayscaleToRGB();
+                    return filter.Apply(AForge.Imaging.Image.Convert16bppTo8bpp(bitmapFrame));
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            return null;
+        }
+
 
         private static bool ProcessIntersection(Point a, Point b, DepthLine dl)
         {
@@ -666,32 +752,5 @@ namespace iSpyApplication.Video
             return false;
         }
 
-        //Bitmap ImageToBitmap(
-        //    DepthImageFrame Image)
-        //{
-        //    if (Image != null)
-        //    {
-        //        short[] pixeldata =
-        //            new short[Image.PixelDataLength];
-        //        Image.CopyPixelDataTo(pixeldata);
-
-        //        Bitmap bmap = new Bitmap(
-        //            Image.Width,
-        //            Image.Height,
-        //            PixelFormat.Format16bppGrayScale);
-
-        //        BitmapData bmapdata = bmap.LockBits(
-        //            new Rectangle(0, 0,
-        //                          Image.Width, Image.Height),
-        //            ImageLockMode.WriteOnly,
-        //            bmap.PixelFormat);
-        //        IntPtr ptr = bmapdata.Scan0;
-        //        Marshal.Copy(pixeldata, 0, ptr,
-        //                     Image.PixelDataLength);
-        //        bmap.UnlockBits(bmapdata);
-        //        return bmap;
-        //    }
-        //    return null;
-        //}
     }
 }

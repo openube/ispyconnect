@@ -3,6 +3,8 @@
   <PropertyGroup>
     <ShowAllFiles>true</ShowAllFiles>
     <LocalDebuggerDebuggerType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Mixed</LocalDebuggerDebuggerType>
+    <LocalDebuggerDebuggerType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Mixed</LocalDebuggerDebuggerType>
     <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WindowsLocalDebugger</DebuggerFlavor>
+    <DebuggerFlavor Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

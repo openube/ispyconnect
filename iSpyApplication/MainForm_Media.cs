@@ -46,9 +46,8 @@ namespace iSpyApplication
             }
         }
 
-        private void DeleteSelectedMedia()
+        public void DeleteSelectedMedia()
         {
-            int d = 0;
             lock (flowPreview.Controls)
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
@@ -56,14 +55,12 @@ namespace iSpyApplication
                     var pb = (PreviewBox)flowPreview.Controls[i];
                     if (pb.Selected)
                     {
-                        d++;
                         RemovePreviewBox(pb);
                         i--;
                     }
                 }
             }
-            if (d>0)
-                LoadPreviews();
+
         }
 
         private void RemovePreviewBox(PreviewBox pb)
@@ -76,16 +73,20 @@ namespace iSpyApplication
             {
                 //movie
                 FileOperations.Delete(pb.FileName);
-                GetCameraWindow(Convert.ToInt32(id)).FileList.RemoveAll(p => p.Filename == fn);
-                MasterFileList.RemoveAll(p => p.Filename == fn);
+                var cw = GetCameraWindow(Convert.ToInt32(id));
+                if (cw!=null)
+                {
+                    cw.RemoveFile(fn);
+                }
+                
 
                 //preview
                 string dir = pb.FileName.Substring(0, pb.FileName.LastIndexOf("\\", StringComparison.Ordinal));
 
-                var lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + "_large.jpg";
+                var lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + "_large.jpg";
                 FileOperations.Delete(lthumb);
 
-                lthumb = dir + "\\thumbs\\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
+                lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
                 FileOperations.Delete(lthumb);
             }
             catch (Exception ex)
@@ -93,83 +94,80 @@ namespace iSpyApplication
                 LogExceptionToFile(ex);
             }
             flowPreview.Controls.Remove(pb);
+            pb.MouseDown -= PbMouseDown;
+            pb.MouseEnter -= PbMouseEnter;
             pb.Dispose();
-        }
 
-        private void ClearPreviewBoxes()
-        {
-            lock (flowPreview.Controls)
-            {
-                foreach(PreviewBox c in flowPreview.Controls)
-                {
-                    c.Dispose();
-                }
-                flowPreview.Controls.Clear();
-            }
+            NeedsMediaRefresh = DateTime.Now;
+           
         }
 
         public void LoadPreviews()
         {
-            UISync.Execute(ClearPreviewBoxes);
-            UISync.Execute(AddPreviewBoxes);
+            if (!flowPreview.Loading)
+            {
+                NeedsMediaRefresh = DateTime.MinValue;
+                UISync.Execute(RenderPreviewBoxes);
+                
+            }
         }
-        private void AddPreviewBoxes()  {
+
+        private void RenderPreviewBoxes()  {
 
             lock (flowPreview.Controls)
             {
-                
-                MasterFileList = new List<FilePreview>();
-                foreach (Control c in _pnlCameras.Controls)
+                //flowPreview.Controls.Clear();
+                if (MediaPanelPage * Conf.PreviewItems > MasterFileList.Count-1)
                 {
-                    try
+                    MediaPanelPage = 0;
+                }
+                int pageCount = (MasterFileList.Count - 1)/Conf.PreviewItems + 1;
+
+                llblPage.Text = String.Format("{0} / {1}", (MediaPanelPage + 1), pageCount);
+
+                var currentList = new List<PreviewBox>();
+                var displayList = MasterFileList.OrderByDescending(p => p.CreatedDateTicks).Skip(MediaPanelPage*Conf.PreviewItems).Take(Conf.PreviewItems).ToList();
+                for(int i=0;i<flowPreview.Controls.Count;i++)
+                {
+                    var pb = (PreviewBox) flowPreview.Controls[i];
+                    if (displayList.Count(p => p.CreatedDateTicks == pb.CreatedDate.Ticks)==0)
                     {
-                        if (c is CameraWindow)
-                        {
-                            var cw = ((CameraWindow)c);
-                            List<FilesFile> ffs;
-                            lock (cw.FileList)
-                            {
-                               ffs = cw.FileList.ToList();
-                            }
-                            foreach (FilesFile ff in ffs)
-                            {
-                                MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
-                                                                   ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm));
-                            }
-                        }
-                        if (c is VolumeLevel)
-                        {
-                            var vl = ((VolumeLevel)c);
-                            List<FilesFile> ffs;
-                            lock (vl.FileList)
-                            {
-                                ffs = vl.FileList.ToList();
-                            }
-                            foreach (FilesFile ff in ffs)
-                            {
-                                MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
-                                                                   ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
-                            }
-                        }
+                        flowPreview.Controls.Remove(pb);
+                        pb.MouseDown -= PbMouseDown;
+                        pb.MouseEnter -= PbMouseEnter;
+                        pb.Dispose();
+                        i--;
                     }
-                    catch(Exception ex)
+                    else
                     {
-                        LogExceptionToFile(ex);
+                        currentList.Add(pb);
                     }
                 }
-                var displayList =
-                    MasterFileList.OrderByDescending(p => p.CreatedDateTicks).Where(p=>p.ObjectTypeId==2).Take(Conf.PreviewItems).ToList();
+                int ci = 0;
                 foreach (FilePreview fp in displayList)
                 {
-                    FilePreview fp1 = fp;
-                    var filename = Conf.MediaDirectory + "video\\" + Cameras.Single(p => p.id == fp1.ObjectId).directory +
-                                   "\\" + fp.Filename;
-                    FilePreview fp2 = fp;
-                    var thumb = Conf.MediaDirectory + "video\\" + Cameras.Single(p => p.id == fp2.ObjectId).directory +
-                                "\\thumbs\\" + fp.Filename.Substring(0, fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
-
-                    AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), false);
+                    var pb = currentList.FirstOrDefault(p => p.CreatedDate.Ticks == fp.CreatedDateTicks);
+                    if (pb==null)
+                    {
+                        FilePreview fp1 = fp;
+                        var c = Cameras.SingleOrDefault(p => p.id == fp1.ObjectId);
+                        if (c != null)
+                        {
+                            var filename = Conf.MediaDirectory + "video\\" + c.directory + "\\" + fp.Filename;
+                            var thumb = Conf.MediaDirectory + "video\\" + c.directory + "\\thumbs\\" +
+                                        fp.Filename.Substring(0, fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
+                                        ".jpg";
+                            pb = AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), c.name);
+                        }
+                    }
+                    if (pb != null)
+                    {
+                        flowPreview.Controls.SetChildIndex(pb, ci);
+                        ci++;
+                    }
                 }
+                
+                   
             }
         }
 
@@ -177,19 +175,73 @@ namespace iSpyApplication
         {
             lock (flowPreview.Controls)
             {
-                PreviewBox pb = null;
-                foreach (PreviewBox c in flowPreview.Controls)
-                {
-                    if (c.FileName.EndsWith(fn))
-                    {
-                        pb = c;
-                        break;
-                    }
-                }
-
+                PreviewBox pb = flowPreview.Controls.Cast<PreviewBox>().FirstOrDefault(c => c.FileName.EndsWith(fn));
                 if (pb != null)
+                {
                     UISync.Execute(() => RemovePreviewBox(pb));
+                }
             }
+        }
+
+        private void llblBack_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MediaPanelPage--;
+            if (MediaPanelPage < 0)
+                MediaPanelPage = 0;
+            else
+            {
+                foreach (PreviewBox pb in flowPreview.Controls)
+                {
+                    pb.MouseDown -= PbMouseDown;
+                    pb.MouseEnter -= PbMouseEnter;
+                    pb.Dispose();
+                }
+                flowPreview.Controls.Clear();
+                LoadPreviews();
+            }
+
+        }
+
+        private void llblNext_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MediaPanelPage++;
+            if (MediaPanelPage * Conf.PreviewItems >= MasterFileList.Count)
+                MediaPanelPage--;
+            else
+            {
+                foreach (PreviewBox pb in flowPreview.Controls)
+                {
+                    pb.MouseDown -= PbMouseDown;
+                    pb.MouseEnter -= PbMouseEnter;
+                    pb.Dispose();
+                }
+                flowPreview.Controls.Clear();
+                LoadPreviews();
+            }
+
+        }
+
+        private void llblPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var p = new Pager();
+            int i = MediaPanelPage;
+            p.ShowDialog(this);
+            if (i != MediaPanelPage)
+            {
+                foreach (PreviewBox pb in flowPreview.Controls)
+                {
+                    pb.MouseDown -= PbMouseDown;
+                    pb.MouseEnter -= PbMouseEnter;
+                    pb.Dispose();
+                }
+                flowPreview.Controls.Clear();
+                LoadPreviews();
+            }
+        }
+
+        private void flowPreview_MouseLeave(object sender, EventArgs e)
+        {
+            tsslMediaInfo.Text = "";
         }
 
     }

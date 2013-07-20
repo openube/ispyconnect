@@ -17,6 +17,8 @@ namespace iSpyApplication
         private Button _button1;
         private Button _button2;
         private Panel _panel1;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private CheckBox chkCheckForUpdates;
         private WebBrowser _wbProductHistory;
 
         public NewVersion()
@@ -48,6 +50,7 @@ namespace iSpyApplication
 
         private void NewVersionLoad(object sender, EventArgs e)
         {
+            chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
             _wbProductHistory.Navigate(MainForm.Website+"/producthistory.aspx?productid=11");
         }
 
@@ -57,6 +60,7 @@ namespace iSpyApplication
             _button1.Text = LocRm.GetString("GetLatestVersion");
             _button2.Text = LocRm.GetString("NoThanks");
             Text = LocRm.GetString("NewVersion");
+            chkCheckForUpdates.Text = LocRm.GetString("AutomaticallyCheckForUpda");
         }
 
         private void Button2Click(object sender, EventArgs e)
@@ -84,7 +88,10 @@ namespace iSpyApplication
             this._panel1 = new System.Windows.Forms.Panel();
             this._button2 = new System.Windows.Forms.Button();
             this._button1 = new System.Windows.Forms.Button();
+            this.chkCheckForUpdates = new System.Windows.Forms.CheckBox();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this._panel1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // _wbProductHistory
@@ -98,8 +105,7 @@ namespace iSpyApplication
             // 
             // _panel1
             // 
-            this._panel1.Controls.Add(this._button2);
-            this._panel1.Controls.Add(this._button1);
+            this._panel1.Controls.Add(this.flowLayoutPanel1);
             this._panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this._panel1.Location = new System.Drawing.Point(0, 301);
             this._panel1.Name = "_panel1";
@@ -111,7 +117,7 @@ namespace iSpyApplication
             this._button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this._button2.AutoSize = true;
             this._button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._button2.Location = new System.Drawing.Point(456, 6);
+            this._button2.Location = new System.Drawing.Point(362, 3);
             this._button2.Name = "_button2";
             this._button2.Size = new System.Drawing.Size(70, 23);
             this._button2.TabIndex = 1;
@@ -123,13 +129,37 @@ namespace iSpyApplication
             // 
             this._button1.AutoSize = true;
             this._button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._button1.Location = new System.Drawing.Point(3, 6);
+            this._button1.Location = new System.Drawing.Point(438, 3);
             this._button1.Name = "_button1";
             this._button1.Size = new System.Drawing.Size(99, 23);
             this._button1.TabIndex = 0;
             this._button1.Text = "Get latest version";
             this._button1.UseVisualStyleBackColor = true;
             this._button1.Click += new System.EventHandler(this.Button1Click);
+            // 
+            // chkCheckForUpdates
+            // 
+            this.chkCheckForUpdates.AutoSize = true;
+            this.chkCheckForUpdates.Location = new System.Drawing.Point(176, 6);
+            this.chkCheckForUpdates.Margin = new System.Windows.Forms.Padding(6);
+            this.chkCheckForUpdates.Name = "chkCheckForUpdates";
+            this.chkCheckForUpdates.Size = new System.Drawing.Size(177, 17);
+            this.chkCheckForUpdates.TabIndex = 2;
+            this.chkCheckForUpdates.Text = "Automatically check for updates";
+            this.chkCheckForUpdates.UseVisualStyleBackColor = true;
+            this.chkCheckForUpdates.CheckedChanged += new System.EventHandler(this.chkCheckForUpdates_CheckedChanged);
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this._button1);
+            this.flowLayoutPanel1.Controls.Add(this._button2);
+            this.flowLayoutPanel1.Controls.Add(this.chkCheckForUpdates);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(540, 34);
+            this.flowLayoutPanel1.TabIndex = 2;
             // 
             // NewVersion
             // 
@@ -144,12 +174,18 @@ namespace iSpyApplication
             this.Text = "New Version";
             this.Load += new System.EventHandler(this.NewVersionLoad);
             this._panel1.ResumeLayout(false);
-            this._panel1.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private void chkCheckForUpdates_CheckedChanged(object sender, EventArgs e)
+        {
+            MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
+        }
 
 
     }

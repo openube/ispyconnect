@@ -36,7 +36,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MainForm.LogExceptionToFile(ex);
 
             }
         }

@@ -36,13 +36,11 @@ namespace iSpyApplication
 
         private void RenderResources()
         {
-            _lblVersion.Text = "iSpy v" + Application.ProductVersion;
-            Text = string.Format("iSpy v{0}", Application.ProductVersion);
-            if (!String.IsNullOrEmpty(MainForm.Conf.Vendor))
-            {
-                Text += string.Format(" with {0}", MainForm.Conf.Vendor);
-            }
+            _lblVersion.Text = string.Format("iSpy v{0}", Application.ProductVersion);
+            if (Program.Platform != "x86")
+                _lblVersion.Text = string.Format("iSpy 64 v{0}", Application.ProductVersion);
 
+            Helper.SetTitle(this);
 
             _lblCopyright.Text = "Copyright " + DateTime.Now.Year;
 
@@ -60,6 +58,8 @@ namespace iSpyApplication
                 }
             }
         }
+
+       
 
 		/// <summary>
 		/// Clean up any resources being used.

@@ -300,7 +300,6 @@ namespace iSpyApplication
                                 break;
                             }
                         }
-                        //Console.WriteLine("set angling object to "+_anglingObject.type+":"+_anglingObject.id);
                     }
                     if ((ModifierKeys & Keys.Alt) == Keys.Alt)
                     {
@@ -315,7 +314,6 @@ namespace iSpyApplication
                                 break;
                             }
                         }
-                        //Console.WriteLine("set angling object to "+_anglingObject.type+":"+_anglingObject.id);
                     }
                     if ((ModifierKeys & Keys.Control) == Keys.Control)
                     {
@@ -330,7 +328,6 @@ namespace iSpyApplication
                                 break;
                             }
                         }
-                        //Console.WriteLine("set angling object to "+_anglingObject.type+":"+_anglingObject.id);
                     }
                     if (!handled)
                     {

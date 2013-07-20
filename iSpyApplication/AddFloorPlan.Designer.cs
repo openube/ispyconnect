@@ -42,6 +42,7 @@
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkOriginalSize = new System.Windows.Forms.CheckBox();
             this.pnlFloorPlan = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -50,7 +51,6 @@
             this.linkLabel14 = new System.Windows.Forms.LinkLabel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkOriginalSize = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -134,6 +134,12 @@
             resources.ApplyResources(this.flowLayoutPanel1, "flowLayoutPanel1");
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             // 
+            // chkOriginalSize
+            // 
+            resources.ApplyResources(this.chkOriginalSize, "chkOriginalSize");
+            this.chkOriginalSize.Name = "chkOriginalSize";
+            this.chkOriginalSize.UseVisualStyleBackColor = true;
+            // 
             // pnlFloorPlan
             // 
             resources.ApplyResources(this.pnlFloorPlan, "pnlFloorPlan");
@@ -184,12 +190,6 @@
             this.flowLayoutPanel2.Controls.Add(this.llblHelp);
             resources.ApplyResources(this.flowLayoutPanel2, "flowLayoutPanel2");
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            // 
-            // chkOriginalSize
-            // 
-            resources.ApplyResources(this.chkOriginalSize, "chkOriginalSize");
-            this.chkOriginalSize.Name = "chkOriginalSize";
-            this.chkOriginalSize.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 

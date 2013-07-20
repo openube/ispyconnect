@@ -3579,9 +3579,6 @@
       <Make Name="Marmitek" Model="IP RoboCam 8" />
       <Make Name="Repotec" Model="RP-VP370" />
       <Make Name="SparkLan" Model="CAS-370" />
-      <Make Name="TRENDnet" Model="TV-IP100/200/400 Series" />
-      <Make Name="TRENDnet" Model="TV-IP501" />
-      <Make Name="TRENDnet" Model="TV-IP600W" />
     </Makes>
     <CommandURL>/PANTILTCONTROL.CGI</CommandURL>
     <Commands>
@@ -4312,28 +4309,45 @@
       <Make Name="Foscam" Model="FI9801W" />
       <Make Name="Foscam" Model="FI9802W" />
     </Makes>
-    <CommandURL>/cgi-bin/CGIProxy.fcgi?usr=[USERNAME]&amp;pwd=[PASSWORD]</CommandURL>
+    <CommandURL>/decoder_control.cgi</CommandURL>
     <Commands>
-      <Center></Center>
-      <Left>cmd=ptzMoveLeft</Left>
-      <LeftUp>cmd=ptzMoveTopLeft</LeftUp>
-      <Right>cmd=ptzMoveRight</Right>
-      <RightUp>cmd=ptzMoveTopRight</RightUp>
-      <Up>cmd=ptzMoveUp</Up>
-      <Down>cmd=ptzMoveDown</Down>
-      <LeftDown>cmd=ptzMoveBottomLeft</LeftDown>
-      <RightDown>cmd=ptzMoveBottomRight</RightDown>
-      <Stop>cmd=ptzStopRun</Stop>
-      <ZoomIn>cmd=zoomIn</ZoomIn>
-      <ZoomOut>cmd=zoomOut</ZoomOut>
+      <Center>command=25</Center>
+      <Left>command=6</Left>
+      <LeftUp>command=91</LeftUp>
+      <Right>command=4</Right>
+      <RightUp>command=90</RightUp>
+      <Up>command=0</Up>
+      <Down>command=2</Down>
+      <LeftDown>command=93</LeftDown>
+      <RightDown>command=92</RightDown>
+      <Stop>command=1</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
     </Commands>
     <ExtendedCommands>
-      <Command Name="Infrared On">cmd=openInfraLed</Command>
-      <Command Name="Infrared Off">cmd=closeInfraLed</Command>
-      <Command Name="Preset LeftMost">cmd= ptzGotoPresetPoint&amp;name=LeftMost</Command>
-      <Command Name="Preset RightMost">cmd= ptzGotoPresetPoint&amp;name=RightMost</Command>
-      <Command Name="Preset TopMost">cmd= ptzGotoPresetPoint&amp;name=TopMost</Command>
-      <Command Name="Preset BottomMost">cmd= ptzGotoPresetPoint&amp;name=BottomMost</Command>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="IR on">command=95</Command>
+      <Command Name="IR off">command=94</Command>
+      <Command Name="H Patrol">command=28</Command>
+      <Command Name="V Patrol">command=26</Command>
+      <Command Name="IO Output High">command=94</Command>
+      <Command Name="IO Output Low">command=95</Command>
+      <Command Name="Set Preset 0">command=30</Command>
+      <Command Name="Go Preset 0">command=31</Command>
+      <Command Name="Set Preset 1">command=32</Command>
+      <Command Name="Go Preset 1">command=33</Command>
+      <Command Name="Set Preset 2">command=34</Command>
+      <Command Name="Go Preset 2">command=35</Command>
+      <Command Name="Set Preset 3">command=36</Command>
+      <Command Name="Go Preset 3">command=37</Command>
+      <Command Name="Set Preset 4">command=38</Command>
+      <Command Name="Go Preset 4">command=39</Command>
+      <Command Name="Set Preset 5">command=40</Command>
+      <Command Name="Go Preset 5">command=41</Command>
+      <Command Name="Set Preset 6">command=42</Command>w
+      <Command Name="Go Preset 6">command=43</Command><Command Name="Set Preset 7">command=44</Command><Command Name="Go Preset 7">command=45</Command><Command Name="Set Preset 8">command=46</Command><Command Name="Go Preset 8">command=47</Command><Command Name="Set Preset 9">command=48</Command><Command Name="Go Preset 9">command=49</Command><Command Name="Set Preset 10">command=50</Command><Command Name="Go Preset 10">command=51</Command><Command Name="Set Preset 11">command=52</Command><Command Name="Go Preset 11">command=53</Command><Command Name="Set Preset 12">command=54</Command><Command Name="Go Preset 12">command=55</Command><Command Name="Set Preset 13">command=56</Command><Command Name="Go Preset 13">command=57</Command><Command Name="Set Preset 14">command=58</Command><Command Name="Go Preset 14">command=59</Command><Command Name="Set Preset 15">command=60</Command><Command Name="Go Preset 15">command=61</Command><Command Name="Set Preset 16">command=62</Command><Command Name="Go Preset 16">command=63</Command>
     </ExtendedCommands>
   </Camera>
   <Camera id="175">
@@ -4579,6 +4593,11 @@
   <Camera id="181">
     <Makes>
       <Make Name="TRENDnet" Model="TV-IP400" />
+      <Make Name="TRENDnet" Model="TV-IP100/200/400 Series" />
+      <Make Name="TRENDnet" Model="TV-IP501" />
+      <Make Name="TRENDnet" Model="TV-IP600W" />
+      <Make Name="TRENDnet" Model="TV-IP851WIC" />
+      
     </Makes>
     <CommandURL>/PANTILTCONTROL.CGI</CommandURL>
     <POST>true</POST>
@@ -4618,6 +4637,181 @@
       <Command Name="Swing left/right (endless)">PanTiltSwingMode=1</Command>
       <Command Name="Swing Presets (1 time)">PanTiltSwingMode=2</Command>
       <Command Name="Stop Swing">PanTiltSwingMode=0</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="182">
+    <Makes>
+      <Make Name="DLink" Model="DCS-5222L Series" />
+    </Makes>
+    <CommandURL>
+    </CommandURL>
+    <Commands>
+        <Center>/cgi/ptdc.cgi?command=go_home</Center>
+        <Left>/cgi/ptdc.cgi?command=set_relative_pos&amp;posX=-10&amp;posY=0</Left>
+        <Right>/cgi/ptdc.cgi?command=set_relative_pos&amp;posX=10&amp;posY=0</Right>
+        <Up>/cgi/ptdc.cgi?command=set_relative_pos&amp;posX=0&amp;posY=10</Up>
+        <Down>/cgi/ptdc.cgi?command=set_relative_pos&amp;posX=0&amp;posY=-10</Down>
+      </Commands>
+    <ExtendedCommands>
+      <Command Name="Go Preset 1">/cgi/ptdc.cgi?command=goto_preset_position&amp;presetId=0</Command>
+      <Command Name="Go Preset 2">/cgi/ptdc.cgi?command=goto_preset_position&amp;presetId=1</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="183">
+    <Makes>
+      <Make Name="Esky" Model="C5700" />
+    </Makes>
+    <CommandURL>/</CommandURL>
+    <Commands>
+      <Center>decoder_control.cgi?command=25</Center>
+      <Left>decoder_control.cgi?command=4</Left>
+      <Right>decoder_control.cgi?command=6</Right>
+      <Up>decoder_control.cgi?command=0</Up>
+      <Down>decoder_control.cgi?command=2</Down>
+      <LeftUp>decoder_control.cgi?command=90</LeftUp>
+      <RightUp>decoder_control.cgi?command=91</RightUp>
+      <LeftDown>decoder_control.cgi?command=92</LeftDown>
+      <RightDown>decoder_control.cgi?command=93</RightDown>
+      <Stop>decoder_control.cgi?command=1</Stop>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Set Preset 1">decoder_control.cgi?command=30</Command>
+      <Command Name="Set Preset 2">decoder_control.cgi?command=32</Command>
+      <Command Name="Set Preset 3">decoder_control.cgi?command=34</Command>
+      <Command Name="Set Preset 4">decoder_control.cgi?command=36</Command>
+      <Command Name="Set Preset 5">decoder_control.cgi?command=38</Command>
+      <Command Name="Set Preset 6">decoder_control.cgi?command=40</Command>
+      <Command Name="Set Preset 7">decoder_control.cgi?command=42</Command>
+      <Command Name="Set Preset 8">decoder_control.cgi?command=44</Command>
+      <Command Name="Set Preset 9">decoder_control.cgi?command=46</Command>
+      <Command Name="Set Preset 10">decoder_control.cgi?command=48</Command>
+      <Command Name="Set Preset 11">decoder_control.cgi?command=50</Command>
+      <Command Name="Set Preset 12">decoder_control.cgi?command=52</Command>
+      <Command Name="Set Preset 13">decoder_control.cgi?command=54</Command>
+      <Command Name="Set Preset 14">decoder_control.cgi?command=56</Command>
+      <Command Name="Set Preset 15">decoder_control.cgi?command=58</Command>
+      <Command Name="Goto Preset 1">decoder_control.cgi?command=31</Command>
+      <Command Name="Goto Preset 2">decoder_control.cgi?command=33</Command>
+      <Command Name="Goto Preset 3">decoder_control.cgi?command=35</Command>
+      <Command Name="Goto Preset 4">decoder_control.cgi?command=37</Command>
+      <Command Name="Goto Preset 5">decoder_control.cgi?command=39</Command>
+      <Command Name="Goto Preset 6">decoder_control.cgi?command=41</Command>
+      <Command Name="Goto Preset 7">decoder_control.cgi?command=43</Command>
+      <Command Name="Goto Preset 8">decoder_control.cgi?command=45</Command>
+      <Command Name="Goto Preset 9">decoder_control.cgi?command=47</Command>
+      <Command Name="Goto Preset 10">decoder_control.cgi?command=49</Command>
+      <Command Name="Goto Preset 11">decoder_control.cgi?command=51</Command>
+      <Command Name="Goto Preset 12">decoder_control.cgi?command=53</Command>
+      <Command Name="Goto Preset 13">decoder_control.cgi?command=55</Command>
+      <Command Name="Goto Preset 14">decoder_control.cgi?command=57</Command>
+      <Command Name="Goto Preset 15">decoder_control.cgi?command=59</Command>
+      <Command Name="Horizontal Patrol on">decoder_control.cgi?command=28</Command>
+      <Command Name="Horizontal Patrol off">decoder_control.cgi?command=29</Command>
+      <Command Name="Vertical Patrol on">decoder_control.cgi?command=26</Command>
+      <Command Name="Vertical Patrol off">decoder_control.cgi?command=27</Command>
+      <Command Name="Mirror Vertically on">camera_control.cgi?param=5&amp;value=1</Command>
+      <Command Name="Mirror Vertically off">camera_control.cgi?param=5&amp;value=0</Command>
+      <Command Name="Mirror Horizontally on">camera_control.cgi?param=5&amp;value=2</Command>
+      <Command Name="Mirror Horizontally off">camera_control.cgi?param=5&amp;value=0</Command>
+      <Command Name="GPIO Power on">decoder_control.cgi?command=94</Command>
+      <Command Name="GPIO Power off">decoder_control.cgi?command=95</Command>
+      <Command Name="Reboot Camera">reboot.cgi?user=[USERNAME]&amp;pwd=[PASSWORD]&amp;user=[USERNAME]&amp;pwd=[PASSWORD]&amp;next_url=reboot.htm</Command>
+      <Command Name="Change Resolution 160x120">camera_control.cgi?param=0&amp;value=2</Command>
+      <Command Name="Change Resolution 320x240">camera_control.cgi?param=0&amp;value=4</Command>
+      <Command Name="Change Resolution 640x490">camera_control.cgi?param=0&amp;value=32</Command>
+      <Command Name="Change Refresh to 50HZ">camera_control.cgi?param=3&amp;value=0</Command>
+      <Command Name="Change Refresh to 60HZ">camera_control.cgi?param=3&amp;value=1</Command>
+      <Command Name="Change Refresh to outdoor setting">camera_control.cgi?param=3&amp;value=2</Command>
+      <Command Name="Turn off DDNS">set_ddns.cgi?cam_user=[USERNAME]&amp;cam_pwd=[PASSWORD]&amp;next_url=rebootme.htm&amp;service=0&amp;user=[USERNAME]&amp;pwd=[PASSWORD]&amp;host=&amp;proxy_svr=&amp;proxy_port=0</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="184">
+    <Makes>
+    <Make Name="Phantom" Model="Wireless IP Dome Camera" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=6</Left>
+      <LeftUp>command=93</LeftUp>
+      <Right>command=4</Right>
+      <RightUp>command=92</RightUp>
+      <Up>command=2</Up>
+      <Down>command=0</Down>
+      <LeftDown>command=91</LeftDown>
+      <RightDown>command=90</RightDown>
+      <Stop>command=1</Stop>
+      <ZoomIn>command=16</ZoomIn>
+      <ZoomOut>command=18</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Go Preset 1">/decoder_control.cgi?command=31</Command>
+      <Command Name="Go Preset 2">/decoder_control.cgi?command=33</Command>
+      <Command Name="Go Preset 3">/decoder_control.cgi?command=35</Command>
+      <Command Name="Go Preset 4">/decoder_control.cgi?command=37</Command>
+      <Command Name="Turn Off LED">/set_misc.cgi?led_mode=1</Command>
+      <Command Name="Turn On LED">/set_misc.cgi?led_mode=2</Command>
+      <Command Name="Vertical Patrol">/decoder_control.cgi?command=26</Command>
+      <Command Name="Stop Vertical Patrol">/decoder_control.cgi?command=27</Command>
+      <Command Name="Horizon Patrol">/decoder_control.cgi?command=28</Command>
+      <Command Name="Stop Horizon Patrol">/decoder_control.cgi?command=29</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="185">
+    <Makes>
+      <Make Name="Wanscam" Model="NCL610W" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi?loginuse=[USERNAME]&amp;loginpas=[PASSWORD]</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=4&amp;onestep=0</Left>
+      <Right>command=6&amp;onestep=0</Right>
+      <Up>command=0&amp;onestep=0</Up>
+      <Down>command=2&amp;onestep=0</Down>
+      <LeftUp>command=90&amp;onestep=0</LeftUp>
+      <RightUp>command=91&amp;onestep=0</RightUp>
+      <LeftDown>command=92&amp;onestep=0</LeftDown>
+      <RightDown>command=93&amp;onestep=0</RightDown>
+      <Stop>command=1&amp;onestep=0</Stop>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1&amp;onestep=0</Command>
+      <Command Name="Hor Patrol">command=28&amp;onestep=0</Command>
+      <Command Name="Stop H Patrol">command=29&amp;onestep=0</Command>
+      <Command Name="Vert Patrol">command=26&amp;onestep=0</Command>
+      <Command Name="Stop V Patrol">command=27&amp;onestep=0</Command>
+      <Command Name="Set Preset 1">command=30&amp;onestep=0</Command>
+      <Command Name="Go Preset 1">command=31&amp;onestep=0</Command>
+      <Command Name="Set Preset 2">command=32&amp;onestep=0</Command>
+      <Command Name="Go Preset 2">command=33&amp;onestep=0</Command>
+      <Command Name="Set Preset 3">command=34&amp;onestep=0</Command>
+      <Command Name="Go Preset 3">command=35&amp;onestep=0</Command>
+      <Command Name="Set Preset 4">command=36&amp;onestep=0</Command>
+      <Command Name="Go Preset 4">command=37&amp;onestep=0</Command>
+      <Command Name="Set Preset 5">command=38&amp;onestep=0</Command>
+      <Command Name="Go Preset 5">command=39&amp;onestep=0</Command>
+      <Command Name="Set Preset 6">command=40&amp;onestep=0</Command>
+      <Command Name="Go Preset 6">command=41&amp;onestep=0</Command>
+      <Command Name="Set Preset 7">command=42&amp;onestep=0</Command>
+      <Command Name="Go Preset 7">command=43&amp;onestep=0</Command>
+      <Command Name="Set Preset 8">command=44&amp;onestep=0</Command>
+      <Command Name="Go Preset 8">command=45&amp;onestep=0</Command>
+      <Command Name="Set Preset 9">command=46&amp;onestep=0</Command>
+      <Command Name="Go Preset 9">command=47&amp;onestep=0</Command>
+      <Command Name="Set Preset 10">command=48&amp;onestep=0</Command>
+      <Command Name="Go Preset 10">command=49&amp;onestep=0</Command>
+      <Command Name="Set Preset 11">command=50&amp;onestep=0</Command>
+      <Command Name="Go Preset 11">command=51&amp;onestep=0</Command>
+      <Command Name="Set Preset 12">command=52&amp;onestep=0</Command>
+      <Command Name="Go Preset 12">command=53&amp;onestep=0</Command>
+      <Command Name="Set Preset 13">command=54&amp;onestep=0</Command>
+      <Command Name="Go Preset 13">command=55&amp;onestep=0</Command>
+      <Command Name="Set Preset 14">command=56&amp;onestep=0</Command>
+      <Command Name="Go Preset 14">command=57&amp;onestep=0</Command>
+      <Command Name="Set Preset 15">command=58&amp;onestep=0</Command>
+      <Command Name="Go Preset 15">command=59&amp;onestep=0</Command>
+      <Command Name="Set Preset 16">command=60&amp;onestep=0</Command>
+      <Command Name="Go Preset 16">command=61&amp;onestep=0</Command>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>

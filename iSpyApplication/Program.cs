@@ -12,6 +12,7 @@ internal static class Program
 {
     //public static Mutex Mutex;
     private static string _apppath = "", _appdatapath = "";
+    public static string Platform = "x86";
     public static string AppPath
     {
         get
@@ -21,6 +22,7 @@ internal static class Program
             _apppath = (Application.StartupPath.ToLower());
             _apppath = _apppath.Replace(@"\bin\debug", @"\").Replace(@"\bin\release", @"\");
             _apppath = _apppath.Replace(@"\bin\x86\debug", @"\").Replace(@"\bin\x86\release", @"\");
+            _apppath = _apppath.Replace(@"\bin\x64\debug", @"\").Replace(@"\bin\x64\release", @"\");
 
             _apppath = _apppath.Replace(@"\\", @"\");
 
@@ -149,6 +151,9 @@ internal static class Program
                 return;
             }
 
+            if (IntPtr.Size == 8)
+                Platform = "x64";
+
             if (VlcHelper.VlcInstalled)
                 VlcHelper.AddVlcToPath();
 
@@ -156,6 +161,7 @@ internal static class Program
 
             // in case our https certificate ever expires or there is some other issue
             ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.Expect100Continue = false;
             
             WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;
@@ -261,7 +267,6 @@ internal static class Program
         // Copy each file into it’s new directory.
         foreach (FileInfo fi in source.GetFiles())
         {
-            //Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
             try {fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true);} catch
             {
             }

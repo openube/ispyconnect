@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 using AForge.Video;
@@ -59,7 +60,7 @@ namespace iSpyApplication.Video
 
         public virtual string Source
         {
-            get { return _screenindex.ToString(); }
+            get { return _screenindex.ToString(CultureInfo.InvariantCulture); }
             set { _screenindex = Convert.ToInt32(value); }
         }
 
@@ -125,7 +126,7 @@ namespace iSpyApplication.Video
             if (_thread != null)
             {
                 // wait for thread stop
-                _thread.Join(4000);
+                _thread.Join();
 
                 Free();
             }
@@ -158,11 +159,11 @@ namespace iSpyApplication.Video
             _stopEvent = null;
         }
 
+        private Rectangle _screenSize = Rectangle.Empty;
+
         // Worker thread
         private void WorkerThread()
         {
-            TimeSpan span;
-
             while (true)
             {
                 try
@@ -179,19 +180,33 @@ namespace iSpyApplication.Video
                         {
 
                             Screen s = Screen.AllScreens[_screenindex];
-                            Rectangle screenSize = s.Bounds;
-                            if (_area != Rectangle.Empty)
-                                screenSize = _area;
+                            if (_screenSize == Rectangle.Empty)
+                            {
+                                if (_area != Rectangle.Empty)
+                                    _screenSize = _area;
+                                else
+                                {
+                                    _screenSize = s.Bounds;
+                                    //virtual clients can have odd dimensions
+                                    if (_screenSize.Width % 2 != 0)
+                                        _screenSize.Width = _screenSize.Width - 1;
+                                    if (_screenSize.Height % 2 != 0)
+                                        _screenSize.Height = _screenSize.Height - 1;    
+                                }
+                                
+                            }
+                            
+                            
 
-                            var target = new Bitmap(screenSize.Width, screenSize.Height, PixelFormat.Format24bppRgb);
+                            var target = new Bitmap(_screenSize.Width, _screenSize.Height, PixelFormat.Format24bppRgb);
                             using (Graphics g = Graphics.FromImage(target))
                             {
-                                g.CopyFromScreen(s.Bounds.X + screenSize.X,
-                                                 s.Bounds.Y + screenSize.Y, 0, 0,
-                                                 new Size(screenSize.Width, screenSize.Height));
+                                g.CopyFromScreen(s.Bounds.X + _screenSize.X,
+                                                 s.Bounds.Y + _screenSize.Y, 0, 0,
+                                                 new Size(_screenSize.Width, _screenSize.Height));
                                 if (MousePointer)
                                 {
-                                    var cursorBounds = new Rectangle(Cursor.Position.X - s.Bounds.X - screenSize.X, Cursor.Position.Y - s.Bounds.Y - screenSize.Y, Cursors.Default.Size.Width, Cursors.Default.Size.Height);
+                                    var cursorBounds = new Rectangle(Cursor.Position.X - s.Bounds.X - _screenSize.X, Cursor.Position.Y - s.Bounds.Y - _screenSize.Y, Cursors.Default.Size.Width, Cursors.Default.Size.Height);
                                     Cursors.Default.Draw(g, cursorBounds);
                                 }
                             }
@@ -207,7 +222,7 @@ namespace iSpyApplication.Video
                     if (_frameInterval > 0)
                     {
                         // get download duration
-                        span = DateTime.Now.Subtract(start);
+                        TimeSpan span = DateTime.Now.Subtract(start);
                         // miliseconds to sleep
                         int msec = _frameInterval - (int) span.TotalMilliseconds;
 

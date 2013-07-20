@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Speech.Synthesis;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace iSpyApplication
 
     public class LocalServer
     {
-        private static readonly List<Socket> MySockets = new List<Socket>();
+        //private static readonly List<Socket> MySockets = new List<Socket>();
         private static List<String> _allowedIPs;
         //private static int _socketindex;
         private readonly MainForm _parent;
@@ -163,14 +164,22 @@ namespace iSpyApplication
 
         public void StopServer()
         {
-            for(int i=0;i<MySockets.Count;i++)
+            if (_connectedSockets == null)
+                return;
+            ClientConnected.Set();
+            try
             {
-                Socket mySocket = MySockets[i];
-                if (mySocket != null)
+                foreach (var sock in _connectedSockets.Values)
                 {
-                    DisconnectSocket(mySocket);
+                    sock.Close();
                 }
             }
+            catch (SocketException ex)
+            {
+                //During one socket disconnected we can faced exception
+                MainForm.LogExceptionToFile(ex);
+            }
+
             Application.DoEvents();
             if (_myListener != null)
             {
@@ -287,7 +296,6 @@ namespace iSpyApplication
             Byte[] bSendData = Encoding.ASCII.GetBytes(sBuffer);
 
             SendToBrowser(bSendData, socket);
-            //Console.WriteLine("Total Bytes : " + iTotBytes);
         }
 
 
@@ -329,7 +337,6 @@ namespace iSpyApplication
             Byte[] bSendData = Encoding.ASCII.GetBytes(sBuffer);
 
             SendToBrowser(bSendData, socket);
-            //Console.WriteLine("Total Bytes : " + iTotBytes);
         }
 
 
@@ -356,18 +363,12 @@ namespace iSpyApplication
             {
                 if (socket.Connected)
                 {
-                    int sent = socket.Send(bSendData);
-                    if (sent < bSendData.Length)
-                    {
-                        //Debug.WriteLine("Only sent " + sent + " of " + bSendData.Length);
-                    }
-                    if (sent == -1)
+                    if (socket.Send(bSendData) == -1)
                         MainForm.LogExceptionToFile(new Exception("Socket Error cannot Send Packet"));
                 }
             }
             catch (Exception e)
             {
-                //Debug.WriteLine("Send To Browser Error: " + e.Message);
                 MainForm.LogExceptionToFile(e);
             }
         }
@@ -377,199 +378,281 @@ namespace iSpyApplication
             return false;
         }
 
+        public static AutoResetEvent ClientConnected = new AutoResetEvent(false);
+        private Dictionary<IPEndPoint, Socket> _connectedSockets;
+        private readonly object _connectedSocketsSyncHandle = new object();
 
         //This method Accepts new connection and
         //First it receives the welcome massage from the client,
         //Then it sends the Current date time to the Client.
         public void StartListen()
         {
-            String sRequest;
-            String sMyWebServerRoot = ServerRoot;
-            String sPhysicalFilePath;
+            _connectedSockets = new Dictionary<IPEndPoint, Socket>();
             NumErr = 0;
 
-            while (!MainForm.Reallyclose && Running && NumErr < 5 && _myListener!=null)
+            while (!MainForm.Reallyclose && Running && NumErr < 5 && _myListener != null)
             {
-                //Accept a new connection
                 try
                 {
-                    Socket mySocket = _myListener.AcceptSocket();
-                    if (MainForm.Conf.IPMode== "IPv6")
-                        mySocket.SetIPProtectionLevel(IPProtectionLevel.Unrestricted);
+                    _myListener.BeginAcceptSocket(DoAcceptSocketCallback, _myListener);
 
-                    MySockets.Add(mySocket);
-                    
-                    if (mySocket.Connected)
-                    {
-                        mySocket.NoDelay = true;
-                        mySocket.ReceiveBufferSize = 8192;
-                        mySocket.ReceiveTimeout = MainForm.Conf.ServerReceiveTimeout;
-                        try
-                        {
-                            //make a byte array and receive data from the client 
-                            string sHttpVersion;
-                            string sFileName;
-                            string resp;
-                            String sMimeType;
-                            bool bServe, bHasAuth;
-
-                            var bReceive = new Byte[1024];
-                            mySocket.Receive(bReceive);
-                            string sBuffer = Encoding.ASCII.GetString(bReceive);
-
-                            if (sBuffer.Substring(0, 4) == "TALK")
-                            {
-                                string[] cfg = sBuffer.Substring(0, 10).Split(',');
-                                int cid = Convert.ToInt32(cfg[1]);
-                                
-                                var socket = mySocket;
-                                var feed = new Thread(p => AudioIn(socket, cid));
-                                feed.Start();
-                                continue;
-                            }
-                            if (sBuffer.StartsWith("<policy-file-request/>"))
-                            {
-                                mySocket.SendFile(Program.AppPath + @"WebServerRoot\crossdomain.xml");
-                                goto Finish;
-                            }
-                            if (sBuffer.Substring(0, 3) != "GET")
-                            {
-                                goto Finish;
-                            }
-
-                            //Debug.WriteLine(sBuffer);
-                            try
-                            {
-                                String sRequestedFile;
-                                String sErrorMessage;
-                                String sLocalDir;
-                                String sDirName;
-                                ParseRequest(sMyWebServerRoot, sBuffer, out sRequest, out sRequestedFile,
-                                             out sErrorMessage,
-                                             out sLocalDir, out sDirName, out sPhysicalFilePath, out sHttpVersion,
-                                             out sFileName, out sMimeType, out bServe, out bHasAuth, ref mySocket);
-                            }
-                            catch (Exception ex)
-                            {
-                                //Debug.WriteLine("error: "+sBuffer);
-                                goto Finish;
-                            }
-                            
-                            if (!bServe)
-                            {
-                                //Debug.WriteLine("ignored: " + sBuffer);
-                                resp = "//Access this server locally through http://www.ispyconnect.com"+Environment.NewLine+"try{Denied();} catch(e){}";
-                                SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
-                                SendToBrowser(resp, mySocket);
-                                goto Finish;
-                            }
-                            //Debug.WriteLine("accepted: " + sBuffer);
-
-                            resp = ProcessCommandInternal(sRequest);
-
-                            if (resp != "")
-                            {
-                                SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
-                                SendToBrowser(resp, mySocket);
-                            }
-                            else //not a js request
-                            {
-                                string cmd = sRequest.Trim('/').ToLower();
-                                int i = cmd.IndexOf("?", StringComparison.Ordinal);
-                                if (i>-1)
-                                    cmd = cmd.Substring(0,i );
-                                if (cmd.StartsWith("get /"))
-                                    cmd = cmd.Substring(5);
-
-                                int oid, otid;
-                                int.TryParse(GetVar(sRequest, "oid"), out oid);
-                                int.TryParse(GetVar(sRequest, "ot"), out otid);
-                                switch(cmd)
-                                {
-                                    case "logfile":
-                                        SendLogFile(sHttpVersion, ref mySocket);
-                                        break;
-                                    case "getlogfile":
-                                        SendLogFile(sPhysicalFilePath,sHttpVersion, ref mySocket);
-                                        break;
-                                    case "livefeed":
-                                        SendLiveFeed(sPhysicalFilePath, sHttpVersion, ref mySocket);
-                                        break;
-                                    case "loadgrab":
-                                    case "loadgrab.jpg":
-                                         SendGrab(sPhysicalFilePath, sHttpVersion, ref mySocket);
-                                        break;
-                                    case "loadimage":
-                                    case "loadimage.jpg":
-                                        SendImage(sPhysicalFilePath, sHttpVersion, ref mySocket);
-                                        break;
-                                    case "floorplanfeed":
-                                        SendFloorPlanFeed(sPhysicalFilePath, sHttpVersion, ref mySocket);
-                                        break;
-                                    //case "audiofeed.m4a":
-                                    //    SendAudioFeed(Enums.AudioStreamMode.M4A, sBuffer, sPhysicalFilePath, mySocket);
-                                    //    break;
-                                    case "audiofeed.mp3":
-                                        SendAudioFeed(Enums.AudioStreamMode.MP3, sBuffer, sPhysicalFilePath, mySocket);
-                                        continue;
-                                    case "audiofeed.wav":
-                                        SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, mySocket);
-                                        continue;
-                                    case "video.mjpg":
-                                    case "video.cgi":
-                                    case "video.mjpeg":
-                                    case "video.jpg":
-                                    case "mjpegfeed":
-                                        SendMJPEGFeed(sPhysicalFilePath, mySocket);
-                                        continue;
-                                    case "loadclip.flv":
-                                    case "loadclip.fla":
-                                    case "loadclip.mp3":
-                                    case "loadclip.mp4":
-                                        SendClip(sPhysicalFilePath, sBuffer, sHttpVersion, ref mySocket,false);
-                                        break;
-                                    case "downloadclip.mp3":
-                                    case "downloadclip.mp4":
-                                        SendClip(sPhysicalFilePath, sBuffer, sHttpVersion, ref mySocket, true);
-                                        break;
-                                    default:
-                                        if (sPhysicalFilePath.IndexOf('?') != -1)
-                                        {
-                                            sPhysicalFilePath = sPhysicalFilePath.Substring(0, sPhysicalFilePath.IndexOf('?'));
-                                        }
-
-                                        if (!File.Exists(sPhysicalFilePath))
-                                        {
-                                            ServeNotFound(sHttpVersion, ref mySocket);
-                                        }
-                                        else
-                                        {
-                                            ServeFile(sHttpVersion, sPhysicalFilePath, sMimeType, ref mySocket);
-                                        }
-                                        break;
-                                }
-                            }
-
-                            Finish:
-                                DisconnectSocket(mySocket);
-                                NumErr = 0;
-                        }
-                        catch (SocketException ex)
-                        {
-                            //Debug.WriteLine("Server Error (socket): " + ex.Message);
-                            DisconnectSocket(mySocket);
-                            MainForm.LogExceptionToFile(ex);
-                            NumErr++;
-                        }
-                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
                 }
                 catch (Exception ex)
                 {
-                    //Debug.WriteLine("Server Error (generic): " + ex.Message);
                     MainForm.LogExceptionToFile(ex);
-                    NumErr++;
+                    break;
+                }
+                // Wait until a connection is made and processed before  
+                // continuing.
+                ClientConnected.WaitOne(); // Wait until a client has begun handling an event
+                ClientConnected.Reset();
+            }
+        }
+
+        public void DoAcceptSocketCallback(IAsyncResult ar)
+        {
+            ClientConnected.Set();
+
+            
+
+            String sRequest;
+            String sMyWebServerRoot = ServerRoot;
+            String sPhysicalFilePath;
+
+            try
+            {
+                var listener = (TcpListener) ar.AsyncState;
+                Socket mySocket = listener.EndAcceptSocket(ar);
+
+                var endPoint = (IPEndPoint)mySocket.RemoteEndPoint;
+                lock (_connectedSocketsSyncHandle)
+                {
+                    if (_connectedSockets.ContainsKey(endPoint))
+                    {
+                        _connectedSockets[endPoint].Close();
+                    }
+
+                    SetDesiredKeepAlive(mySocket);
+                    _connectedSockets[endPoint] = mySocket;
+                }
+
+
+                if (MainForm.Conf.IPMode== "IPv6")
+                    mySocket.SetIPProtectionLevel(IPProtectionLevel.Unrestricted);
+                    
+
+                //MySockets.Add(mySocket);
+                    
+                if (mySocket.Connected)
+                {
+                    mySocket.NoDelay = true;
+                    mySocket.ReceiveBufferSize = 8192;
+                    mySocket.ReceiveTimeout = mySocket.SendTimeout = 4000;
+                    try
+                    {
+                        //make a byte array and receive data from the client 
+                        string sHttpVersion;
+                        string resp;
+                        String sMimeType;
+                        bool bServe;
+
+                        var bReceive = new Byte[1024];
+                        mySocket.Receive(bReceive);
+                        string sBuffer = Encoding.ASCII.GetString(bReceive);
+
+                        if (sBuffer.Substring(0, 4) == "TALK")
+                        {
+                            string[] cfg = sBuffer.Substring(0, 10).Split(',');
+                            int cid = Convert.ToInt32(cfg[1]);
+                                
+                            var socket = mySocket;
+                            var feed = new Thread(p => AudioIn(socket, cid));
+                            feed.Start();
+                            return;
+                        }
+                        if (sBuffer.StartsWith("<policy-file-request/>"))
+                        {
+                            mySocket.SendFile(Program.AppPath + @"WebServerRoot\crossdomain.xml");
+                            goto Finish;
+                        }
+                        if (sBuffer.Substring(0, 3) != "GET")
+                        {
+                            goto Finish;
+                        }
+
+                        try
+                        {
+                            String sRequestedFile;
+                            String sErrorMessage;
+                            String sLocalDir;
+                            String sDirName;
+                            string sFileName;
+                            bool bHasAuth;
+                            ParseRequest(sMyWebServerRoot, sBuffer, out sRequest, out sRequestedFile,
+                                            out sErrorMessage,
+                                            out sLocalDir, out sDirName, out sPhysicalFilePath, out sHttpVersion,
+                                            out sFileName, out sMimeType, out bServe, out bHasAuth, ref mySocket);
+                        }
+                        catch (Exception)
+                        {
+                            goto Finish;
+                        }
+                            
+                        if (!bServe)
+                        {
+                            resp = "//Access this server locally through "+MainForm.Website+Environment.NewLine+"try{Denied();} catch(e){}";
+                            SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
+                            SendToBrowser(resp, mySocket);
+                            goto Finish;
+                        }
+                        
+                        resp = ProcessCommandInternal(sRequest);
+
+                        if (resp != "")
+                        {
+                            SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
+                            SendToBrowser(resp, mySocket);
+                        }
+                        else //not a js request
+                        {
+                            string cmd = sRequest.Trim('/').ToLower();
+                            int i = cmd.IndexOf("?", StringComparison.Ordinal);
+                            if (i>-1)
+                                cmd = cmd.Substring(0,i );
+                            if (cmd.StartsWith("get /"))
+                                cmd = cmd.Substring(5);
+
+                            int oid, otid;
+                            int.TryParse(GetVar(sRequest, "oid"), out oid);
+                            int.TryParse(GetVar(sRequest, "ot"), out otid);
+                            switch(cmd)
+                            {
+                                case "logfile":
+                                    SendLogFile(sHttpVersion, ref mySocket);
+                                    break;
+                                case "getlogfile":
+                                    SendLogFile(sPhysicalFilePath,sHttpVersion, ref mySocket);
+                                    break;
+                                case "livefeed":
+                                    SendLiveFeed(sPhysicalFilePath, sHttpVersion, ref mySocket);
+                                    break;
+                                case "loadgrab":
+                                case "loadgrab.jpg":
+                                        SendGrab(sPhysicalFilePath, sHttpVersion, ref mySocket);
+                                    break;
+                                case "loadimage":
+                                case "loadimage.jpg":
+                                    SendImage(sPhysicalFilePath, sHttpVersion, ref mySocket);
+                                    break;
+                                case "floorplanfeed":
+                                    SendFloorPlanFeed(sPhysicalFilePath, sHttpVersion, ref mySocket);
+                                    break;
+                                //case "audiofeed.m4a":
+                                //    SendAudioFeed(Enums.AudioStreamMode.M4A, sBuffer, sPhysicalFilePath, mySocket);
+                                //    break;
+                                case "audiofeed.mp3":
+                                    SendAudioFeed(Enums.AudioStreamMode.MP3, sBuffer, sPhysicalFilePath, mySocket);
+                                    return;
+                                case "audiofeed.wav":
+                                    SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, mySocket);
+                                    return;
+                                case "video.mjpg":
+                                case "video.cgi":
+                                case "video.mjpeg":
+                                case "video.jpg":
+                                case "mjpegfeed":
+                                    SendMJPEGFeed(sPhysicalFilePath, mySocket);
+                                    return;
+                                case "loadclip.flv":
+                                case "loadclip.fla":
+                                case "loadclip.mp3":
+                                case "loadclip.mp4":
+                                case "loadclip.avi":
+                                    SendClip(sPhysicalFilePath, sBuffer, sHttpVersion, ref mySocket,false);
+                                    break;
+                                case "downloadclip.avi":
+                                case "downloadclip.mp3":
+                                case "downloadclip.mp4":
+                                    SendClip(sPhysicalFilePath, sBuffer, sHttpVersion, ref mySocket, true);
+                                    break;
+                                default:
+                                    if (sPhysicalFilePath.IndexOf('?') != -1)
+                                    {
+                                        sPhysicalFilePath = sPhysicalFilePath.Substring(0, sPhysicalFilePath.IndexOf('?'));
+                                    }
+
+                                    if (!File.Exists(sPhysicalFilePath))
+                                    {
+                                        ServeNotFound(sHttpVersion, ref mySocket);
+                                    }
+                                    else
+                                    {
+                                        ServeFile(sHttpVersion, sPhysicalFilePath, sMimeType, ref mySocket);
+                                    }
+                                    break;
+                            }
+                        }
+
+                        Finish:
+                            DisconnectSocket(mySocket);
+                            NumErr = 0;
+                    }
+                    catch (SocketException ex)
+                    {
+                        //ignore connection timeout errors
+                        if (ex.ErrorCode != 10060)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                            NumErr++;
+
+                        }
+                        DisconnectSocket(mySocket);
+                    }
                 }
             }
+            catch(ObjectDisposedException)
+            {
+                //socket closed already
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+                NumErr++;
+            }
+        }
+
+        private static void SetDesiredKeepAlive(Socket socket)
+        {
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            const uint time = 10000;
+            const uint interval = 20000;
+            SetKeepAlive(socket, true, time, interval);
+        }
+        static void SetKeepAlive(Socket s, bool on, uint time, uint interval)
+        {
+            /* the native structure
+            struct tcp_keepalive {
+            ULONG onoff;
+            ULONG keepalivetime;
+            ULONG keepaliveinterval;
+            };
+            */
+
+            // marshal the equivalent of the native structure into a byte array
+            const uint dummy = 0;
+            var inOptionValues = new byte[Marshal.SizeOf(dummy) * 3];
+            BitConverter.GetBytes((uint)(on ? 1 : 0)).CopyTo(inOptionValues, 0);
+            BitConverter.GetBytes(time).CopyTo(inOptionValues, Marshal.SizeOf(dummy));
+            BitConverter.GetBytes(interval).CopyTo(inOptionValues, Marshal.SizeOf(dummy) * 2);
+            // of course there are other ways to marshal up this byte array, this is just one way
+
+            // call WSAIoctl via IOControl
+            int ignore = s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+
         }
 
         private void SendClip(String sPhysicalFilePath, string sBuffer, string sHttpVersion, ref Socket mySocket, bool downloadFile)
@@ -656,7 +739,7 @@ namespace iSpyApplication
             }
             string sMimeType = GetMimeType(fn);
 
-            string filename = "";
+            string filename = fi.Name;
 
             if (downloadFile)
                 filename = fi.Name.Replace("_", "").Replace("-", "");
@@ -1097,7 +1180,7 @@ namespace iSpyApplication
                                 {
                                     cw.Camobject.settings.maskimage = fn;
                                     if (cw.Camera != null)
-                                        cw.Camera.Mask = Image.FromFile(fn);
+                                        cw.Camera.Mask = (Bitmap)Image.FromFile(fn);
                                     resp = "OK";
                                 }
                                 catch (Exception)
@@ -1215,7 +1298,11 @@ namespace iSpyApplication
                         {
                             string subdir = GetDirectory(1, oid);
                             FileOperations.Delete(MainForm.Conf.MediaDirectory + "audio\\" + subdir + @"\" + fn);
-                            _parent.GetVolumeLevel(oid).FileList.RemoveAll(p => p.Filename == fn);
+                            var vl = _parent.GetVolumeLevel(oid);
+                            if (vl != null)
+                            {
+                                vl.RemoveFile(fn);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -1241,11 +1328,11 @@ namespace iSpyApplication
 
                     Helper.DeleteAllContent(otid, objdir);
                     if (otid == 1)
-                        _parent.GetVolumeLevel(oid).FileList.Clear();
+                        _parent.GetVolumeLevel(oid).ClearFileList();
                     if (otid == 2)
                     {
-                        _parent.GetCameraWindow(oid).FileList.Clear();
-                        _parent.LoadPreviews();
+                        _parent.GetCameraWindow(oid).ClearFileList();
+                        _parent.NeedsMediaRefresh = DateTime.Now;
                     }
                     resp = "OK";
                     break;
@@ -1476,20 +1563,6 @@ namespace iSpyApplication
                     }
                     resp = "OK";
                     break;
-                //case "closeaudio":
-                //    try
-                //    {
-                //        VolumeLevel vl = _parent.GetVolumeLevel(oid);
-                //        vl.CloseStream = true;
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Debug.WriteLine("Server Error (livefeed): " + ex.Message);
-                //        MainForm.LogExceptionToFile(ex);
-                //    }
-
-                //    resp = "OK";
-                //    break;
                 case "getcontentlist":
                     page = Convert.ToInt32(GetVar(sRequest, "page"));
 
@@ -1545,7 +1618,7 @@ namespace iSpyApplication
                             CameraWindow cw = _parent.GetCameraWindow(oid);
                             if (cw != null)
                             {
-                                List<FilesFile> lFi2 = cw.FileList.Where(f => f.Filename.EndsWith(".mp4")).ToList();
+                                List<FilesFile> lFi2 = cw.FileList.ToList();
                                 if (sdl > 0)
                                     lFi2 = lFi2.FindAll(f => f.CreatedDateTicks > sdl).ToList();
                                 if (edl > 0)
@@ -1591,7 +1664,7 @@ namespace iSpyApplication
                     {
                         CameraWindow cw = _parent.GetCameraWindow(oc1.id);
 
-                        List<FilesFile> lFi2 = cw.FileList.Where(f => f.Filename.EndsWith(".mp4")).ToList();
+                        List<FilesFile> lFi2 = cw.FileList.ToList();
                         if (sdl > 0)
                             lFi2 = lFi2.FindAll(f => f.CreatedDateTicks > sdl).ToList();
                         if (edl > 0)
@@ -1758,7 +1831,7 @@ namespace iSpyApplication
                             if (edl > 0)
                                 ffs = ffs.FindAll(f => f.CreatedDateTicks < edl).ToList();
 
-                            StringBuilder sb = new StringBuilder();
+                            var sb = new StringBuilder();
                             foreach (FilesFile f in ffs)
                             {
                                 sb.Append((f.CreatedDateTicks.UnixTicks())).Append("|").Append(String.Format(CultureInfo.InvariantCulture, "{0:0.000}",f.MaxAlarm)).Append("|").Append(f.DurationSeconds.ToString(CultureInfo.InvariantCulture)).Append("|").Append(f.Filename).Append(",");
@@ -1793,9 +1866,9 @@ namespace iSpyApplication
                         edl = ed != "" ? Convert.ToInt64(ed) : long.MaxValue;
 
                         if (sdl > 0)
-                            ffs = ffs.FindAll(f => f.CreatedDateTicks > sdl).ToList();
-                        if (edl > 0)
-                            ffs = ffs.FindAll(f => f.CreatedDateTicks < edl).ToList();
+                            ffs = ffs.FindAll(f => f.CreatedDateTicks > sdl);//.ToList();
+                        if (edl < long.MaxValue)
+                            ffs = ffs.FindAll(f => f.CreatedDateTicks < edl);//.ToList();
 
 
                         //return max of 1000 at a time
@@ -1924,18 +1997,45 @@ namespace iSpyApplication
                     break;
                 case "getptzcommands":
                     int ptzid = Convert.ToInt32(GetVar(sRequest, "ptzid"));
-                    PTZSettings2Camera ptz = MainForm.PTZs.Single(p => p.id == ptzid);
                     string cmdlist = "";
-                    if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command!=null)
+
+                    switch (ptzid)
                     {
-                        cmdlist = ptz.ExtendedCommands.Command.Aggregate("",
-                                                                                (current, extcmd) =>
-                                                                                current +
-                                                                                ("<option value=\\\"" + extcmd.Value +
-                                                                                 "\\\">" + extcmd.Name.Trim() +
-                                                                                 "</option>"));
+                        default:
+                            PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(p => p.id == ptzid);
+                            if (ptz != null)
+                            {
+                       
+                                if (ptz.ExtendedCommands != null && ptz.ExtendedCommands.Command != null)
+                                {
+                                    cmdlist = ptz.ExtendedCommands.Command.Aggregate("",
+                                                                                     (current, extcmd) =>
+                                                                                     current +
+                                                                                     ("<option value=\\\"" + extcmd.Value +
+                                                                                      "\\\">" + extcmd.Name.Trim() +
+                                                                                      "</option>"));
+                                }
+                            }
+                            break;
+                        case -2:
+                        case -1: //digital (none)
+                            break;
+                        case -3:
+                        case -4:
+                            cmdlist = PTZController.PelcoCommands.Aggregate(cmdlist, (current, c) => current + ("<option value=\\\"" + c + "\\\">" + c + "</option>"));
+                            break;
+                        case -5:
+                            CameraWindow cw = _parent.GetCameraWindow(oid);
+                            if (cw != null && cw.PTZ!=null)
+                            {
+                                if (cw.PTZ.ONVIFPresets.Length>0)
+                                {
+                                    cmdlist = cw.PTZ.ONVIFPresets.Aggregate(cmdlist, (current, c) => current + ("<option value=\\\"" + c + "\\\">" + c + "</option>"));
+                                }
+                            }
+                            break;
                     }
-                    func = func.Replace("data", "\"" + cmdlist.Trim(',') + "\"");
+                    func = func.Replace("data", "\"" + cmdlist.Trim(',') + "\"");                   
                     resp = "OK";                       
                     break;
                 case "massdeletegrabs":
@@ -1995,20 +2095,21 @@ namespace iSpyApplication
                         {
                             if (vlUpdate != null)
                             {
-                                vlUpdate.FileList.RemoveAll(p => p.Filename == filename1);
+                                vlUpdate.RemoveFile(filename1);
                             }
                         }
                         if (otid == 2)
                         {
                             if (cwUpdate != null)
                             {
-                                cwUpdate.FileList.RemoveAll(p => p.Filename == filename1);
+                                cwUpdate.RemoveFile(filename1);
                             }
                         }
-                        MainForm.MasterFileList.RemoveAll(p => p.Filename == filename1);
+                        
                     }
                     if (otid == 2)
-                        _parent.LoadPreviews();
+                        _parent.NeedsMediaRefresh = DateTime.Now;
+
                     resp = "OK";
                     break;
                 case "getobjectlist":
@@ -2285,7 +2386,7 @@ namespace iSpyApplication
                 case "previewlist":
                     resp = "";
                     var top100 =
-                        MainForm.MasterFileList.Where(f => f.Filename.EndsWith(".mp4")).OrderByDescending(
+                        MainForm.MasterFileList.Where(f => f.ObjectTypeId==2).OrderByDescending(
                             p => p.CreatedDateTicks).Take(MainForm.Conf.PreviewItems).ToList();
                     foreach (var file in top100)
                     {
@@ -2542,14 +2643,14 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        if (cw.Camera.LastFrameNull)
+                        if (cw.LastFrameNull)
                         {
                             SendHeader(sHttpVersion, "image/jpeg", CameraConnecting.Length, " 200 OK", 0, ref mySocket);
                             SendToBrowser(CameraConnecting, mySocket);
                         }
                         else
                         {
-                            Bitmap b = cw.Camera.LastFrame;
+                            Bitmap b = cw.LastFrame;
                             using (var imageStream = new MemoryStream())
                             {
 
@@ -2618,7 +2719,6 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                //Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
@@ -2698,7 +2798,6 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                //Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
@@ -2777,7 +2876,6 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                //Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
@@ -2870,7 +2968,6 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                //Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
@@ -2918,7 +3015,6 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
@@ -2941,9 +3037,9 @@ namespace iSpyApplication
             {
                 while (cw != null && cw.Camera != null && cw.Camobject.settings.active && mySocket.Connected)
                 {
-                    if (!cw.Camera.LastFrameNull)
+                    if (!cw.LastFrameNull)
                     {
-                        Bitmap b = cw.Camera.LastFrame;
+                        Bitmap b = cw.LastFrame;
                         using (var imageStream = new MemoryStream())
                         {
 
@@ -2982,7 +3078,7 @@ namespace iSpyApplication
                             SendToBrowser(imageArray, mySocket);
                             imageStream.Close();
                         }
-                        Thread.Sleep(100);//throttle it
+                        Thread.Sleep(MainForm.Conf.MJPEGStreamInterval);//throttle it
                     }
                 }
             }
@@ -2994,36 +3090,42 @@ namespace iSpyApplication
             
         }
 
-        private static void DisconnectSocket(Socket mySocket)
+        private void DisconnectSocket(Socket mySocket)
         {
-            MySockets.Remove(mySocket);
-            try
-            {
-                var lingerOption = new LingerOption(false,0);
-                mySocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, lingerOption);
-                mySocket.Shutdown(SocketShutdown.Send);
-                try
-                {
-                    var recBuff = new byte[1000];
-                    //clear pending buffer
-                    mySocket.ReceiveTimeout = 300;
-                    while (mySocket.Receive(recBuff) > 0)
-                    { }
-                }
-                catch
-                {
-                    //ignore
-                }
-                mySocket.Close();
-            }
-            catch
-            {
+            var endPoint = (IPEndPoint)mySocket.RemoteEndPoint;
 
-            }
-            if (mySocket != null)
+            lock (_connectedSocketsSyncHandle)
             {
-                mySocket.Dispose();
+                _connectedSockets.Remove(endPoint);
             }
+
+            mySocket.Close();
+
+            //OnSocketDisconnected(endPoint);
+            //try
+            //{
+            //    var lingerOption = new LingerOption(false,0);
+            //    mySocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, lingerOption);
+            //    mySocket.Shutdown(SocketShutdown.Send);
+            //    try
+            //    {
+            //        var recBuff = new byte[1000];
+            //        //clear pending buffer
+            //        mySocket.ReceiveTimeout = 100;
+            //        while (mySocket.Receive(recBuff) > 0)
+            //        { }
+            //    }
+            //    catch
+            //    {
+            //        //ignore
+            //    }
+            //    mySocket.Close();
+            //}
+            //catch
+            //{
+
+            //}
+            //MySockets.Remove(mySocket);
         }
 
         private void SendAudioFeed(Enums.AudioStreamMode streamMode, String sBuffer, String sPhysicalFilePath, Socket mySocket)
@@ -3094,112 +3196,17 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        MySockets.Remove(mySocket);
+                        //MySockets.Remove(mySocket);
                         vl.OutSockets.Add(mySocket);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Server Error (livefeed): " + ex.Message);
                 MainForm.LogExceptionToFile(ex);
             }
         }
-
-        //private void VlDataAvailable(object sender, NewDataAvailableArgs eventArgs)
-        //{
-        //    var vl = (VolumeLevel) sender;
-        //    if (vl.OutSocket.Connected)
-        //    {
-        //        byte[] bSrc = eventArgs.DecodedData;
-        //        int totBytes = bSrc.Length;
-                
-        //        byte[] bResampled = new byte[25000];
-        //        var ws = new TalkHelperStream(bSrc, totBytes, vl.AudioSource.RecordingFormat);
-        //        var helpStm = new WaveFormatConversionStream(vl.AudioStreamFormat, ws);
-        //        totBytes = helpStm.Read(bResampled, 0, 25000);
-
-        //        ws.Close();
-        //        ws.Dispose();
-        //        helpStm.Close();
-        //        helpStm.Dispose();             
-
-        //        switch (vl.AudioStreamMode)
-        //        {
-        //            case Enums.AudioStreamMode.MP3:
-        //                vl.Mp3Writer.Write(bResampled, 0, totBytes);
-        //                break;
-        //            case Enums.AudioStreamMode.PCM:
-
-        //                vl.OutWriter.Write(bResampled, 0, totBytes);
-        //                break;
-        //        }
-
-
-        //        if (vl.OutStream.Length == 0)
-        //            return;
-
-        //        byte[] bout;
-
-        //        bout = new byte[(int)vl.OutStream.Length];
-
-        //        vl.OutStream.Seek(0, SeekOrigin.Begin);
-        //        vl.OutStream.Read(bout, 0, (int)vl.OutStream.Length);
-
-        //        vl.OutStream.SetLength(0);
-        //        vl.OutStream.Seek(0, SeekOrigin.Begin);               
-               
-        //        Byte[] bSendData = Encoding.ASCII.GetBytes(bout.Length.ToString("X") + "\r\n");
-                
-        //        SendToBrowser(bSendData, vl.OutSocket);
-        //        SendToBrowser(bout, vl.OutSocket);
-
-        //        bSendData = Encoding.ASCII.GetBytes("\r\n");
-        //        SendToBrowser(bSendData, vl.OutSocket);
-
-        //        if (vl.CloseStream)
-        //        {
-        //            vl.CloseStream = false;
-        //            SendToBrowser(Encoding.ASCII.GetBytes(0.ToString("X") + "\r\n"), vl.OutSocket);
-
-        //            try
-        //            {
-        //                if (vl.OutSocket.Connected)
-        //                    vl.OutSocket.Shutdown(SocketShutdown.Both);
-        //                vl.OutSocket.Close();
-        //            }
-        //            catch
-        //            {
-        //                try
-        //                {
-        //                    vl.OutSocket.Close();
-        //                }
-        //                catch { }
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        vl.DataAvailable -= VlDataAvailable;
-        //        vl.OutSocket.Close();
-        //        switch (vl.AudioStreamMode)
-        //        {
-        //            case Enums.AudioStreamMode.MP3:
-        //                vl.Mp3Writer.Close();
-        //                vl.OutStream.Dispose();
-        //                vl.Mp3Writer.Dispose();
-        //                break;
-        //            case Enums.AudioStreamMode.PCM:
-        //                vl.OutWriter.Close();
-        //                vl.OutStream.Dispose();
-        //                vl.OutWriter.Dispose();
-        //                break;
-        //        }
-                
-        //        vl.OutStream = null;
-        //    }
-        //}
-
+        
         public string FormatBytes(long bytes)
         {
             const int scale = 1024;
@@ -3219,10 +3226,11 @@ namespace iSpyApplication
 
         internal string GetObjectList()
         {
+            
             string resp = "";
             if (MainForm.Cameras != null)
             {
-                foreach (objectsCamera oc in MainForm.Cameras)
+                foreach (objectsCamera oc in MainForm.Cameras.OrderBy(p=>p.name))
                 {
                     CameraWindow cw = _parent.GetCameraWindow(oc.id);
                     if (cw != null)
@@ -3238,13 +3246,17 @@ namespace iSpyApplication
             }
             if (MainForm.Microphones != null)
             {
-                for (int index = 0; index < MainForm.Microphones.Count; index++)
+                foreach (objectsMicrophone om in MainForm.Microphones.OrderBy(p => p.name))
                 {
-                    objectsMicrophone om = MainForm.Microphones[index];
-                    resp += "1," + om.id + "," + om.settings.active.ToString().ToLower() + "," +
+                    VolumeLevel vl = _parent.GetVolumeLevel(om.id);
+                    if (vl!=null)
+                    {
+                        bool onlinestatus = !(!om.settings.active || vl.AudioSourceErrorState);
+                        resp += "1," + om.id + "," + onlinestatus.ToString().ToLower() + "," +
                             om.name.Replace(",", "&comma;") + "," + GetStatus(om.settings.active) + "," +
                             om.description.Replace(",", "&comma;").Replace("\n", " ") + "," +
                             om.settings.accessgroups.Replace(",", "&comma;").Replace("\n", " ") + Environment.NewLine;
+                    }
                 }
             }
 

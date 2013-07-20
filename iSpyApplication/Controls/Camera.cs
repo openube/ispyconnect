@@ -5,12 +5,12 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using AForge;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Vision.Motion;
-using Image = System.Drawing.Image;
 using Point = System.Drawing.Point;
 
 namespace iSpyApplication.Controls
@@ -21,8 +21,6 @@ namespace iSpyApplication.Controls
     public class Camera
     {
         public CameraWindow CW;
-
-        public volatile bool LastFrameNull = true;
         public bool MotionDetected;
         public float MotionLevel;
 
@@ -30,7 +28,6 @@ namespace iSpyApplication.Controls
         public IVideoSource VideoSource;
         public double Framerate;
         public double RealFramerate;
-        public UnmanagedImage LastFrameUnmanaged;
         private Queue<double> _framerates;
         private HSLFiltering _filter;
         private volatile bool _requestedToStop;
@@ -39,7 +36,6 @@ namespace iSpyApplication.Controls
         private int _processFrameCount;
         private DateTime _motionlastdetected = DateTime.MinValue;
         private DateTime _nextFrameTarget = DateTime.MinValue;
-
 
         // alarm level
         private double _alarmLevel = 0.0005;
@@ -231,34 +227,6 @@ namespace iSpyApplication.Controls
             VideoSource.NewFrame += VideoNewFrame;
         }
 
-        public Bitmap LastFrame
-        {
-            get
-            {
-                Bitmap bm = null;
-                lock (_sync)
-                {
-                    if (LastFrameUnmanaged != null)
-                    {
-                        try
-                        {
-                            bm = LastFrameUnmanaged.ToManagedImage();
-                            LastFrameNull = false;
-                        }
-                        catch
-                        {
-                            if (bm != null)
-                            {
-                                bm.Dispose();
-                                bm = null;
-                            }
-                            LastFrameNull = true;
-                        }
-                    }
-                }
-                return bm;
-            }
-        }
 
         // Running property
         public bool IsRunning
@@ -318,7 +286,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public Image Mask { get; set; }
+        public Bitmap Mask { get; set; }
 
         public bool SetMotionZones(objectsCameraDetectorZone[] zones)
         {
@@ -348,7 +316,7 @@ namespace iSpyApplication.Controls
                 _motionDetector.MotionZones = null;
         }
 
-        public event EventHandler NewFrame;
+        public event NewFrameEventHandler NewFrame;
         public event EventHandler Alarm;
 
         // Constructor
@@ -396,7 +364,6 @@ namespace iSpyApplication.Controls
                 }
                 // unlock
             }
-
         }
 
         private double Mininterval
@@ -422,6 +389,7 @@ namespace iSpyApplication.Controls
             }
         }
 
+        
 
         private void VideoNewFrame(object sender, NewFrameEventArgs e)
         {
@@ -435,19 +403,7 @@ namespace iSpyApplication.Controls
                 {
                     return;
                 }
-
-                double dMin = Mininterval;
-                _nextFrameTarget = _nextFrameTarget.AddMilliseconds(dMin);
-                if (_nextFrameTarget < DateTime.Now)
-                    _nextFrameTarget = DateTime.Now.AddMilliseconds(dMin);
-
-
-                TimeSpan tsFr = DateTime.Now - _lastframeProcessed;
-                _framerates.Enqueue(1000d / tsFr.TotalMilliseconds);
-                if (_framerates.Count >= 30)
-                    _framerates.Dequeue();
-                Framerate = _framerates.Average();
-
+                CalculateFramerates();
             }
             else
             {
@@ -457,53 +413,20 @@ namespace iSpyApplication.Controls
             {
                 _lastframeProcessed = DateTime.Now;
 
-                var tsBrush = new SolidBrush(MainForm.Conf.TimestampColor.ToColor());
-                var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-                Bitmap bmOrig = null, bmp = null;
-                Graphics g = null, gCam = null;
-                bool err = false;
+                Bitmap bmOrig = null;
                 try
                 {
-                    // motionLevel = 0;
                     if (e.Frame != null)
                     {
-
-                        if (LastFrameUnmanaged != null)
-                            LastFrameUnmanaged.Dispose();
-
                         //resize?
-                        if (CW.Camobject.settings.resize && (CW.Camobject.settings.desktopresizewidth != e.Frame.Width || CW.Camobject.settings.desktopresizeheight != e.Frame.Height))
-                        {
-                            var result = new Bitmap(CW.Camobject.settings.desktopresizewidth, CW.Camobject.settings.desktopresizeheight, PixelFormat.Format24bppRgb);
-
-                            using (Graphics g2 = Graphics.FromImage(result))
-                            {
-                                g2.CompositingMode = CompositingMode.SourceCopy;
-                                g2.CompositingQuality = CompositingQuality.HighSpeed;
-                                g2.PixelOffsetMode = PixelOffsetMode.Half;
-                                g2.SmoothingMode = SmoothingMode.None;
-                                g2.InterpolationMode = InterpolationMode.Default;
-                                g2.DrawImage(e.Frame, 0, 0, result.Width, result.Height);
-                            }
-                            e.Frame.Dispose();
-                            bmOrig = result;
-                        }
-                        else
-                        {
-                            bmOrig = e.Frame;
-                        }
+                        bmOrig = ResizeBmOrig(e);
 
                         if (CW.Camobject.rotate90)
                             bmOrig.RotateFlip(RotateFlipType.Rotate90FlipNone);
                         if (CW.Camobject.flipx)
-                        {
                             bmOrig.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        }
                         if (CW.Camobject.flipy)
-                        {
                             bmOrig.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                        }
-
 
                         _width = bmOrig.Width;
                         _height = bmOrig.Height;
@@ -513,62 +436,21 @@ namespace iSpyApplication.Controls
 
                         if (Mask != null)
                         {
-                            g = Graphics.FromImage(bmOrig);
-                            g.DrawImage(Mask, 0, 0, _width, _height);
+                            ApplyMask(bmOrig);
                         }
 
-                        if (Plugin != null && Alarm!=null)
+                        if (CW.Camobject.alerts.active && Plugin != null && Alarm!=null)
                         {
-                            bool runplugin = true;
-                            if (CW.Camobject.alerts.processmode == "motion")
-                            {
-                                //run plugin if motion detected in last 5 seconds
-                                runplugin = _motionlastdetected > DateTime.Now.AddSeconds(-5);
-                            }
-                            if (runplugin)
-                            {
-                                try
-                                {
-                                    bmOrig =
-                                        (Bitmap)
-                                        Plugin.GetType().GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
-                                }
-                                catch(Exception ex)
-                                {
-                                    MainForm.LogExceptionToFile(ex);
-                                }
-                                var pluginAlert = (String) Plugin.GetType().GetField("Alert").GetValue(Plugin);
-                                if (pluginAlert != "")
-                                    Alarm(pluginAlert, EventArgs.Empty);
-                            }
+                            bmOrig = RunPlugin(bmOrig);
                         }
 
-                        LastFrameUnmanaged = UnmanagedImage.FromManagedImage(bmOrig);
+                        
+                        //this converts the image into a windows displayable image so do it regardless
+                        var lfu = UnmanagedImage.FromManagedImage(bmOrig);
 
                         if (_motionDetector != null)
                         {
-                            if (Alarm != null)
-                            {
-                                _processFrameCount++;
-                                if (_processFrameCount >= CW.Camobject.detector.processeveryframe || CW.Calibrating)
-                                {
-                                    _processFrameCount = 0;
-                                    MotionLevel = _motionDetector.ProcessFrame(LastFrameUnmanaged, Filter);
-                                    if (MotionLevel >= _alarmLevel)
-                                    {
-                                        if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
-                                        {
-                                            MotionDetected = true;
-                                            _motionlastdetected = DateTime.Now;
-                                            Alarm(this, new EventArgs());
-                                        }
-                                    }
-                                    else
-                                        MotionDetected = false;
-                                }
-                            }
-                            else
-                                MotionDetected = false;
+                            ApplyMotionDetector(lfu);
                         }
                         else
                         {
@@ -577,178 +459,47 @@ namespace iSpyApplication.Controls
 
                         if (ZFactor > 1)
                         {
-                            var f1 = new ResizeNearestNeighbor(LastFrameUnmanaged.Width, LastFrameUnmanaged.Height);
-                            var f2 = new Crop(ViewRectangle);
-                            LastFrameUnmanaged = f2.Apply(LastFrameUnmanaged);
-                            LastFrameUnmanaged = f1.Apply(LastFrameUnmanaged);
+                            lfu = ZoomImage(lfu);
                         }
 
+                        bmOrig = lfu.ToManagedImage();
+                        lfu.Dispose();
 
 
-                        if (CW.Camobject.settings.timestamplocation != 0 &&
-                            CW.Camobject.settings.timestampformatter != "")
+                        
+                        if (CW.Camobject.settings.timestamplocation != 0 && CW.Camobject.settings.timestampformatter != "")
                         {
-                            bmp = LastFrameUnmanaged.ToManagedImage();
-                            gCam = Graphics.FromImage(bmp);
-
-
-                            var ts = CW.Camobject.settings.timestampformatter.Replace("{FPS}",
-                                                                                      string.Format("{0:F2}", Framerate));
-                            ts = ts.Replace("{CAMERA}", CW.Camobject.name);
-                            ts = ts.Replace("{REC}", CW.Recording ? "REC" : "");
-
-                            var timestamp = "Invalid Timestamp";
-                            try
-                            {
-                                timestamp = String.Format(ts,
-                                              DateTime.Now.AddHours(
-                                                  Convert.ToDouble(CW.Camobject.settings.timestampoffset))).Trim();
-                            }
-                            catch
-                            {
-                                
-                            }
-
-                            var rs = gCam.MeasureString(timestamp, Drawfont).ToSize();
-                            var p = new Point(0, 0);
-                            switch (CW.Camobject.settings.timestamplocation)
-                            {
-                                case 2:
-                                    p.X = _width/2 - (rs.Width/2);
-                                    break;
-                                case 3:
-                                    p.X = _width - rs.Width;
-                                    break;
-                                case 4:
-                                    p.Y = _height - rs.Height;
-                                    break;
-                                case 5:
-                                    p.Y = _height - rs.Height;
-                                    p.X = _width/2 - (rs.Width/2);
-                                    break;
-                                case 6:
-                                    p.Y = _height - rs.Height;
-                                    p.X = _width - rs.Width;
-                                    break;
-                            }
-                            var rect = new Rectangle(p, rs);
-
-                            gCam.FillRectangle(sbTs, rect);
-                            gCam.DrawString(timestamp, Drawfont, tsBrush, p);
-
-                            LastFrameUnmanaged.Dispose();
-                            LastFrameUnmanaged = UnmanagedImage.FromManagedImage(bmp);
+                             AddTimestamp(bmOrig);
                         }
+                        
+                        
                     }
                 }
                 catch (UnsupportedImageFormatException ex)
                 {
                     CW.VideoSourceErrorState = true;
                     CW.VideoSourceErrorMessage = ex.Message;
-                    if (LastFrameUnmanaged != null)
-                    {
-                        try
-                        {
-                            lock (_sync)
-                            {
-                                LastFrameUnmanaged.Dispose();
-                                LastFrameUnmanaged = null;
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
-                    err = true;
+
+                    if (bmOrig != null)
+                        bmOrig.Dispose();
+
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    if (LastFrameUnmanaged != null)
-                    {
-                        try
-                        {
-                            lock (_sync)
-                            {
-                                LastFrameUnmanaged.Dispose();
-                                LastFrameUnmanaged = null;
-                            }
-                        }
-                        catch
-                        {
-                        }
-                    }
+                    if (bmOrig != null)
+                        bmOrig.Dispose();
+                    
                     MainForm.LogExceptionToFile(ex);
-                    err = true;
+                    return;
                 }
 
-                if (gCam != null)
-                    gCam.Dispose();
-                if (bmp != null)
-                    bmp.Dispose();
-                if (g != null)
-                    g.Dispose();
-                if (bmOrig != null)
-                    bmOrig.Dispose();
-                tsBrush.Dispose();
-                sbTs.Dispose();
 
-                if (err)
-                    return;
-
-                if (MotionDetector != null && !CW.Calibrating &&
-                    MotionDetector.MotionProcessingAlgorithm is BlobCountingObjectsProcessing)
+                if (MotionDetector != null && !CW.Calibrating && MotionDetector.MotionProcessingAlgorithm is BlobCountingObjectsProcessing && !CW.PTZNavigate && CW.Camobject.settings.ptzautotrack)
                 {
                     try
                     {
-                        var blobcounter =
-                            (BlobCountingObjectsProcessing) MotionDetector.MotionProcessingAlgorithm;
-
-                        //tracking
-                        var pCenter = new Point(Width/2, Height/2);
-                        if (!CW.PTZNavigate && CW.Camobject.settings.ptzautotrack && blobcounter.ObjectsCount > 0 &&
-                            blobcounter.ObjectsCount < 4 && !CW.Ptzneedsstop)
-                        {
-                            List<Rectangle> recs =
-                                blobcounter.ObjectRectangles.OrderByDescending(p => p.Width*p.Height).ToList();
-                            Rectangle rec = recs.First();
-                            //get center point
-                            var prec = new Point(rec.X + rec.Width/2, rec.Y + rec.Height/2);
-
-                            double dratiomin = 0.6;
-                            prec.X = prec.X - pCenter.X;
-                            prec.Y = prec.Y - pCenter.Y;
-
-                            if (CW.Camobject.settings.ptzautotrackmode == 1) //vert only
-                            {
-                                prec.X = 0;
-                                dratiomin = 0.3;
-                            }
-
-                            if (CW.Camobject.settings.ptzautotrackmode == 2) //horiz only
-                            {
-                                prec.Y = 0;
-                                dratiomin = 0.3;
-                            }
-
-                            double angle = Math.Atan2(-prec.Y, -prec.X);
-                            if (CW.Camobject.settings.ptzautotrackreverse)
-                            {
-                                angle = angle - Math.PI;
-                                if (angle < 0 - Math.PI)
-                                    angle += 2*Math.PI;
-                            }
-                            double dist = Math.Sqrt(Math.Pow(prec.X, 2.0d) + Math.Pow(prec.Y, 2.0d));
-
-                            double maxdist = Math.Sqrt(Math.Pow(Width/2, 2.0d) + Math.Pow(Height/2, 2.0d));
-                            double dratio = dist/maxdist;
-
-                            if (dratio > dratiomin)
-                            {
-                                CW.PTZ.SendPTZDirection(angle, 1);
-                                CW.LastAutoTrackSent = DateTime.Now;
-                                CW.Ptzneedsstop = true;
-                            }
-                        }
+                        ProcessAutoTracking();
                     }
                     catch (Exception ex)
                     {
@@ -756,13 +507,252 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                if (NewFrame != null && LastFrameUnmanaged != null)
+                if (NewFrame != null)
                 {
-                    LastFrameNull = false;
-                    NewFrame(this, new EventArgs());
+                    NewFrame(this, new NewFrameEventArgs(bmOrig));
                 }
             }
             
+        }
+
+        private void AddTimestamp(Bitmap bmp)
+        {
+            Graphics gCam = Graphics.FromImage(bmp);
+
+            var ts = CW.Camobject.settings.timestampformatter.Replace("{FPS}",
+                                                                      string.Format("{0:F2}", Framerate));
+            ts = ts.Replace("{CAMERA}", CW.Camobject.name);
+            ts = ts.Replace("{REC}", CW.Recording ? "REC" : "");
+
+            var timestamp = "Invalid Timestamp";
+            try
+            {
+                timestamp = String.Format(ts,
+                                          DateTime.Now.AddHours(
+                                              Convert.ToDouble(CW.Camobject.settings.timestampoffset))).Trim();
+            }
+            catch
+            {
+            }
+
+            var rs = gCam.MeasureString(timestamp, Drawfont).ToSize();
+            var p = new Point(0, 0);
+            switch (CW.Camobject.settings.timestamplocation)
+            {
+                case 2:
+                    p.X = _width/2 - (rs.Width/2);
+                    break;
+                case 3:
+                    p.X = _width - rs.Width;
+                    break;
+                case 4:
+                    p.Y = _height - rs.Height;
+                    break;
+                case 5:
+                    p.Y = _height - rs.Height;
+                    p.X = _width/2 - (rs.Width/2);
+                    break;
+                case 6:
+                    p.Y = _height - rs.Height;
+                    p.X = _width - rs.Width;
+                    break;
+            }
+            var rect = new Rectangle(p, rs);
+            var b =  new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+            gCam.FillRectangle(b, rect);
+
+            var f = new Font(FontFamily.GenericSansSerif, CW.Camobject.settings.timestampfontsize);
+            gCam.DrawString(timestamp, f, Brushes.White, p);
+
+            gCam.Dispose();
+            f.Dispose();
+            b.Dispose();
+        }
+
+        private void ProcessAutoTracking()
+        {
+            var blobcounter =
+                (BlobCountingObjectsProcessing) MotionDetector.MotionProcessingAlgorithm;
+
+            //tracking
+
+            if (blobcounter.ObjectsCount > 0 && blobcounter.ObjectsCount < 4 && !CW.Ptzneedsstop)
+            {
+                var pCenter = new Point(Width/2, Height/2);
+                Rectangle rec = blobcounter.ObjectRectangles.OrderByDescending(p => p.Width*p.Height).First();
+                //get center point
+                var prec = new Point(rec.X + rec.Width/2, rec.Y + rec.Height/2);
+
+                double dratiomin = 0.6;
+                prec.X = prec.X - pCenter.X;
+                prec.Y = prec.Y - pCenter.Y;
+
+                if (CW.Camobject.settings.ptzautotrackmode == 1) //vert only
+                {
+                    prec.X = 0;
+                    dratiomin = 0.3;
+                }
+
+                if (CW.Camobject.settings.ptzautotrackmode == 2) //horiz only
+                {
+                    prec.Y = 0;
+                    dratiomin = 0.3;
+                }
+
+                double angle = Math.Atan2(-prec.Y, -prec.X);
+                if (CW.Camobject.settings.ptzautotrackreverse)
+                {
+                    angle = angle - Math.PI;
+                    if (angle < 0 - Math.PI)
+                        angle += 2*Math.PI;
+                }
+                double dist = Math.Sqrt(Math.Pow(prec.X, 2.0d) + Math.Pow(prec.Y, 2.0d));
+
+                double maxdist = Math.Sqrt(Math.Pow(Width/2, 2.0d) + Math.Pow(Height/2, 2.0d));
+                double dratio = dist/maxdist;
+
+                if (dratio > dratiomin)
+                {
+                    CW.PTZ.SendPTZDirection(angle, 1);
+                    CW.LastAutoTrackSent = DateTime.Now;
+                    CW.Ptzneedsstop = true;
+                }
+            }
+        }
+
+        private void ApplyMotionDetector(UnmanagedImage lfu)
+        {
+            if (Alarm != null)
+            {
+                _processFrameCount++;
+                if (_processFrameCount >= CW.Camobject.detector.processeveryframe || CW.Calibrating)
+                {
+                    _processFrameCount = 0;
+                    MotionLevel = _motionDetector.ProcessFrame(lfu, Filter);
+                    if (MotionLevel >= _alarmLevel)
+                    {
+                        if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
+                        {
+                            MotionDetected = true;
+                            _motionlastdetected = DateTime.Now;
+                            Alarm(this, new EventArgs());
+                        }
+                    }
+                    else
+                        MotionDetected = false;
+                }
+            }
+            else
+                MotionDetected = false;
+        }
+
+        [HandleProcessCorruptedStateExceptions] 
+        private UnmanagedImage ZoomImage(UnmanagedImage lfu)
+        {
+            try
+            {
+                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+                var f2 = new Crop(ViewRectangle);
+                lfu = f2.Apply(lfu);
+                lfu = f1.Apply(lfu);
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+
+            return lfu;
+        }
+
+        private Bitmap ResizeBmOrig(NewFrameEventArgs e)
+        {
+            Bitmap bmOrig;
+            if (CW.Camobject.settings.resize &&
+                (CW.Camobject.settings.desktopresizewidth != e.Frame.Width ||
+                 CW.Camobject.settings.desktopresizeheight != e.Frame.Height))
+            {
+                var result = new Bitmap(CW.Camobject.settings.desktopresizewidth, CW.Camobject.settings.desktopresizeheight,
+                                        PixelFormat.Format24bppRgb);
+
+                using (Graphics g2 = Graphics.FromImage(result))
+                {
+                    g2.CompositingMode = CompositingMode.SourceCopy;
+                    g2.CompositingQuality = CompositingQuality.HighSpeed;
+                    g2.PixelOffsetMode = PixelOffsetMode.Half;
+                    g2.SmoothingMode = SmoothingMode.None;
+                    g2.InterpolationMode = InterpolationMode.Default;
+                    //g2.GdiDrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                    g2.DrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                }
+                e.Frame.Dispose();
+                bmOrig = result;
+            }
+            else
+            {
+                bmOrig = e.Frame;
+            }
+            return bmOrig;
+        }
+
+        private void CalculateFramerates()
+        {
+            double dMin = Mininterval;
+            _nextFrameTarget = _nextFrameTarget.AddMilliseconds(dMin);
+            if (_nextFrameTarget < DateTime.Now)
+                _nextFrameTarget = DateTime.Now.AddMilliseconds(dMin);
+
+
+            TimeSpan tsFr = DateTime.Now - _lastframeProcessed;
+            _framerates.Enqueue(1000d/tsFr.TotalMilliseconds);
+            if (_framerates.Count >= 30)
+                _framerates.Dequeue();
+            Framerate = _framerates.Average();
+        }
+
+        private void ApplyMask(Bitmap bmOrig)
+        {
+            Graphics g = Graphics.FromImage(bmOrig);
+            g = Graphics.FromImage(bmOrig);
+            g.CompositingMode = CompositingMode.SourceOver;//.SourceCopy;
+            g.CompositingQuality = CompositingQuality.HighSpeed;
+            g.PixelOffsetMode = PixelOffsetMode.Half;
+            g.SmoothingMode = SmoothingMode.None;
+            g.InterpolationMode = InterpolationMode.Default;
+            g.DrawImage(Mask, 0, 0, _width, _height);
+            //g.GdiDrawImage(Mask, 0, 0, _width, _height);
+            g.Dispose();
+        }
+
+        public volatile bool PluginRunning = false;
+
+        private Bitmap RunPlugin(Bitmap bmOrig)
+        {
+            if (!CW.IsEnabled)
+                return bmOrig;
+
+            bool runplugin = true;
+            if (CW.Camobject.alerts.processmode == "motion")
+            {
+                //run plugin if motion detected in last 5 seconds
+                runplugin = _motionlastdetected > DateTime.Now.AddSeconds(-5);
+            }
+            if (runplugin)
+            {
+                PluginRunning = true;
+                try
+                {
+                    bmOrig = (Bitmap) Plugin.GetType().GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                var pluginAlert = (String) Plugin.GetType().GetField("Alert").GetValue(Plugin);
+                if (pluginAlert != "")
+                    Alarm(pluginAlert, EventArgs.Empty);
+                PluginRunning = false;
+            }
+            return bmOrig;
         }
 
         private Font _drawfont;

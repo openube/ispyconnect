@@ -15,6 +15,7 @@
                                                     <xs:element name="sourceindex" type="xs:int" />
                                                     <xs:element name="codec" type="xs:string" />
                                                     <xs:element name="videosourcestring" type="xs:string" />
+                                                    <xs:element name="onvifident" type="xs:string" />
                                                     <xs:element name="login" type="xs:string" />
                                                     <xs:element name="password" type="xs:string" />
                                                     <xs:element name="useragent" type="xs:string" />
@@ -55,6 +56,7 @@
                                                     <xs:element name="ptzautohomedelay" type="xs:int" default="30"/>
                                                     <xs:element name="ptztimetohome" type="xs:int" default="60"/>
                                                     <xs:element name="ptzautotrackmode" type="xs:int" default="0"/>
+                                                    <xs:element name="ptzpelcoconfig" type="xs:string" default=""/>
                                                     <xs:element name="maxframerate" type="xs:int" default="10"/>
                                                     <xs:element name="maxframeraterecord" type="xs:int" default="10"/>
                                                     <xs:element name="reconnectinterval" type="xs:int" default="0"/>
@@ -64,6 +66,10 @@
                                                     <xs:element name="crossbarindex" type="xs:int" default="0"/>
                                                     <xs:element name="cookies" type="xs:string" default=""/>
                                                     <xs:element name="bordertimeout" type="xs:int" default="0"/>
+                                                    <xs:element name="headers" type="xs:string" default=""/>
+                                                    <xs:element name="analyseduration" type="xs:int" default="2000"/>
+                                                    <xs:element name="timeout" type="xs:int" default="8000"/>
+                                                    <xs:element name="nobuffer" type="xs:boolean" default="false"/>
                                                     <xs:element name="youtube">
                                                         <xs:complexType>
                                                             <xs:sequence>
@@ -80,6 +86,7 @@
                                                 <xs:attribute name="resize" type="xs:boolean" use="required"/>
                                                 <xs:attribute name="desktopmouse" type="xs:boolean" use="required"/>
                                                 <xs:attribute name="calibrateonreconnect" type="xs:boolean" default="true"/>
+                                                <xs:attribute name="ignoreaudio" type="xs:boolean" default="false"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="ftp">
@@ -127,6 +134,8 @@
                                                 <xs:attribute name="postprocessor" type="xs:string" use="required" />
                                                 <xs:attribute name="nomovementinterval" type="xs:int" use="required" />
                                                 <xs:attribute name="movementinterval" type="xs:int" use="required" />
+                                                <xs:attribute name="nomovementintervalnew" type="xs:double" default="-1" />
+                                                <xs:attribute name="movementintervalnew" type="xs:double" default="-1" />
                                                 <xs:attribute name="calibrationdelay" type="xs:int" use="required" />
                                                 <xs:attribute name="sensitivity" type="xs:double" use="required" />
                                                 <xs:attribute name="maxsensitivity" type="xs:double" use="required"/>
@@ -145,8 +154,7 @@
                                         </xs:element>
                                         <xs:element name="recorder">
                                             <xs:complexType>
-                                                <xs:attribute name="bufferframes" type="xs:int" use="required" />
-                                                <xs:attribute name="bufferseconds" type="xs:int" default="3" />
+                                                <xs:attribute name="bufferseconds" type="xs:int" use="required"/>
                                                 <xs:attribute name="inactiverecord" type="xs:int" use="required" />
                                                 <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
                                                 <xs:attribute name="timelapse" type="xs:int" use="required" />
@@ -199,7 +207,7 @@
                                                             <xs:attribute name="start" type="xs:string" use="required" />
                                                             <xs:attribute name="stop" type="xs:string" use="required" />
                                                             <xs:attribute name="daysofweek" type="xs:string" use="required" />
-                                                            <xs:attribute name="recordonstart" type="xs:boolean" />
+                                                            <xs:attribute name="recordonstart" type="xs:boolean" default="true" />
                                                             <xs:attribute name="active" type="xs:boolean" default="true" />
                                                             <xs:attribute name="recordondetect" type="xs:boolean" default="true" />
                                                             <xs:attribute name="recordonalert" type="xs:boolean" default="true" />
@@ -340,7 +348,7 @@
                                                                         <xs:attribute name="start" type="xs:string" use="required" />
                                                                         <xs:attribute name="stop" type="xs:string" use="required" />
                                                                         <xs:attribute name="daysofweek" type="xs:string" use="required" />
-                                                                        <xs:attribute name="recordonstart" type="xs:boolean" />
+                                                                        <xs:attribute name="recordonstart" type="xs:boolean" default="true" />
                                                                         <xs:attribute name="active" type="xs:boolean" default="true" />
                                                                         <xs:attribute name="recordondetect" type="xs:boolean" default="true" />
                                                                         <xs:attribute name="recordonalert" type="xs:boolean" default="true" />

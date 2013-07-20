@@ -1,4 +1,5 @@
-﻿
+﻿using System;
+
 namespace iSpyApplication
 {
     public class Enums
@@ -33,5 +34,36 @@ namespace iSpyApplication
             MP3
             //,M4A
         }
+
+        [Flags]
+        public enum Features
+        {  
+            ALL_FEATURES =      1,
+            IPCameras =         2,
+            Microphones =       4,           
+            Floorplans =        8,
+            Source_JPEG =       16,
+            Source_MJPEG =      32,
+            Source_FFmpeg =     64, 
+            Source_Local =      128,
+            Source_Desktop =    256,
+            Source_VLC =        512,
+            Source_Ximea =      1024,
+            Source_Kinect =     2048,
+            Source_Custom =     4096,
+            Access_Media =      8192,
+            Remote_Commands =   16384,
+            Web_Settings =      32768,
+            Plugins =           65536,
+            Motion_Detection =  131072,
+            Recording=          262144,
+            PTZ  =              524288,
+            Save_Frames =       1048576,
+            YouTube =           2097152,
+            Scheduling =        4194304,
+            Alerts =            8388608,
+            Source_ONVIF =      16777216  
+        }
+
     }
 }

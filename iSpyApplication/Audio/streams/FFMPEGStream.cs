@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using AudioFileReader = AForge.Video.FFMPEG.AudioFileReader;
+using AudioFileReader = iSpy.Video.FFMPEG.AudioFileReader;
 
 namespace iSpyApplication.Audio.streams
 {
@@ -16,7 +15,6 @@ namespace iSpyApplication.Audio.streams
 
         private Thread _thread;
 
-        private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
         private SampleChannel _sampleChannel;
 
@@ -110,6 +108,10 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
+        private bool IsFileSource
+        {
+            get { return _source != null && _source.IndexOf("://", StringComparison.Ordinal) == -1; }
+        }
 
         /// <summary>
         /// State of the audio source.
@@ -163,36 +165,52 @@ namespace iSpyApplication.Audio.streams
         /// 
         public void Start()
         {
-            if (!IsRunning)
-            {
-                // check source
-                if (string.IsNullOrEmpty(_source))
-                    throw new ArgumentException("Audio source is not specified.");
-                _stopEvent = new ManualResetEvent(false);
-                _thread = new Thread(FfmpegListener)
-                                          {
-                                              Name = "FFMPEG Audio Receiver (" + _source + ")"
-                                          };
-                _thread.Start();
+            if (IsRunning)
+                return;
+            if (string.IsNullOrEmpty(_source))
+                throw new ArgumentException("Audio source is not specified.");
 
-            }
+            _stopEvent = new ManualResetEvent(false);
+            _thread = new Thread(FfmpegListener)
+            {
+                Name = "FFMPEG Audio Receiver (" + _source + ")"
+            };
+            _thread.Start();
+            _stopped = false;
+
+                        
         }
 
+        public string Cookies = "";
+        public bool NoBuffer;
 
         private void FfmpegListener()
         {
+            var reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+
             AudioFileReader afr = null;
             Program.WriterMutex.WaitOne();
+            
             try
             {
                 afr = new AudioFileReader();
-                afr.Open(_source);
+                int i = _source.IndexOf("://", StringComparison.Ordinal);
+                if (i>-1)
+                {
+                    _source = _source.Substring(0, i).ToLower() + _source.Substring(i);
+                }
+                
+                afr.Open(_source,8000,2000,Cookies,-1, NoBuffer );
             }
             catch (Exception ex)
             {
-                MainForm.LogExceptionToFile(ex);
+                MainForm.LogErrorToFile(ex.Message);
             }
-            Program.WriterMutex.ReleaseMutex();
+            finally
+            {
+                Program.WriterMutex.ReleaseMutex();
+            }
+
             if (afr == null || !afr.IsOpen)
             {
                 if (AudioFinished!=null)
@@ -203,24 +221,32 @@ namespace iSpyApplication.Audio.streams
 
             RecordingFormat = new WaveFormat(afr.SampleRate, 16, afr.Channels);
             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
-
+            
             
             _sampleChannel = new SampleChannel(_waveProvider);
             _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
-            byte[] data;
             int mult = afr.BitsPerSample/8;
             double btrg = Convert.ToDouble(afr.SampleRate*mult*afr.Channels);
             DateTime lastPacket = DateTime.Now;
-            bool realTime = _source.IndexOf("://") != -1;
-            
+            bool realTime = !IsFileSource;
+
+            bool err = false;
             try
             {
                 DateTime req = DateTime.Now;
-                while (!_stopEvent.WaitOne(0, false))
+                while (!_stopEvent.WaitOne(10, false))
                 {
-                    data = afr.ReadAudioFrame();
-                    if (data.Length>0)
+                    byte[] data = afr.ReadAudioFrame();
+                    if (data==null || data.Equals(0))
+                    {
+                        if (!realTime)
+                        {
+                            reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
+                            break;
+                        }
+                    }
+                    if (data!=null && data.Length > 0)
                     {
                         lastPacket = DateTime.Now;
                         if (DataAvailable != null)
@@ -230,18 +256,18 @@ namespace iSpyApplication.Audio.streams
 
                             var sampleBuffer = new float[data.Length];
                             _sampleChannel.Read(sampleBuffer, 0, data.Length);
+                            DataAvailable(this, new DataAvailableEventArgs((byte[])data.Clone()));
 
                             if (WaveOutProvider!=null && Listening)
                             {
                                 WaveOutProvider.AddSamples(data, 0, data.Length);
                             }
-                            var da = new DataAvailableEventArgs((byte[]) data.Clone());
-                            DataAvailable(this, da);
+                            
                         }
 
                         if (realTime)
                         {
-                            if (_stopEvent.WaitOne(10, false))
+                            if (_stopEvent.WaitOne(30, false))
                                 break;
                         }
                         else
@@ -261,8 +287,6 @@ namespace iSpyApplication.Audio.streams
                     {
                         if ((DateTime.Now - lastPacket).TotalMilliseconds > 5000)
                         {
-                            afr.Close();
-                            Stop();
                             throw new Exception("Audio source timeout");
                         }
                         if (_stopEvent.WaitOne(30, false))
@@ -270,22 +294,44 @@ namespace iSpyApplication.Audio.streams
                     }
                     
                 }
-
-                if (AudioFinished != null)
-                    AudioFinished(this, ReasonToFinishPlaying.StoppedByUser);
+                
             }
             catch (Exception e)
             {
                 if (AudioSourceError!=null)
                     AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
                 MainForm.LogExceptionToFile(e);
+
+                reasonToStop = ReasonToFinishPlaying.DeviceLost;
+                err = true;
             }
+
+            try
+            {
+                afr.Close();
+            }
+            catch(Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+
+            _stopped = true;
+
+            if (IsFileSource && !err)
+                reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+
+            if (AudioFinished != null)
+                AudioFinished(this, reasonToStop);
         }
+
+        private bool _stopped;
 
         void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
         {
             if (LevelChanged != null)
+            {
                 LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
+            }
         }
 
         /// <summary>
@@ -299,10 +345,11 @@ namespace iSpyApplication.Audio.streams
         {
             if (IsRunning)
             {
-
-                _stopEvent.Set();
-                _thread.Join(4000);
-
+                if (!_stopped)
+                {
+                    _stopEvent.Set();
+                    _thread.Join(4000);
+                }
                 Free();
             }
         }
@@ -321,13 +368,6 @@ namespace iSpyApplication.Audio.streams
             _stopEvent = null;
         }
 
-        public WaveFormat RecordingFormat
-        {
-            get { return _recordingFormat; }
-            set
-            {
-                _recordingFormat = value;
-            }
-        }
+        public WaveFormat RecordingFormat { get; set; }
     }
 }

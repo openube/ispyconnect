@@ -28,11 +28,11 @@ namespace C2BP
 
             // Sort the wide rectangles by width.
             Rectangle[] wide_array = (Rectangle[])wide_list.ToArray(typeof(Rectangle));
-            Array.Sort(wide_array, new WidthComparer());
+            System.Array.Sort(wide_array, new WidthComparer());
 
             // Sort the narrow rectangles by height.
             Rectangle[] narrow_array = (Rectangle[])narrow_list.ToArray(typeof(Rectangle));
-            Array.Sort(narrow_array, new HeightComparer());
+            System.Array.Sort(narrow_array, new HeightComparer());
 
             // Arrange the wide rectangles.
             int x = 0;
@@ -99,8 +99,8 @@ namespace C2BP
             }
 
             // Combine the results into the rect array.
-            Array.Copy(wide_array, rects, wide_array.Length);
-            Array.Copy(narrow_array, 0, rects, wide_array.Length, narrow_array.Length);
+            System.Array.Copy(wide_array, rects, wide_array.Length);
+            System.Array.Copy(narrow_array, 0, rects, wide_array.Length, narrow_array.Length);
         }
 
         // First position rectangles more than half as wide as the bin.
@@ -124,7 +124,7 @@ namespace C2BP
             {
                 wide_array[i] = (Rectangle)wide_col[i];
             }
-            Array.Sort(wide_array, new WidthComparer());
+            System.Array.Sort(wide_array, new WidthComparer());
 
             // Sort the narrow rectangles by height.
             Rectangle[] narrow_array = new Rectangle[narrow_col.Count];
@@ -132,7 +132,7 @@ namespace C2BP
             {
                 narrow_array[i] = (Rectangle)narrow_col[i];
             }
-            Array.Sort(narrow_array, new HeightComparer());
+            System.Array.Sort(narrow_array, new HeightComparer());
 
             // Arrange the wide rectangles.
             int x = 0;
@@ -171,8 +171,8 @@ namespace C2BP
             }
 
             // Combine the results into the rect array.
-            Array.Copy(wide_array, rects, wide_array.Length);
-            Array.Copy(narrow_array, 0, rects, wide_array.Length, narrow_array.Length);
+            System.Array.Copy(wide_array, rects, wide_array.Length);
+            System.Array.Copy(narrow_array, 0, rects, wide_array.Length, narrow_array.Length);
         }
 
         // Sort rectangles by height.
@@ -180,7 +180,7 @@ namespace C2BP
         public void AlgSortByHeight(int bin_width, Rectangle[] rects)
         {
             // Sort by height.
-            Array.Sort(rects, new HeightComparer());
+            System.Array.Sort(rects, new HeightComparer());
 
             // Fill in one column.
             SubAlgFillOneColumn(bin_width, rects);
@@ -191,7 +191,7 @@ namespace C2BP
         public void AlgSortByWidth(int bin_width, Rectangle[] rects)
         {
             // Sort by height.
-            Array.Sort(rects, new WidthComparer());
+            System.Array.Sort(rects, new WidthComparer());
 
             // Fill in one column.
             SubAlgFillOneColumn(bin_width, rects);
@@ -202,7 +202,7 @@ namespace C2BP
         public void AlgSortByArea(int bin_width, Rectangle[] rects)
         {
             // Sort by height.
-            Array.Sort(rects, new AreaComparer());
+            System.Array.Sort(rects, new AreaComparer());
 
             // Fill in one column.
             SubAlgFillOneColumn(bin_width, rects);
@@ -213,7 +213,7 @@ namespace C2BP
         public void AlgSortBySquareness(int bin_width, Rectangle[] rects)
         {
             // Sort by height.
-            Array.Sort(rects, new SquarenessComparer());
+            System.Array.Sort(rects, new SquarenessComparer());
 
             // Fill in one column.
             SubAlgFillOneColumn(bin_width, rects);
@@ -276,7 +276,7 @@ namespace C2BP
         {
             // Sort by height.
             Rectangle[] best_rects = (Rectangle[])rects.Clone();
-            Array.Sort(best_rects, new HeightComparer());
+            System.Array.Sort(best_rects, new HeightComparer());
 
             // Make variables to track and record the best solution.
             bool[] is_positioned = new bool[best_rects.Length];
@@ -306,7 +306,7 @@ namespace C2BP
             }
 
             // Save the best solution.
-            Array.Copy(best_rects, rects, rects.Length);
+            System.Array.Copy(best_rects, rects, rects.Length);
         }
 
         // Fill the unbounded area, trying to the smallest maximum Y coordinate.
@@ -566,7 +566,7 @@ namespace C2BP
         {
             // Sort by height.
             Rectangle[] best_solution = (Rectangle[])rects.Clone();
-            Array.Sort(rects, new HeightComparer());
+            System.Array.Sort(rects, new HeightComparer());
 
             // Make variables to track and record the best solution.
             bool[] is_positioned = new bool[rects.Length];
@@ -576,7 +576,7 @@ namespace C2BP
             FillUnboundedArea(0, bin_width, 0, ref num_unpositioned, ref best_solution, ref is_positioned);
 
             // Save the best solution.
-            Array.Copy(best_solution, rects, rects.Length);
+            System.Array.Copy(best_solution, rects, rects.Length);
         }
     }
 }

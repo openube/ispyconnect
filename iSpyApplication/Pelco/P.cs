@@ -24,6 +24,7 @@
  * Version: 1.4
  * ------------------------------------------------------------------------------*/
 using System;
+using System.Globalization;
 
 namespace iSpyApplication.Pelco
 {
@@ -82,23 +83,23 @@ namespace iSpyApplication.Pelco
 		#region Extended Command Set
 		public byte[] Preset(uint deviceAddress, byte preset, PresetAction action)
 		{
-			byte m_action;
+			byte mAction;
 			switch (action)
 			{
 				case PresetAction.Set:
-					m_action = 0x03;
+					mAction = 0x03;
 					break;
 				case PresetAction.Clear:
-					m_action = 0x05;
+					mAction = 0x05;
 					break;
 				case PresetAction.Goto:
-					m_action = 0x07;
+					mAction = 0x07;
 					break;
 				default:
-					m_action = 0x03;
+					mAction = 0x03;
 					break;
 			}
-			return Message.GetMessage(deviceAddress,0x00,m_action,0x00,preset);
+			return Message.GetMessage(deviceAddress,0x00,mAction,0x00,preset);
 		}
 
 		public byte[] Flip(uint deviceAddress)
@@ -113,12 +114,12 @@ namespace iSpyApplication.Pelco
 
 		public byte[] AutoScan(uint deviceAddress, Action action)
 		{
-			byte m_action;
+			byte mAction;
 			if(action == Action.Start)
-				m_action = 0x09;
+				mAction = 0x09;
 			else
-				m_action = 0x0B;
-			return Message.GetMessage(deviceAddress,0x00,m_action,0x00,0x00);
+				mAction = 0x0B;
+			return Message.GetMessage(deviceAddress,0x00,mAction,0x00,0x00);
 		}
 
 		public byte[] RemoteReset(uint deviceAddress)
@@ -130,13 +131,13 @@ namespace iSpyApplication.Pelco
 		{
 			if(zone<0x01 & zone>0x08)
 				throw new Exception("Zone value should be between 0x01 and 0x08 include");
-			byte m_action;
+			byte mAction;
 			if(action == Action.Start)
-				m_action = 0x11;
+				mAction = 0x11;
 			else
-				m_action = 0x13;
+				mAction = 0x13;
 
-			return Message.GetMessage(deviceAddress,0x00,m_action,0x00,zone);
+			return Message.GetMessage(deviceAddress,0x00,mAction,0x00,zone);
 		}
 
 
@@ -146,20 +147,18 @@ namespace iSpyApplication.Pelco
 			if(text.Length > 40)
 				text = text.Remove(40,text.Length-40);
 			System.Text.Encoding encoding = System.Text.Encoding.ASCII;
-			byte[] m_bytes = new byte[encoding.GetByteCount(text)*8];
+			var mBytes = new byte[encoding.GetByteCount(text)*8];
 			int i = 0;
-			byte m_scrPosition;
-			byte m_ASCIIchr;
-			
-			foreach(char ch in text)
+
+		    foreach(char ch in text)
 			{
-				m_scrPosition = Convert.ToByte(i/8);
-				m_ASCIIchr = Convert.ToByte(ch);
-				Array.Copy(Message.GetMessage(deviceAddress,0x00,0x15,m_scrPosition,m_ASCIIchr),0,m_bytes,i,8);
+				byte mScrPosition = Convert.ToByte(i/8);
+				byte mAsciIchr = Convert.ToByte(ch);
+                System.Array.Copy(Message.GetMessage(deviceAddress, 0x00, 0x15, mScrPosition, mAsciIchr), 0, mBytes, i, 8);
 				i = i + 8;
 			}
 
-			return m_bytes;
+			return mBytes;
 		}
 
 		public byte[] ClearScreen(uint deviceAddress)
@@ -176,33 +175,33 @@ namespace iSpyApplication.Pelco
 
 		public byte[] ZoneScan(uint deviceAddress,Action action)
 		{
-			byte m_action;
+			byte mAction;
 			if(action == Action.Start)
-				m_action = 0x1B;
+				mAction = 0x1B;
 			else
-				m_action = 0x1D;
-			return Message.GetMessage(deviceAddress,0x00,m_action,0x00,0x00);
+				mAction = 0x1D;
+			return Message.GetMessage(deviceAddress,0x00,mAction,0x00,0x00);
 		}
 
 		public byte[] Pattern(uint deviceAddress,PatternAction action)
 		{
-			byte m_action;
+			byte mAction;
 			switch (action)
 			{
 				case PatternAction.Start:
-					m_action = 0x1F;
+					mAction = 0x1F;
 					break;
 				case PatternAction.Stop:
-					m_action = 0x21;
+					mAction = 0x21;
 					break;
 				case PatternAction.Run:
-					m_action = 0x23;
+					mAction = 0x23;
 					break;
 				default:
-					m_action = 0x23;
+					mAction = 0x23;
 					break;
 			}
-			return Message.GetMessage(deviceAddress,0x00,m_action,0x00,0x00);
+			return Message.GetMessage(deviceAddress,0x00,mAction,0x00,0x00);
 		}
 
 		public byte[] SetZoomLensSpeed(uint deviceAddress, LensSpeed speed)
@@ -305,7 +304,7 @@ namespace iSpyApplication.Pelco
 				if (address<0 & address>32)
 					throw new Exception("Protocol Pelco P support 32 devices only");
 
-				Address = Byte.Parse((address-1).ToString());
+				Address = Byte.Parse((address-1).ToString(CultureInfo.InvariantCulture));
 				Data1 = data1;
 				Data2 = data2;
 				Data3 = data3;
@@ -313,7 +312,7 @@ namespace iSpyApplication.Pelco
 
 				CheckSum = (byte)(STX ^ Address ^ Data1 ^ Data2 ^ Data3 ^ Data4 ^ ETX);
 
-				return new byte[]{STX,Address,Data1,Data2,Data3,Data4,ETX,CheckSum};
+				return new []{STX,Address,Data1,Data2,Data3,Data4,ETX,CheckSum};
 			}
 			
 		}

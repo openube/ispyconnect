@@ -17,14 +17,14 @@ namespace iSpyApplication.Audio.codecs
         public byte[] Encode(byte[] data, int offset, int length)
         {
             byte[] encoded = new byte[length];
-            Array.Copy(data, offset, encoded, 0, length);
+            System.Array.Copy(data, offset, encoded, 0, length);
             return encoded;
         }
         
         public byte[] Decode(byte[] data, int offset, int length) 
         {
             byte[] decoded = new byte[length];
-            Array.Copy(data, offset, decoded, 0, length);
+            System.Array.Copy(data, offset, decoded, 0, length);
             return decoded;
         }
         

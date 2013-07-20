@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace iSpyApplication.Video
 {
@@ -13,7 +10,7 @@ namespace iSpyApplication.Video
     /// 
     public class AlertEventArgs : EventArgs
     {
-        private string description;
+        private readonly string _description;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AlertEventArgs"/> class.
@@ -23,7 +20,7 @@ namespace iSpyApplication.Video
         /// 
         public AlertEventArgs(string description)
         {
-            this.description = description;
+            _description = description;
         }
 
         /// <summary>
@@ -32,7 +29,7 @@ namespace iSpyApplication.Video
         /// 
         public string Description
         {
-            get { return description; }
+            get { return _description; }
         }
     }
 }

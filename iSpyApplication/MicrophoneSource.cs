@@ -3,8 +3,8 @@ using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Video;
 using NAudio.Wave;
-using AForge.Video.FFMPEG;
-using AudioFileReader = AForge.Video.FFMPEG.AudioFileReader;
+using iSpy.Video.FFMPEG;
+using AudioFileReader = iSpy.Video.FFMPEG.AudioFileReader;
 
 namespace iSpyApplication
 {
@@ -247,6 +247,7 @@ namespace iSpyApplication
             LocRm.SetString(label21,"FileURL");
             LocRm.SetString(label18, "Arguments");
             LocRm.SetString(lblInstallVLC, "VLCHelp");
+            lblInstallVLC.Text = lblInstallVLC.Text.Replace("x86", Program.Platform);
             LocRm.SetString(label2, "FileURL");
             LocRm.SetString(btnTest, "Test");
             LocRm.SetString(lblCamera, "NoCamera");
@@ -294,13 +295,14 @@ namespace iSpyApplication
             MainForm.OpenUrl( url);
         }
 
+        public bool NoBuffer;
         private void Test_Click(object sender, EventArgs e)
         {
             var afr = new AudioFileReader();
 
             try
             {
-                afr.Open(cmbFFMPEGURL.Text);
+                afr.Open(cmbFFMPEGURL.Text, 8000, 2000, "", -1, NoBuffer);
                 afr.ReadAudioFrame();
 
                 Mic.settings.channels = afr.Channels;

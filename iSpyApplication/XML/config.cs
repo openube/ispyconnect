@@ -211,9 +211,7 @@ public partial class configuration {
     private bool lockLayoutField;
     
     private string mediaPanelSizeField;
-    
-    private string webServerField;
-    
+       
     private bool minimiseOnCloseField;
     
     private bool iPv6DisabledField;
@@ -227,10 +225,16 @@ public partial class configuration {
     private string appendLinkTextField;
 
     private string startupFormField;
+
+    private bool trayOnMinimiseField;
     
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
+
+    private int featureSetField;
+
+    private int MJPEGStreamIntervalField;
     
     public configuration() {
         this.maxRecordingThreadsField = 4;
@@ -257,16 +261,43 @@ public partial class configuration {
         this.bigButtonsField = false;
         this.lockLayoutField = false;
         this.mediaPanelSizeField = "";
-        this.webServerField = "http://www.ispyconnect.com";
         this.minimiseOnCloseField = false;
         this.iPv6DisabledField = false;
         this.deleteToRecycleBinField = false;
         this.speechRecognitionField = false;
         this.appendLinkTextField = "http://www.ispyconnect.com/watch_new.aspx";
         this.startupFormField = "iSpy";
+        this.trayOnMinimiseField = true;
+        this.featureSetField = -1;
+        this.MJPEGStreamIntervalField = 100;
+    }
+
+
+    /// <remarks/>
+    public int MJPEGStreamInterval
+    {
+        get
+        {
+            return this.MJPEGStreamIntervalField;
+        }
+        set
+        {
+            this.MJPEGStreamIntervalField = value;
+        }
     }
     
     /// <remarks/>
+    public bool TrayOnMinimise
+    {
+        get {
+            return this.trayOnMinimiseField;
+        }
+        set {
+            this.trayOnMinimiseField = value;
+        }
+    }
+        
+        /// <remarks/>
     public string WSUsername {
         get {
             return this.wSUsernameField;
@@ -303,6 +334,19 @@ public partial class configuration {
         }
         set {
             this.serverPortField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int FeatureSet
+    {
+        get
+        {
+            return this.featureSetField;
+        }
+        set
+        {
+            this.featureSetField = value;
         }
     }
     
@@ -1205,17 +1249,7 @@ public partial class configuration {
             this.mediaPanelSizeField = value;
         }
     }
-    
-    /// <remarks/>
-    public string WebServer {
-        get {
-            return this.webServerField;
-        }
-        set {
-            this.webServerField = value;
-        }
-    }
-    
+       
     /// <remarks/>
     public bool MinimiseOnClose {
         get {

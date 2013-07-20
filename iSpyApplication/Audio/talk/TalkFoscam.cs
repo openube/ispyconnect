@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using AForge.Video.FFMPEG;
+using iSpy.Video.FFMPEG;
 using iSpyApplication.Audio.streams;
 using NAudio.Wave;
 

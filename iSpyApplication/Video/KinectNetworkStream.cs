@@ -14,7 +14,7 @@ using ReasonToFinishPlaying = AForge.Video.ReasonToFinishPlaying;
 namespace iSpyApplication.Video
 {
 
-    public class KinectNetworkStream : IVideoSource, IAudioSource
+    public class KinectNetworkStream : IVideoSource, IAudioSource, ISupportsAudio
     {
         private string _source;
         private string _login;
@@ -531,9 +531,9 @@ namespace iSpyApplication.Video
                             if (br != -1)
                             {
                                 var arr = new byte[br];
-                                Array.Copy(buffer, startPacket, arr, 0, br-startPacket);
+                                System.Array.Copy(buffer, startPacket, arr, 0, br - startPacket);
                                 string s = Encoding.ASCII.GetString(arr);
-                                int k = s.IndexOf("Content-type: ");
+                                int k = s.IndexOf("Content-type: ", System.StringComparison.Ordinal);
                                 if (k!=-1)
                                 {
                                     s = s.Substring(k+14);
@@ -613,7 +613,7 @@ namespace iSpyApplication.Video
                             }
 
                             ttl -= endPacket;
-                            Array.Copy(buffer, endPacket, buffer, 0, ttl);
+                            System.Array.Copy(buffer, endPacket, buffer, 0, ttl);
                             startPacket = -1;
                             endPacket = -1;
                         }

@@ -1,6 +1,6 @@
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -35,6 +35,7 @@ namespace iSpyApplication.Video
         private bool _forceBasicAuthentication;
         private string _cookies = "";
 	    private string _userAgent = "";
+	    public string Headers = "";
 
         // buffer size used to download JPEG image
 		private const int BufferSize = 1024 * 1024;
@@ -463,7 +464,7 @@ namespace iSpyApplication.Video
                         request.Credentials = new NetworkCredential( _login, _password );
 					// set connection group name
 					if ( _useSeparateConnectionGroup )
-                        request.ConnectionGroupName = GetHashCode( ).ToString( );
+                        request.ConnectionGroupName = GetHashCode( ).ToString(CultureInfo.InvariantCulture);
                     // force basic authentication through extra headers if required
                     
                     var authInfo = "";
@@ -492,6 +493,24 @@ namespace iSpyApplication.Video
                         }
                         request.CookieContainer = myContainer;
                     }
+
+                    if (!String.IsNullOrEmpty(Headers))
+                    {
+                        Headers = Headers.Replace("[AUTH]", authInfo);
+                        string[] coll = _cookies.Split(';');
+                        foreach (var hdr in coll)
+                        {
+                            if (!String.IsNullOrEmpty(hdr))
+                            {
+                                string[] nv = hdr.Split('=');
+                                if (nv.Length == 2)
+                                {
+                                    request.Headers.Add(nv[0], nv[1]);
+                                }
+                            }
+                        }
+                    }
+                    
 
 					// get response
                     response = request.GetResponse( );
