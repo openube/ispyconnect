@@ -13,6 +13,7 @@ using Declarations.Events;
 using Declarations.Media;
 using Declarations.Players;
 using Implementation;
+using iSpy.Video.FFMPEG;
 using iSpyApplication.Controls;
 using iSpyApplication.Video;
 using Microsoft.Kinect;
@@ -133,28 +134,37 @@ namespace iSpyApplication
             InitializeComponent();
             RenderResources();
 
+            bool empty = true;
             // show device list
             try
             {
                 // enumerate video devices
                 _videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
 
-                if (_videoDevices.Count == 0)
-                    throw new ApplicationException();
-
-                // add all devices to combo
-                foreach (FilterInfo device in _videoDevices)
+                if (_videoDevices.Count > 0)
                 {
-                    devicesCombo.Items.Add(device.Name);
+                    foreach (FilterInfo device in _videoDevices)
+                    {
+                        devicesCombo.Items.Add(device.Name);
+                    }
+                    empty = false;
                 }
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
-                devicesCombo.Items.Add(LocRm.GetString("NoCaptureDevices"));
-                devicesCombo.Enabled = false;
-                //okButton.Enabled = false;
             }
+            if (empty)
+            {
+                ListEmptyCaptureDevices();
+            }
+        }
+
+        private void ListEmptyCaptureDevices()
+        {
+            devicesCombo.Items.Clear();
+            devicesCombo.Items.Add(LocRm.GetString("NoCaptureDevices"));
+            devicesCombo.Enabled = false;
         }
 
         private object[] ObjectList(string str)
@@ -1742,6 +1752,60 @@ namespace iSpyApplication
                 MainForm.ONVIFDevices.RemoveAt(lbONVIFDevices.SelectedIndex);
                 lbONVIFDevices.Items.RemoveAt(lbONVIFDevices.SelectedIndex);
             }
+        }
+
+        private void btnTest_Click(object sender, EventArgs e)
+        {
+            btnTest.Enabled = false;
+            var vfr = new VideoFileReader();
+            
+            string source = cmbFile.Text;
+            try
+            {
+                int i = source.IndexOf("://", StringComparison.Ordinal);
+                if (i > -1)
+                {
+                    source = source.Substring(0, i).ToLower() + source.Substring(i);
+                }
+
+                vfr.Timeout = CameraControl.Camobject.settings.timeout;
+                vfr.AnalyzeDuration = (int)numAnalyseDuration.Value;
+                vfr.Cookies = CameraControl.Camobject.settings.cookies;
+                vfr.UserAgent = CameraControl.Camobject.settings.useragent;
+                vfr.Headers = CameraControl.Camobject.settings.headers;
+                vfr.Flags = -1;
+                vfr.NoBuffer = chkNoBuffer.Checked;
+                vfr.Open(source);
+                vfr.ReadFrame();
+                
+                MessageBox.Show("Stream OK");
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    Program.WriterMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
+            }
+            try
+            {
+                vfr.Close();
+            }
+            catch
+            {
+
+            }
+            vfr = null;
+            btnTest.Enabled = true;
         }
 
     }

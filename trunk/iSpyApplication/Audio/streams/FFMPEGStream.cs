@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Threading;
+using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using AudioFileReader = iSpy.Video.FFMPEG.AudioFileReader;
 
 namespace iSpyApplication.Audio.streams
 {
-    class FfmpegStream: IAudioSource
+    class FFMPEGAudioStream: IAudioSource
     {
         private string _source;
         private bool _listening;
         private float _volume;
         private ManualResetEvent _stopEvent;
+        private AudioFileReader _afr;
+        private volatile bool _waitingOnMutex;
 
         private Thread _thread;
 
@@ -99,7 +102,13 @@ namespace iSpyApplication.Audio.streams
 
             }
             set
-            {                
+            {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -128,9 +137,6 @@ namespace iSpyApplication.Audio.streams
                     // check thread status
                     if (_thread.Join(0) == false)
                         return true;
-
-                    // the thread is not running, free resources
-                    Free();
                 }
                 return false;
             }
@@ -140,7 +146,7 @@ namespace iSpyApplication.Audio.streams
         /// Initializes a new instance of the <see cref="LocalDeviceStream"/> class.
         /// </summary>
         /// 
-        public FfmpegStream() { }
+        public FFMPEGAudioStream() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalDeviceStream"/> class.
@@ -148,7 +154,7 @@ namespace iSpyApplication.Audio.streams
         /// 
         /// <param name="source">source, which provides audio data.</param>
         /// 
-        public FfmpegStream(string source)
+        public FFMPEGAudioStream(string source)
         {
             _source = source;
         }
@@ -176,31 +182,39 @@ namespace iSpyApplication.Audio.streams
                 Name = "FFMPEG Audio Receiver (" + _source + ")"
             };
             _thread.Start();
-            _stopped = false;
+            //_stopped = false;
 
                         
         }
 
         public string Cookies = "";
-        public bool NoBuffer;
+        public int Timeout = 8000;
+        public int AnalyseDuration = 2000;
+
+        //public bool NoBuffer;
+        ReasonToFinishPlaying _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
 
         private void FfmpegListener()
         {
-            var reasonToStop = ReasonToFinishPlaying.StoppedByUser;
-
-            AudioFileReader afr = null;
+            _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+            _afr = null;
+            _waitingOnMutex = true;
             Program.WriterMutex.WaitOne();
+            _waitingOnMutex = false;
+            bool open = false;
             
             try
             {
-                afr = new AudioFileReader();
+                _afr = new AudioFileReader();
                 int i = _source.IndexOf("://", StringComparison.Ordinal);
                 if (i>-1)
                 {
                     _source = _source.Substring(0, i).ToLower() + _source.Substring(i);
                 }
-                
-                afr.Open(_source,8000,2000,Cookies,-1, NoBuffer );
+                _afr.Timeout = Timeout;
+                _afr.AnalyzeDuration = AnalyseDuration;
+                _afr.Open(_source);
+                open = true;
             }
             catch (Exception ex)
             {
@@ -208,26 +222,33 @@ namespace iSpyApplication.Audio.streams
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();
+                try
+                {
+                    Program.WriterMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
             }
 
-            if (afr == null || !afr.IsOpen)
+            if (_afr == null || !_afr.IsOpen || !open)
             {
                 if (AudioFinished!=null)
-                    AudioFinished(this, ReasonToFinishPlaying.AudioSourceError);
+                    AudioFinished(this, ReasonToFinishPlaying.VideoSourceError);
                 return;
             }
 
 
-            RecordingFormat = new WaveFormat(afr.SampleRate, 16, afr.Channels);
+            RecordingFormat = new WaveFormat(_afr.SampleRate, 16, _afr.Channels);
             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
             
             
             _sampleChannel = new SampleChannel(_waveProvider);
             _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
-            int mult = afr.BitsPerSample/8;
-            double btrg = Convert.ToDouble(afr.SampleRate*mult*afr.Channels);
+            int mult = _afr.BitsPerSample / 8;
+            double btrg = Convert.ToDouble(_afr.SampleRate * mult * _afr.Channels);
             DateTime lastPacket = DateTime.Now;
             bool realTime = !IsFileSource;
 
@@ -237,12 +258,12 @@ namespace iSpyApplication.Audio.streams
                 DateTime req = DateTime.Now;
                 while (!_stopEvent.WaitOne(10, false))
                 {
-                    byte[] data = afr.ReadAudioFrame();
+                    byte[] data = _afr.ReadAudioFrame();
                     if (data==null || data.Equals(0))
                     {
                         if (!realTime)
                         {
-                            reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
+                            _reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
                             break;
                         }
                     }
@@ -302,29 +323,31 @@ namespace iSpyApplication.Audio.streams
                     AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
                 MainForm.LogExceptionToFile(e);
 
-                reasonToStop = ReasonToFinishPlaying.DeviceLost;
+                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
                 err = true;
             }
 
             try
             {
-                afr.Close();
+                _afr.Close();
             }
             catch(Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
+            _afr.Dispose();
 
-            _stopped = true;
+            // release events
+            _stopEvent.Close();
+            _stopEvent.Dispose();
+            _stopEvent = null;
 
             if (IsFileSource && !err)
-                reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
 
             if (AudioFinished != null)
-                AudioFinished(this, reasonToStop);
+                AudioFinished(this, _reasonToStop);
         }
-
-        private bool _stopped;
 
         void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
         {
@@ -345,27 +368,27 @@ namespace iSpyApplication.Audio.streams
         {
             if (IsRunning)
             {
-                if (!_stopped)
+                if (_afr != null)
                 {
-                    _stopEvent.Set();
-                    _thread.Join(4000);
+                    _afr.Abort();
+
                 }
-                Free();
+                _stopEvent.Set();
+
+                if (!_waitingOnMutex)
+                {
+                    //wait for video source shutdown
+                    //dont change this to a plain join as if a scheduled reconnect coincides with a manual reset there can be a deadlock
+                    _thread.Join(4000);
+
+                }
+                else
+                {
+                    //thread is waiting on the mutex
+                    _thread.Abort();
+                }
+                _waitingOnMutex = false;
             }
-        }
-
-        /// <summary>
-        /// Free resource.
-        /// </summary>
-        /// 
-        private void Free()
-        {
-            _thread = null;
-
-            // release events
-            if (_stopEvent!=null)
-                _stopEvent.Close();
-            _stopEvent = null;
         }
 
         public WaveFormat RecordingFormat { get; set; }

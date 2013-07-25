@@ -19,7 +19,6 @@ using iSpyApplication.Video;
 using NAudio.Wave;
 using iSpy.Video.FFMPEG;
 using PictureBox = AForge.Controls.PictureBox;
-using ReasonToFinishPlaying = iSpyApplication.Audio.ReasonToFinishPlaying;
 using WaveFormat = NAudio.Wave.WaveFormat;
 
 namespace iSpyApplication.Controls
@@ -34,8 +33,7 @@ namespace iSpyApplication.Controls
 
         private double _intervalCount;
         private long _lastRun = DateTime.Now.Ticks;
-        private int _milliCount;
-        private double _noSoundCount;
+        private double _secondCount;
         private bool _processing;
         private double _recordingTime;
         private Point _mouseLoc;        
@@ -793,13 +791,13 @@ namespace iSpyApplication.Controls
             if (_processing)
                 return;
             _processing = true;
-
             try
             {
                 //time since last tick
                 var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
-                _milliCount += ts.Milliseconds;
                 _lastRun = DateTime.Now.Ticks;
+                _secondCount += ts.Milliseconds / 1000.0;
+                
 
                 if (FlashCounter <= 5)
                 {
@@ -812,11 +810,6 @@ namespace iSpyApplication.Controls
                     if (Micobject.alerts.mode!="nosound" && CameraControl != null)
                         CameraControl.InactiveRecord = 0;
                 }
-
-                double secondCount = (_milliCount/1000.0);
-
-                while (_milliCount > 1000)
-                    _milliCount -= 1000;
 
                 if (FlashCounter == 1)
                 {
@@ -833,252 +826,291 @@ namespace iSpyApplication.Controls
 
                 if (Micobject.alerts.active && Micobject.settings.active)
                 {
-                    if (FlashCounter > 0 && _isTrigger)
-                    {
-                        BackColor = (BackColor == MainForm.ActivityColor)
-                                        ? MainForm.BackgroundColor
-                                        : MainForm.ActivityColor;
-                        reset = false;
-                    }
-                    else
-                    {
-                        switch (Micobject.alerts.mode)
-                        {
-                            case "sound":
-                                if (FlashCounter > 0)
-                                {
-                                    BackColor = (BackColor == MainForm.ActivityColor)
-                                                    ? MainForm.BackgroundColor
-                                                    : MainForm.ActivityColor;
-                                    reset = false;
-                                }                                
-                                break;
-                            case "nosound":
-                                if (!SoundDetected)
-                                {
-                                    BackColor = (BackColor == MainForm.NoActivityColor)
-                                                    ? MainForm.BackgroundColor
-                                                    : MainForm.NoActivityColor;
-                                    reset = false;
-                                }
-                                break;
-                        }
-                    }
+                    reset = FlashBackground();
                 }
 
                 if (reset)
                     BackColor = MainForm.BackgroundColor;
 
-
-                if (secondCount > 1) //approx every second
+                if (_secondCount > 1) //approx every second
                 {
-                    if (Micobject.settings.active && AudioSource!=null)
-                    {
+                    if (CheckReconnect()) goto skip;
 
-                        if (Micobject.settings.reconnectinterval > 0 && !(AudioSource is IVideoSource))
-                        {
-                            ReconnectCount += secondCount;
-                            if (ReconnectCount > Micobject.settings.reconnectinterval)
-                            {
-                                _isReconnect = true;
-                                ReconnectCount = 0;
-                                AudioSource.Stop();
-                                Application.DoEvents();
+                    CheckReconnectInterval();
 
-                                AudioSource.Start();
-                                _isReconnect = false;
-                            }
-
-                        }
-                    }
-
-                    if (Micobject.settings.notifyondisconnect && _errorTime != DateTime.MinValue)
-                    {
-                        int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
-                        if (sec > 30 && sec < 35)
-                        {
-                            string subject =
-                                LocRm.GetString("MicrophoneNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
-                                                                                                 Micobject.name);
-                            string message = LocRm.GetString("MicrophoneNotifyDisconnectMailBody");
-                            message = message.Replace("[NAME]", Micobject.name);
-                            message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
-
-                            
-                            if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
-                                WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
-                            
-                            _errorTime = DateTime.MinValue;
-                        }
-                    }
+                    CheckDisconnect();
 
                     if (Recording && !SoundDetected && !ForcedRecording)
                     {
-                        InactiveRecord += secondCount;
+                        InactiveRecord += _secondCount;
                     }
+
                     if (Micobject.schedule.active)
                     {
-                        DateTime dtnow = DateTime.Now;
-                        foreach (objectsMicrophoneScheduleEntry entry in Micobject.schedule.entries.Where(p => p.active))
-                        {
-                            if (
-                                entry.daysofweek.IndexOf(
-                                    ((int) dtnow.DayOfWeek).ToString(CultureInfo.InvariantCulture),
-                                    StringComparison.Ordinal) != -1)
-                            {
-                                string[] stop = entry.stop.Split(':');
-                                if (stop[0] != "-")
-                                {
-                                    if (Convert.ToInt32(stop[0]) == dtnow.Hour)
-                                    {
-                                        if (Convert.ToInt32(stop[1]) == dtnow.Minute && dtnow.Second < 2)
-                                        {
-                                            Micobject.detector.recordondetect = entry.recordondetect;
-                                            Micobject.detector.recordonalert = entry.recordonalert;
-                                            Micobject.alerts.active = entry.alerts;
-
-                                            if (Micobject.settings.active)
-                                                Disable();
-                                            goto skip;
-                                        }
-                                    }
-                                }
-
-                                string[] start = entry.start.Split(':');
-                                if (start[0] != "-")
-                                {
-                                    if (Convert.ToInt32(start[0]) == dtnow.Hour)
-                                    {
-                                        if (Convert.ToInt32(start[1]) == dtnow.Minute && dtnow.Second < 3)
-                                        {
-                                            if (!Micobject.settings.active)
-                                                Enable();
-                                            if ((dtnow - _lastScheduleCheck).TotalSeconds > 60)
-                                            {
-                                                Micobject.detector.recordondetect = entry.recordondetect;
-                                                Micobject.detector.recordonalert = entry.recordonalert;
-                                                Micobject.alerts.active = entry.alerts;
-                                                if (entry.recordonstart)
-                                                {
-                                                    ForcedRecording = true;
-                                                }
-                                            }
-                                            goto skip;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (Alerted)
-                    {
-                        _intervalCount += secondCount;
-                        if (_intervalCount > Micobject.alerts.minimuminterval)
-                        {
-                            Alerted = false;
-                            _intervalCount = 0;
-                            UpdateFloorplans(false);
-                            _lastAlertCheck = DateTime.Now;
-                        }
-                    }
-                    else
-                    {
-
-                        if (Micobject.alerts.active && AudioSource != null)
-                        {
-                            switch (Micobject.alerts.mode)
-                            {
-                                case "sound":
-                                    
-                                    if (_soundLastDetected>_lastAlertCheck)
-                                    {
-                                        SoundCount += secondCount;
-                                        if (_isTrigger ||
-                                                    (Math.Floor(SoundCount) >= Micobject.detector.soundinterval))
-                                        {
-                                            RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
-                                            DoAlert();
-                                            SoundCount = 0;
-                                            if (Micobject.detector.recordonalert && !Recording)
-                                            {
-                                                StartSaving();
-                                            }
-                                        }
-                                        _lastAlertCheck = DateTime.Now;
-                                    }
-                                    else
-                                        SoundCount = 0;
-
-                                    break;
-                                case "nosound":
-                                    if (Micobject.settings.active && Micobject.alerts.active)
-                                    {
-                                        if (!SoundDetected)
-                                        {
-                                            _noSoundCount += secondCount;
-                                            if (!Alerted && _noSoundCount >= Micobject.detector.nosoundinterval)
-                                            {
-                                                RemoteCommand(this,
-                                                              new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
-                                                DoAlert();
-                                                _noSoundCount = 0;
-                                                if (Micobject.detector.recordonalert && !Recording)
-                                                {
-                                                    StartSaving();
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            _noSoundCount = 0;
-                                        }
-                                    }
-                                    break;
-                            }
-                        }
+                        if (CheckSchedule()) goto skip;
                     }
 
-                    //Check record
-                    if (((Micobject.detector.recordondetect && SoundDetected) || ForcedRecording) && !Recording)
-                    {
-                        StartSaving();
-                    }
-                    else
-                    {
-                        if (!_stopWrite && Recording && !_pairedRecording)
-                        {
-                            if (_recordingTime > Micobject.recorder.maxrecordtime ||
-                                ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) &&
-                                    !ForcedRecording))
-                                StopSaving();
-                        }
-                    }
-
-                    if (_reconnectTime != DateTime.MinValue)
-                    {
-                        if (AudioSource != null)
-                        {
-                            int sec = Convert.ToInt32((DateTime.Now - _reconnectTime).TotalSeconds);
-                            if (sec > 10)
-                            {
-                                //try to reconnect every 10 seconds
-                                if (!AudioSource.IsRunning)
-                                {
-                                    AudioSource.Start();
-                                }
-                                _reconnectTime = DateTime.Now;
-                            }
-
-                        }
-                    }
+                    CheckRecord();
                 }
+
+                CheckAlert();
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
+
             skip:
+            if (_secondCount > 1)
+                _secondCount = 0;
             _processing = false;
+        }
+
+        private bool FlashBackground()
+        {
+            bool reset = true;
+            if (FlashCounter > 0 && _isTrigger)
+            {
+                BackColor = (BackColor == MainForm.ActivityColor)
+                                ? MainForm.BackgroundColor
+                                : MainForm.ActivityColor;
+                reset = false;
+            }
+            else
+            {
+                switch (Micobject.alerts.mode)
+                {
+                    case "sound":
+                        if (FlashCounter > 0)
+                        {
+                            BackColor = (BackColor == MainForm.ActivityColor)
+                                            ? MainForm.BackgroundColor
+                                            : MainForm.ActivityColor;
+                            reset = false;
+                        }
+                        break;
+                    case "nosound":
+                        if (!SoundDetected)
+                        {
+                            BackColor = (BackColor == MainForm.NoActivityColor)
+                                            ? MainForm.BackgroundColor
+                                            : MainForm.NoActivityColor;
+                            reset = false;
+                        }
+                        break;
+                }
+            }
+            return reset;
+        }
+
+        private void CheckReconnectInterval()
+        {
+            if (Micobject.settings.active && AudioSource != null)
+            {
+                if (Micobject.settings.reconnectinterval > 0 && !(AudioSource is IVideoSource))
+                {
+                    ReconnectCount += _secondCount;
+                    if (ReconnectCount > Micobject.settings.reconnectinterval)
+                    {
+                        _isReconnect = true;
+                        lock (this)
+                        {
+                            AudioSource.Stop();
+                            while (AudioSource.IsRunning)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            AudioSource.Start();
+                        }
+                        _isReconnect = false;
+                        ReconnectCount = 0;
+                    }
+                    
+                }
+            }
+        }
+
+        private void CheckDisconnect()
+        {
+            if (Micobject.settings.notifyondisconnect && _errorTime != DateTime.MinValue)
+            {
+                int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
+                if (sec > 30 && sec < 35)
+                {
+                    string subject =
+                        LocRm.GetString("MicrophoneNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
+                                                                                         Micobject.name);
+                    string message = LocRm.GetString("MicrophoneNotifyDisconnectMailBody");
+                    message = message.Replace("[NAME]", Micobject.name);
+                    message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
+
+
+                    if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
+                        WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
+
+                    _errorTime = DateTime.MinValue;
+                }
+            }
+        }
+
+        private bool CheckSchedule()
+        {
+            DateTime dtnow = DateTime.Now;
+            foreach (objectsMicrophoneScheduleEntry entry in Micobject.schedule.entries.Where(p => p.active))
+            {
+                if (
+                    entry.daysofweek.IndexOf(
+                        ((int) dtnow.DayOfWeek).ToString(CultureInfo.InvariantCulture),
+                        StringComparison.Ordinal) != -1)
+                {
+                    string[] stop = entry.stop.Split(':');
+                    if (stop[0] != "-")
+                    {
+                        if (Convert.ToInt32(stop[0]) == dtnow.Hour)
+                        {
+                            if (Convert.ToInt32(stop[1]) == dtnow.Minute && dtnow.Second < 2)
+                            {
+                                Micobject.detector.recordondetect = entry.recordondetect;
+                                Micobject.detector.recordonalert = entry.recordonalert;
+                                Micobject.alerts.active = entry.alerts;
+
+                                if (Micobject.settings.active)
+                                    Disable();
+                                return true;
+                            }
+                        }
+                    }
+
+                    string[] start = entry.start.Split(':');
+                    if (start[0] != "-")
+                    {
+                        if (Convert.ToInt32(start[0]) == dtnow.Hour)
+                        {
+                            if (Convert.ToInt32(start[1]) == dtnow.Minute && dtnow.Second < 3)
+                            {
+                                if (!Micobject.settings.active)
+                                    Enable();
+                                if ((dtnow - _lastScheduleCheck).TotalSeconds > 60)
+                                {
+                                    Micobject.detector.recordondetect = entry.recordondetect;
+                                    Micobject.detector.recordonalert = entry.recordonalert;
+                                    Micobject.alerts.active = entry.alerts;
+                                    if (entry.recordonstart)
+                                    {
+                                        ForcedRecording = true;
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        private void CheckAlert()
+        {
+            if (Micobject.settings.active && AudioSource != null)
+            {
+                if (Alerted)
+                {
+                    _intervalCount += _secondCount;
+                    if (_intervalCount > Micobject.alerts.minimuminterval)
+                    {
+                        Alerted = false;
+                        _intervalCount = 0;
+                        UpdateFloorplans(false);
+                        _lastAlertCheck = DateTime.Now;
+                    }
+                }
+                else
+                {
+                    if (Micobject.alerts.active && AudioSource != null)
+                    {
+                        switch (Micobject.alerts.mode)
+                        {
+                            case "sound":
+
+                                if (_soundLastDetected > _lastAlertCheck)
+                                {
+                                    SoundCount += _secondCount;
+                                    if (_isTrigger ||
+                                        (Math.Floor(SoundCount) >= Micobject.detector.soundinterval))
+                                    {
+                                        RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
+                                        DoAlert();
+                                        SoundCount = 0;
+                                        if (Micobject.detector.recordonalert && !Recording)
+                                        {
+                                            StartSaving();
+                                        }
+                                    }
+                                    _lastAlertCheck = DateTime.Now;
+                                }
+                                else
+                                    SoundCount = 0;
+
+                                break;
+                            case "nosound":
+                                if ((DateTime.Now - _soundLastDetected).TotalSeconds >
+                                    Micobject.detector.nosoundinterval)
+                                {
+                                    RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
+                                    DoAlert();
+                                    if (Micobject.detector.recordonalert && !Recording)
+                                    {
+                                        StartSaving();
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void CheckRecord()
+        {
+            if (((Micobject.detector.recordondetect && SoundDetected) || ForcedRecording) && !Recording)
+            {
+                StartSaving();
+            }
+            else
+            {
+                if (!_stopWrite && Recording && !_pairedRecording)
+                {
+                    if (_recordingTime > Micobject.recorder.maxrecordtime ||
+                        ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) &&
+                         !ForcedRecording))
+                        StopSaving();
+                }
+            }
+        }
+
+        private bool CheckReconnect()
+        {
+            if (_reconnectTime != DateTime.MinValue)
+            {
+                if (AudioSource != null)
+                {
+                    int sec = Convert.ToInt32((DateTime.Now - _reconnectTime).TotalSeconds);
+                    if (sec > 10)
+                    {
+                        //try to reconnect every 10 seconds
+                        if (!AudioSource.IsRunning)
+                        {
+                            lock (this)
+                            {
+                                AudioSource.Start();
+                            }
+                        }
+                        _reconnectTime = DateTime.Now;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         protected override void OnLostFocus(EventArgs e)
@@ -1553,30 +1585,35 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            IsEnabled = false;
+            SetDisabled(true);
+        }
+
+        private void SetDisabled(bool stopSource)
+        {
             _processing = true;
 
-            //if (CameraControl != null && CameraControl.IsEnabled)
-            //    CameraControl.Disable();
-            
             if (_recordingThread != null)
                 RecordSwitch(false);
 
-            if (AudioSource!=null && AudioSource.IsRunning)
+            if (AudioSource != null)
             {
                 AudioSource.AudioFinished -= AudioDeviceAudioFinished;
                 AudioSource.AudioSourceError -= AudioDeviceAudioSourceError;
                 AudioSource.DataAvailable -= AudioDeviceDataAvailable;
                 AudioSource.LevelChanged -= AudioDeviceLevelChanged;
 
-                if (!(AudioSource is IVideoSource))
+                if (!(AudioSource is IVideoSource) && stopSource)
                 {
-                    AudioSource.Stop();
+                    lock (this)
+                    {
+                        AudioSource.Stop();
+                    }
                 }
-                
+
             }
             //allow operations to complete in other threads
             Thread.Sleep(250);
+            IsEnabled = false;
 
             if (AudioBuffer != null)
             {
@@ -1601,7 +1638,6 @@ namespace iSpyApplication.Controls
             if (!ShuttingDown)
                 Invalidate();
             _processing = false;
-            
         }
 
         public void Enable()
@@ -1653,10 +1689,20 @@ namespace iSpyApplication.Controls
                     AudioSource = new iSpyServerStream(Micobject.settings.sourcename) { RecordingFormat = new WaveFormat(8000,16,1) };
                     break;
                 case 2: //VLC listener
-                    AudioSource = new VLCStream(Micobject.settings.sourcename) { RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels), Arguments = Micobject.settings.vlcargs};
+                    List<String> inargs = Micobject.settings.vlcargs.Split(Environment.NewLine.ToCharArray(),
+                                                                           StringSplitOptions.RemoveEmptyEntries).ToList();
+                    //switch off video output
+                    inargs.Add(":sout=#transcode{vcodec=none}:Display");
+
+                    AudioSource = new VLCStream(Micobject.settings.sourcename, inargs.ToArray()) { RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels), TimeOut = Micobject.settings.timeout };
                     break;
                 case 3: //FFMPEG listener
-                    AudioSource = new FfmpegStream(Micobject.settings.sourcename) { RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels) };
+                    AudioSource = new FFMPEGAudioStream(Micobject.settings.sourcename)
+                                      {
+                                          RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels),
+                                          AnalyseDuration =  Micobject.settings.analyseduration,
+                                          Timeout =  Micobject.settings.timeout
+                                      };                    
                     break;
                 case 4: //From Camera Feed
                     if (CameraControl != null)
@@ -1705,16 +1751,26 @@ namespace iSpyApplication.Controls
 
             WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout) ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100) : new DirectSoundOut(100);
 
-
             AudioSource.AudioFinished += AudioDeviceAudioFinished;
             AudioSource.AudioSourceError += AudioDeviceAudioSourceError;
             AudioSource.DataAvailable += AudioDeviceDataAvailable;
             AudioSource.LevelChanged += AudioDeviceLevelChanged;
+
+            var l = new float[Micobject.settings.channels];
+            for (int i = 0; i < l.Length; i++)
+            {
+                l[i] = 0.0f;
+            }
+            AudioDeviceLevelChanged(this, new LevelChangedEventArgs(l));
+
             //AudioSource.Volume = Micobject.settings.gain;
 
             if (!AudioSource.IsRunning)
             {
-                AudioSource.Start();
+                lock (this)
+                {
+                    AudioSource.Start();
+                }
             }
 
             AudioBuffer = new List<AudioAction>();
@@ -1873,7 +1929,7 @@ namespace iSpyApplication.Controls
             {
                 case ReasonToFinishPlaying.DeviceLost:
                 case ReasonToFinishPlaying.EndOfStreamReached:
-                case ReasonToFinishPlaying.AudioSourceError:
+                case ReasonToFinishPlaying.VideoSourceError:
                     if (!AudioSourceErrorState)
                     {
                         AudioSourceErrorState = true;
@@ -1884,7 +1940,7 @@ namespace iSpyApplication.Controls
                     }
                     break;
                 case ReasonToFinishPlaying.StoppedByUser:
-                    Disable();
+                    SetDisabled(false);
                     break;
             }
             if (!ShuttingDown)

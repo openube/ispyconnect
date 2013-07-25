@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -219,14 +219,23 @@ namespace iSpyApplication.Video
             get { return _source!=null && _source.IndexOf("://", StringComparison.Ordinal) == -1; }
         }
 
-        private class DelayedFrame
+        private class DelayedFrame : IDisposable
         {
-            public readonly Bitmap B;
+            public Bitmap B;
             public readonly double ShowTime;
             public DelayedFrame(Bitmap b, double showTime, double delay)
             {
                 B = b;
                 ShowTime = showTime + delay;
+            }
+
+            public void Dispose()
+            {
+                if (B!=null)
+                {
+                    B.Dispose();
+                    B = null;
+                }
             }
         }
         private class DelayedAudio
@@ -242,8 +251,8 @@ namespace iSpyApplication.Video
 
         public bool NoBuffer;
 
-        private readonly ConcurrentQueue<DelayedFrame> _videoframes = new ConcurrentQueue<DelayedFrame>();
-        private readonly ConcurrentQueue<DelayedAudio> _audioframes = new ConcurrentQueue<DelayedAudio>();
+        private List<DelayedFrame> _videoframes;
+        private List<DelayedAudio> _audioframes;
         private readonly Stopwatch _sw = new Stopwatch();
 
         private bool _realtime;
@@ -265,8 +274,9 @@ namespace iSpyApplication.Video
             {
                 if (_videoframes.Count > 0)
                 {
-                    DelayedFrame q;
-                    if (_videoframes.TryPeek(out q))
+                    DelayedFrame q = _videoframes[0];
+
+                    if (q != null)
                     {
                         if (first)
                         {
@@ -275,22 +285,26 @@ namespace iSpyApplication.Video
                         }
                         if (_sw.ElapsedMilliseconds + _stopWatchOffset > q.ShowTime)
                         {
-                            if (_videoframes.TryDequeue(out q))
+                            if (q.B != null)
                             {
-                                if (q.B != null)
-                                {
-                                    if (NewFrame != null)
-                                        NewFrame(this, new NewFrameEventArgs(q.B));
-                                    q.B.Dispose();
-                                }
+                                if (NewFrame != null)
+                                    NewFrame(this, new NewFrameEventArgs(q.B));
+                                q.B.Dispose();
                             }
+                            _videoframes.RemoveAt(0);
                         }
                     }
+                    else
+                    {
+                        _videoframes.RemoveAt(0);
+                    }
+
                 }
                 if (_audioframes.Count > 0)
                 {
-                    DelayedAudio q;
-                    if (_audioframes.TryPeek(out q))
+                    DelayedAudio q = _audioframes[0];
+
+                    if (q != null)
                     {
                         if (first)
                         {
@@ -300,14 +314,16 @@ namespace iSpyApplication.Video
                         var dispTime = _sw.ElapsedMilliseconds + _stopWatchOffset;
                         if (dispTime > q.ShowTime)
                         {
-                            if (_audioframes.TryDequeue(out q))
+                            if (q.A != null)
                             {
-                                if (q.A != null)
-                                {
-                                    ProcessAudio(q.A);
-                                }
+                                ProcessAudio(q.A);
                             }
+                            _audioframes.RemoveAt(0);
                         }
+                    }
+                    else
+                    {
+                        _audioframes.RemoveAt(0);
                     }
                 }
             }
@@ -323,11 +339,13 @@ namespace iSpyApplication.Video
         public string UserAgent = "";
         public string Headers = "";
 
-        public int AnalyseDuration = 8000;
+        public int AnalyseDuration = 2000;
         public int Timeout = 8000;
 
         private volatile bool _bufferFull;
         ReasonToFinishPlaying _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+
+
 
         private void FfmpegListener()
         {
@@ -341,13 +359,21 @@ namespace iSpyApplication.Video
             try
             {
                 _vfr = new VideoFileReader();
+
                 //ensure http/https is lower case for string compare in ffmpeg library
                 int i = _source.IndexOf("://", StringComparison.Ordinal);
                 if (i > -1)
                 {
                     _source = _source.Substring(0, i).ToLower() + _source.Substring(i);
                 }
-                _vfr.Open(_source, Timeout, AnalyseDuration, Cookies, UserAgent, Headers, -1, NoBuffer);
+                _vfr.Timeout = Timeout;
+                _vfr.AnalyzeDuration = AnalyseDuration;
+                _vfr.Cookies = Cookies;
+                _vfr.UserAgent = UserAgent;
+                _vfr.Headers = Headers;
+                _vfr.Flags = -1;
+                _vfr.NoBuffer = NoBuffer;
+                _vfr.Open(_source);
                 open = true;
             }
             catch (Exception ex)
@@ -356,9 +382,16 @@ namespace iSpyApplication.Video
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();
+                try
+                {
+                    Program.WriterMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
             }
-            if (_vfr == null || !open)
+            if (_vfr == null || !_vfr.IsOpen || !open)
             {
                 if (PlayingFinished!=null)
                     PlayingFinished(this, ReasonToFinishPlaying.VideoSourceError);
@@ -380,7 +413,10 @@ namespace iSpyApplication.Video
                 SampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
                 if (HasAudioStream != null)
+                {
                     HasAudioStream(this, EventArgs.Empty);
+                    HasAudioStream = null;
+                }
             }
             Duration = _vfr.Duration;            
             bool err = false;
@@ -394,6 +430,9 @@ namespace iSpyApplication.Video
             {
                 _tOutput = null;
             }
+
+            _videoframes = new List<DelayedFrame>();
+            _audioframes = new List<DelayedAudio>();
 
 
             double maxdrift = 0, firstmaxdrift = 0;
@@ -415,28 +454,24 @@ namespace iSpyApplication.Video
                         {
                             if (_videoframes.Count > 0)
                             {
-                                DelayedFrame q;
-
-                                if (_videoframes.TryDequeue(out q))
+                                DelayedFrame q = _videoframes[0];
+                                if (q.B != null)
                                 {
-                                    if (q.B != null)
-                                    {
-                                        if (NewFrame != null)
-                                            NewFrame(this, new NewFrameEventArgs(q.B));
-                                        q.B.Dispose();
-                                    }
+                                    if (NewFrame != null)
+                                        NewFrame(this, new NewFrameEventArgs(q.B));
+                                    q.B.Dispose();
                                 }
+                                _videoframes.RemoveAt(0);
                             }
                             if (_audioframes.Count > 0)
                             {
-                                DelayedAudio q;
-                                if (_audioframes.TryDequeue(out q))
+                                DelayedAudio q = _audioframes[0];
+
+                                if (q.A != null)
                                 {
-                                    if (q.A != null)
-                                    {
-                                        ProcessAudio(q.A);
-                                    }
+                                    ProcessAudio(q.A);
                                 }
+                                _audioframes.RemoveAt(0);
                             }
                         }
                     }
@@ -450,6 +485,9 @@ namespace iSpyApplication.Video
                 if (VideoSourceError != null)
                     VideoSourceError(this, new VideoSourceErrorEventArgs(e.Message));
 
+                if (AudioSourceError != null)
+                    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
+
                 MainForm.LogExceptionToFile(e);
                 _reasonToStop = ReasonToFinishPlaying.DeviceLost;
                 err = true;
@@ -461,19 +499,24 @@ namespace iSpyApplication.Video
             try
             {
                  _vfr.Close();
+                
             }
             catch(Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
-            }           
+            }
+            _vfr.Dispose();           
 
             // release events
             _stopEvent.Close();
+            _stopEvent.Dispose();
             _stopEvent = null;
 
             
             if (PlayingFinished != null)
                 PlayingFinished(this, _reasonToStop);
+            if (AudioFinished != null)
+                AudioFinished(this, _reasonToStop);
 
         }
 
@@ -482,7 +525,7 @@ namespace iSpyApplication.Video
         private bool DecodeFrame(int analyseInterval, bool hasaudio, ref double firstmaxdrift, ref double maxdrift,
                                  ref DateTime dtAnalyse)
         {
-            
+
             object frame = _vfr.ReadFrame();
             switch (_vfr.LastFrameType)
             {
@@ -512,7 +555,7 @@ namespace iSpyApplication.Video
                             if (data.Length > 0)
                             {
                                 double t = _vfr.AudioTime;
-                                _audioframes.Enqueue(new DelayedAudio(data, t, _delay));
+                                _audioframes.Add(new DelayedAudio(data, t, _delay));
                             }
                         }
                     }
@@ -556,7 +599,7 @@ namespace iSpyApplication.Video
                         }
 
 
-                        _videoframes.Enqueue(new DelayedFrame(bmp, t, _delay));
+                        _videoframes.Add(new DelayedFrame(bmp, t, _delay));
                     }
                     break;
             }
@@ -565,13 +608,13 @@ namespace iSpyApplication.Video
 
         void StopOutput()
         {
-            ClearBuffer();
             if (_tOutput != null)
             {
                 _stopEvent.Set();
                 _tOutput.Join();
                 _tOutput = null;
             }
+            ClearBuffer();
         }
 
         void ProcessAudio(byte[] data)
@@ -657,20 +700,10 @@ namespace iSpyApplication.Video
 
         private void ClearBuffer()
         {
-            lock (this)
-            {
-                while (_videoframes.Count > 0)
-                {
-                    DelayedFrame f;
-                    if (_videoframes.TryDequeue(out f))
-                    {
-                        f.B.Dispose();
-                    }
-                }
-                DelayedAudio a;
-                while (_audioframes.Count > 0)
-                    _audioframes.TryDequeue(out a);
-            }
+            _videoframes.DisposeAll();
+            _videoframes.Clear();
+            _audioframes.DisposeAll();
+            _audioframes.Clear();
         }
         public void Seek(float percentage)
         {
@@ -720,6 +753,11 @@ namespace iSpyApplication.Video
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -764,10 +802,13 @@ namespace iSpyApplication.Video
                     
                 }
                 _stopEvent.Set();
+
                 if (!_waitingOnMutex)
                 {
                     //wait for video source shutdown
-                    _thread.Join();
+                    //dont change this to a plain join as if a scheduled reconnect coincides with a manual reset there can be a deadlock
+                    _thread.Join(4000);
+
                 }
                 else
                 {

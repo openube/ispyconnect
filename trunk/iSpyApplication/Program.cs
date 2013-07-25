@@ -78,17 +78,15 @@ internal static class Program
 
 
             bool firstInstance = true;
-            //Mutex = new Mutex(false, "iSpy", out firstInstance);
 
             var me = Process.GetCurrentProcess();
             var arrProcesses = Process.GetProcessesByName(me.ProcessName);
 
+            //only want to do this if not passing in a command
+
             if (arrProcesses.Length > 1)
             {
-                File.WriteAllText(AppDataPath + "external_command.txt", "showform");
-                //ensures pickup by filesystemwatcher
-                Thread.Sleep(1000);
-                firstInstance = false;               
+                firstInstance = false;
             }
             
             string executableName = Application.ExecutablePath;
@@ -105,8 +103,6 @@ internal static class Program
             string command = "";
             if (args.Length > 0)
             {
-                //if (args[0].ToLower().Trim() == "-firstrun" && !ei)
-                //    EnsureInstall(false);
                 if (args[0].ToLower().Trim() == "-reset" && !ei)
                 {
                     if (firstInstance)
@@ -143,7 +139,12 @@ internal static class Program
                 if (!String.IsNullOrEmpty(command))
                 {
                     File.WriteAllText(AppDataPath + "external_command.txt", command);
-                    //ensures pickup by filesystemwatcher
+                    Thread.Sleep(1000);
+                }
+                else
+                {
+                    //show form
+                    File.WriteAllText(AppDataPath + "external_command.txt", "showform");
                     Thread.Sleep(1000);
                 }
                 

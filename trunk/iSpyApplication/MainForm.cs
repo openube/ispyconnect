@@ -1868,7 +1868,8 @@ namespace iSpyApplication
                     LayoutObjects(0, 0);
                 if (!IsOnScreen(this))
                 {
-                    Location = new Point(0,0);
+                    Left = 0;
+                    Top = 0;
                 }
             }
         }

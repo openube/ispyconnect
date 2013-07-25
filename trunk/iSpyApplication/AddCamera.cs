@@ -2157,7 +2157,7 @@ namespace iSpyApplication
                     case 0:
                         cf = new ConfigureSeconds
                                  {
-                                     Seconds = CameraControl.Camobject.detector.movementinterval
+                                     Seconds = CameraControl.Camobject.detector.movementintervalnew
                                  };
                         cf.ShowDialog(this);
                         if (cf.DialogResult == DialogResult.OK)

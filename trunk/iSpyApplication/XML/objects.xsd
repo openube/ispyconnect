@@ -298,6 +298,8 @@
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="reconnectinterval" type="xs:int"/>
                                                     <xs:element name="accessgroups" type="xs:string" default=""/>
+                                                    <xs:element name="timeout" type="xs:int" default="8000"/>
+                                                    <xs:element name="analyzeduration" type="xs:int" default="2000"/>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>

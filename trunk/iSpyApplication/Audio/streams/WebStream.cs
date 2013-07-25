@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Threading;
+using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 

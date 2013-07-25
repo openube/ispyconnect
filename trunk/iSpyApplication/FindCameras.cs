@@ -116,7 +116,7 @@ namespace iSpyApplication
             pnlFindNetwork.Visible = false;
             pnlConnect.Dock = DockStyle.None;
             pnlConnect.Visible = false;
-            llblScan.Visible = false;
+            llblFilter.Visible = false;
 
             p.Dock = DockStyle.Fill;
             p.Visible = true;
@@ -124,7 +124,10 @@ namespace iSpyApplication
             btnBack.Enabled = p.Name != "pnlConfig";
 
             if (p.Name == "pnlConnect")
+            {
                 llblScan.Visible = MainForm.IPLISTED;
+                llblFilter.Visible = true;
+            }
         }
 
         private void RenderResources()
@@ -468,14 +471,12 @@ namespace iSpyApplication
                     //may have been removed
                 }
             }
-            if (ddlMake.SelectedIndex == -1)
-                ddlMake.SelectedIndex = 0;
         }
 
         private void LoadModels()
         {
             ddlModel.Items.Clear();
-            if (MainForm.Sources == null || ddlMake.SelectedIndex<1)
+            if (MainForm.Sources == null || ddlMake.SelectedIndex==-1)
                 return;
 
             string make = ddlMake.SelectedItem.ToString();
@@ -553,18 +554,37 @@ namespace iSpyApplication
             if (MainForm.IPLISTED)
             {
                 ListCameras(make, model);
+                Application.DoEvents();
+                if (pnlOptions.Controls.Count > 1)
+                {
+                    if (MessageBox.Show(this, "Do you want iSpy to check which of these URLs are valid?", "Verify URLs?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        CheckAndFilterResults();
+                    }
+                }
+                else
+                {
+                    if (MessageBox.Show(this, "Do you want iSpy to scan this camera for more feeds?", "Scan Camera?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        ScanCamera(make);
+                    }
+                }
             }
             else
             {
-                if (_urlscanner != null && _urlscanner.IsAlive)
-                {
-                    QuitScanner();
-                }
-                _urlscanner = new Thread(() => ScanCameras(make));
-                _urlscanner.Start();
-
-                
+                ScanCamera(make);
             }
+        }
+
+        private void ScanCamera(string make)
+        {
+            if (_urlscanner != null && _urlscanner.IsAlive)
+            {
+                QuitScanner();
+            }
+            _urlscanner = new Thread(() => ScanCameras(make));
+            _urlscanner.Start();
+            tsddScanner.Enabled = true;
         }
 
         private void QuitScanner()
@@ -625,6 +645,77 @@ namespace iSpyApplication
             }
 
             UISync.Execute(() => tsslCurrent.Text = "OK");
+            UISync.Execute(() => tsddScanner.Enabled = false);
+        }
+
+        private void ScanListedURLs()
+        {
+            _quiturlscanner = false;
+            var lp = new List<String>();
+            string login = txtUsername.Text.Trim();
+            string password = txtPassword.Text;
+
+            
+            var mmurl = new List<ManufacturersManufacturerUrl>();
+            int k = 0;
+            for (; k < pnlOptions.Controls.Count; k++)
+                mmurl.Add((ManufacturersManufacturerUrl)pnlOptions.Controls[k].Tag);
+
+            k = 0;
+            int j = 0;
+
+            while (k < mmurl.Count)
+            {
+                var u = mmurl[k];
+
+                string addr = GetAddr(u);
+                switch (u.prefix.ToUpper())
+                {
+                    default:
+                        UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                        //test this url
+                        if (!SendHTTPReq(addr, u.cookies, login, password))
+                        {
+                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j));
+                            j--;
+                        }
+                        break;
+                    case "RTSP://":
+                        addr = GetAddr(u);
+                        UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                        if (!SendRTSPReq(addr, login, password))
+                        {
+                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j));
+                            j--;
+                        }
+                        break;
+
+                }
+                j++;
+                k++;
+                if (_quiturlscanner)
+                    break;
+            }
+            
+            const int i = 0;
+            while (i < pnlOptions.Controls.Count)
+            {
+                if (pnlOptions.Controls[i].Enabled)
+                {
+                    try
+                    {
+                        ((RadioButton)pnlOptions.Controls[i]).Checked = true;
+                    }
+                    catch
+                    {
+                    }
+                    break;
+                }
+            }
+
+            UISync.Execute(() => tsslCurrent.Text = "OK");
+            UISync.Execute(() => tsddScanner.Enabled = false);
+
         }
 
         private void ListCameras(IEnumerable<ManufacturersManufacturer> m, ref List<string> lp, string login, string password)
@@ -640,7 +731,7 @@ namespace iSpyApplication
                     string addr;
                     switch (u.prefix.ToUpper())
                     {
-                        case "HTTP://":
+                        default:
                             if (MainForm.IPHTTP)
                             {
                                 addr = GetAddr(u);
@@ -774,9 +865,9 @@ namespace iSpyApplication
             {
                 var uri = new Uri(addr);
 
-                var request = "DESCRIBE " + addr + " RTSP/1.0\r\n" +
+                var request = "OPTIONS " + addr + " RTSP/1.0\r\n" +
                               "CSeq: 1\r\n" +
-                              "User-Agent: Dummy\r\n" +
+                              "User-Agent: iSpy\r\n" +
                               "Accept: */*\r\n";
 
                 if (!String.IsNullOrEmpty(login))
@@ -910,6 +1001,7 @@ namespace iSpyApplication
         {
             _exiting = true;
             QuitScanner();
+            Application.DoEvents();
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -962,15 +1054,6 @@ namespace iSpyApplication
                     MessageBox.Show(this, "Please enter an IP address or DNS address only (excluding http://)");
                     return;
                 }
-
-                //IPAddress ip;
-                //if (!IPAddress.TryParse(addr, out ip))
-                //{
-
-                    
-                //    return;
-                //}
-
 
                 AddConnections();
                 return;
@@ -1086,7 +1169,8 @@ namespace iSpyApplication
                 LastConfig.URL = s.url;
                 LastConfig.Cookies = s.cookies;
                 LastConfig.Flags = s.flags;
-                LastConfig.Port = s.Port;               
+                if (!String.IsNullOrEmpty(s.port))
+                    LastConfig.Port = Convert.ToInt32(s.port);
 
                 if (_dt != null)
                     MainForm.IPTABLE = _dt.Copy();
@@ -1123,12 +1207,9 @@ namespace iSpyApplication
 
             var nPort = (int)numPort.Value;
 
-            if (s.Port == 0 && s.prefix == "rtsp://")
-                s.Port = 554;
-
-            if (s.Port > 0)
-                nPort = s.Port;
-
+            if (!String.IsNullOrEmpty(s.port))
+                nPort = Convert.ToInt32(s.port);
+            
             string connectUrl = s.prefix;
 
             if (!String.IsNullOrEmpty(Username))
@@ -1140,9 +1221,12 @@ namespace iSpyApplication
                 connectUrl += "@";
                      
             }
-            connectUrl += addr + ":" + nPort + "/";
+            connectUrl += addr + ":" + nPort;
 
             string url = s.url;
+            if (!url.StartsWith("/"))
+                url = "/" + url;
+            
             url = url.Replace("[USERNAME]", Username).Replace("[PASSWORD]", Password);
             url = url.Replace("[CHANNEL]", txtChannel.Text.Trim());
             //defaults:
@@ -1220,6 +1304,27 @@ namespace iSpyApplication
             MainForm.IPHTTP = true;
 
             AddConnections();
+        }
+
+        private void quitScannerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            QuitScanner();
+        }
+
+        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            CheckAndFilterResults();
+        }
+
+        private void CheckAndFilterResults()
+        {
+            if (_urlscanner != null && _urlscanner.IsAlive)
+            {
+                QuitScanner();
+            }
+            _urlscanner = new Thread(ScanListedURLs);
+            _urlscanner.Start();
+            tsddScanner.Enabled = true;
         }
     }
 }

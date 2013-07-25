@@ -97,7 +97,7 @@ public partial class ManufacturersManufacturerUrl {
 
     private string flagsField;
 
-    private int portField;
+    private string portField;
 
     private string cookiesField;
 
@@ -183,7 +183,7 @@ public partial class ManufacturersManufacturerUrl {
 
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public int Port
+    public string port
     {
         get
         {

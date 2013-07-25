@@ -1,4 +1,5 @@
-﻿using iSpyApplication.Audio.streams;
+﻿using AForge.Video;
+using iSpyApplication.Audio.streams;
 
 namespace iSpyApplication.Audio
 {
@@ -41,34 +42,6 @@ namespace iSpyApplication.Audio
     /// <param name="sender">Sender object.</param>
     /// <param name="eventArgs"></param>
     public delegate void HasAudioStreamEventHandler(object sender, EventArgs eventArgs);
-
-    /// <summary>
-    /// Reason of finishing Audio playing.
-    /// </summary>
-    /// 
-    /// <remarks><para>When Audio source class fire the <see cref="IAudioSource.AudioFinished"/> event, they
-    /// need to specify reason of finishing Audio playing. For example, it may be end of stream reached.</para></remarks>
-    /// 
-    public enum ReasonToFinishPlaying
-    {
-        /// <summary>
-        /// Audio playing has finished because it end was reached.
-        /// </summary>
-        EndOfStreamReached,
-        /// <summary>
-        /// Audio playing has finished because it was stopped by user.
-        /// </summary>
-        StoppedByUser,
-        /// <summary>
-        /// Audio playing has finished because the device was lost (unplugged).
-        /// </summary>
-        DeviceLost,
-        /// <summary>
-        /// Audio playing has finished because of some error happened the Audio source (camera, stream, file, etc.).
-        /// A error reporting event usually is fired to provide error information.
-        /// </summary>
-        AudioSourceError
-    }
 
     /// <summary>
     /// Arguments for new frame event from Audio source.

@@ -256,7 +256,10 @@ namespace iSpyApplication.Video
                 _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
 
                 if (HasAudioStream != null)
+                {
                     HasAudioStream(this, EventArgs.Empty);
+                    HasAudioStream = null;
+                }
 
                 _isrunning = true;
 

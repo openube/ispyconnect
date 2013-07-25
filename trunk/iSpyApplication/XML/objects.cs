@@ -2895,13 +2895,44 @@ public partial class objectsMicrophoneSettings {
     private int reconnectintervalField;
     
     private string accessgroupsField;
+
+    private int timeoutField;
+
+    private int analysedurationField;
     
     public objectsMicrophoneSettings() {
         this.volumeField = 50;
         this.gainField = ((float)(1F));
         this.accessgroupsField = "";
+        this.timeoutField = 8000;
+        this.analysedurationField = 2000;
     }
-    
+
+    /// <remarks/>
+    public int analyseduration
+    {
+        get
+        {
+            return this.analysedurationField;
+        }
+        set
+        {
+            this.analysedurationField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int timeout
+    {
+        get
+        {
+            return this.timeoutField;
+        }
+        set
+        {
+            this.timeoutField = value;
+        }
+    }
     /// <remarks/>
     public int sourceindex {
         get {

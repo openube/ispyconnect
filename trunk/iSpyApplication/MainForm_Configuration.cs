@@ -850,6 +850,7 @@ namespace iSpyApplication
                     fs.Close();
                 }
                 _sources = c.Manufacturer != null ? c.Manufacturer.Distinct().ToList() : new List<ManufacturersManufacturer>();
+
             }
             catch (Exception ex)
             {
