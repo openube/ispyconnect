@@ -569,7 +569,10 @@ namespace iSpyApplication.Video
                                             _meteringProvider = new MeteringSampleProvider(_sampleChannel);
                                             _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
                                             if (HasAudioStream != null)
+                                            {
                                                 HasAudioStream(this, EventArgs.Empty);
+                                                HasAudioStream = null;
+                                            }
                                         }
                                         
                                         if (DataAvailable != null)

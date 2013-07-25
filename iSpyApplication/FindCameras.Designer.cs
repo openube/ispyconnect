@@ -89,6 +89,9 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
             this.pnlmain = new System.Windows.Forms.Panel();
+            this.tsddScanner = new System.Windows.Forms.ToolStripDropDownButton();
+            this.quitScannerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.llblFilter = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.tbl2.SuspendLayout();
@@ -460,6 +463,7 @@
             this.flowLayoutPanel3.Controls.Add(this.btnBack);
             this.flowLayoutPanel3.Controls.Add(this.llblDownloadVLC);
             this.flowLayoutPanel3.Controls.Add(this.llblScan);
+            this.flowLayoutPanel3.Controls.Add(this.llblFilter);
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 0);
@@ -526,7 +530,7 @@
             // pnlConfig
             // 
             this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
-            this.pnlConfig.Location = new System.Drawing.Point(17, 16);
+            this.pnlConfig.Location = new System.Drawing.Point(168, 20);
             this.pnlConfig.Name = "pnlConfig";
             this.pnlConfig.Size = new System.Drawing.Size(565, 286);
             this.pnlConfig.TabIndex = 6;
@@ -668,7 +672,7 @@
             // 
             this.pnlConnect.Controls.Add(this.pnlOptions);
             this.pnlConnect.Controls.Add(this.panel4);
-            this.pnlConnect.Location = new System.Drawing.Point(17, 288);
+            this.pnlConnect.Location = new System.Drawing.Point(23, 26);
             this.pnlConnect.Name = "pnlConnect";
             this.pnlConnect.Size = new System.Drawing.Size(335, 269);
             this.pnlConnect.TabIndex = 9;
@@ -740,6 +744,7 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsddScanner,
             this.tsslCurrent});
             this.statusStrip1.Location = new System.Drawing.Point(3, 460);
             this.statusStrip1.Name = "statusStrip1";
@@ -764,6 +769,36 @@
             this.pnlmain.Name = "pnlmain";
             this.pnlmain.Size = new System.Drawing.Size(706, 425);
             this.pnlmain.TabIndex = 12;
+            // 
+            // tsddScanner
+            // 
+            this.tsddScanner.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsddScanner.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.quitScannerToolStripMenuItem});
+            this.tsddScanner.Image = ((System.Drawing.Image)(resources.GetObject("tsddScanner.Image")));
+            this.tsddScanner.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddScanner.Name = "tsddScanner";
+            this.tsddScanner.Size = new System.Drawing.Size(62, 20);
+            this.tsddScanner.Text = "Scanner";
+            // 
+            // quitScannerToolStripMenuItem
+            // 
+            this.quitScannerToolStripMenuItem.Name = "quitScannerToolStripMenuItem";
+            this.quitScannerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quitScannerToolStripMenuItem.Text = "Quit Scanner";
+            this.quitScannerToolStripMenuItem.Click += new System.EventHandler(this.quitScannerToolStripMenuItem_Click);
+            // 
+            // llblFilter
+            // 
+            this.llblFilter.AutoSize = true;
+            this.llblFilter.Location = new System.Drawing.Point(75, 6);
+            this.llblFilter.Margin = new System.Windows.Forms.Padding(6);
+            this.llblFilter.Name = "llblFilter";
+            this.llblFilter.Size = new System.Drawing.Size(114, 13);
+            this.llblFilter.TabIndex = 4;
+            this.llblFilter.TabStop = true;
+            this.llblFilter.Text = "Check and filter results";
+            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
             // FindCameras
             // 
@@ -875,5 +910,8 @@
         private System.Windows.Forms.CheckBox chkHTTP;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.LinkLabel llblScan;
+        private System.Windows.Forms.ToolStripDropDownButton tsddScanner;
+        private System.Windows.Forms.ToolStripMenuItem quitScannerToolStripMenuItem;
+        private System.Windows.Forms.LinkLabel llblFilter;
     }
 }

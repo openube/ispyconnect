@@ -42,6 +42,7 @@ namespace iSpyApplication.Controls
         private double _timeLapseFrames;
         private double _timeLapseTotal;
         private double _timeLapseFrameCount;
+        private double _secondCount;
         private Point _mouseLoc;
         private List<FrameAction> _videoBuffer = new List<FrameAction>();
         private QueueWithEvents<FrameAction> _writerBuffer;
@@ -526,7 +527,7 @@ namespace iSpyApplication.Controls
         }
         #endregion
 
-        private double _secondCount;
+        
 
         public CameraWindow(objectsCamera cam)
         {
@@ -1118,9 +1119,7 @@ namespace iSpyApplication.Controls
             {
                 //time since last tick
                 var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
-
                 _lastRun = DateTime.Now.Ticks;
-
                 _secondCount += ts.TotalMilliseconds/1000.0;
                 
                 if (FlashCounter <= 5)
@@ -1183,10 +1182,9 @@ namespace iSpyApplication.Controls
                         StartSaving();
                     }
 
-                    if (_reconnectTime != DateTime.MinValue)
-                    {
-                        if (CheckReconnect()) goto skip;
-                    }
+                    
+                    if (CheckReconnect()) goto skip;
+                    
 
                     if (Calibrating)
                     {
@@ -1194,15 +1192,10 @@ namespace iSpyApplication.Controls
                     }
                     else
                     {
-                        if (_camera != null && _camera.VideoSource!=null && Camobject.settings.active)
-                        {
-                            CheckReconnectInterval();
-                        }
-                        if (Camobject.settings.notifyondisconnect &&
-                            _errorTime != DateTime.MinValue)
-                        {
-                            CheckDisconnect();
-                        }
+                        CheckReconnectInterval();
+                        
+                        CheckDisconnect();
+                        
 
                         if (Recording && !MovementDetected && !ForcedRecording)
                         {
@@ -1232,10 +1225,9 @@ namespace iSpyApplication.Controls
 
                 if (!Calibrating)
                 {
-                    if (Camobject.settings.active && _camera != null && !LastFrameNull)
-                    {
-                        CheckAlert(ts.TotalMilliseconds / 1000.0);
-                    }
+                    
+                    CheckAlert();
+                    
                 }
 
                 skip:
@@ -1402,98 +1394,100 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void CheckAlert(double t)
+        private void CheckAlert()
         {
-            if (Alerted)
+            if (Camobject.settings.active && _camera != null && !LastFrameNull)
             {
-                _intervalCount += _secondCount;
-                if (_intervalCount > Camobject.alerts.minimuminterval)
+                if (Alerted)
                 {
-                    Alerted = false;
-                    _intervalCount = 0;
-                    UpdateFloorplans(false);
-                    _lastAlertCheck = DateTime.Now;
-                }
-            }
-            else
-            {
-                //Check new Alert
-                if (Camobject.alerts.active && _camera != null)
-                {
-                    switch (Camobject.alerts.mode)
+                    _intervalCount += _secondCount;
+                    if (_intervalCount > Camobject.alerts.minimuminterval)
                     {
-                        case "movement":
-                            if (_movementLastDetected > _lastAlertCheck)
-                            {
-                                MovementCount += t;
-                                if (_isTrigger ||
-                                    (MovementCount > Camobject.detector.movementintervalnew))
+                        Alerted = false;
+                        _intervalCount = 0;
+                        UpdateFloorplans(false);
+                        _lastAlertCheck = DateTime.Now;
+                    }
+                }
+                else
+                {
+                    //Check new Alert
+                    if (Camobject.alerts.active && _camera != null)
+                    {
+                        switch (Camobject.alerts.mode)
+                        {
+                            case "movement":
+                                if (_movementLastDetected > _lastAlertCheck)
                                 {
-                                    RemoteCommand(this,
-                                                  new ThreadSafeCommand("bringtofrontcam," +
-                                                                        Camobject.id));
-                                    DoAlert();
-                                    MovementCount = 0;
-                                    if (Camobject.detector.recordonalert && !Recording)
+                                    MovementCount += _secondCount;
+                                    if (_isTrigger ||
+                                        (MovementCount > Camobject.detector.movementintervalnew))
                                     {
-                                        StartSaving();
+                                        RemoteCommand(this,
+                                                      new ThreadSafeCommand("bringtofrontcam," +
+                                                                            Camobject.id));
+                                        DoAlert();
+                                        MovementCount = 0;
+                                        if (Camobject.detector.recordonalert && !Recording)
+                                        {
+                                            StartSaving();
+                                        }
                                     }
+                                    _lastAlertCheck = DateTime.Now;
                                 }
-                                _lastAlertCheck = DateTime.Now;
-                            }
-                            else
-                                MovementCount = 0;
+                                else
+                                    MovementCount = 0;
 
-                            break;
-                        case "objectcount":
-                            if (Camera.MotionDetector != null &&
-                                Camera.MotionDetector.MotionProcessingAlgorithm is
-                                BlobCountingObjectsProcessing)
-                            {
-                                var blobalg =
-                                    (BlobCountingObjectsProcessing)
-                                    Camera.MotionDetector.MotionProcessingAlgorithm;
-                                if (blobalg.ObjectsCount >=
-                                    Camobject.alerts.objectcountalert)
+                                break;
+                            case "objectcount":
+                                if (Camera.MotionDetector != null &&
+                                    Camera.MotionDetector.MotionProcessingAlgorithm is
+                                    BlobCountingObjectsProcessing)
                                 {
-                                    RemoteCommand(this,
-                                                  new ThreadSafeCommand("bringtofrontcam," +
-                                                                        Camobject.id));
+                                    var blobalg =
+                                        (BlobCountingObjectsProcessing)
+                                        Camera.MotionDetector.MotionProcessingAlgorithm;
+                                    if (blobalg.ObjectsCount >=
+                                        Camobject.alerts.objectcountalert)
+                                    {
+                                        RemoteCommand(this,
+                                                      new ThreadSafeCommand("bringtofrontcam," +
+                                                                            Camobject.id));
+                                        DoAlert();
+                                        MovementCount = 0;
+                                        if (Camobject.detector.recordonalert && !Recording)
+                                        {
+                                            StartSaving();
+                                        }
+                                    }
+                                }
+                                break;
+                            case "nomovement":
+                                if ((DateTime.Now - _movementLastDetected).TotalSeconds >
+                                    Camobject.detector.nomovementintervalnew)
+                                {
+                                    RemoteCommand(this, new ThreadSafeCommand("bringtofrontcam," + Camobject.id));
                                     DoAlert();
-                                    MovementCount = 0;
                                     if (Camobject.detector.recordonalert && !Recording)
                                     {
                                         StartSaving();
                                     }
                                 }
-                            }
-                            break;
-                        case "nomovement":
-                            if ((DateTime.Now - _movementLastDetected).TotalSeconds > Camobject.detector.nomovementintervalnew)
-                            {
-                                RemoteCommand(this,
-                                              new ThreadSafeCommand("bringtofrontcam," +
-                                                                    Camobject.id));
-                                DoAlert();
-                                if (Camobject.detector.recordonalert && !Recording)
+                                break;
+                            default:
+                                if (_pluginMessage != "")
                                 {
-                                    StartSaving();
+                                    DoAlert(_pluginMessage);
+                                    MovementCount = 0;
+                                    if (Camobject.detector.recordonalert && !Recording)
+                                    {
+                                        StartSaving();
+                                    }
+                                    //reset plugin message
+                                    _pluginMessage = "";
                                 }
-                            }
-                            break;
-                        default:
-                            if (_pluginMessage != "")
-                            {
-                                DoAlert(_pluginMessage);
-                                MovementCount = 0;
-                                if (Camobject.detector.recordonalert && !Recording)
-                                {
-                                    StartSaving();
-                                }
-                                //reset plugin message
-                                _pluginMessage = "";
-                            }
-                            break;
+                                break;
+                        }
                     }
                 }
             }
@@ -1546,28 +1540,6 @@ namespace iSpyApplication.Controls
                     }
                 }
             }
-        }
-
-        private bool CheckReconnect()
-        {
-            if (_camera != null && _camera.VideoSource != null)
-            {
-                int sec = Convert.ToInt32((DateTime.Now - _reconnectTime).TotalSeconds);
-                if (sec > 10)
-                {
-                    //try to reconnect every 10 seconds
-                    if (!_camera.VideoSource.IsRunning)
-                    {
-                        Calibrating = true;
-                        CalibrateCount = 0;
-                        _calibrateTarget = Camobject.detector.calibrationdelay;
-                        _camera.Start();
-                    }
-                    _reconnectTime = DateTime.Now;
-                    return true;
-                }
-            }
-            return false;
         }
 
         private void CheckPTZSchedule()
@@ -1666,46 +1638,81 @@ namespace iSpyApplication.Controls
 
         private void CheckDisconnect()
         {
-            int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
-            if (sec > 30 && sec < 35)
+            if (Camobject.settings.notifyondisconnect && _errorTime != DateTime.MinValue)
             {
-                //camera has been down for 30 seconds - send notification
-                string subject =
-                    LocRm.GetString("CameraNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
-                                                                                 Camobject.name);
-                string message = LocRm.GetString("CameraNotifyDisconnectMailBody");
-                message = message.Replace("[NAME]", Camobject.name);
-                message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
+                int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
+                if (sec > 30 && sec < 35)
+                {
+                    //camera has been down for 30 seconds - send notification
+                    string subject =
+                        LocRm.GetString("CameraNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
+                                                                                     Camobject.name);
+                    string message = LocRm.GetString("CameraNotifyDisconnectMailBody");
+                    message = message.Replace("[NAME]", Camobject.name);
+                    message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
 
-                if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
-                    WsWrapper.SendAlert(Camobject.settings.emailaddress, subject, message);
+                    if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
+                        WsWrapper.SendAlert(Camobject.settings.emailaddress, subject, message);
 
-                _errorTime = DateTime.MinValue;
+                    _errorTime = DateTime.MinValue;
+                }
             }
+        }
+
+        private bool CheckReconnect()
+        {
+            if (_reconnectTime != DateTime.MinValue)
+            {
+                if (_camera != null && _camera.VideoSource != null)
+                {
+                    int sec = Convert.ToInt32((DateTime.Now - _reconnectTime).TotalSeconds);
+                    if (sec > 10)
+                    {
+                        //try to reconnect every 10 seconds
+                        if (!_camera.VideoSource.IsRunning)
+                        {
+                            Calibrating = true;
+                            CalibrateCount = 0;
+                            _calibrateTarget = Camobject.detector.calibrationdelay;
+                            _camera.Start();
+                        }
+                        _reconnectTime = DateTime.Now;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void CheckReconnectInterval()
         {
-            if (Camobject.settings.reconnectinterval > 0)
+            if (_camera != null && _camera.VideoSource != null && Camobject.settings.active)
             {
-                ReconnectCount += _secondCount;
-                if (ReconnectCount > Camobject.settings.reconnectinterval)
+                if (Camobject.settings.reconnectinterval > 0)
                 {
-                    IsReconnect = true;
-                    _camera.Stop();
-                    if (Camobject.settings.calibrateonreconnect)
+                    
+                    ReconnectCount += _secondCount;
+                    if (ReconnectCount > Camobject.settings.reconnectinterval)
                     {
-                        Calibrating = true;
-                        CalibrateCount = 0;
-                        _calibrateTarget = Camobject.detector.calibrationdelay;
+                        IsReconnect = true;
+                        lock (this)
+                        {
+                            _camera.Stop();
+                            if (Camobject.settings.calibrateonreconnect)
+                            {
+                                Calibrating = true;
+                                CalibrateCount = 0;
+                                _calibrateTarget = Camobject.detector.calibrationdelay;
+                            }
+                            while (_camera.IsRunning)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            _camera.Start();
+                        }
+                        IsReconnect = false;
+                        ReconnectCount = 0;
                     }
-                    while (_camera.IsRunning)
-                    {
-                        Thread.Sleep(100);
-                    }
-                    _camera.Start();
-                    IsReconnect = false;
-                    ReconnectCount = 0;
                 }
             }
         }
@@ -3233,26 +3240,7 @@ namespace iSpyApplication.Controls
 
         private void SourceVideoSourceError(object sender, VideoSourceErrorEventArgs eventArgs)
         {
-            VideoSourceErrorMessage = eventArgs.Description;
-            if (!VideoSourceErrorState)
-            {
-                VideoSourceErrorState = true;
-                MainForm.LogErrorToFile(eventArgs.Description +" Camera " + Camobject.id);
-
-                if (_reconnectTime == DateTime.MinValue)
-                {
-                    _reconnectTime = DateTime.Now;
-                }
-                if (_errorTime == DateTime.MinValue)
-                    _errorTime = DateTime.Now;
-                
-                if (VolumeControl != null && VolumeControl.AudioSource != null)
-                {
-                    if (VolumeControl.AudioSource !=Camera.VideoSource)
-                        VolumeControl.AudioSource.Stop();
-                    VolumeControl.AudioSourceErrorState = true;
-                }
-            }
+            SetErrorState(eventArgs.Description);
             LastFrame = null;
             
             if (!ShuttingDown)
@@ -3268,28 +3256,10 @@ namespace iSpyApplication.Controls
                 case ReasonToFinishPlaying.DeviceLost:
                 case ReasonToFinishPlaying.EndOfStreamReached:
                 case ReasonToFinishPlaying.VideoSourceError:
-                    if (!VideoSourceErrorState)
-                    {
-                        VideoSourceErrorState = true;
-                        MainForm.LogExceptionToFile(new Exception("VideoSourceFinished: " + reason), "Camera " + Camobject.id);
-
-                        if (_reconnectTime == DateTime.MinValue)
-                        {
-                            _reconnectTime = DateTime.Now;
-                        }
-                        if (_errorTime == DateTime.MinValue)
-                            _errorTime = DateTime.Now;
-
-                        if (VolumeControl != null && VolumeControl.AudioSource != null)
-                        {
-                            if (VolumeControl.AudioSource!=Camera.VideoSource)
-                                VolumeControl.AudioSource.Stop();
-                            VolumeControl.AudioSourceErrorState = true;
-                        }
-                    }
+                    SetErrorState(reason.ToString());
                     break;
                 case ReasonToFinishPlaying.StoppedByUser:
-                    Disable();
+                    SetDisabled(false);
                     break;
             }
             
@@ -3297,6 +3267,29 @@ namespace iSpyApplication.Controls
             
             if (!ShuttingDown)
                 _requestRefresh = true;
+        }
+
+        private void SetErrorState(string reason)
+        {
+            VideoSourceErrorMessage = reason;
+            if (!VideoSourceErrorState)
+            {
+                VideoSourceErrorState = true;
+                MainForm.LogExceptionToFile(new Exception("Error: " + reason), "Camera " + Camobject.id);
+
+                if (_reconnectTime == DateTime.MinValue)
+                {
+                    _reconnectTime = DateTime.Now;
+                }
+                if (_errorTime == DateTime.MinValue)
+                    _errorTime = DateTime.Now;
+
+                if (VolumeControl != null && VolumeControl.AudioSource != null)
+                {
+                    if (VolumeControl.AudioSource == Camera.VideoSource)
+                        VolumeControl.AudioSourceErrorState = true;
+                }
+            }
         }
 
         public void Disable()
@@ -3310,21 +3303,32 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            IsEnabled = false; 
+            SetDisabled(true);
+        }
+
+        private void SetDisabled(bool stopSource)
+        {
+            while (_processing)
+            {
+                Thread.Sleep(100);
+            }
             _processing = true;
-            
+
+            IsEnabled = false;
+            _processing = true;
+
             if (_recordingThread != null)
                 RecordSwitch(false);
-            
+
             if (VolumeControl != null && VolumeControl.IsEnabled)
                 VolumeControl.Disable();
 
             if (TopLevelControl != null)
             {
-                if (((MainForm) TopLevelControl).TalkCamera == this)
-                    ((MainForm) TopLevelControl).TalkTo(this, false);
+                if (((MainForm)TopLevelControl).TalkCamera == this)
+                    ((MainForm)TopLevelControl).TalkTo(this, false);
             }
-           
+
             Application.DoEvents();
 
             if (SavingTimeLapse)
@@ -3354,11 +3358,11 @@ namespace iSpyApplication.Controls
                     _camera.NewFrame -= CameraNewFrame;
                     _camera.Alarm -= CameraAlarm;
 
-                    if (_camera.Plugin!=null)
+                    if (_camera.Plugin != null)
                     {
                         //wait for plugin to exit
                         int i = 0;
-                        while (_camera.PluginRunning && i<10)
+                        while (_camera.PluginRunning && i < 10)
                         {
                             Thread.Sleep(100);
                             i++;
@@ -3369,17 +3373,20 @@ namespace iSpyApplication.Controls
                     {
                         ((KinectStream)_camera.VideoSource).TripWire -= CameraAlarm;
                     }
-                    try
+                    if (stopSource)
                     {
-                        _camera.SignalToStop();
-                        if (_camera.VideoSource is VideoCaptureDevice)
+                        try
                         {
-                            _camera.VideoSource.WaitForStop();
+                            _camera.SignalToStop();
+                            if (_camera.VideoSource is VideoCaptureDevice)
+                            {
+                                _camera.VideoSource.WaitForStop();
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        MainForm.LogExceptionToFile(ex, "Camera " + Camobject.id);
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex, "Camera " + Camobject.id);
+                        }
                     }
 
 
@@ -3395,11 +3402,11 @@ namespace iSpyApplication.Controls
                     }
 
                     _camera.Plugin = null;
-                    
+
                 }
-                
+
                 LastFrame = null;
-                
+
                 if (_camera.Mask != null)
                 {
                     _camera.Mask.Dispose();
@@ -3425,7 +3432,7 @@ namespace iSpyApplication.Controls
 
             if (_videoBuffer != null)
             {
-                _videoBuffer.Clear();                
+                _videoBuffer.Clear();
             }
 
             if (!ShuttingDown)
@@ -3476,11 +3483,19 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            _processing = true;
             if (Camera != null && Camera.IsRunning)
             {
                 Disable();
             }
+
+            while (_processing)
+            {
+                Thread.Sleep(100);
+            }
+
+            _processing = true;
+
+           
             LastFrame = null;
             
             IsEnabled = true;
@@ -3543,7 +3558,15 @@ namespace iSpyApplication.Controls
                     break;
                 case 2:
                     string url = Camobject.settings.videosourcestring;
-                    var ffmpegSource = new FFMPEGStream(url) {Cookies = Camobject.settings.cookies, AnalyseDuration = Camobject.settings.analyseduration, Timeout = Camobject.settings.timeout, UserAgent =  Camobject.settings.useragent, Headers = Camobject.settings.headers, NoBuffer = Camobject.settings.nobuffer};
+                    var ffmpegSource = new FFMPEGStream(url)
+                                           {
+                                               Cookies = Camobject.settings.cookies, 
+                                               AnalyseDuration = Camobject.settings.analyseduration, 
+                                               Timeout = Camobject.settings.timeout, 
+                                               UserAgent =  Camobject.settings.useragent, 
+                                               Headers = Camobject.settings.headers, 
+                                               NoBuffer = Camobject.settings.nobuffer,
+                                           };
                     OpenVideoSource(ffmpegSource, true);
                     break;
                 case 3:
@@ -3802,7 +3825,6 @@ namespace iSpyApplication.Controls
                 return;
             }
             AddAudioStream();
-            
         }
 
         private void AddAudioStream()

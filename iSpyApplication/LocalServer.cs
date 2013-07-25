@@ -2671,15 +2671,7 @@ namespace iSpyApplication
                                     else
                                     {
                                         string size = GetVar(sPhysicalFilePath, "size");
-                                        if (size != "")
-                                        {
-                                            string[] wh = size.Split('x');
-                                            if (wh.Length == 2)
-                                            {
-                                                int.TryParse(wh[0].Trim(), out w);
-                                                int.TryParse(wh[1].Trim(), out h);
-                                            }
-                                        }
+                                        GetWidthHeight(size, out w, out h);
                                     }
                                 }
 
@@ -2753,13 +2745,9 @@ namespace iSpyApplication
                         byte[] bytes;
                         if (size != "")
                         {
-                            string[] wh = size.Split('x');
-                            int w = 320, h = 240;
-                            if (wh.Length == 2)
-                            {
-                                int.TryParse(wh[0].Trim(), out w);
-                                int.TryParse(wh[1].Trim(), out h);
-                            }
+                            int w,h;
+                            
+                            GetWidthHeight(size, out w, out h);
                             Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, ThumbnailCallback,
                                                                                        IntPtr.Zero);
 
@@ -2802,6 +2790,21 @@ namespace iSpyApplication
             }
         }
 
+        private void GetWidthHeight(string size, out int w, out int h)
+        {
+            string[] wh = size.Split('x');
+            w = 320;
+            h = 240;
+            if (wh.Length == 2)
+            {
+                double dw, dh;
+                double.TryParse(wh[0], out dw);
+                double.TryParse(wh[1], out dh);
+                w = Convert.ToInt32(dw);
+                h = Convert.ToInt32(dh);
+            }
+        }
+
         private void SendGrab(String sPhysicalFilePath, string sHttpVersion, ref Socket mySocket)
         {
             int oid = Convert.ToInt32(GetVar(sPhysicalFilePath, "oid"));
@@ -2831,13 +2834,8 @@ namespace iSpyApplication
                         byte[] bytes;
                         if (size != "")
                         {
-                            string[] wh = size.Split('x');
-                            int w = 320, h = 240;
-                            if (wh.Length == 2)
-                            {
-                                int.TryParse(wh[0].Trim(), out w);
-                                int.TryParse(wh[1].Trim(), out h);
-                            }
+                            int w, h;
+                            GetWidthHeight(size, out w, out h);
                             Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, ThumbnailCallback,
                                                                                        IntPtr.Zero);
 
@@ -2922,12 +2920,7 @@ namespace iSpyApplication
                                         string size = GetVar(sPhysicalFilePath, "size");
                                         if (size!="")
                                         {
-                                            string[] wh = size.Split('x');
-                                            if (wh.Length == 2)
-                                            {
-                                                int.TryParse(wh[0].Trim(), out w);
-                                                int.TryParse(wh[1].Trim(), out h);
-                                            }
+                                            GetWidthHeight(size, out w, out h);
                                         }
                                     }
                                 }
@@ -2982,12 +2975,7 @@ namespace iSpyApplication
             int.TryParse(scamid, out camid);
             if (size != "")
             {
-                if (size.IndexOf('x')!=-1)
-                {
-                    string[] wh = size.Split('x');
-                    int.TryParse(wh[0], out w);
-                    int.TryParse(wh[1], out h);
-                }                
+                GetWidthHeight(size, out w, out h);           
             }
             if (sPhysicalFilePath.IndexOf("thumb", StringComparison.Ordinal) != -1)
             {

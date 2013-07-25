@@ -1,4 +1,5 @@
 ﻿using System;
+using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 

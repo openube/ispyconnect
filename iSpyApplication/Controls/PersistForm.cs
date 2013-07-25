@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
@@ -124,14 +125,24 @@ namespace iSpyApplication.Controls
                 var windowState = (FormWindowState) key.GetValue("WindowState",
                                                                  (int) _mParent.WindowState);
 
+
                 _mParent.WindowState = windowState;
-                _mParent.Location = new Point(left, top);
+                if (IsOnScreen(new Point(left, top)))
+                {
+                    _mParent.Location = new Point(left, top);
+                }
                 _mParent.Size = new Size(width, height);
 
                 // fire LoadState event
                 if (LoadStateEvent != null)
                     LoadStateEvent(this, key);
             }
+        }
+
+        private bool IsOnScreen(Point p)
+        {
+            var screens = Screen.AllScreens;
+            return screens.Any(screen => screen.WorkingArea.Contains(p));
         }
     }
 }

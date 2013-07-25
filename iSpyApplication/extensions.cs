@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mail;
 using System.Text;
@@ -99,6 +100,15 @@ namespace iSpyApplication
                         "Could not remove value from enumerated type '{0}'.",
                         typeof(T).Name
                         ), ex);
+            }
+        }
+
+        public static void DisposeAll(this IEnumerable set)
+        {
+            foreach (Object obj in set)
+            {
+                var disp = obj as IDisposable;
+                if (disp != null) { disp.Dispose(); }
             }
         }
     }

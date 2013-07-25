@@ -1,9 +1,9 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Video;
 using NAudio.Wave;
-using iSpy.Video.FFMPEG;
 using AudioFileReader = iSpy.Video.FFMPEG.AudioFileReader;
 
 namespace iSpyApplication
@@ -26,12 +26,6 @@ namespace iSpyApplication
 
         private void Finish()
         {
-            var iReconnect = (int)txtReconnect.Value;
-            if (iReconnect < 30 && iReconnect != 0)
-            {
-                MessageBox.Show(LocRm.GetString("Validate_ReconnectInterval"), LocRm.GetString("Note"));
-                return;
-            }
 
             switch (tcAudioSource.SelectedIndex)
             {
@@ -111,7 +105,7 @@ namespace iSpyApplication
             Mic.settings.decompress = true; // chkDecompress.Checked;
             Mic.settings.vlcargs = txtVLCArgs.Text.Trim();
 
-            Mic.settings.reconnectinterval = (int)txtReconnect.Value;
+            Mic.settings.analyseduration = (int)numAnalyseDuration.Value;
             //int samplerate;
             //if (Int32.TryParse(txtSampleRate.Text, out samplerate))
             //    Mic.settings.samples = samplerate;
@@ -136,14 +130,27 @@ namespace iSpyApplication
             //cancel
             Close();
         }
+        
+        private object[] ObjectList(string str)
+        {
+            string[] ss = str.Split('|');
+            var o = new object[ss.Length];
+            int i = 0;
+            foreach (string s in ss)
+            {
+                o[i] = s;
+                i++;
+            }
+            return o;
+        }
 
         private void MicrophoneSourceLoad(object sender, EventArgs e)
         {
             tableLayoutPanel2.Enabled = VlcHelper.VlcInstalled;
             linkLabel3.Visible = lblInstallVLC.Visible = !tableLayoutPanel2.Enabled;
             cmbVLCURL.Text = MainForm.Conf.VLCURL;
-            cmbVLCURL.Items.AddRange(MainForm.Conf.RecentVLCList.Split('|'));
-            cmbFFMPEGURL.Items.AddRange(MainForm.Conf.RecentVLCList.Split('|'));
+            cmbVLCURL.Items.AddRange(ObjectList(MainForm.Conf.RecentVLCList));
+            cmbFFMPEGURL.Items.AddRange(ObjectList(MainForm.Conf.RecentVLCList));
             try
             {
                 int i = 0, selind = -1;
@@ -185,7 +192,7 @@ namespace iSpyApplication
                 int j = 0;
                 foreach(string s in ddlSampleRate.Items)
                 {
-                    if (s == Mic.settings.samples.ToString())
+                    if (s == Mic.settings.samples.ToString(CultureInfo.InvariantCulture))
                         ddlSampleRate.SelectedIndex = j;
                     j++;
                 }
@@ -204,24 +211,14 @@ namespace iSpyApplication
             }
             if (Mic.settings.typeindex==4)
             {
-                int i = 0;
+                int i;
                 Int32.TryParse(Mic.settings.sourcename, out i);
                 var c = MainForm.Cameras.SingleOrDefault(p => p.id == i);
-                if (c == null)
-                    lblCamera.Text = LocRm.GetString("Removed");
-                else
-                {
-                    lblCamera.Text = c.name;
-                }
+                lblCamera.Text = c == null ? LocRm.GetString("Removed") : c.name;
             }
 
             txtVLCArgs.Text = Mic.settings.vlcargs;
-
-
-            //chkDecompress.Checked = Mic.settings.decompress;
-            txtReconnect.Value = Mic.settings.reconnectinterval;
-            //txtUsername.Text = Mic.settings.username;
-            //txtPassword.Text = Mic.settings.password;
+            numAnalyseDuration.Value = Mic.settings.analyseduration;
         }
 
         private void RenderResources()
@@ -239,9 +236,6 @@ namespace iSpyApplication
             lblInstallVLC.Text = LocRm.GetString("VLCConnectInfo");
             linkLabel3.Text = LocRm.GetString("DownloadVLC");
             linkLabel1.Text = LocRm.GetString("UseiSpyServerText");
-
-            label43.Text = LocRm.GetString("ReconnectEvery");
-            label48.Text = LocRm.GetString("Seconds");
 
             llblHelp.Text = LocRm.GetString("help");
             LocRm.SetString(label21,"FileURL");
@@ -298,24 +292,45 @@ namespace iSpyApplication
         public bool NoBuffer;
         private void Test_Click(object sender, EventArgs e)
         {
+            btnTest.Enabled = false;
+            Program.WriterMutex.WaitOne();
             var afr = new AudioFileReader();
-
+            string source = cmbFFMPEGURL.Text;
             try
             {
-                afr.Open(cmbFFMPEGURL.Text, 8000, 2000, "", -1, NoBuffer);
-                afr.ReadAudioFrame();
+                int i = source.IndexOf("://", StringComparison.Ordinal);
+                if (i > -1)
+                {
+                    source = source.Substring(0, i).ToLower() + source.Substring(i);
+                }
 
+                afr.Timeout = Mic.settings.timeout;
+                afr.AnalyzeDuration = (int)numAnalyseDuration.Value;
+                afr.Open(source);
+                afr.ReadAudioFrame();
                 Mic.settings.channels = afr.Channels;
                 Mic.settings.samples = afr.SampleRate;
                 Mic.settings.bits = 16;
 
-                MessageBox.Show("OK");
+                MessageBox.Show("Stream OK");
 
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+            finally
+            {
+                try
+                {
+                    Program.WriterMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
+            }
+            
             try
             {
                 afr.Close();
@@ -325,6 +340,7 @@ namespace iSpyApplication
                 
             }
             afr = null;
+            btnTest.Enabled = true;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -345,6 +361,13 @@ namespace iSpyApplication
             {
                 cmbFFMPEGURL.Text = ofd.FileName;
             }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            var vsa = new MicrophoneSourceAdvanced { Micobject = Mic };
+            vsa.ShowDialog(this);
+            vsa.Dispose();
         }
     }
 }

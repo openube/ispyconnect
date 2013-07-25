@@ -221,10 +221,6 @@
       <HintPath>DLLS\Interop.NetFwTypeLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="iSpy.Video.FFMPEG, Version=3.2.1.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLS\iSpy.Video.FFMPEG.dll</HintPath>
-    </Reference>
     <Reference Include="LibVlcWrapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\LibVlcWrapper.dll</HintPath>
@@ -322,6 +318,7 @@
     </Compile>
     <Compile Include="Audio\SpeechStreamer.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
+    <Compile Include="Audio\streams\FFMPEGStream.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Audio\VolumeWaveProvider16.cs" />
     <Compile Include="Controls\FlowLayoutPanelTransparent.cs">
@@ -354,6 +351,12 @@
     </Compile>
     <Compile Include="Controls\VideoPlayback.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="MicrophoneSourceAdvanced.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MicrophoneSourceAdvanced.Designer.cs">
+      <DependentUpon>MicrophoneSourceAdvanced.cs</DependentUpon>
     </Compile>
     <Compile Include="DeviceDescriptionHolder.cs" />
     <Compile Include="Features.cs">
@@ -400,7 +403,6 @@
     <Compile Include="Audio\g711audio.cs" />
     <Compile Include="Audio\talk\TalkiSpyServer.cs" />
     <Compile Include="Audio\talk\ITalkTarget.cs" />
-    <Compile Include="Audio\streams\FFMPEGStream.cs" />
     <Compile Include="Audio\talk\TalkFoscam.cs" />
     <Compile Include="Audio\streams\iSpyServerStream.cs" />
     <Compile Include="Audio\streams\TalkHelperStream.cs" />
@@ -810,6 +812,7 @@
     <Content Include="Onvif\utils.diagnostics.dll" />
     <Content Include="Onvif\utils.fsharp.dll" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
+    <Content Include="sounds\alsation_bark.mp3" />
     <Content Include="sounds\alsation_bark.wav" />
     <Content Include="sounds\cairnterrierbark.wav" />
     <Content Include="sounds\intruder.mp3" />
@@ -964,6 +967,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VideoPlayback.resx">
       <DependentUpon>VideoPlayback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MicrophoneSourceAdvanced.resx">
+      <DependentUpon>MicrophoneSourceAdvanced.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Features.resx">
       <DependentUpon>Features.cs</DependentUpon>
@@ -1298,6 +1304,12 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ffmpeg\Video.FFMPEG.vcxproj">
+      <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
+      <Name>Video.FFMPEG</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
