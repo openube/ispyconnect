@@ -34,7 +34,6 @@ namespace iSpyApplication.Controls
         internal DateTime LastAutoTrackSent = DateTime.MinValue;
         private Color _customColor = Color.Black;
         private DateTime _lastRedraw = DateTime.MinValue;
-        private bool _processing;
         private double _recordingTime;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
 
@@ -1096,6 +1095,7 @@ namespace iSpyApplication.Controls
             {
                 Invalidate();
             }
+            
             _toolTipCam.RemoveAll();
             _toolTipCam.Dispose();
             _timeLapseWriter = null;
@@ -1105,12 +1105,9 @@ namespace iSpyApplication.Controls
 
         public void Tick()
         {
-            if (_processing)
-                return;
-            _processing = true;
-
             //reset custom border color
-            if (Camobject.settings.bordertimeout != 0 && _customSet != DateTime.MinValue && _customSet < DateTime.Now.AddSeconds(0 - Camobject.settings.bordertimeout))
+            if (Camobject.settings.bordertimeout != 0 && _customSet != DateTime.MinValue &&
+                _customSet < DateTime.Now.AddSeconds(0 - Camobject.settings.bordertimeout))
             {
                 Custom = false;
             }
@@ -1121,7 +1118,7 @@ namespace iSpyApplication.Controls
                 var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
                 _lastRun = DateTime.Now.Ticks;
                 _secondCount += ts.TotalMilliseconds/1000.0;
-                
+
                 if (FlashCounter <= 5)
                 {
                     MovementDetected = false;
@@ -1146,11 +1143,11 @@ namespace iSpyApplication.Controls
                             SaveFrame();
                         }
                     }
-                    
+
                     InactiveRecord = 0;
                     if (Camobject.alerts.mode != "nomovement" && VolumeControl != null)
                         VolumeControl.InactiveRecord = 0;
-                }                   
+                }
 
                 if (FlashCounter == 1)
                 {
@@ -1164,7 +1161,7 @@ namespace iSpyApplication.Controls
                     _recordingTime += Convert.ToDouble(ts.TotalMilliseconds)/1000.0;
 
                 bool reset = true;
-                
+
                 if (Camobject.alerts.active && Camobject.settings.active)
                 {
                     reset = FlashBackground();
@@ -1182,9 +1179,9 @@ namespace iSpyApplication.Controls
                         StartSaving();
                     }
 
-                    
+
                     if (CheckReconnect()) goto skip;
-                    
+
 
                     if (Calibrating)
                     {
@@ -1193,9 +1190,9 @@ namespace iSpyApplication.Controls
                     else
                     {
                         CheckReconnectInterval();
-                        
+
                         CheckDisconnect();
-                        
+
 
                         if (Recording && !MovementDetected && !ForcedRecording)
                         {
@@ -1210,7 +1207,7 @@ namespace iSpyApplication.Controls
                         {
                             CheckPTZSchedule();
                         }
-                        if (Camobject.settings.active && _camera!=null && !LastFrameNull)
+                        if (Camobject.settings.active && _camera != null && !LastFrameNull)
                         {
                             CheckVLCTimeStamp();
 
@@ -1225,16 +1222,14 @@ namespace iSpyApplication.Controls
 
                 if (!Calibrating)
                 {
-                    
+
                     CheckAlert();
-                    
+
                 }
 
                 skip:
                 if (_secondCount > 1)
                     _secondCount = 0;
-
-                
             }
             catch (Exception ex)
             {
@@ -1245,7 +1240,6 @@ namespace iSpyApplication.Controls
                 _requestRefresh = false;
                 Invalidate();
             }
-            _processing = false;
         }
 
         private bool FlashBackground()
@@ -3308,14 +3302,7 @@ namespace iSpyApplication.Controls
 
         private void SetDisabled(bool stopSource)
         {
-            while (_processing)
-            {
-                Thread.Sleep(100);
-            }
-            _processing = true;
-
             IsEnabled = false;
-            _processing = true;
 
             if (_recordingThread != null)
                 RecordSwitch(false);
@@ -3325,8 +3312,8 @@ namespace iSpyApplication.Controls
 
             if (TopLevelControl != null)
             {
-                if (((MainForm)TopLevelControl).TalkCamera == this)
-                    ((MainForm)TopLevelControl).TalkTo(this, false);
+                if (((MainForm) TopLevelControl).TalkCamera == this)
+                    ((MainForm) TopLevelControl).TalkTo(this, false);
             }
 
             Application.DoEvents();
@@ -3371,7 +3358,7 @@ namespace iSpyApplication.Controls
 
                     if (_camera.VideoSource is KinectStream)
                     {
-                        ((KinectStream)_camera.VideoSource).TripWire -= CameraAlarm;
+                        ((KinectStream) _camera.VideoSource).TripWire -= CameraAlarm;
                     }
                     if (stopSource)
                     {
@@ -3439,8 +3426,6 @@ namespace iSpyApplication.Controls
                 _requestRefresh = true;
 
             LastFrame = null;
-
-            _processing = false;
         }
 
         private string SourceType
@@ -3488,16 +3473,8 @@ namespace iSpyApplication.Controls
                 Disable();
             }
 
-            while (_processing)
-            {
-                Thread.Sleep(100);
-            }
-
-            _processing = true;
-
-           
             LastFrame = null;
-            
+
             IsEnabled = true;
             Seekable = false;
             string ckies, hdrs;
@@ -3515,16 +3492,16 @@ namespace iSpyApplication.Controls
                     hdrs = hdrs.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
 
                     var jpegSource = new JPEGStream2(Camobject.settings.videosourcestring)
-                                         {
-                                             Login = Camobject.settings.login,
-                                             Password = Camobject.settings.password,
-                                             ForceBasicAuthentication = Camobject.settings.forcebasic,
-                                             RequestTimeout = Camobject.settings.timeout,
-                                             UseHTTP10 = Camobject.settings.usehttp10,
-                                             HttpUserAgent = Camobject.settings.useragent,
-                                             Cookies = ckies,
-                                             Headers = hdrs
-                                         };
+                                            {
+                                                Login = Camobject.settings.login,
+                                                Password = Camobject.settings.password,
+                                                ForceBasicAuthentication = Camobject.settings.forcebasic,
+                                                RequestTimeout = Camobject.settings.timeout,
+                                                UseHTTP10 = Camobject.settings.usehttp10,
+                                                HttpUserAgent = Camobject.settings.useragent,
+                                                Cookies = ckies,
+                                                Headers = hdrs
+                                            };
 
                     OpenVideoSource(jpegSource, true);
 
@@ -3559,14 +3536,14 @@ namespace iSpyApplication.Controls
                 case 2:
                     string url = Camobject.settings.videosourcestring;
                     var ffmpegSource = new FFMPEGStream(url)
-                                           {
-                                               Cookies = Camobject.settings.cookies, 
-                                               AnalyseDuration = Camobject.settings.analyseduration, 
-                                               Timeout = Camobject.settings.timeout, 
-                                               UserAgent =  Camobject.settings.useragent, 
-                                               Headers = Camobject.settings.headers, 
-                                               NoBuffer = Camobject.settings.nobuffer,
-                                           };
+                                            {
+                                                Cookies = Camobject.settings.cookies,
+                                                AnalyseDuration = Camobject.settings.analyseduration,
+                                                Timeout = Camobject.settings.timeout,
+                                                UserAgent = Camobject.settings.useragent,
+                                                Headers = Camobject.settings.headers,
+                                                NoBuffer = Camobject.settings.nobuffer,
+                                            };
                     OpenVideoSource(ffmpegSource, true);
                     break;
                 case 3:
@@ -3576,47 +3553,50 @@ namespace iSpyApplication.Controls
                     string[] wh = Camobject.resolution.Split('x');
                     var sz = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
                     var vc = videoSource.VideoCapabilities.Where(p => p.FrameSize == sz).ToList();
-                    if (vc.Count>0)
+                    if (vc.Count > 0)
                     {
                         var vc2 = vc.FirstOrDefault(p => p.AverageFrameRate == Camobject.settings.framerate) ??
-                                  vc.FirstOrDefault();
+                                    vc.FirstOrDefault();
                         videoSource.VideoResolution = vc2;
                     }
 
-                    if (Camobject.settings.crossbarindex!=-1 && videoSource.CheckIfCrossbarAvailable())
+                    if (Camobject.settings.crossbarindex != -1 && videoSource.CheckIfCrossbarAvailable())
                     {
                         var cbi =
                             videoSource.AvailableCrossbarVideoInputs.FirstOrDefault(
                                 p => p.Index == Camobject.settings.crossbarindex);
-                        if (cbi!=null)
+                        if (cbi != null)
                         {
                             videoSource.CrossbarVideoInput = cbi;
                         }
                     }
 
                     OpenVideoSource(videoSource, true);
-                   
-                   
+
+
                     break;
                 case 4:
                     Rectangle area = Rectangle.Empty;
                     if (!String.IsNullOrEmpty(Camobject.settings.desktoparea))
                     {
                         var i = System.Array.ConvertAll(Camobject.settings.desktoparea.Split(','), int.Parse);
-                        area = new Rectangle(i[0],i[1],i[2],i[3]);
+                        area = new Rectangle(i[0], i[1], i[2], i[3]);
                     }
-                    var desktopSource = new DesktopStream(Convert.ToInt32(Camobject.settings.videosourcestring), area)
-                                            {MousePointer = Camobject.settings.desktopmouse};
+                    var desktopSource = new DesktopStream(Convert.ToInt32(Camobject.settings.videosourcestring),
+                                                            area) {MousePointer = Camobject.settings.desktopmouse};
                     if (Camobject.settings.frameinterval != 0)
                         desktopSource.FrameInterval = Camobject.settings.frameinterval;
                     OpenVideoSource(desktopSource, true);
-                    
+
                     break;
                 case 5:
                     List<String> inargs = Camobject.settings.vlcargs.Split(Environment.NewLine.ToCharArray(),
-                                                                           StringSplitOptions.RemoveEmptyEntries).ToList();
-                    var vlcSource = new VlcStream(Camobject.settings.videosourcestring, inargs.ToArray()) { TimeOut = Camobject.settings.timeout };
-                    
+                                                                            StringSplitOptions.RemoveEmptyEntries)
+                        .
+                        ToList();
+                    var vlcSource = new VlcStream(Camobject.settings.videosourcestring, inargs.ToArray())
+                                        {TimeOut = Camobject.settings.timeout};
+
                     OpenVideoSource(vlcSource, true);
                     break;
                 case 6:
@@ -3640,7 +3620,7 @@ namespace iSpyApplication.Controls
                             OpenVideoSource(new KinectNetworkStream(Camobject.settings.videosourcestring), true);
                             break;
                         default:
-                            throw new Exception("No custom provider found for "+Nv("custom"));
+                            throw new Exception("No custom provider found for " + Nv("custom"));
                     }
                     break;
             }
@@ -3669,12 +3649,15 @@ namespace iSpyApplication.Controls
                         motionDetector = new TwoFramesColorDifferenceDetector(Camobject.settings.suppressnoise);
                         break;
                     case "Custom Frame (Color)":
-                        motionDetector = new CustomFrameColorDifferenceDetector(Camobject.settings.suppressnoise,
-                                                                            Camobject.detector.keepobjectedges);
+                        motionDetector = new CustomFrameColorDifferenceDetector(
+                            Camobject.settings.suppressnoise,
+                            Camobject.detector.keepobjectedges);
                         break;
                     case "Background Modelling (Color)":
-                        motionDetector = new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,
-                                                                                Camobject.detector.keepobjectedges);
+                        motionDetector =
+                            new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,
+                                                                        Camobject.detector.
+                                                                            keepobjectedges);
                         break;
                     case "None":
                         break;
@@ -3727,7 +3710,9 @@ namespace iSpyApplication.Controls
                         Camera.MotionDetector = null;
                     }
 
-                    Camera.MotionDetector = motionProcessor == null ? new MotionDetector(motionDetector) : new MotionDetector(motionDetector, motionProcessor);
+                    Camera.MotionDetector = motionProcessor == null
+                                                ? new MotionDetector(motionDetector)
+                                                : new MotionDetector(motionDetector, motionProcessor);
 
                     Camera.AlarmLevel = Helper.CalculateTrigger(Camobject.detector.minsensitivity);
                     Camera.AlarmLevelMax = Helper.CalculateTrigger(Camobject.detector.maxsensitivity);
@@ -3777,7 +3762,7 @@ namespace iSpyApplication.Controls
 
                 if (File.Exists(Camobject.settings.maskimage))
                 {
-                    Camera.Mask = (Bitmap)Image.FromFile(Camobject.settings.maskimage);
+                    Camera.Mask = (Bitmap) Image.FromFile(Camobject.settings.maskimage);
                 }
 
                 UpdateFloorplans(false);
@@ -3797,7 +3782,7 @@ namespace iSpyApplication.Controls
             _dtPTZLastCheck = DateTime.Now;
             _movementLastDetected = DateTime.MinValue;
             _firstFrame = true;
-            
+
             if (_videoBuffer != null)
             {
                 _videoBuffer.Clear();
@@ -3810,11 +3795,10 @@ namespace iSpyApplication.Controls
             }
             _requestRefresh = true;
 
-            
+
             if (VolumeControl != null)
                 VolumeControl.Enable();
             SetVideoSize();
-            _processing = false;
         }
 
         void VideoSourceHasAudioStream(object sender, EventArgs eventArgs)
