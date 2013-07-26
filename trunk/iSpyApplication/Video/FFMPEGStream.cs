@@ -809,6 +809,9 @@ namespace iSpyApplication.Video
                     //dont change this to a plain join as if a scheduled reconnect coincides with a manual reset there can be a deadlock
                     _thread.Join(4000);
 
+                    if (_thread.Join(0))
+                        _thread.Abort();
+
                 }
                 else
                 {

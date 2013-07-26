@@ -3080,7 +3080,16 @@ namespace iSpyApplication
 
         private void DisconnectSocket(Socket mySocket)
         {
-            var endPoint = (IPEndPoint)mySocket.RemoteEndPoint;
+            IPEndPoint endPoint;
+            try
+            {
+                endPoint = (IPEndPoint) mySocket.RemoteEndPoint;
+            }
+            catch (ObjectDisposedException)
+            {
+                //can happen on shutdown
+                return;
+            }
 
             lock (_connectedSocketsSyncHandle)
             {

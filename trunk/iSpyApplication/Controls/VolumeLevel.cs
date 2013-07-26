@@ -34,7 +34,6 @@ namespace iSpyApplication.Controls
         private double _intervalCount;
         private long _lastRun = DateTime.Now.Ticks;
         private double _secondCount;
-        private bool _processing;
         private double _recordingTime;
         private Point _mouseLoc;        
         private bool _stopWrite;
@@ -788,82 +787,71 @@ namespace iSpyApplication.Controls
 
         public void Tick()
         {
-            if (_processing)
-                return;
-            _processing = true;
-            try
+            //time since last tick
+            var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
+            _lastRun = DateTime.Now.Ticks;
+            _secondCount += ts.Milliseconds/1000.0;
+
+
+            if (FlashCounter <= 5)
             {
-                //time since last tick
-                var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
-                _lastRun = DateTime.Now.Ticks;
-                _secondCount += ts.Milliseconds / 1000.0;
-                
-
-                if (FlashCounter <= 5)
-                {
-                    SoundDetected = false;
-                }
-
-                if (FlashCounter > 5)
-                {
-                    InactiveRecord = 0;
-                    if (Micobject.alerts.mode!="nosound" && CameraControl != null)
-                        CameraControl.InactiveRecord = 0;
-                }
-
-                if (FlashCounter == 1)
-                {
-                    UpdateFloorplans(false);
-                }
-
-                if (FlashCounter > 0)
-                    FlashCounter--;
-
-                if (Recording)
-                    _recordingTime += Convert.ToDouble(ts.TotalMilliseconds) / 1000.0;
-
-                bool reset = true;              
-
-                if (Micobject.alerts.active && Micobject.settings.active)
-                {
-                    reset = FlashBackground();
-                }
-
-                if (reset)
-                    BackColor = MainForm.BackgroundColor;
-
-                if (_secondCount > 1) //approx every second
-                {
-                    if (CheckReconnect()) goto skip;
-
-                    CheckReconnectInterval();
-
-                    CheckDisconnect();
-
-                    if (Recording && !SoundDetected && !ForcedRecording)
-                    {
-                        InactiveRecord += _secondCount;
-                    }
-
-                    if (Micobject.schedule.active)
-                    {
-                        if (CheckSchedule()) goto skip;
-                    }
-
-                    CheckRecord();
-                }
-
-                CheckAlert();
+                SoundDetected = false;
             }
-            catch (Exception ex)
+
+            if (FlashCounter > 5)
             {
-                MainForm.LogExceptionToFile(ex);
+                InactiveRecord = 0;
+                if (Micobject.alerts.mode != "nosound" && CameraControl != null)
+                    CameraControl.InactiveRecord = 0;
             }
+
+            if (FlashCounter == 1)
+            {
+                UpdateFloorplans(false);
+            }
+
+            if (FlashCounter > 0)
+                FlashCounter--;
+
+            if (Recording)
+                _recordingTime += Convert.ToDouble(ts.TotalMilliseconds)/1000.0;
+
+            bool reset = true;
+
+            if (Micobject.alerts.active && Micobject.settings.active)
+            {
+                reset = FlashBackground();
+            }
+
+            if (reset)
+                BackColor = MainForm.BackgroundColor;
+
+            if (_secondCount > 1) //approx every second
+            {
+                if (CheckReconnect()) goto skip;
+
+                CheckReconnectInterval();
+
+                CheckDisconnect();
+
+                if (Recording && !SoundDetected && !ForcedRecording)
+                {
+                    InactiveRecord += _secondCount;
+                }
+
+                if (Micobject.schedule.active)
+                {
+                    if (CheckSchedule()) goto skip;
+                }
+
+                CheckRecord();
+            }
+
+            CheckAlert();
 
             skip:
             if (_secondCount > 1)
                 _secondCount = 0;
-            _processing = false;
         }
 
         private bool FlashBackground()
@@ -1567,7 +1555,6 @@ namespace iSpyApplication.Controls
             {
                 Invalidate();              
             }
-            _processing = true;
             if (WaveOut != null)
                 WaveOut.Dispose();
             _toolTipMic.RemoveAll();
@@ -1590,8 +1577,6 @@ namespace iSpyApplication.Controls
 
         private void SetDisabled(bool stopSource)
         {
-            _processing = true;
-
             if (_recordingThread != null)
                 RecordSwitch(false);
 
@@ -1637,7 +1622,6 @@ namespace iSpyApplication.Controls
 
             if (!ShuttingDown)
                 Invalidate();
-            _processing = false;
         }
 
         public void Enable()
@@ -1649,9 +1633,8 @@ namespace iSpyApplication.Controls
                 Invoke(new SwitchDelegate(Enable));
                 return;
             }
-
-            
-            if (CameraControl!=null)
+           
+            if (CameraControl != null)
             {
                 Width = CameraControl.Width;
                 Location = new Point(CameraControl.Location.X, CameraControl.Location.Y + CameraControl.Height);
@@ -1665,7 +1648,6 @@ namespace iSpyApplication.Controls
             }
 
             IsEnabled = true;
-            _processing = true;
 
             int sampleRate = Micobject.settings.samples;
             int channels = Micobject.settings.channels;
@@ -1675,7 +1657,7 @@ namespace iSpyApplication.Controls
             {
                 channels = Micobject.settings.channels = 1;
             }
-            if (sampleRate<8000)
+            if (sampleRate < 8000)
             {
                 sampleRate = Micobject.settings.samples = 8000;
             }
@@ -1683,26 +1665,33 @@ namespace iSpyApplication.Controls
             switch (Micobject.settings.typeindex)
             {
                 case 0: //usb
-                    AudioSource = new LocalDeviceStream(Micobject.settings.sourcename) { RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels) };
+                    AudioSource = new LocalDeviceStream(Micobject.settings.sourcename)
+                                        {RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels)};
                     break;
                 case 1: //ispy server (fixed waveformat at the moment...)
-                    AudioSource = new iSpyServerStream(Micobject.settings.sourcename) { RecordingFormat = new WaveFormat(8000,16,1) };
+                    AudioSource = new iSpyServerStream(Micobject.settings.sourcename)
+                                        {RecordingFormat = new WaveFormat(8000, 16, 1)};
                     break;
                 case 2: //VLC listener
                     List<String> inargs = Micobject.settings.vlcargs.Split(Environment.NewLine.ToCharArray(),
-                                                                           StringSplitOptions.RemoveEmptyEntries).ToList();
+                                                                            StringSplitOptions.RemoveEmptyEntries).
+                        ToList();
                     //switch off video output
                     inargs.Add(":sout=#transcode{vcodec=none}:Display");
 
-                    AudioSource = new VLCStream(Micobject.settings.sourcename, inargs.ToArray()) { RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels), TimeOut = Micobject.settings.timeout };
+                    AudioSource = new VLCStream(Micobject.settings.sourcename, inargs.ToArray())
+                                        {
+                                            RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels),
+                                            TimeOut = Micobject.settings.timeout
+                                        };
                     break;
                 case 3: //FFMPEG listener
                     AudioSource = new FFMPEGAudioStream(Micobject.settings.sourcename)
-                                      {
-                                          RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels),
-                                          AnalyseDuration =  Micobject.settings.analyseduration,
-                                          Timeout =  Micobject.settings.timeout
-                                      };                    
+                                        {
+                                            RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels),
+                                            AnalyseDuration = Micobject.settings.analyseduration,
+                                            Timeout = Micobject.settings.timeout
+                                        };
                     break;
                 case 4: //From Camera Feed
                     if (CameraControl != null)
@@ -1711,23 +1700,24 @@ namespace iSpyApplication.Controls
                         {
                             switch (CameraControl.Camobject.settings.sourceindex)
                             {
-                                case 2://ffmpeg
-                                    AudioSource = (FFMPEGStream)CameraControl.Camera.VideoSource;
+                                case 2: //ffmpeg
+                                    AudioSource = (FFMPEGStream) CameraControl.Camera.VideoSource;
                                     break;
-                                case 5://vlc
-                                    AudioSource = (VlcStream)CameraControl.Camera.VideoSource;
+                                case 5: //vlc
+                                    AudioSource = (VlcStream) CameraControl.Camera.VideoSource;
                                     break;
-                                case 7://kinect
-                                    AudioSource = (KinectStream)CameraControl.Camera.VideoSource;
+                                case 7: //kinect
+                                    AudioSource = (KinectStream) CameraControl.Camera.VideoSource;
                                     break;
-                                case 8://kinect
+                                case 8: //kinect
                                     switch (CameraControl.Nv("custom"))
                                     {
                                         case "Network Kinect":
-                                            AudioSource = (KinectNetworkStream)CameraControl.Camera.VideoSource;
+                                            AudioSource = (KinectNetworkStream) CameraControl.Camera.VideoSource;
                                             break;
                                         default:
-                                            throw new Exception("No custom provider found for " +CameraControl.Nv("custom"));
+                                            throw new Exception("No custom provider found for " +
+                                                                CameraControl.Nv("custom"));
                                     }
                                     break;
                                 default:
@@ -1749,7 +1739,9 @@ namespace iSpyApplication.Controls
                 return;
             }
 
-            WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout) ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100) : new DirectSoundOut(100);
+            WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout)
+                            ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100)
+                            : new DirectSoundOut(100);
 
             AudioSource.AudioFinished += AudioDeviceAudioFinished;
             AudioSource.AudioSourceError += AudioDeviceAudioSourceError;
@@ -1787,7 +1779,6 @@ namespace iSpyApplication.Controls
 
             MainForm.NeedsSync = true;
             Invalidate();
-            _processing = false;
         }
 
         void AudioDeviceLevelChanged(object sender, LevelChangedEventArgs eventArgs)
@@ -1905,7 +1896,6 @@ namespace iSpyApplication.Controls
             {
                 Micobject.settings.active = false;
                 NoSource = true;
-                _processing = false;
             }
             if (!AudioSourceErrorState)
             {
