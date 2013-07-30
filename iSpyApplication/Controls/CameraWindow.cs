@@ -15,6 +15,7 @@ using System.Windows.Forms;
 using System.Xml.Serialization;
 using AForge.Video;
 using AForge.Video.DirectShow;
+using AForge.Video.DirectShow.Internals;
 using iSpy.Video.FFMPEG;
 using AForge.Video.Ximea;
 using AForge.Vision.Motion;
@@ -3061,7 +3062,7 @@ namespace iSpyApplication.Controls
                         {
                             UseShellExecute = true,
                             FileName = Camobject.alerts.executefile,
-                            Arguments = Camobject.alerts.arguments
+                            Arguments = Camobject.alerts.arguments.Replace("{ID}", Camobject.id.ToString(CultureInfo.InvariantCulture)).Replace("{NAME}", Camobject.name)
                         };
                     try
                     {
@@ -3457,7 +3458,29 @@ namespace iSpyApplication.Controls
 
         }
 
-        
+        private void SetVideoSourceProperty(VideoCaptureDevice device, VideoProcAmpProperty prop, string n)
+        {
+            try
+            {
+                int v;
+                if (Int32.TryParse(Nv(Camobject.settings.ProcAmpConfig, n), out v))
+                {
+                    if (v > Int32.MinValue)
+                    {
+                        int fv;
+                        if (Int32.TryParse(Nv(Camobject.settings.ProcAmpConfig, "f" + n), out fv))
+                        {
+                            device.SetProperty(prop, v, (VideoProcAmpFlags) fv);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
         public void Enable()
         {
             if (IsEnabled)
@@ -3538,11 +3561,12 @@ namespace iSpyApplication.Controls
                     var ffmpegSource = new FFMPEGStream(url)
                                             {
                                                 Cookies = Camobject.settings.cookies,
-                                                AnalyseDuration = Camobject.settings.analyseduration,
+                                                AnalyzeDuration = Camobject.settings.analyseduration,
                                                 Timeout = Camobject.settings.timeout,
                                                 UserAgent = Camobject.settings.useragent,
                                                 Headers = Camobject.settings.headers,
                                                 NoBuffer = Camobject.settings.nobuffer,
+                                                RTSPMode = Camobject.settings.rtspmode
                                             };
                     OpenVideoSource(ffmpegSource, true);
                     break;
@@ -3601,26 +3625,26 @@ namespace iSpyApplication.Controls
                     break;
                 case 6:
                     if (XimeaSource == null || !XimeaSource.IsRunning)
-                        XimeaSource = new XimeaVideoSource(Convert.ToInt32(Nv("device")));
+                        XimeaSource = new XimeaVideoSource(Convert.ToInt32(Nv(Camobject.settings.namevaluesettings,"device")));
                     OpenVideoSource(XimeaSource, true);
                     break;
                 case 7:
                     var tw = false;
-                    if (!String.IsNullOrEmpty(Nv("TripWires")))
-                        tw = Convert.ToBoolean(Nv("TripWires"));
-                    var ks = new KinectStream(Nv("UniqueKinectId"), Convert.ToBoolean(Nv("KinectSkeleton")), tw);
-                    if (Nv("StreamMode") != "")
-                        ks.StreamMode = Convert.ToInt32(Nv("StreamMode"));
+                    if (!String.IsNullOrEmpty(Nv(Camobject.settings.namevaluesettings,"TripWires")))
+                        tw = Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "TripWires"));
+                    var ks = new KinectStream(Nv(Camobject.settings.namevaluesettings, "UniqueKinectId"), Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "KinectSkeleton")), tw);
+                    if (Nv(Camobject.settings.namevaluesettings, "StreamMode") != "")
+                        ks.StreamMode = Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "StreamMode"));
                     OpenVideoSource(ks, true);
                     break;
                 case 8:
-                    switch (Nv("custom"))
+                    switch (Nv(Camobject.settings.namevaluesettings, "custom"))
                     {
                         case "Network Kinect":
                             OpenVideoSource(new KinectNetworkStream(Camobject.settings.videosourcestring), true);
                             break;
                         default:
-                            throw new Exception("No custom provider found for " + Nv("custom"));
+                            throw new Exception("No custom provider found for " + Nv(Camobject.settings.namevaluesettings, "custom"));
                     }
                     break;
             }
@@ -3742,23 +3766,22 @@ namespace iSpyApplication.Controls
                     {
                         XimeaSource.SetParam(PRM.IMAGE_DATA_FORMAT, IMG_FORMAT.MONO8);
                     }
-                    XimeaSource.SetParam(CameraParameter.OffsetX, Convert.ToInt32(Nv("x")));
-                    XimeaSource.SetParam(CameraParameter.OffsetY, Convert.ToInt32(Nv("y")));
+                    XimeaSource.SetParam(CameraParameter.OffsetX, Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "x")));
+                    XimeaSource.SetParam(CameraParameter.OffsetY, Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "y")));
                     float gain;
-                    float.TryParse(Nv("gain"), out gain);
+                    float.TryParse(Nv(Camobject.settings.namevaluesettings, "gain"), out gain);
                     XimeaSource.SetParam(CameraParameter.Gain, gain);
                     float exp;
-                    float.TryParse(Nv("exposure"), out exp);
+                    float.TryParse(Nv(Camobject.settings.namevaluesettings, "exposure"), out exp);
                     XimeaSource.SetParam(CameraParameter.Exposure, exp*1000);
-                    XimeaSource.SetParam(CameraParameter.Downsampling, Convert.ToInt32(Nv("downsampling")));
-                    XimeaSource.SetParam(CameraParameter.Width, Convert.ToInt32(Nv("width")));
-                    XimeaSource.SetParam(CameraParameter.Height, Convert.ToInt32(Nv("height")));
+                    XimeaSource.SetParam(CameraParameter.Downsampling, Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "downsampling")));
+                    XimeaSource.SetParam(CameraParameter.Width, Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "width")));
+                    XimeaSource.SetParam(CameraParameter.Height, Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "height")));
                     XimeaSource.FrameInterval =
                         (int) (1000.0f/XimeaSource.GetParamFloat(CameraParameter.FramerateMax));
                 }
 
                 Camobject.settings.active = true;
-
 
                 if (File.Exists(Camobject.settings.maskimage))
                 {
@@ -3799,6 +3822,24 @@ namespace iSpyApplication.Controls
             if (VolumeControl != null)
                 VolumeControl.Enable();
             SetVideoSize();
+        }
+
+        public void SetVideoSourceProperties()
+        {
+            var videoSource = Camera.VideoSource as VideoCaptureDevice;
+            if (videoSource != null && !String.IsNullOrEmpty(Camobject.settings.ProcAmpConfig) && videoSource.SupportsProperties)
+            {
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Brightness, "b");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Contrast, "c");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Hue, "h");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Saturation, "s");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Sharpness, "sh");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Gamma, "gam");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.ColorEnable, "ce");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.WhiteBalance, "wb");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.BacklightCompensation, "bc");
+                SetVideoSourceProperty(videoSource, VideoProcAmpProperty.Gain, "g");
+            }
         }
 
         void VideoSourceHasAudioStream(object sender, EventArgs eventArgs)
@@ -3847,10 +3888,15 @@ namespace iSpyApplication.Controls
 
         public string Nv(string name)
         {
-            if (String.IsNullOrEmpty(Camobject.settings.namevaluesettings))
+            return Nv(Camobject.settings.namevaluesettings, name);
+        }
+
+        public string Nv(string csv, string name)
+        {
+            if (String.IsNullOrEmpty(csv))
                 return "";
             name = name.ToLower().Trim();
-            string[] settings = Camobject.settings.namevaluesettings.Split(',');
+            string[] settings = csv.Split(',');
             foreach (string[] nv in settings.Select(s => s.Split('=')).Where(nv => nv[0].ToLower().Trim() == name))
             {
                 return nv[1];
@@ -3945,6 +3991,7 @@ namespace iSpyApplication.Controls
             source.VideoSourceError += SourceVideoSourceError;
 
             Camera = new Camera(source);
+            SetVideoSourceProperties();
         }
 
         void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)

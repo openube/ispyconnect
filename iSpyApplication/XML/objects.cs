@@ -536,6 +536,10 @@ public partial class objectsCameraSettings {
     private int analysedurationField;
 
     private bool nobufferField;
+
+    private int rtspmodeField;
+
+    private string procAmpConfigField;
     
     public objectsCameraSettings() {
         this.timestampfontsizeField = 10;
@@ -570,8 +574,36 @@ public partial class objectsCameraSettings {
         this.nobufferField = false;
         this.ptzpelcoconfigField = "";
         this.onvifidentField = "";
+        this.rtspmodeField = 0;
+        this.procAmpConfigField = "";
     }
 
+    /// <remarks/>
+    public int rtspmode
+    {
+        get
+        {
+            return this.rtspmodeField;
+        }
+        set
+        {
+            this.rtspmodeField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string ProcAmpConfig
+    {
+        get
+        {
+            return this.procAmpConfigField;
+        }
+        set
+        {
+            this.procAmpConfigField = value;
+        }
+    }
+    
     /// <remarks/>
     public string onvifident
     {

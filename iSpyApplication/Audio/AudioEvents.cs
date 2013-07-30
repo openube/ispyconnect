@@ -1,5 +1,4 @@
 ﻿using AForge.Video;
-using iSpyApplication.Audio.streams;
 
 namespace iSpyApplication.Audio
 {
