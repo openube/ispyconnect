@@ -252,6 +252,8 @@ namespace iSpyApplication.Audio.streams
             DateTime lastPacket = DateTime.Now;
             bool realTime = !IsFileSource;
 
+            var buffer = new byte[_afr.SampleRate* 2 * _afr.Channels * 2]; //2 second buffer
+            int buffcount = 0;
             bool err = false;
             try
             {
@@ -293,6 +295,7 @@ namespace iSpyApplication.Audio.streams
                         }
                         else
                         {
+                            //
                             double f = (data.Length/btrg)*1000;
                             if (f > 0)
                             {

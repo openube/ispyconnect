@@ -390,6 +390,8 @@ namespace iSpyApplication
 
             ddlTransport.Items.AddRange(_transports);
             ddlTransport.SelectedIndex = 0;
+            ddlRTSP.SelectedIndex = CameraControl.Camobject.settings.rtspmode;
+
             chkConnectVLC.Enabled = chkConnectVLC.Checked = VlcHelper.VlcInstalled;
 
             int j = 0;
@@ -640,6 +642,7 @@ namespace iSpyApplication
                         CameraControl.Camobject.settings.timeout = CameraControl.Camobject.settings.analyseduration + 500;
 
                     CameraControl.Camobject.settings.nobuffer = chkNoBuffer.Checked;
+                    CameraControl.Camobject.settings.rtspmode = ddlRTSP.SelectedIndex;
                     break;
                 case 3:
                     if (!devicesCombo.Enabled)
@@ -1757,11 +1760,16 @@ namespace iSpyApplication
         private void btnTest_Click(object sender, EventArgs e)
         {
             btnTest.Enabled = false;
-            var vfr = new VideoFileReader();
-            
+            if (!Program.WriterMutex.WaitOne(4000))
+            {
+                btnTest.Enabled = true;
+                MessageBox.Show(this, "Timeout waiting for FFMPEG access - please try again");
+                return;
+            }
+            var vfr = new VideoFileReader();            
             string source = cmbFile.Text;
             try
-            {
+            {  
                 int i = source.IndexOf("://", StringComparison.Ordinal);
                 if (i > -1)
                 {
@@ -1773,6 +1781,7 @@ namespace iSpyApplication
                 vfr.Cookies = CameraControl.Camobject.settings.cookies;
                 vfr.UserAgent = CameraControl.Camobject.settings.useragent;
                 vfr.Headers = CameraControl.Camobject.settings.headers;
+                vfr.RTSPMode = ddlRTSP.SelectedIndex;
                 vfr.Flags = -1;
                 vfr.NoBuffer = chkNoBuffer.Checked;
                 vfr.Open(source);

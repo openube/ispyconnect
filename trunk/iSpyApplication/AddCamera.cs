@@ -11,6 +11,7 @@ using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
+using AForge.Video.DirectShow.Internals;
 using AForge.Vision.Motion;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
@@ -1226,6 +1227,43 @@ namespace iSpyApplication
                 CameraControl.Camobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
                 CameraControl.SetVideoSize();
+
+
+                if (CameraControl != null && CameraControl.Camera != null && CameraControl.Camera.VideoSource != null)
+                {
+                    var vcd = CameraControl.Camera.VideoSource as VideoCaptureDevice;
+                    if (vcd != null && vcd.SupportsProperties)
+                    {
+                        //save extended properties of local device
+                        int b, c, h, s, sh, gam, ce, wb, bc, g;
+                        VideoProcAmpFlags fb, fc, fh, fs, fsh, fgam, fce, fwb, fbc, fg;
+
+                        vcd.GetProperty(VideoProcAmpProperty.Brightness, out b, out fb);
+                        vcd.GetProperty(VideoProcAmpProperty.Contrast, out c, out fc);
+                        vcd.GetProperty(VideoProcAmpProperty.Hue, out h, out fh);
+                        vcd.GetProperty(VideoProcAmpProperty.Saturation, out s, out fs);
+                        vcd.GetProperty(VideoProcAmpProperty.Sharpness, out sh, out fsh);
+                        vcd.GetProperty(VideoProcAmpProperty.Gamma, out gam, out fgam);
+                        vcd.GetProperty(VideoProcAmpProperty.ColorEnable, out ce, out fce);
+                        vcd.GetProperty(VideoProcAmpProperty.WhiteBalance, out wb, out fwb);
+                        vcd.GetProperty(VideoProcAmpProperty.BacklightCompensation, out bc, out fbc);
+                        vcd.GetProperty(VideoProcAmpProperty.Gain, out g, out fg);
+                            
+                        string cfg = "";
+                        cfg += "b=" + b + ",fb=" + (int) fb + ",";
+                        cfg += "c=" + c + ",fc=" + (int) fc + ",";
+                        cfg += "h=" + h + ",fh=" + (int) fh + ",";
+                        cfg += "s=" + s + ",fs=" + (int) fs + ",";
+                        cfg += "sh=" + sh + ",fsh=" + (int) fsh + ",";
+                        cfg += "gam=" + gam + ",fgam=" + (int) fgam + ",";
+                        cfg += "ce=" + ce + ",fce=" + (int) fce + ",";
+                        cfg += "wb=" + wb + ",fwb=" + (int) fwb + ",";
+                        cfg += "bc=" + bc + ",fbc=" + (int) fbc + ",";
+                        cfg += "g=" + g + ",fg=" + (int) fg;
+
+                        CameraControl.Camobject.settings.ProcAmpConfig = cfg;
+                    }
+                }
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
                 IsNew = false;
@@ -2610,12 +2648,17 @@ namespace iSpyApplication
         {
             try
             {
-                ((VideoCaptureDevice) CameraControl.Camera.VideoSource).DisplayPropertyPage(Handle);
+                var vcd = CameraControl.Camera.VideoSource as VideoCaptureDevice;
+                if (vcd!=null)
+                {
+                    vcd.DisplayPropertyPage(Handle);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+
         }
 
         private void btnCrossbar_Click(object sender, EventArgs e)

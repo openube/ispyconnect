@@ -1336,10 +1336,10 @@ namespace iSpyApplication
 
                     if (_pcMem != null)
                     {
-                        if (_pcMemAvailable)
-                            _counters += " RAM Available: " + Convert.ToInt32(_pcMem.NextValue()) + "Mb";
-                        else
-                            _counters += " RAM Usage: " + Convert.ToInt32(_pcMem.RawValue/1048576) + "Mb";
+                        //if (_pcMemAvailable)
+                        //    _counters += " RAM Available: " + Convert.ToInt32(_pcMem.NextValue()) + "Mb";
+                        //else
+                        _counters += " RAM Usage: " + Convert.ToInt32(_pcMem.RawValue/1048576) + "Mb";
                     }
                     tsslMonitor.Text = _counters;
                 }

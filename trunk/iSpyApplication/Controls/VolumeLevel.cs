@@ -76,7 +76,7 @@ namespace iSpyApplication.Controls
         private WaveFormat _audioStreamFormat;
         private Mp3Writer _mp3Writer;
         private readonly MemoryStream _outStream = new MemoryStream();
-        private readonly byte[] _bResampled = new byte[25000];
+        private readonly byte[] _bResampled = new byte[22050];
 
         #endregion
 
@@ -1839,7 +1839,7 @@ namespace iSpyApplication.Controls
 
                     var ws = new TalkHelperStream(bSrc, totBytes, AudioSource.RecordingFormat);
                     var helpStm = new WaveFormatConversionStream(_audioStreamFormat, ws);
-                    totBytes = helpStm.Read(_bResampled, 0, 25000);
+                    totBytes = helpStm.Read(_bResampled, 0, 22050);
 
                     ws.Close();
                     ws.Dispose();
@@ -2038,7 +2038,7 @@ namespace iSpyApplication.Controls
                     {
                         UseShellExecute = true,
                         FileName = Micobject.alerts.executefile,
-                        Arguments = Micobject.alerts.arguments
+                        Arguments = Micobject.alerts.arguments.Replace("{ID}", Micobject.id.ToString(CultureInfo.InvariantCulture)).Replace("{NAME}", Micobject.name)
                     };
                     try
                     {

@@ -717,7 +717,7 @@ namespace iSpyApplication
             this.txtArguments.Name = "txtArguments";
             this.txtArguments.Size = new System.Drawing.Size(187, 20);
             this.txtArguments.TabIndex = 81;
-            this.toolTip1.SetToolTip(this.txtArguments, "eg an mp3 file");
+            this.toolTip1.SetToolTip(this.txtArguments, "eg an mp3 file or batch file (you can use {ID} or {NAME} here)");
             // 
             // chkBeep
             // 

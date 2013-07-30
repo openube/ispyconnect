@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
@@ -18,6 +19,7 @@ using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
 using iSpyApplication.Controls;
+using iSpyApplication.Properties;
 using iSpyApplication.Video;
 
 using ThreadState = System.Threading.ThreadState;
@@ -557,9 +559,9 @@ namespace iSpyApplication
                                 case "audiofeed.mp3":
                                     SendAudioFeed(Enums.AudioStreamMode.MP3, sBuffer, sPhysicalFilePath, mySocket);
                                     return;
-                                case "audiofeed.wav":
-                                    SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, mySocket);
-                                    return;
+                                //case "audiofeed.wav":
+                                //    SendAudioFeed(Enums.AudioStreamMode.PCM, sBuffer, sPhysicalFilePath, mySocket);
+                                //    return;
                                 case "video.mjpg":
                                 case "video.cgi":
                                 case "video.mjpeg":
@@ -2116,6 +2118,9 @@ namespace iSpyApplication
                     //for 3rd party APIs
                     resp = GetObjectList();
                     break;
+                case "getservername":
+                    resp = MainForm.Conf.ServerName+",OK";
+                    break;
                 case "getcontrolpanel":
                     int port = Convert.ToInt32(GetVar(sRequest, "port"));
 
@@ -2970,9 +2975,16 @@ namespace iSpyApplication
             string scamid = GetVar(sPhysicalFilePath,"oid");
             string size = GetVar(sPhysicalFilePath, "size");
             bool basicCt = GetVar(sPhysicalFilePath, "basicct") != "";
+            bool maintainAR = GetVar(sPhysicalFilePath, "keepAR") == "true";
             int w = 320, h = 240;
-            int camid;
-            int.TryParse(scamid, out camid);
+            int camid=-1;
+            if (scamid.IndexOf(',')!=-1)
+            {
+                
+            }
+            else
+                int.TryParse(scamid, out camid);
+
             if (size != "")
             {
                 GetWidthHeight(size, out w, out h);           
@@ -2993,12 +3005,24 @@ namespace iSpyApplication
 
             try
             {
-                CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(camid));
-                if (cw.Camobject.settings.active)
+                if (camid > -1)
                 {
-                    var feed = new Thread(p => MJPEGFeed(cw, mySocket, w, h, basicCt));
+                    CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(camid));
+                    if (cw.Camobject.settings.active)
+                    {
+                        var feed = new Thread(p => MJPEGFeed(cw, mySocket, w, h, basicCt));
+                        feed.Start();
+                    }
+                    else
+                    {
+                        DisconnectSocket(mySocket);
+                        NumErr = 0;
+                    }
+                }
+                else
+                {
+                    var feed = new Thread(p => MJPEGFeedMulti(scamid, mySocket, w, h, basicCt, maintainAR));
                     feed.Start();
-
                 }
             }
             catch (Exception ex)
@@ -3076,6 +3100,131 @@ namespace iSpyApplication
             }
             DisconnectSocket(mySocket);
             
+        }
+
+        private void MJPEGFeedMulti(string cameraids, Socket mySocket, int w, int h, bool basicContentType, bool maintainAspectRatio)
+        {
+            String sResponse = "";
+
+            sResponse += "HTTP/1.1 200 OK\r\n";
+            sResponse += "Server: iSpy\r\n";
+            sResponse += "Expires: 0\r\n";
+            sResponse += "Pragma: no-cache\r\n";
+            sResponse += "Cache-Control: no-cache, must-revalidate\r\n";
+            if (!basicContentType)
+                sResponse += "Content-Type: multipart/x-mixed-replace; boundary=--myboundary";
+            else
+                sResponse += "Content-Type: text/html; boundary=--myboundary";
+
+            try
+            {
+                var cams = new List<CameraWindow>();
+                string[] camids = cameraids.Split(',');
+                foreach(string c in camids)
+                {
+                    if (!String.IsNullOrEmpty(c))
+                    {
+                        var cw = _parent.GetCameraWindow(Convert.ToInt32(c));
+                        if (cw != null)
+                        {
+                            cams.Add(cw);
+                        }
+                    }
+                }
+                if (cams.Count == 0)
+                {
+                    throw new Exception("No cameras found");
+                }
+                int cols = Convert.ToInt32(Math.Ceiling(Math.Sqrt(cams.Count)));
+                int rows = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(cams.Count)/cols));
+                int camw = Convert.ToInt32(Convert.ToDouble(w)/Convert.ToDouble(cols));
+                int camh = Convert.ToInt32(Convert.ToDouble(h) / Convert.ToDouble(rows));
+
+
+                while (mySocket.Connected)
+                {
+                    var bmpFinal = new Bitmap(w, h);
+                    Graphics g = Graphics.FromImage(bmpFinal);
+                    g.CompositingQuality = CompositingQuality.HighSpeed;
+                    g.PixelOffsetMode = PixelOffsetMode.Half;
+                    g.SmoothingMode = SmoothingMode.None;
+                    g.InterpolationMode = InterpolationMode.Default;
+                    g.Clear(Color.White);
+                    int j = 0, k = 0;
+
+                    foreach (CameraWindow cw in cams)
+                    {
+                        int x = j*camw;
+                        int y = k*camh;
+                        j++;
+                        if (j == cols)
+                        {
+                            j = 0;
+                            k++;
+                        }
+                        Image img = Resources.cam_removed;
+                        if (!cw.IsDisposed &&  !cw.Disposing)
+                        {
+                            if (cw.LastFrameNull)
+                            {
+                                img = Resources.cam_offline;
+                            }
+                            else
+                            {
+                                img = cw.LastFrame;
+                            }
+                        }
+                        if (maintainAspectRatio)
+                        {
+                            double ar = Convert.ToDouble(img.Height)/Convert.ToDouble(img.Width);
+                            int neww = camw;
+                            int newh = Convert.ToInt32(camw*ar);
+                            if (newh > camh)
+                            {
+                                newh = camh;
+                                neww = Convert.ToInt32(camh/ar);
+                            }
+                            //offset for centering
+                            g.DrawImage(img, x + (camw - neww)/2, y + (camh - newh)/2, neww, newh);
+                        }
+                        else
+                        {
+                            g.DrawImage(img, x, y, camw, camh);
+                        }
+                        g.FillRectangle(MainForm.TimestampBackgroundBrush, x, y+camh-20, camw, y+camh);
+                        g.DrawString(cw.Camobject.name,MainForm.Drawfont,Brushes.White,x+2,y+camh-17);
+                        
+
+                    }
+
+                    using (var imageStream = new MemoryStream())
+                    {
+                        bmpFinal.Save(imageStream, ImageFormat.Jpeg);
+
+                        imageStream.Position = 0;
+                        // load the byte array with the image             
+                        bmpFinal.Dispose();
+                        Byte[] imageArray = imageStream.GetBuffer();
+                        sResponse +=
+                            "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
+                            imageArray.Length + "\r\n\r\n";
+
+                        Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
+
+                        SendToBrowser(bSendData, mySocket);
+                        sResponse = "";
+                        SendToBrowser(imageArray, mySocket);
+                        imageStream.Close();
+                    }
+                    Thread.Sleep(MainForm.Conf.MJPEGStreamInterval); //throttle it
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            DisconnectSocket(mySocket);
+
         }
 
         private void DisconnectSocket(Socket mySocket)
@@ -3162,12 +3311,12 @@ namespace iSpyApplication
 
                     switch (streamMode)
                     {
-                        case Enums.AudioStreamMode.PCM:
-                            sResponse += "Content-Type: audio/x-wav\r\n";
-                            sResponse += "Transfer-Encoding: chunked\r\n";
-                            sResponse += "Connection: close\r\n";
-                            sResponse += "\r\n";
-                            break;
+                        //case Enums.AudioStreamMode.PCM:
+                        //    sResponse += "Content-Type: audio/x-wav\r\n";
+                        //    sResponse += "Transfer-Encoding: chunked\r\n";
+                        //    sResponse += "Connection: close\r\n";
+                        //    sResponse += "\r\n";
+                        //    break;
                         case Enums.AudioStreamMode.MP3:
                             sResponse += "Content-Type: audio/mpeg\r\n";
                             sResponse += "Transfer-Encoding: chunked\r\n";
@@ -3196,6 +3345,12 @@ namespace iSpyApplication
                         //MySockets.Remove(mySocket);
                         vl.OutSockets.Add(mySocket);
                     }
+                }
+                else
+                {
+                    DisconnectSocket(mySocket);
+                    NumErr = 0;
+                
                 }
             }
             catch (Exception ex)

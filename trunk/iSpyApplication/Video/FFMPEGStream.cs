@@ -338,8 +338,9 @@ namespace iSpyApplication.Video
         public string Cookies = "";
         public string UserAgent = "";
         public string Headers = "";
+        public int RTSPMode = 0;
 
-        public int AnalyseDuration = 2000;
+        public int AnalyzeDuration = 2000;
         public int Timeout = 8000;
 
         private volatile bool _bufferFull;
@@ -367,12 +368,13 @@ namespace iSpyApplication.Video
                     _source = _source.Substring(0, i).ToLower() + _source.Substring(i);
                 }
                 _vfr.Timeout = Timeout;
-                _vfr.AnalyzeDuration = AnalyseDuration;
+                _vfr.AnalyzeDuration = AnalyzeDuration;
                 _vfr.Cookies = Cookies;
                 _vfr.UserAgent = UserAgent;
                 _vfr.Headers = Headers;
                 _vfr.Flags = -1;
                 _vfr.NoBuffer = NoBuffer;
+                _vfr.RTSPMode = RTSPMode;
                 _vfr.Open(_source);
                 open = true;
             }

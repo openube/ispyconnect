@@ -1820,7 +1820,7 @@ namespace iSpyApplication
             this.txtArguments.Name = "txtArguments";
             this.txtArguments.Size = new System.Drawing.Size(266, 20);
             this.txtArguments.TabIndex = 79;
-            this.toolTip1.SetToolTip(this.txtArguments, "eg an mp3 file");
+            this.toolTip1.SetToolTip(this.txtArguments, "eg an mp3 file or batch file (you can use {ID} or {NAME} here)");
             // 
             // label72
             // 
