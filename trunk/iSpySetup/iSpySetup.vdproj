@@ -567,12 +567,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A50C98F8F5E07D8DC43B40F7290A4612"
-        "OwnerKey" = "8:_1B124CB969334F1AB9A329ACE33C490A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A609E3BCD6BC4D79BF65587BF31A5A1F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -664,7 +658,7 @@
         "Entry"
         {
         "MsmKey" = "8:_DB1F61C55544334D826293DE14201E1C"
-        "OwnerKey" = "8:_A50C98F8F5E07D8DC43B40F7290A4612"
+        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -737,6 +731,12 @@
         {
         "MsmKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
+        "OwnerKey" = "8:_1B124CB969334F1AB9A329ACE33C490A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -838,12 +838,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A50C98F8F5E07D8DC43B40F7290A4612"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A216588BD52849AEA767F97D96C261A4"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -869,6 +863,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_1B124CB969334F1AB9A329ACE33C490A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1286,7 +1286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.2.4.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.2.6.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_0286CBF0C7913EC19053FD74A498177E"
@@ -2679,37 +2679,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A50C98F8F5E07D8DC43B40F7290A4612"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Interop.IWshRuntimeLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
-                "ScatterAssemblies"
-                {
-                    "_A50C98F8F5E07D8DC43B40F7290A4612"
-                    {
-                    "Name" = "8:Interop.IWshRuntimeLibrary.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:Interop.IWshRuntimeLibrary.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A609E3BCD6BC4D79BF65587BF31A5A1F"
             {
             "SourcePath" = "8:..\\iSpyApplication\\sounds\\alsation_bark.wav"
@@ -3198,6 +3167,37 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F619B4478E6F7CDB15F729AE52BAE66C"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Interop.IWshRuntimeLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_F619B4478E6F7CDB15F729AE52BAE66C"
+                    {
+                    "Name" = "8:Interop.IWshRuntimeLibrary.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Interop.IWshRuntimeLibrary.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F8D6E6085243E01426C2E189482D2DA1"
             {
             "AssemblyRegister" = "3:1"
@@ -3511,15 +3511,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{92720573-E750-4F51-830E-0534618DFECD}"
-        "PackageCode" = "8:{346FCF3F-D305-48AD-AF5B-01362854F2A0}"
+        "ProductCode" = "8:{6D0B7F31-04BA-4879-8E97-571B0C650387}"
+        "PackageCode" = "8:{4AEADBC8-AEC5-4169-B82B-C58961896B07}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:5.3.6"
+        "ProductVersion" = "8:5.3.8"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
