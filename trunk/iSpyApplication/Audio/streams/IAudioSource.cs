@@ -31,7 +31,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// Audio source object, for example internal exceptions.</remarks>
         /// 
-        event AudioSourceErrorEventHandler AudioSourceError;
+        //event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// Level Changed event.
@@ -52,10 +52,10 @@ namespace iSpyApplication.Audio.streams
         event AudioFinishedEventHandler AudioFinished;
 
         /// <summary>
-        /// Volume (gain) of the microphone
+        /// Gain of the microphone
         /// </summary>
         /// 
-        float Volume { get; set; }
+        //float Gain { get; set; }
 
         /// <summary>
         /// Audio source.

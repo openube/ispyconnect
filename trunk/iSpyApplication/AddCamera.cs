@@ -74,6 +74,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.sourceindex = vs.SourceIndex;
                 CameraControl.Camobject.settings.login = vs.CameraLogin;
                 CameraControl.Camobject.settings.password = vs.CameraPassword;
+                CameraControl.Camobject.name = vs.FriendlyName;
 
                 bool su = CameraControl.Camobject.resolution != vs.CaptureSize.Width + "x" + vs.CaptureSize.Height;
                 if (vs.SourceIndex==3)
@@ -194,6 +195,7 @@ namespace iSpyApplication
             chkPublic.Checked = CameraControl.Camobject.settings.youtube.@public;
             txtTags.Text = CameraControl.Camobject.settings.youtube.tags;
             chkMovement.Checked = CameraControl.Camobject.alerts.active;
+            lblDirectory.Text = MainForm.Conf.MediaDirectory;
 
             var youTubeCats = MainForm.Conf.YouTubeCategories.Split(',');
 
@@ -1130,8 +1132,17 @@ namespace iSpyApplication
                 if (CameraControl.Camobject.directory != txtDirectory.Text)
                 {
                     string path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\";
-                    if (!Directory.Exists(path))
-                        Directory.CreateDirectory(path);
+                    try
+                    {
+                        if (!Directory.Exists(path))
+                            Directory.CreateDirectory(path);
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show(this,"Directory is invalid please specify a unique string instead eg: " + MainForm.RandomString(5));
+                        tcCamera.SelectedIndex = 0;
+                        return;
+                    }
                     path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\thumbs\\";
 
                     if (!Directory.Exists(path))
@@ -1363,7 +1374,7 @@ namespace iSpyApplication
         {
             if (IsNew)
             {
-                if (MessageBox.Show(this, "Discard this camera?", "Warning", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                if (MessageBox.Show(this, LocRm.GetString("DiscardCamera"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNo) != DialogResult.Yes)
                 {
                     e.Cancel = true;
                     return;
@@ -1795,49 +1806,32 @@ namespace iSpyApplication
         private void ProcessPtzInput(Point p)
         {
             var comm = Enums.PtzCommand.Center;
-            if (p.X < 60 && p.Y > 60 && p.Y < 106)
-            {
-                comm = Enums.PtzCommand.Left;
-            }
-            if (p.X < 60 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.Upleft;
-            }
-            if (p.X > 60 && p.X < 104 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.Up;
-            }
-            if (p.X > 104 && p.X < 164 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.UpRight;
-            }
-            if (p.X > 104 && p.X < 170 && p.Y > 60 && p.Y < 104)
-            {
-                comm = Enums.PtzCommand.Right;
-            }
-            if (p.X > 104 && p.X < 170 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.DownRight;
-            }
-            if (p.X > 60 && p.X < 104 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.Down;
-            }
-            if (p.X < 60 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.DownLeft;
-            }
+            bool cmd = false;
 
             if (p.X > 170 && p.Y < 45)
             {
                 comm = Enums.PtzCommand.ZoomIn;
+                cmd = true;
             }
             if (p.X > 170 && p.Y > 45 && p.Y < 90)
             {
                 comm = Enums.PtzCommand.ZoomOut;
+                cmd = true;
             }
 
-            CameraControl.PTZ.SendPTZCommand(comm);
+            if (cmd)
+            {
+                CameraControl.Calibrating = true;
+                CameraControl.PTZ.SendPTZCommand(comm);
+            }
+            else
+            {
+                double angle = Math.Atan2(86 - p.Y, 86 - p.X);
+                CameraControl.Calibrating = true;
+                CameraControl.PTZ.SendPTZDirection(angle);
+            }
+
+            
         }
 
         private void DdlPtzSelectedIndexChanged(object sender, EventArgs e)
@@ -1859,6 +1853,7 @@ namespace iSpyApplication
             lbExtended.Items.Clear();
             ddlScheduleCommand.Items.Clear();
             ddlHomeCommand.Items.Clear();
+            btnAddPreset.Visible = btnDeletePreset.Visible = false;
 
             ddlHomeCommand.Items.Add(new ListItem("Center", "Center"));
 
@@ -1899,17 +1894,7 @@ namespace iSpyApplication
 
             if (CameraControl.Camobject.ptz == -5)
             {
-                foreach (string cmd in CameraControl.PTZ.ONVIFPresets)
-                {
-                    lbExtended.Items.Add(new ListItem(cmd, cmd));
-                    ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
-                    ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
-                    if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
-                    {
-                        ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
-                    }
-                }
-
+                PopOnvifPresets();
             }
             if (ddlScheduleCommand.Items.Count > 0)
                 ddlScheduleCommand.SelectedIndex = 0;
@@ -1932,6 +1917,24 @@ namespace iSpyApplication
 
         }
 
+        private void PopOnvifPresets()
+        {
+            lbExtended.Items.Clear();
+            ddlScheduleCommand.Items.Clear();
+            ddlHomeCommand.Items.Clear();
+            btnAddPreset.Visible = btnDeletePreset.Visible = true;
+            foreach (string cmd in CameraControl.PTZ.ONVIFPresets)
+            {
+                lbExtended.Items.Add(new ListItem(cmd, cmd));
+                ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
+                ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
+                if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
+                {
+                    ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
+                }
+            }
+        }
+
         private void PnlPtzPaint(object sender, PaintEventArgs e)
         {
         }
@@ -1949,8 +1952,11 @@ namespace iSpyApplication
         private void PnlPtzMouseUp(object sender, MouseEventArgs e)
         {
             PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(p => p.id == CameraControl.Camobject.ptz);
-            if (ptz != null && ptz.Commands.Stop!="")
+            if ((ptz != null && ptz.Commands.Stop!=""))
                 SendPtzCommand(ptz.Commands.Stop,true);
+
+            if (CameraControl.PTZ.IsContinuous)
+                CameraControl.PTZ.SendPTZCommand(Enums.PtzCommand.Stop);
         }
 
         private void SendPtzCommand(string cmd, bool wait)
@@ -1962,6 +1968,7 @@ namespace iSpyApplication
             }
             try
             {
+                CameraControl.Calibrating = true;
                 CameraControl.PTZ.SendPTZCommand(cmd, wait);
             }
             catch (Exception ex)
@@ -2486,16 +2493,23 @@ namespace iSpyApplication
                          {
                              TimeStampLocation = CameraControl.Camobject.settings.timestamplocation,
                              FontSize = CameraControl.Camobject.settings.timestampfontsize,
-                             Offset = CameraControl.Camobject.settings.timestampoffset
+                             Offset = CameraControl.Camobject.settings.timestampoffset,
+                             TimestampForeColor = CameraControl.Camobject.settings.timestampforecolor.ToColor(),
+                             TimestampBackColor = CameraControl.Camobject.settings.timestampbackcolor.ToColor()
                          };
             if (ct.ShowDialog(this)== DialogResult.OK)
             {
                 CameraControl.Camobject.settings.timestamplocation = ct.TimeStampLocation;
                 CameraControl.Camobject.settings.timestampfontsize = ct.FontSize;
                 CameraControl.Camobject.settings.timestampoffset = ct.Offset;
+                CameraControl.Camobject.settings.timestampforecolor = ct.TimestampForeColor.ToRGBString();
+                CameraControl.Camobject.settings.timestampbackcolor = ct.TimestampBackColor.ToRGBString();
 
-                if (CameraControl.Camera!=null) 
-                    CameraControl.Camera.Drawfont = null;
+                if (CameraControl.Camera != null)
+                {
+                    CameraControl.Camera.DrawFont = null;
+                    CameraControl.Camera.ForeBrush = CameraControl.Camera.BackBrush = null;
+                }
             }
             ct.Dispose();
         }
@@ -2847,6 +2861,39 @@ namespace iSpyApplication
             }
 
             pc.Dispose();
+
+        }
+
+        private void btnAddPreset_Click(object sender, EventArgs e)
+        {
+            var p = new Prompt("Enter name:","");
+            if (p.ShowDialog(this)==DialogResult.OK)
+            {
+                var s = p.Val.Trim();
+                if (!String.IsNullOrEmpty(s))
+                {
+                    if (CameraControl.PTZ != null)
+                    {
+                        CameraControl.PTZ.AddPreset(s);
+                        PopOnvifPresets();
+                    }
+                }
+            }
+            p.Dispose();
+        }
+
+        private void btnDeletePreset_Click(object sender, EventArgs e)
+        {
+            var p = lbExtended.SelectedItem;
+            if (p!=null)
+            {
+                if (CameraControl.PTZ != null)
+                {
+                    var li = (ListItem) p;
+                    CameraControl.PTZ.DeletePreset(li.Value);
+                    PopOnvifPresets();
+                }
+            }
 
         }
     }

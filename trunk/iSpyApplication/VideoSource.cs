@@ -208,7 +208,12 @@ namespace iSpyApplication
             txtFrameInterval.Text = txtFrameInterval2.Text = CameraControl.Camobject.settings.frameinterval.ToString(CultureInfo.InvariantCulture);
             
             txtVLCArgs.Text = CameraControl.Camobject.settings.vlcargs.Replace("\r\n","\n").Replace("\n\n","\n").Replace("\n", Environment.NewLine);
-           
+
+            foreach (var cam in MainForm.Cameras)
+            {
+                if (cam.id != CameraControl.Camobject.id && cam.settings.sourceindex!=10) //dont allow a clone of a clone as the events get too complicated (and also it's pointless)
+                    ddlCloneCamera.Items.Add(new MainForm.ListItem2(cam.name, cam.id));
+            }
 
             ddlCustomProvider.SelectedIndex = 0;
             switch (SourceIndex)
@@ -233,6 +238,20 @@ namespace iSpyApplication
                         default:
                             ddlCustomProvider.SelectedIndex = 0;
                             break;
+                    }
+                    break;
+                case 10:
+                    int id;
+                    if (Int32.TryParse(VideoSourceString, out id))
+                    {
+                        foreach (MainForm.ListItem2 li in ddlCloneCamera.Items)
+                        {
+                            if (li.Value == id)
+                            {
+                                ddlCloneCamera.SelectedItem = li;
+                                break;
+                            }
+                        }
                     }
                     break;
             }
@@ -403,8 +422,7 @@ namespace iSpyApplication
                 lbONVIFDevices.Items.Add(new MainForm.ListItem2(n,j));
                 j++;
             }
-            
-
+           
             _loaded = true;
             if (StartWizard) Wizard();
 
@@ -443,6 +461,9 @@ namespace iSpyApplication
                     break;
                 case 9:
                     tcSource.SelectedTab = tabPage10;
+                    break;
+                case 10:
+                    tcSource.SelectedTab = tabPage11;
                     break;
             }
 
@@ -548,6 +569,7 @@ namespace iSpyApplication
             LocRm.SetString(chkTripWires, "ShowTripWires");
             LocRm.SetString(label34, "Provider");
             LocRm.SetString(label45, "BorderTimeout");
+            LocRm.SetString(label14, "Camera");
             
 
             HideTab(tabPage1 , Helper.HasFeature(Enums.Features.Source_JPEG));
@@ -560,6 +582,7 @@ namespace iSpyApplication
             HideTab(tabPage8, Helper.HasFeature(Enums.Features.Source_Kinect));
             HideTab(tabPage9, Helper.HasFeature(Enums.Features.Source_Custom));
             HideTab(tabPage10, Helper.HasFeature(Enums.Features.Source_ONVIF));
+            HideTab(tabPage11, Helper.HasFeature(Enums.Features.Source_Clone));
 
             button4.Visible = (Helper.HasFeature(Enums.Features.IPCameras));
   
@@ -584,9 +607,7 @@ namespace iSpyApplication
             MainForm.Conf.MJPEGURL = cmbMJPEGURL.Text.Trim();
             MainForm.Conf.AVIFileName = cmbFile.Text.Trim();
             MainForm.Conf.VLCURL = cmbVLCURL.Text.Trim();
-
-            
-            
+           
             string nv;
 
             SourceIndex = GetSourceIndex();
@@ -612,7 +633,7 @@ namespace iSpyApplication
                     }
                     VideoSourceString = url;
                     CameraControl.Camobject.settings.frameinterval = frameinterval;
-                    FriendlyName = VideoSourceString;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (JPEG)";
                     break;
                 case 1:
                     url = cmbMJPEGURL.Text.Trim();
@@ -622,7 +643,7 @@ namespace iSpyApplication
                         return;
                     }
                     VideoSourceString = url;
-                    FriendlyName = VideoSourceString;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (MJPEG)";
                     CameraLogin = txtLogin2.Text;
                     CameraPassword = txtPassword2.Text;
                     CameraControl.Camobject.decodekey = txtDecodeKey.Text;
@@ -635,7 +656,7 @@ namespace iSpyApplication
                         return;
                     }
                     VideoSourceString = url;
-                    FriendlyName = VideoSourceString;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (FFMPEG)";
                     CameraControl.Camobject.settings.analyseduration = (int)numAnalyseDuration.Value;
                     //analyse cannot be greater than timeout
                     if (CameraControl.Camobject.settings.analyseduration > CameraControl.Camobject.settings.timeout - 500)
@@ -681,7 +702,7 @@ namespace iSpyApplication
                     
 
                     VideoSourceString = _videoDeviceMoniker;
-                    FriendlyName = _videoCaptureDevice.Source;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (Device)";
                     break;
                 case 4:
                     int frameinterval2;
@@ -699,6 +720,7 @@ namespace iSpyApplication
                     FriendlyName = ddlScreen.SelectedItem.ToString();
                     CameraControl.Camobject.settings.frameinterval = frameinterval2;
                     CameraControl.Camobject.settings.desktopmouse = chkMousePointer.Checked;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (Desktop)";
 
                 break;
                 case 5:
@@ -716,6 +738,7 @@ namespace iSpyApplication
                     VideoSourceString = url;
                     FriendlyName = VideoSourceString;
                     CameraControl.Camobject.settings.vlcargs = txtVLCArgs.Text.Trim();
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (VLC)";
                     break;
                 case 6:
                     if (!pnlXimea.Enabled)
@@ -738,6 +761,7 @@ namespace iSpyApplication
                     VideoSourceString = nv;
 
                     CameraControl.Camobject.settings.namevaluesettings = nv;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (XIMEA)";
                     break;
                 case 7:
                     if (!pnlKinect.Enabled)
@@ -753,6 +777,7 @@ namespace iSpyApplication
                     
                     VideoSourceString = nv;
                     CameraControl.Camobject.settings.namevaluesettings = nv;
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (Kinect)";
                     break;
                 case 8:
                     VideoSourceString = txtCustomURL.Text;
@@ -783,6 +808,7 @@ namespace iSpyApplication
                     CameraControl.Camobject.settings.audiousername = "";
                     CameraControl.Camobject.settings.audiopassword = "";
                     CameraControl.Camobject.settings.bordertimeout = Convert.ToInt32(numBorderTimeout.Value);
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (Kinect)";
                     break;
                 case 9:
                     if (!(lbONVIFURLs.SelectedItem is MainForm.ListItem))
@@ -795,7 +821,6 @@ namespace iSpyApplication
                     url = url.Replace("[USERNAME]", li.Value[2]);
                     url = url.Replace("[PASSWORD]", li.Value[3]);
                     VideoSourceString = url;
-                    FriendlyName = VideoSourceString;
                     CameraControl.Camobject.settings.analyseduration = (int)numAnalyseDuration.Value;
                     CameraControl.Camobject.settings.nobuffer = chkNoBuffer.Checked;
                     CameraControl.Camobject.settings.onvifident = _onvifurl + "|" + lbONVIFURLs.SelectedIndex;
@@ -827,7 +852,21 @@ namespace iSpyApplication
                     FindCameras.LastConfig.Iptype = li.Value[4];
                     FindCameras.LastConfig.Ipmodel = "";
                     FindCameras.LastConfig.PromptSave = true;
-
+                    FriendlyName = "Camera " + MainForm.Cameras.Count + " (ONVIF)";
+                    break;
+                case 10:
+                    if (ddlCloneCamera.SelectedIndex>-1)
+                    {
+                        int camid = ((MainForm.ListItem2) ddlCloneCamera.SelectedItem).Value;
+                        VideoSourceString = camid.ToString(CultureInfo.InvariantCulture);
+                        var cam = MainForm.Cameras.First(p => p.id == camid);
+                        FriendlyName = "Clone: " + cam.name;
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, "Select a camera to clone");
+                        return;
+                    }
                     break;
             }
 
@@ -1164,6 +1203,8 @@ namespace iSpyApplication
                 sourceIndex = 8;
             if (tcSource.SelectedTab.Equals(tabPage10))
                 sourceIndex = 9;
+            if (tcSource.SelectedTab.Equals(tabPage11))
+                sourceIndex = 10;
             return sourceIndex;
         }
 
@@ -1760,16 +1801,14 @@ namespace iSpyApplication
         private void btnTest_Click(object sender, EventArgs e)
         {
             btnTest.Enabled = false;
-            if (!Program.WriterMutex.WaitOne(4000))
-            {
-                btnTest.Enabled = true;
-                MessageBox.Show(this, "Timeout waiting for FFMPEG access - please try again");
-                return;
-            }
-            var vfr = new VideoFileReader();            
-            string source = cmbFile.Text;
+            VideoFileReader vfr= null;
+            string res = "OK";
             try
-            {  
+            {
+                Program.WriterMutex.WaitOne();
+                string source = cmbFile.Text;
+                vfr = new VideoFileReader();
+
                 int i = source.IndexOf("://", StringComparison.Ordinal);
                 if (i > -1)
                 {
@@ -1786,34 +1825,19 @@ namespace iSpyApplication
                 vfr.NoBuffer = chkNoBuffer.Checked;
                 vfr.Open(source);
                 vfr.ReadFrame();
-                
-                MessageBox.Show("Stream OK");
+                vfr.Close();
 
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                res = ex.Message;
             }
             finally
             {
-                try
-                {
-                    Program.WriterMutex.ReleaseMutex();
-                }
-                catch (ObjectDisposedException)
-                {
-                    //can happen on shutdown
-                }
+                Program.WriterMutex.ReleaseMutex();
             }
-            try
-            {
-                vfr.Close();
-            }
-            catch
-            {
 
-            }
-            vfr = null;
+            MessageBox.Show(res);
             btnTest.Enabled = true;
         }
 

@@ -10,7 +10,7 @@ namespace iSpyApplication.Audio.streams
     class WebStream: IAudioSource
     {
         private Socket _socket;
-        private float _volume;
+        private float _gain;
         private bool _listening;
         private ManualResetEvent _stopEvent;
 
@@ -55,7 +55,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// audio source object, for example internal exceptions.</remarks>
         /// 
-        public event AudioSourceErrorEventHandler AudioSourceError;
+        //public event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// audio playing finished event.
@@ -77,12 +77,12 @@ namespace iSpyApplication.Audio.streams
             get { return _socket.ToString(); }
         }
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
@@ -124,7 +124,7 @@ namespace iSpyApplication.Audio.streams
                 if (_thread != null)
                 {
                     // check thread status
-                    if (_thread.Join(0) == false)
+                    if (!_thread.Join(0))
                         return true;
 
                     // the thread is not running, free resources
@@ -237,8 +237,10 @@ namespace iSpyApplication.Audio.streams
             }
             catch (Exception e)
             {
-                if (AudioSourceError!=null)
-                    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
+                //if (AudioSourceError!=null)
+                //    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
+                if (AudioFinished != null)
+                    AudioFinished(this, ReasonToFinishPlaying.DeviceLost);
                 MainForm.LogExceptionToFile(e);
             }
             if (_socket != null)
@@ -249,7 +251,19 @@ namespace iSpyApplication.Audio.streams
 
 
         }
-        
+
+        public void WaitForStop()
+        {
+            if (IsRunning)
+            {
+                // wait for thread stop
+                _stopEvent.Set();
+                _thread.Join(MainForm.ThreadKillDelay);
+                if (_thread != null && _thread.IsAlive)
+                    _thread.Abort();
+                Free();
+            }
+        }
 
         /// <summary>
         /// Stop audio source.
@@ -260,13 +274,7 @@ namespace iSpyApplication.Audio.streams
         /// 
         public void Stop()
         {
-            if (this.IsRunning)
-            {
-                _stopEvent.Set();
-                _thread.Join();
-
-                Free();
-            }
+            WaitForStop();
         }
 
         /// <summary>

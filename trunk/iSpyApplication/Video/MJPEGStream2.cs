@@ -279,7 +279,7 @@ namespace iSpyApplication.Video
                 if (_thread != null)
                 {
                     // check thread status
-                    if (_thread.Join(0) == false)
+                    if (!_thread.Join(0))
                         return true;
 
                     // the thread is not running, so free resources
@@ -393,11 +393,13 @@ namespace iSpyApplication.Video
         /// 
         public void WaitForStop()
         {
-            if (_thread != null)
+            if (IsRunning)
             {
                 // wait for thread stop
-                _thread.Join();
-
+                _stopEvent.Set();
+                _thread.Join(MainForm.ThreadKillDelay);
+                if (_thread != null && _thread.IsAlive)
+                    _thread.Abort();
                 Free();
             }
         }
@@ -416,12 +418,7 @@ namespace iSpyApplication.Video
         /// 
         public void Stop()
         {
-            if (IsRunning)
-            {
-                _stopEvent.Set();
-                _thread.Abort();
-                WaitForStop();
-            }
+            WaitForStop();
         }
 
         /// <summary>
@@ -658,6 +655,7 @@ namespace iSpyApplication.Video
                                             ms.WriteByte(jpegMagic[2]);
                                             ms.Seek(0, SeekOrigin.Begin);
                                             bitmap = (Bitmap) Image.FromStream(ms);
+                                            NewFrame(this, new NewFrameEventArgs(bitmap));
                                             
                                         }
                                     }
@@ -666,11 +664,12 @@ namespace iSpyApplication.Video
                                         using (var ms = new MemoryStream(buffer, start, stop - start))
                                         {
                                             bitmap = (Bitmap) Image.FromStream(ms);
+                                            NewFrame(this, new NewFrameEventArgs(bitmap));
                                         }
                                     }
                                         
                                     // notify client
-                                    NewFrame(this, new NewFrameEventArgs(bitmap));
+                                    
                                     // release the image
                                     bitmap.Dispose();
                                     bitmap = null;
@@ -717,13 +716,14 @@ namespace iSpyApplication.Video
                 {
                     break;
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
                     // provide information to clients
-                    if (VideoSourceError != null)
-                    {
-                        VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
-                    }
+                    MainForm.LogExceptionToFile(ex);
+                    //if (VideoSourceError != null)
+                    //{
+                    //    VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
+                    //}
                     // wait for a while before the next try
                     Thread.Sleep(250);
                 }

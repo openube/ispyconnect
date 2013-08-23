@@ -75,8 +75,8 @@ namespace iSpyApplication
         public static Brush IconBrushOff = new SolidBrush(Color.FromArgb(64, 255, 255, 255));
         public static Brush IconBrushActive = new SolidBrush(Color.Red);
         public static Brush OverlayBrush = new SolidBrush(Color.White);
-        public static Brush TimestampBrush = new SolidBrush(Color.Gray);
-        public static SolidBrush TimestampBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+        public static SolidBrush OverlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+        public static int ThreadKillDelay = 10000;
 
         public static SolidBrush CameraDrawBrush = new SolidBrush(Color.White);
         public static Pen CameraLine = new Pen(Color.Green, 2);
@@ -768,9 +768,6 @@ namespace iSpyApplication
 
             Iconfont = new Font(FontFamily.GenericSansSerif, Conf.BigButtons ? 22 : 15, FontStyle.Bold,
                                 GraphicsUnit.Pixel);
-
-            TimestampBrush = new SolidBrush(Conf.TimestampColor.ToColor());
-
             double dOpacity;
             Double.TryParse(Conf.Opacity.ToString(CultureInfo.InvariantCulture), out dOpacity);
             Opacity = dOpacity/100.0;
@@ -1921,6 +1918,8 @@ namespace iSpyApplication
 
         private void Exit()
         {
+            ThreadKillDelay = 1000;
+
             if (_houseKeepingTimer != null)
                 _houseKeepingTimer.Stop();
             if (_updateTimer != null)
@@ -2504,6 +2503,11 @@ namespace iSpyApplication
 
 
         private void MenuItem19Click(object sender, EventArgs e)
+        {
+            SaveObjectList();
+        }
+
+        private void SaveObjectList()
         {
             if (Cameras.Count == 0 && Microphones.Count == 0)
             {
@@ -3687,6 +3691,9 @@ namespace iSpyApplication
 
         public void TalkTo(CameraWindow cw, bool talk)
         {
+            if (String.IsNullOrEmpty(Conf.TalkMic))
+                return;
+
             if (_talkSource != null)
             {
                 _talkSource.Stop();
@@ -3709,7 +3716,7 @@ namespace iSpyApplication
             Application.DoEvents();
             TalkCamera = cw;
             _talkSource = new TalkDeviceStream(Conf.TalkMic) { RecordingFormat = new WaveFormat(8000, 16, 1) };
-            _talkSource.AudioSourceError += _talkSource_AudioSourceError;
+            _talkSource.AudioFinished +=_talkSource_AudioFinished;
 
             if (!_talkSource.IsRunning)
                 _talkSource.Start();           
@@ -3741,9 +3748,9 @@ namespace iSpyApplication
             
         }
 
-        void _talkSource_AudioSourceError(object sender, Audio.AudioSourceErrorEventArgs eventArgs)
+        void _talkSource_AudioFinished(object sender, AForge.Video.ReasonToFinishPlaying reason)
         {
-            LogErrorToFile(eventArgs.Description);
+            LogMessageToFile("Talk Finished: "+reason.ToString());
         }
 
         void TalkTargetTalkStopped(object sender, EventArgs e)
@@ -5767,7 +5774,6 @@ namespace iSpyApplication
             AddCamera(9);
         }
 
-        
     }
 
     

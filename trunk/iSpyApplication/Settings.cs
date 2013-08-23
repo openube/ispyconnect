@@ -102,7 +102,6 @@ namespace iSpyApplication
             MainForm.Conf.Password_Protect_Password = password;
 
             MainForm.Conf.NoActivityColor = btnNoDetectColor.BackColor.ToRGBString();
-            MainForm.Conf.TimestampColor = btnTimestampColor.BackColor.ToRGBString();
             MainForm.Conf.ActivityColor = btnDetectColor.BackColor.ToRGBString();
             MainForm.Conf.TrackingColor = btnColorTracking.BackColor.ToRGBString();
             MainForm.Conf.VolumeLevelColor = btnColorVolume.BackColor.ToRGBString();
@@ -141,10 +140,14 @@ namespace iSpyApplication
             MainForm.Conf.MJPEGStreamInterval = (int)numMJPEGStreamInterval.Value;
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
-            if (ddlTalkMic.Items.Count == 0)
-                MainForm.Conf.TalkMic = "";
-            else
-                MainForm.Conf.TalkMic = ddlTalkMic.Enabled  ? ddlTalkMic.SelectedItem.ToString() : "";
+            
+            MainForm.Conf.TalkMic = "";
+            if (ddlTalkMic.Enabled)
+            {
+                if (ddlTalkMic.SelectedIndex>0)
+                    MainForm.Conf.TalkMic = ddlTalkMic.SelectedItem.ToString();
+            }
+
             MainForm.Conf.MinimiseOnClose = chkMinimise.Checked;
             MainForm.Conf.JPEGQuality = (int) numJPEGQuality.Value;
             MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;
@@ -295,7 +298,6 @@ namespace iSpyApplication
             btnColorBack.BackColor = MainForm.Conf.BackColor.ToColor();
             btnBorderHighlight.BackColor = MainForm.Conf.BorderHighlightColor.ToColor();
             btnBorderDefault.BackColor = MainForm.Conf.BorderDefaultColor.ToColor();
-            btnTimestampColor.BackColor = MainForm.Conf.TimestampColor.ToColor();
             txtDaysDelete.Text = MainForm.Conf.DeleteFilesOlderThanDays.ToString(CultureInfo.InvariantCulture);
             txtMaxMediaSize.Value = MainForm.Conf.MaxMediaFolderSizeMB;
             chkAutoSchedule.Checked = MainForm.Conf.AutoSchedule;
@@ -378,9 +380,11 @@ namespace iSpyApplication
             chkBigButtons.Checked = MainForm.Conf.BigButtons;
 
             selind = -1;
-            i = 0;
+            i = 1;
             try
             {
+                ddlTalkMic.Items.Add(LocRm.GetString("None"));
+
                 for (int n = 0; n < WaveIn.DeviceCount; n++)
                 {
                     ddlTalkMic.Items.Add(WaveIn.GetCapabilities(n).ProductName);
@@ -394,11 +398,11 @@ namespace iSpyApplication
                     ddlTalkMic.SelectedIndex = selind;
                 else
                 {
-                    if (ddlTalkMic.Items.Count == 0)
+                    if (ddlTalkMic.Items.Count == 1)
                     {
                         ddlTalkMic.Items.Add(_noDevices);
                         ddlTalkMic.Enabled = false;
-                        ddlTalkMic.SelectedIndex = 0;
+                        ddlTalkMic.SelectedIndex = 1;
                     }
                     else
                         ddlTalkMic.SelectedIndex = 0;
@@ -476,7 +480,6 @@ namespace iSpyApplication
             btnColorVolume.Text = LocRm.GetString("Level");
             btnDetectColor.Text = LocRm.GetString("Activity");
             btnNoDetectColor.Text = LocRm.GetString("NoActivity");
-            btnTimestampColor.Text = LocRm.GetString("TimeStamp");
             button1.Text = LocRm.GetString("Ok");
             button2.Text = LocRm.GetString("Cancel");
             chkBalloon.Text = LocRm.GetString("ShowBalloonTips");
@@ -576,11 +579,8 @@ namespace iSpyApplication
             btnColorMain.ForeColor = InverseColor(btnColorMain.BackColor);
             btnColorArea.ForeColor = InverseColor(btnColorArea.BackColor);
             btnColorBack.ForeColor = InverseColor(btnColorBack.BackColor);
-            btnTimestampColor.ForeColor = InverseColor(btnTimestampColor.BackColor);
             btnBorderHighlight.ForeColor = InverseColor(btnBorderHighlight.BackColor);
             btnBorderDefault.ForeColor = InverseColor(btnBorderDefault.BackColor);
-
-            MainForm.TimestampBrush = new SolidBrush(btnTimestampColor.BackColor);
         }
 
         private static Color InverseColor(Color colorIn)
@@ -710,16 +710,6 @@ namespace iSpyApplication
         private void ChkStorageCheckedChanged(object sender, EventArgs e)
         {
             gbStorage.Enabled = chkStorage.Checked;
-        }
-
-        private void BtnTimestampColorClick(object sender, EventArgs e)
-        {
-            cdColorChooser.Color = btnColorBack.BackColor;
-            if (cdColorChooser.ShowDialog(this) == DialogResult.OK)
-            {
-                btnTimestampColor.BackColor = cdColorChooser.Color;
-                SetColors();
-            }
         }
 
         private void chkErrorReporting_CheckedChanged(object sender, EventArgs e)
@@ -1034,6 +1024,11 @@ namespace iSpyApplication
         }
 
         private void chkCheckForUpdates_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ddlTalkMic_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

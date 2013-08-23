@@ -27,7 +27,7 @@ namespace iSpyApplication
                 }
 
                 pnlController.Enabled = false;
-                if (value != null)
+                if (value != null && value.IsEnabled)
                 {
                     if (CameraControl.Camobject.ptz > -1)
                     {
@@ -108,6 +108,7 @@ namespace iSpyApplication
             }
             try
             {
+                CameraControl.Calibrating = true;
                 CameraControl.PTZ.SendPTZCommand(cmd, wait);
             }
             catch (Exception ex)
@@ -123,49 +124,30 @@ namespace iSpyApplication
                 return;
 
             var comm = Enums.PtzCommand.Center;
-            if (p.X < 60 && p.Y > 60 && p.Y < 106)
-            {
-                comm = Enums.PtzCommand.Left;
-            }
-            if (p.X < 60 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.Upleft;
-            }
-            if (p.X > 60 && p.X < 104 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.Up;
-            }
-            if (p.X > 104 && p.X < 164 && p.Y < 60)
-            {
-                comm = Enums.PtzCommand.UpRight;
-            }
-            if (p.X > 104 && p.X < 170 && p.Y > 60 && p.Y < 104)
-            {
-                comm = Enums.PtzCommand.Right;
-            }
-            if (p.X > 104 && p.X < 170 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.DownRight;
-            }
-            if (p.X > 60 && p.X < 104 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.Down;
-            }
-            if (p.X < 60 && p.Y > 104)
-            {
-                comm = Enums.PtzCommand.DownLeft;
-            }
+            bool cmd = false;
 
             if (p.X > 170 && p.Y < 45)
             {
                 comm = Enums.PtzCommand.ZoomIn;
+                cmd = true;
             }
             if (p.X > 170 && p.Y > 45 && p.Y < 90)
             {
                 comm = Enums.PtzCommand.ZoomOut;
+                cmd = true;
             }
 
-            CameraControl.PTZ.SendPTZCommand(comm);
+            if (cmd)
+            {
+                CameraControl.Calibrating = true;
+                CameraControl.PTZ.SendPTZCommand(comm);
+            }
+            else
+            {
+                double angle = Math.Atan2(86 - p.Y, 86 - p.X);
+                CameraControl.Calibrating = true;
+                CameraControl.PTZ.SendPTZDirection(angle);
+            }
 
 
         }
@@ -182,6 +164,9 @@ namespace iSpyApplication
             PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(p => p.id == CameraControl.Camobject.ptz);
             if (ptz != null && !String.IsNullOrEmpty(ptz.Commands.Stop))
                 SendPtzCommand(ptz.Commands.Stop, true);
+
+            if (CameraControl.PTZ.IsContinuous)
+                CameraControl.PTZ.SendPTZCommand(Enums.PtzCommand.Stop);
             
         }
 

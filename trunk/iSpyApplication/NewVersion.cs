@@ -84,12 +84,13 @@ namespace iSpyApplication
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewVersion));
             this._wbProductHistory = new System.Windows.Forms.WebBrowser();
             this._panel1 = new System.Windows.Forms.Panel();
-            this._button2 = new System.Windows.Forms.Button();
-            this._button1 = new System.Windows.Forms.Button();
-            this.chkCheckForUpdates = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this._button1 = new System.Windows.Forms.Button();
+            this._button2 = new System.Windows.Forms.Button();
+            this.chkCheckForUpdates = new System.Windows.Forms.CheckBox();
             this._panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
@@ -112,18 +113,17 @@ namespace iSpyApplication
             this._panel1.Size = new System.Drawing.Size(540, 34);
             this._panel1.TabIndex = 1;
             // 
-            // _button2
+            // flowLayoutPanel1
             // 
-            this._button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this._button2.AutoSize = true;
-            this._button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._button2.Location = new System.Drawing.Point(362, 3);
-            this._button2.Name = "_button2";
-            this._button2.Size = new System.Drawing.Size(70, 23);
-            this._button2.TabIndex = 1;
-            this._button2.Text = "No Thanks";
-            this._button2.UseVisualStyleBackColor = true;
-            this._button2.Click += new System.EventHandler(this.Button2Click);
+            this.flowLayoutPanel1.Controls.Add(this._button1);
+            this.flowLayoutPanel1.Controls.Add(this._button2);
+            this.flowLayoutPanel1.Controls.Add(this.chkCheckForUpdates);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(540, 34);
+            this.flowLayoutPanel1.TabIndex = 2;
             // 
             // _button1
             // 
@@ -137,6 +137,19 @@ namespace iSpyApplication
             this._button1.UseVisualStyleBackColor = true;
             this._button1.Click += new System.EventHandler(this.Button1Click);
             // 
+            // _button2
+            // 
+            this._button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this._button2.AutoSize = true;
+            this._button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this._button2.Location = new System.Drawing.Point(362, 3);
+            this._button2.Name = "_button2";
+            this._button2.Size = new System.Drawing.Size(70, 23);
+            this._button2.TabIndex = 1;
+            this._button2.Text = "No Thanks";
+            this._button2.UseVisualStyleBackColor = true;
+            this._button2.Click += new System.EventHandler(this.Button2Click);
+            // 
             // chkCheckForUpdates
             // 
             this.chkCheckForUpdates.AutoSize = true;
@@ -149,18 +162,6 @@ namespace iSpyApplication
             this.chkCheckForUpdates.UseVisualStyleBackColor = true;
             this.chkCheckForUpdates.CheckedChanged += new System.EventHandler(this.chkCheckForUpdates_CheckedChanged);
             // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this._button1);
-            this.flowLayoutPanel1.Controls.Add(this._button2);
-            this.flowLayoutPanel1.Controls.Add(this.chkCheckForUpdates);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(540, 34);
-            this.flowLayoutPanel1.TabIndex = 2;
-            // 
             // NewVersion
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -168,6 +169,7 @@ namespace iSpyApplication
             this.ClientSize = new System.Drawing.Size(540, 335);
             this.Controls.Add(this._wbProductHistory);
             this.Controls.Add(this._panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "NewVersion";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

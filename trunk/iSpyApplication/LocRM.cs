@@ -69,7 +69,7 @@ namespace iSpyApplication
             {
                 return Res[identifier];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 if (CultureCode != "en")
                 {
@@ -86,7 +86,7 @@ namespace iSpyApplication
                 }
 
             }
-            catch (Exception)
+            catch
             {
                 //possible threading error where language is reset
             }
@@ -106,7 +106,7 @@ namespace iSpyApplication
             {
                 ctrl.Text = Res[identifier];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 ctrl.Text = identifier;
                 if (CultureCode != "en")
@@ -124,7 +124,7 @@ namespace iSpyApplication
                 }
 
             }
-            catch (Exception)
+            catch
             {
                 //possible threading error where language is reset
             }
@@ -141,7 +141,7 @@ namespace iSpyApplication
             {
                 ctrl.Text = Res[identifier];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 ctrl.Text = identifier;
                 if (CultureCode!="en")
@@ -159,7 +159,7 @@ namespace iSpyApplication
                 }
                 
             }
-            catch (Exception)
+            catch
             {
                 //possible threading error where language is reset
             }
@@ -177,7 +177,7 @@ namespace iSpyApplication
             {
                 ctrl.Text = Res[identifier];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 ctrl.Text = identifier;
                 if (CultureCode != "en")
@@ -195,7 +195,7 @@ namespace iSpyApplication
                 }
 
             }
-            catch (Exception)
+            catch
             {
                 //possible threading error where language is reset
             }

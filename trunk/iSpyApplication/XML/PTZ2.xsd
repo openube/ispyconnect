@@ -20,6 +20,8 @@
                             </xs:element>
                             <xs:element name="CommandURL" type="xs:string" />
                             <xs:element name="POST" type="xs:boolean"/>
+                            <xs:element name="port" type="xs:int"/>
+                            <xs:element name="Cookies" type ="xs:string"/>
                             <xs:element name="Commands">
                                 <xs:complexType>
                                     <xs:sequence>

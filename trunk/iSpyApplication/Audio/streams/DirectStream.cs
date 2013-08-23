@@ -10,7 +10,7 @@ namespace iSpyApplication.Audio.streams
     class DirectStream: IAudioSource
     {
         private Stream _stream;
-        private float _volume;
+        private float _gain;
         private bool _listening;
         private ManualResetEvent _stopEvent;
 
@@ -58,7 +58,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// audio source object, for example internal exceptions.</remarks>
         /// 
-        public event AudioSourceErrorEventHandler AudioSourceError;
+        //public event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// audio playing finished event.
@@ -80,12 +80,12 @@ namespace iSpyApplication.Audio.streams
             get { return "direct stream"; }
         }
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
@@ -127,7 +127,7 @@ namespace iSpyApplication.Audio.streams
                 if (_thread != null)
                 {
                     // check thread status
-                    if (_thread.Join(0) == false)
+                    if (!_thread.Join(0))
                         return true;
 
                     // the thread is not running, free resources
@@ -243,8 +243,10 @@ namespace iSpyApplication.Audio.streams
             }
             catch (Exception e)
             {
-                if (AudioSourceError!=null)
-                    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
+                if (AudioFinished != null)
+                    AudioFinished(this, ReasonToFinishPlaying.DeviceLost);
+                //if (AudioSourceError!=null)
+                //    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
                 MainForm.LogExceptionToFile(e);
             }
             if (_stream != null)

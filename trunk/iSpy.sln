@@ -12,7 +12,7 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "iSpySetup", "iSpySetup\iSpy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstallHelper", "InstallHelper\InstallHelper.csproj", "{5ED0BE4E-69BE-4DC1-A31A-73CD0FBD7ACF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Video.FFMPEG", "ffmpeg\Video.FFMPEG.vcxproj", "{FF31DD24-127D-4EB1-929C-F5738147E886}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Video.FFMPEG", "FFMPEG\Video.FFMPEG.vcxproj", "{FF31DD24-127D-4EB1-929C-F5738147E886}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -300,7 +300,7 @@ Global
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Debug|Win32.Build.0 = Debug|Win32
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Debug|x64.ActiveCfg = Debug|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Debug|x64.Build.0 = Debug|x64
-		{FF31DD24-127D-4EB1-929C-F5738147E886}.Debug|x86.ActiveCfg = Debug|x64
+		{FF31DD24-127D-4EB1-929C-F5738147E886}.Debug|x86.ActiveCfg = Debug|Win32
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.DVD-5|Any CPU.ActiveCfg = Debug|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.DVD-5|Mixed Platforms.ActiveCfg = Debug|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.DVD-5|Mixed Platforms.Build.0 = Debug|x64
@@ -315,7 +315,8 @@ Global
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|Win32.Build.0 = Release|Win32
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|x64.ActiveCfg = Release|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|x64.Build.0 = Release|x64
-		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|x86.ActiveCfg = Release|x64
+		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|x86.ActiveCfg = Release|Win32
+		{FF31DD24-127D-4EB1-929C-F5738147E886}.Release|x86.Build.0 = Release|Win32
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.SingleImage|Any CPU.ActiveCfg = Release|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.SingleImage|Mixed Platforms.ActiveCfg = Release|x64
 		{FF31DD24-127D-4EB1-929C-F5738147E886}.SingleImage|Mixed Platforms.Build.0 = Release|x64

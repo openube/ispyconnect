@@ -37,6 +37,21 @@ namespace iSpyApplication
         private readonly CameraWindow _cameraControl;
         private SerialPort _serialPort;
 
+        public bool IsContinuous
+        {
+            get
+            {
+                if (_cameraControl!=null)
+                {
+                    if (_cameraControl.Camobject.ptz==-5)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         #region ONVIF
         private Profile _ptzProfile;
         private INvtSession _nvtSession;
@@ -114,6 +129,48 @@ namespace iSpyApplication
             for (int i = 0; i < repeat; i++)
             {
                 SendPTZDirection(angle);
+            }
+        }
+
+        public void AddPreset(string name)
+        {
+            if (PTZProfile!=null)
+            {
+                try
+                {
+                    PTZSession.SetPreset(PTZProfile.token, name,null).RunSynchronously();
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+            }
+        }
+
+        public void DeletePreset(string name)
+        {
+            if (PTZProfile != null)
+            {
+                try
+                {
+                    var l = PTZSession.GetPresets(PTZProfile.token).RunSynchronously();
+                    string t = "";
+                    foreach(var p in l)
+                    {
+                        if (p.name==name)
+                        {
+                            t = p.token;
+                            break;
+                        }
+                    }
+
+                    if (t!="")
+                        PTZSession.RemovePreset(PTZProfile.token, t).RunSynchronously();
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
             }
         }
 
@@ -287,21 +344,141 @@ namespace iSpyApplication
                 case -1://digital only
                     break;
                 case -2://IAM
-                    ProcessIAM(command);
+                    switch (command)
+                    {
+                        case Enums.PtzCommand.Left:
+                            SendPTZDirection(0d);
+                            break;
+                        case Enums.PtzCommand.Upleft:
+                            SendPTZDirection(Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Up:
+                            SendPTZDirection(Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.UpRight:
+                            SendPTZDirection(3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Right:
+                            SendPTZDirection(Math.PI);
+                            break;
+                        case Enums.PtzCommand.DownRight:
+                            SendPTZDirection(-3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Down:
+                            SendPTZDirection(-Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.DownLeft:
+                            SendPTZDirection(-Math.PI / 4);
+                            break;
+                        default:
+                            ProcessIAM(command);
+                            break;
+                    }
                     return;
                 case -3://PELCO-P
-                    ProcessPelco(command, true);
+                    switch (command)
+                    {
+                        case Enums.PtzCommand.Left:
+                            SendPTZDirection(0d);
+                            break;
+                        case Enums.PtzCommand.Upleft:
+                            SendPTZDirection(Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Up:
+                            SendPTZDirection(Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.UpRight:
+                            SendPTZDirection(3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Right:
+                            SendPTZDirection(Math.PI);
+                            break;
+                        case Enums.PtzCommand.DownRight:
+                            SendPTZDirection(-3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Down:
+                            SendPTZDirection(-Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.DownLeft:
+                            SendPTZDirection(-Math.PI / 4);
+                            break;
+                        default:
+                            ProcessPelco(command, true);
+                            break;
+                    }
                     return;
                 case -4://PELCO-D
-                    ProcessPelco(command, false);
+                    switch (command)
+                    {
+                        case Enums.PtzCommand.Left:
+                            SendPTZDirection(0d);
+                            break;
+                        case Enums.PtzCommand.Upleft:
+                            SendPTZDirection(Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Up:
+                            SendPTZDirection(Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.UpRight:
+                            SendPTZDirection(3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Right:
+                            SendPTZDirection(Math.PI);
+                            break;
+                        case Enums.PtzCommand.DownRight:
+                            SendPTZDirection(-3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Down:
+                            SendPTZDirection(-Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.DownLeft:
+                            SendPTZDirection(-Math.PI / 4);
+                            break;
+                        default:
+                            ProcessPelco(command, false);
+                            break;
+                    }
+
+                    
                     return;
                 case -5://ONVIF
-                    ProcessOnvif(command);
+                    switch (command)
+                    {
+                        case Enums.PtzCommand.Left:
+                            SendPTZDirection(0d);
+                            break;
+                        case Enums.PtzCommand.Upleft:
+                            SendPTZDirection(Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Up:
+                            SendPTZDirection(Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.UpRight:
+                            SendPTZDirection(3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Right:
+                            SendPTZDirection(Math.PI);
+                            break;
+                        case Enums.PtzCommand.DownRight:
+                            SendPTZDirection(-3 * Math.PI / 4);
+                            break;
+                        case Enums.PtzCommand.Down:
+                            SendPTZDirection(-Math.PI / 2);
+                            break;
+                        case Enums.PtzCommand.DownLeft:
+                            SendPTZDirection(-Math.PI / 4);
+                            break;
+                        default:
+                            ProcessOnvif(command);
+                            break;
+                    }
+                    
                     return;
                 default: //IP CAMERA
                     ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
                     break;
             }
+
             d = (ptz == null || ptz.Commands == null);
 
             if (!d)
@@ -323,7 +500,7 @@ namespace iSpyApplication
                 switch (command)
                 {
                     case Enums.PtzCommand.Left:
-                        SendPTZDirection(0);
+                        SendPTZDirection(0d);
                         break;
                     case Enums.PtzCommand.Upleft:
                         SendPTZDirection(Math.PI/4);
@@ -428,8 +605,6 @@ namespace iSpyApplication
                 var d = _cameraControl.Camera.VideoSource as VideoCaptureDevice;
                 if (d!=null)
                 {
-                    _cameraControl.CalibrateCount = 0;
-                    _cameraControl.Calibrating = true;
                     try
                     {
                         switch (command)
@@ -604,65 +779,99 @@ namespace iSpyApplication
         {
             if (PTZProfile!=null)
             {
-                var speed = PTZProfile.ptzConfiguration.defaultPTZSpeed;
-                string spacePT = PTZProfile.ptzConfiguration.defaultRelativePanTiltTranslationSpace;
-                string spaceZ = PTZProfile.ptzConfiguration.defaultRelativeZoomTranslationSpace;
+                //var speed = PTZProfile.ptzConfiguration.defaultPTZSpeed;
+                //string spacePT = PTZProfile.ptzConfiguration.defaultContinuousPanTiltVelocitySpace;
+                //string spaceZ = PTZProfile.ptzConfiguration.defaultContinuousZoomVelocitySpace;
 
-                var vector = new PTZVector();
-
-                switch (command)
+                Vector2D panTilt = null;
+                Vector1D zoom = null;
+                try
                 {
-                    case Enums.PtzCommand.Left:
-                        vector.panTilt = new Vector2D {space = spacePT,x=-1, y=0};
-                        break;
-                    case Enums.PtzCommand.Upleft:
-                        vector.panTilt = new Vector2D { space = spacePT, x = -1, y = 1 };
-                        break;
-                    case Enums.PtzCommand.Up:
-                        vector.panTilt = new Vector2D { space = spacePT, x = 0, y = 1 };
-                        break;
-                    case Enums.PtzCommand.UpRight:
-                        vector.panTilt = new Vector2D { space = spacePT, x = 1, y = 1 };
-                        break;
-                    case Enums.PtzCommand.Right:
-                        vector.panTilt = new Vector2D { space = spacePT, x = 1, y = 0 };
-                        break;
-                    case Enums.PtzCommand.DownRight:
-                        vector.panTilt = new Vector2D { space = spacePT, x = 1, y = -1 };
-                        break;
-                    case Enums.PtzCommand.Down:
-                        vector.panTilt = new Vector2D { space = spacePT, x = 0, y = -1 };
-                        break;
-                    case Enums.PtzCommand.DownLeft:
-                        vector.panTilt = new Vector2D { space = spacePT, x = -1, y = -1 };
-                        break;
-                    case Enums.PtzCommand.ZoomIn:
-                        vector.zoom = new Vector1D { space = spaceZ, x = 1};
-                        break;
-                    case Enums.PtzCommand.ZoomOut:
-                        vector.zoom = new Vector1D { space = spaceZ, x = -1 };
-                        break;
-                    case Enums.PtzCommand.Center:
-                        PTZSession.GotoPreset(PTZProfile.token, "home", speed);
-                        return;
-                    case Enums.PtzCommand.Stop:
-                        PTZSession.Stop(PTZProfile.token, true, true);
-                        return;
+                    switch (command)
+                    {
+                        case Enums.PtzCommand.Left:
+                            panTilt = new Vector2D {space = null, x = -0.5f, y = 0};
+                            break;
+                        case Enums.PtzCommand.Upleft:
+                            panTilt = new Vector2D {space = null, x = -0.5f, y = 0.5f};
+                            break;
+                        case Enums.PtzCommand.Up:
+                            panTilt = new Vector2D {space = null, x = 0, y = 0.5f};
+                            break;
+                        case Enums.PtzCommand.UpRight:
+                            panTilt = new Vector2D {space = null, x = 0.5f, y = 0.5f};
+                            break;
+                        case Enums.PtzCommand.Right:
+                            panTilt = new Vector2D {space = null, x = 0.5f, y = 0};
+                            break;
+                        case Enums.PtzCommand.DownRight:
+                            panTilt = new Vector2D {space = null, x = 0.5f, y = -0.5f};
+                            break;
+                        case Enums.PtzCommand.Down:
+                            panTilt = new Vector2D {space = null, x = 0, y = -0.5f};
+                            break;
+                        case Enums.PtzCommand.DownLeft:
+                            panTilt = new Vector2D {space = null, x = -0.5f, y = -0.5f};
+                            break;
+                        case Enums.PtzCommand.ZoomIn:
+                            zoom = new Vector1D {space = null, x = 0.5f};
+                            break;
+                        case Enums.PtzCommand.ZoomOut:
+                            zoom = new Vector1D {space = null, x = -0.5f};
+                            break;
+                        case Enums.PtzCommand.Center:
+                            ProcessOnvifCommand(_cameraControl.Camobject.settings.ptzautohomecommand);
+                            return;
+                        case Enums.PtzCommand.Stop:
+                            PTZSession.Stop(PTZProfile.token, true, true).RunSynchronously();
+                            return;
+                    }
+                    PTZSession.ContinuousMove(PTZProfile.token, new PTZSpeed() {panTilt = panTilt, zoom = zoom},
+                                              null).RunSynchronously();
                 }
-
-                PTZSession.RelativeMove(PTZProfile.token, vector, speed);
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
             }
         }
 
-        void ProcessOnvifCommand(string command)
+        enum PTZMoveModes
+        {
+            Absolute,
+            Relative,
+            Continuous
+        }
+
+
+        void ProcessOnvifCommand(string name)
         {
             if (PTZProfile != null)
             {
-                var speed = PTZProfile.ptzConfiguration.defaultPTZSpeed;
-                if (command.StartsWith("Preset: "))
+                try
                 {
-                    PTZSession.GotoPreset(PTZProfile.token, command.Substring(7).Trim(), speed);
+                    var l = PTZSession.GetPresets(PTZProfile.token).RunSynchronously();
+                    string t = "";
+                    foreach (var p in l)
+                    {
+                        if (p.name == name)
+                        {
+                            t = p.token;
+                            break;
+                        }
+                    }
+
+                    if (t != "")
+                        PTZSession.GotoPreset(PTZProfile.token, t, null).RunSynchronously();
+
+
+                    
                 }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                
             }
         }
 
@@ -671,13 +880,10 @@ namespace iSpyApplication
             get
             {
                 var pl = new List<string>();
-                if (PTZProfile != null)
+                if (PTZProfile != null && PTZSession!=null)
                 {
                     var presets = PTZSession.GetPresets(PTZProfile.token).RunSynchronously();
-                    foreach (var p in presets)
-                    {
-                        pl.Add("Preset: "+p.name);
-                    }
+                    pl.AddRange(presets.Select(p => p.name));
                 }
                 return pl.ToArray();
             }
@@ -711,9 +917,6 @@ namespace iSpyApplication
             }
             if (_serialPort == null || !_serialPort.IsOpen)
                 return;
-
-            _cameraControl.CalibrateCount = 0;
-            _cameraControl.Calibrating = true;
 
             if (usePelcoP)
             {
@@ -1186,9 +1389,6 @@ namespace iSpyApplication
             Uri uri;
             bool absURL = false;
             
-            _cameraControl.CalibrateCount = 0;
-            _cameraControl.Calibrating = true;
-
             string url = _cameraControl.Camobject.settings.videosourcestring;
 
             if (_cameraControl.Camobject.settings.ptzurlbase.Contains("://"))
@@ -1222,9 +1422,9 @@ namespace iSpyApplication
                 const string s = "http";
                 //if (!String.IsNullOrEmpty(ptz.Prefix))
                 //    s = ptz.Prefix;
-                const int p = 80;
-                //if (ptz.Port > 0)
-                //    p = ptz.Port;
+                int p = 80;
+                if (ptz.port > 0)
+                    p = ptz.port;
                 
                 if (!uri.Scheme.ToLower().StartsWith("http")) //rtsp/mrl replace
                     url = url.Replace(":" + uri.Port + "/", ":" + p + "/");
@@ -1339,6 +1539,14 @@ namespace iSpyApplication
             string ckies = _cameraControl.Camobject.settings.cookies ?? "";
             if (!String.IsNullOrEmpty(ckies))
             {
+                if (!ckies.EndsWith(";"))
+                    ckies += ";";
+            }
+            if (!String.IsNullOrEmpty(ptz.Cookies))
+                ckies += ptz.Cookies;
+
+            if (!String.IsNullOrEmpty(ckies))
+            {
                 ckies = ckies.Replace("[USERNAME]", _cameraControl.Camobject.settings.login);
                 ckies = ckies.Replace("[PASSWORD]", _cameraControl.Camobject.settings.password);
                 ckies = ckies.Replace("[CHANNEL]", _cameraControl.Camobject.settings.ptzchannel);
@@ -1394,6 +1602,19 @@ namespace iSpyApplication
             try
             {
                 myRequestState.Response = myWebRequest.EndGetResponse(result);
+
+#if DEBUG
+                using (Stream data = myRequestState.Response.GetResponseStream())
+                {
+                    if (data != null)
+                        using (var reader = new StreamReader(data))
+                        {
+                            string text = reader.ReadToEnd();
+                            Debug.WriteLine("PTZ Response: "+text);
+                        }
+                }
+#endif
+
                 myRequestState.Response.Close();
             }
             catch(Exception ex)

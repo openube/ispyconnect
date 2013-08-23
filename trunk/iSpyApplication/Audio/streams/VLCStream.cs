@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Windows.Forms;
 using AForge.Video;
 using Declarations;
 using Declarations.Events;
@@ -30,7 +33,7 @@ namespace iSpyApplication.Audio.streams
 
 
         #region Audio
-        private float _volume;
+        private float _gain;
         private bool _listening;
 
         private bool _needsSetup = true;
@@ -93,7 +96,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// video source object, for example internal exceptions.</remarks>
         /// 
-        public event VideoSourceErrorEventHandler VideoSourceError;
+        //public event VideoSourceErrorEventHandler VideoSourceError;
 
         /// <summary>
         /// Video playing finished event.
@@ -102,7 +105,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks><para>This event is used to notify clients that the video playing has finished.</para>
         /// </remarks>
         /// 
-        public event PlayingFinishedEventHandler PlayingFinished;
+        //public event PlayingFinishedEventHandler PlayingFinished;
 
         /// <summary>
         /// Video source.
@@ -253,26 +256,27 @@ namespace iSpyApplication.Audio.streams
                 case MediaState.Ended:
                 case MediaState.Stopped:
                 case MediaState.Error:
-
-                    _starting = false;
-                    _isrunning = false;
-                    //if file source then dont reconnect
-                    if (!Seekable)
+                    if (_isrunning)
                     {
-                        if (PlayingFinished != null)
-                            PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
-                        if (AudioFinished != null)
-                            AudioFinished(sender, ReasonToFinishPlaying.VideoSourceError);
+                        _starting = false;
+                        _isrunning = false;
+                        //if file source then dont reconnect
+                        if (!Seekable)
+                        {
+                            //if (PlayingFinished != null)
+                            //    PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
+                            if (AudioFinished != null)
+                                AudioFinished(sender, ReasonToFinishPlaying.VideoSourceError);
 
+                        }
+                        else
+                        {
+                            //if (PlayingFinished != null)
+                            //    PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                            if (AudioFinished != null)
+                                AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                        }
                     }
-                    else
-                    {
-                        if (PlayingFinished != null)
-                            PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
-                        if (AudioFinished != null)
-                            AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
-                    }
-
                     break;
             }
         }
@@ -282,7 +286,7 @@ namespace iSpyApplication.Audio.streams
 
         public int TimeOut = 8000;
 
-        public void CheckVideoTimestamp()
+        public void CheckAudioTimestamp()
         {
             //some feeds keep returning frames even when the connection is lost
             //this detects that by comparing timestamps from the eventstimechanged event
@@ -323,16 +327,16 @@ namespace iSpyApplication.Audio.streams
         #region Audio Stuff
         public event DataAvailableEventHandler DataAvailable;
         public event LevelChangedEventHandler LevelChanged;
-        public event AudioSourceErrorEventHandler AudioSourceError;
+        //public event AudioSourceErrorEventHandler AudioSourceError;
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
@@ -485,14 +489,23 @@ namespace iSpyApplication.Audio.streams
                 if (_mPlayer.IsPlaying)
                 {
                     _isstopping = true;
-                    _mPlayer.Stop();
-                }
-                else
-                {
+                    //_mPlayer.CustomRenderer.RemoveCallbacks();
+                    //_mPlayer.CustomAudioRenderer.RemoveCallbacks();
+                    var t = new Thread(StopAudio);
+                    t.Start();
+                    while (t.IsAlive)
+                    {
+                        t.Join();
+                        Application.DoEvents();
+                    }
                     _isstopping = false;
                 }
-
             }
+        }
+
+        private void StopAudio()
+        {
+            _mPlayer.Stop();
         }
         #endregion
 
@@ -506,25 +519,39 @@ namespace iSpyApplication.Audio.streams
 
         private void EventsPlayerEncounteredError(object sender, EventArgs e)
         {
+            DisposePlayer();
+            Duration = Time = 0;
             _starting = false;
 
-            if (VideoSourceError != null)
-                VideoSourceError(sender, new VideoSourceErrorEventArgs("Error playing stream"));
-            if (AudioSourceError != null)
-                AudioSourceError(sender, new AudioSourceErrorEventArgs("Error playing stream"));
+            //if (VideoSourceError != null)
+            //    VideoSourceError(sender, new VideoSourceErrorEventArgs("Error playing stream"));
+            //if (AudioSourceError != null)
+            //    AudioSourceError(sender, new AudioSourceErrorEventArgs("Error playing stream"));
+
+            if (_isrunning)
+            {
+                _isrunning = false;
+                Thread.Sleep(200); //lets buffered frames stop before raising finished event
+                if (AudioFinished != null)
+                    AudioFinished(sender, ReasonToFinishPlaying.DeviceLost);
+            }
         }
 
         private void EventsPlayerStopped(object sender, EventArgs e)
         {
             DisposePlayer();
+
             Duration = Time = 0;
             _starting = false;
 
-            _isrunning = false;
-            if (PlayingFinished != null)
-                PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
-            if (AudioFinished != null)
-                AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+            if (_isrunning)
+            {
+                _isrunning = false;
+                //if (PlayingFinished != null)
+                //    PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                if (AudioFinished != null)
+                    AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+            }
         }
 
         private void EventsPlayerStoppedForced(object sender, EventArgs e)
@@ -533,12 +560,15 @@ namespace iSpyApplication.Audio.streams
             Duration = Time = 0;
             _starting = false;
 
-            _isrunning = false;
+            if (_isrunning)
+            {
+                _isrunning = false;
 
-            if (PlayingFinished != null)
-                PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
-            if (AudioFinished != null)
-                AudioFinished(sender, ReasonToFinishPlaying.VideoSourceError);
+                //if (PlayingFinished != null)
+                //    PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
+                if (AudioFinished != null)
+                    AudioFinished(sender, ReasonToFinishPlaying.DeviceLost);
+            }
 
         }
 

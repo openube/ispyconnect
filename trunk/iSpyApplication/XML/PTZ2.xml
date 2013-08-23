@@ -2091,6 +2091,7 @@
       <Make Name="Zmodo" Model="CM-I11123BK" />
     </Makes>
     <CommandURL>/decoder_control.cgi</CommandURL>
+    <Cookies>browser=1;noshow=0</Cookies>
     <Commands>
       <Center>command=25</Center>
       <Left>command=6</Left>
@@ -4305,7 +4306,6 @@
   </Camera>
   <Camera id="174">
     <Makes>
-      <Make Name="Foscam" Model="FI9821W" />
       <Make Name="Foscam" Model="FI9801W" />
       <Make Name="Foscam" Model="FI9802W" />
     </Makes>
@@ -4818,7 +4818,8 @@
     <Makes>
       <Make Name="Tenvis" Model="IPROBOT 3" />
     </Makes>
-    <CommandURL>http://192.168.10.101:8001/</CommandURL>
+    <CommandURL></CommandURL>
+    <port>8001</port>
     <Commands>
       <Center>
       </Center>
@@ -4866,6 +4867,30 @@
       <Command Name="Position D2 Set">ptzctrl?act=setpsp&amp;para=14</Command>
       <Command Name="Position D3 Set">ptzctrl?act=setpsp&amp;para=15</Command>
       <Command Name="Position D4 Set">ptzctrl?act=setpsp&amp;para=16</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="187">
+    <Makes>
+      <Make Name="Foscam" Model="FI9821W" />
+    </Makes>
+    <CommandURL>/cgi-bin/CGIProxy.fcgi?usr=[USERNAME]&amp;pwd=[PASSWORD]</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>cmd=ptzMoveLeft</Left>
+      <LeftUp>cmd=ptzMoveTopLeft</LeftUp>
+      <Right>cmd=ptzMoveRight</Right>
+      <RightUp>cmd=ptzMoveTopRight</RightUp>
+      <Up>cmd=ptzMoveUp</Up>
+      <Down>cmd=ptzMoveDown</Down>
+      <LeftDown>cmd=ptzMoveBottomLeft</LeftDown>
+      <RightDown>cmd=ptzMoveBottomRight</RightDown>
+      <Stop>cmd=ptzStopRun</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+    </Commands>
+    <ExtendedCommands>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>

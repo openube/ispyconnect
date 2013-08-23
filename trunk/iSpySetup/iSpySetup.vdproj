@@ -574,7 +574,7 @@
         "Entry"
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
-        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -598,6 +598,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
+        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "OwnerKey" = "8:_9BCF7BEA32002097A97E54F731952FC6"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -605,12 +611,6 @@
         {
         "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
         "OwnerKey" = "8:_418BBD42AB83D024F6CDC3446D7BC340"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B15C317A261DE8266E9B1A804446F239"
-        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -772,6 +772,12 @@
         "Entry"
         {
         "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
         "OwnerKey" = "8:_0286CBF0C7913EC19053FD74A498177E"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -791,12 +797,6 @@
         {
         "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
         "OwnerKey" = "8:_426AF4098C53474EA56B5A1C16459D63"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
-        "OwnerKey" = "8:_F47D2CB00CA7D827F0FA1F314216530F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -833,6 +833,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0EF428F9CB93474EB5E2B849BCF54454"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0286CBF0C7913EC19053FD74A498177E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1042,6 +1048,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_418BBD42AB83D024F6CDC3446D7BC340"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1049,18 +1061,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_9BCF7BEA32002097A97E54F731952FC6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0286CBF0C7913EC19053FD74A498177E"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FF1BB715402C71A84EC0AE6BC61DF7C7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1286,7 +1286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.2.6.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.3.1.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_0286CBF0C7913EC19053FD74A498177E"
@@ -1765,7 +1765,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.5.9.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:AForge.Video.DirectShow, Version=2.6.0.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_426AF4098C53474EA56B5A1C16459D63"
@@ -3511,15 +3511,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{6D0B7F31-04BA-4879-8E97-571B0C650387}"
-        "PackageCode" = "8:{4AEADBC8-AEC5-4169-B82B-C58961896B07}"
+        "ProductCode" = "8:{DFB94476-3AF6-4081-A173-78325511B67A}"
+        "PackageCode" = "8:{C2B54474-5EBD-4C9E-80F6-C7077F46B026}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:5.3.8"
+        "ProductVersion" = "8:5.4.4"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
@@ -4412,7 +4412,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0EF428F9CB93474EB5E2B849BCF54454"
             {
-            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Release\\iSpy.exe"
+            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Debug\\iSpy.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -4440,7 +4440,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1B124CB969334F1AB9A329ACE33C490A"
             {
-            "SourcePath" = "8:..\\InstallHelper\\obj\\x86\\Release\\InstallHelper.exe"
+            "SourcePath" = "8:..\\InstallHelper\\obj\\x86\\Debug\\InstallHelper.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -4468,7 +4468,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5C5CCCBDCC3C4080A717F6665E95BD4D"
             {
-            "SourcePath" = "8:..\\iSpyServerSetup\\Release\\iSpyServerSetup.msi"
+            "SourcePath" = "8:..\\iSpyServerSetup\\Debug\\iSpyServerSetup.msi"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_91FF0471C59346029346D9D314477277"
@@ -4496,7 +4496,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DBA7E4641307477C8E9706D504556C48"
             {
-            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Release\\iSpyMonitor.exe"
+            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Debug\\iSpyMonitor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"

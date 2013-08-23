@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
+using System.Windows.Forms;
 using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -11,10 +13,9 @@ namespace iSpyApplication.Audio.streams
     {
         private string _source;
         private bool _listening;
-        private float _volume;
+        private float _gain;
         private ManualResetEvent _stopEvent;
         private AudioFileReader _afr;
-        private volatile bool _waitingOnMutex;
 
         private Thread _thread;
 
@@ -56,7 +57,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// audio source object, for example internal exceptions.</remarks>
         /// 
-        public event AudioSourceErrorEventHandler AudioSourceError;
+        //public event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// audio playing finished event.
@@ -79,12 +80,13 @@ namespace iSpyApplication.Audio.streams
             set { _source = value; }
         }
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
-            set { 
-                _volume = value;
-                if (_sampleChannel!=null)
+            get { return _gain; }
+            set
+            {
+                _gain = value;
+                if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
                 }
@@ -122,23 +124,19 @@ namespace iSpyApplication.Audio.streams
             get { return _source != null && _source.IndexOf("://", StringComparison.Ordinal) == -1; }
         }
 
+
+        private volatile bool _isrunning;
         /// <summary>
-        /// State of the audio source.
+        /// State of the video source.
         /// </summary>
         /// 
-        /// <remarks>Current state of audio source object - running or not.</remarks>
+        /// <remarks>Current state of video source object - running or not.</remarks>
         /// 
         public bool IsRunning
         {
             get
             {
-                if (_thread != null)
-                {
-                    // check thread status
-                    if (_thread.Join(0) == false)
-                        return true;
-                }
-                return false;
+                return _isrunning;
             }
         }
 
@@ -196,15 +194,15 @@ namespace iSpyApplication.Audio.streams
 
         private void FfmpegListener()
         {
+            _isrunning = true;
             _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
             _afr = null;
-            _waitingOnMutex = true;
-            Program.WriterMutex.WaitOne();
-            _waitingOnMutex = false;
             bool open = false;
+            string errmsg = "";
             
             try
             {
+                Program.WriterMutex.WaitOne();
                 _afr = new AudioFileReader();
                 int i = _source.IndexOf("://", StringComparison.Ordinal);
                 if (i>-1)
@@ -234,8 +232,7 @@ namespace iSpyApplication.Audio.streams
 
             if (_afr == null || !_afr.IsOpen || !open)
             {
-                if (AudioFinished!=null)
-                    AudioFinished(this, ReasonToFinishPlaying.VideoSourceError);
+                ShutDown("Could not open audio stream" + ": " + _source);
                 return;
             }
 
@@ -252,9 +249,6 @@ namespace iSpyApplication.Audio.streams
             DateTime lastPacket = DateTime.Now;
             bool realTime = !IsFileSource;
 
-            var buffer = new byte[_afr.SampleRate* 2 * _afr.Channels * 2]; //2 second buffer
-            int buffcount = 0;
-            bool err = false;
             try
             {
                 DateTime req = DateTime.Now;
@@ -322,35 +316,51 @@ namespace iSpyApplication.Audio.streams
             }
             catch (Exception e)
             {
-                if (AudioSourceError!=null)
-                    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
-                MainForm.LogExceptionToFile(e);
-
-                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
-                err = true;
+                errmsg = e.Message;
             }
+            ShutDown(errmsg);
+        }
+
+        private void ShutDown(string errmsg)
+        {
+            bool err = !String.IsNullOrEmpty(errmsg);
+            if (err)
+            {
+                //if (AudioSourceError != null)
+                //    AudioSourceError(this, new AudioSourceErrorEventArgs(errmsg));
+
+                MainForm.LogErrorToFile(errmsg + ": " + _source);
+                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
+            }
+
+            if (IsFileSource && !err)
+                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
 
             try
             {
+                Debug.WriteLine("Closing " + _source);
                 _afr.Close();
+                Debug.WriteLine("Closed " + _source);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
+            Debug.WriteLine("Disposing " + _source);
             _afr.Dispose();
+            Debug.WriteLine("Disposed " + _source);
 
             // release events
             _stopEvent.Close();
             _stopEvent.Dispose();
             _stopEvent = null;
 
-            if (IsFileSource && !err)
-                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
-
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
+            Debug.WriteLine("Quit");
+            _isrunning = false;
         }
+
 
         void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
         {
@@ -360,6 +370,7 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
+        private bool _stopping;
         /// <summary>
         /// Stop audio source.
         /// </summary>
@@ -369,28 +380,37 @@ namespace iSpyApplication.Audio.streams
         /// 
         public void Stop()
         {
-            if (IsRunning)
+            if (IsRunning && !_stopping)
             {
+                _stopping = true;
                 if (_afr != null)
                 {
-                    _afr.Abort();
+                    try
+                    {
+                        _afr.Abort();
+                    }
+                    catch
+                    {
+                        //disposed?
+                    }
 
                 }
-                _stopEvent.Set();
-
-                if (!_waitingOnMutex)
+                if (_thread != null && _thread.IsAlive)
                 {
-                    //wait for video source shutdown
-                    //dont change this to a plain join as if a scheduled reconnect coincides with a manual reset there can be a deadlock
-                    _thread.Join(4000);
+                    _stopEvent.Set();
 
+                    while (_thread != null && _thread.IsAlive)
+                    {
+                        try
+                        {
+                            _thread.Join(1000);
+                        }
+                        catch { }
+                        Application.DoEvents();
+                    }
                 }
-                else
-                {
-                    //thread is waiting on the mutex
-                    _thread.Abort();
-                }
-                _waitingOnMutex = false;
+                _thread = null;
+                _stopping = false;
             }
         }
 

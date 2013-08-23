@@ -35,7 +35,7 @@ namespace iSpyApplication.Video
         private string _userAgent = "Mozilla/5.0";
 
         #region Audio
-        private float _volume;
+        private float _gain;
         private bool _listening;
 
         public int BytePacket = 400;
@@ -56,12 +56,12 @@ namespace iSpyApplication.Video
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
@@ -301,7 +301,7 @@ namespace iSpyApplication.Video
                 if (_thread != null)
                 {
                     // check thread status
-                    if (_thread.Join(0) == false)
+                    if (!_thread.Join(0))
                         return true;
 
                     // the thread is not running, so free resources
@@ -387,11 +387,13 @@ namespace iSpyApplication.Video
         /// 
         public void WaitForStop()
         {
-            if (_thread != null)
+            if (IsRunning)
             {
                 // wait for thread stop
-                _thread.Join();
-
+                _stopEvent.Set();
+                _thread.Join(MainForm.ThreadKillDelay);
+                if (_thread != null && _thread.IsAlive)
+                    _thread.Abort();
                 Free();
             }
         }
@@ -410,12 +412,7 @@ namespace iSpyApplication.Video
         /// 
         public void Stop()
         {
-            if (IsRunning)
-            {
-                _stopEvent.Set();
-                _thread.Abort();
-                WaitForStop();
-            }
+            WaitForStop();
         }
 
         /// <summary>
@@ -547,12 +544,12 @@ namespace iSpyApplication.Video
                                         using (var ms = new MemoryStream(buffer, br+4, endPacket-br-8))
                                         {
                                             bitmap = (Bitmap) Image.FromStream(ms);
+                                            // notify client
+                                            NewFrame(this, new NewFrameEventArgs(bitmap));
+                                            // release the image
+                                            bitmap.Dispose();
                                         }
-                                        // notify client
-                                        NewFrame(this, new NewFrameEventArgs(bitmap));
-                                        // release the image
-                                        bitmap.Dispose();
-                                        bitmap = null;
+                                       
 
                                         break;
                                     case "audio/raw":
@@ -633,13 +630,14 @@ namespace iSpyApplication.Video
                 {
                     break;
                 }
-                catch (Exception exception)
+                catch (Exception ex)
                 {
                     // provide information to clients
-                    if (VideoSourceError != null)
-                    {
-                        VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
-                    }
+                    MainForm.LogExceptionToFile(ex); 
+                    //(VideoSourceError != null)
+                    //{
+                    //    VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
+                    //}
                     // wait for a while before the next try
                     Thread.Sleep(250);
                 }

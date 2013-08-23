@@ -141,6 +141,15 @@ namespace iSpyApplication
 
             chkTwitter.Checked = VolumeLevel.Micobject.notifications.sendtwitter;
 
+            //try
+            //{
+            //    tbGain.Value = Convert.ToInt32(VolumeLevel.Micobject.settings.gain*100f);
+            //}
+            //catch (Exception ex)
+            //{
+            //    tbGain.Value = 100;
+            //}
+
             ddlCopyFrom.Items.Clear();
             ddlCopyFrom.Items.Add(new ListItem(LocRm.GetString("CopyFrom"), "-1"));
             foreach (objectsMicrophone c in MainForm.Microphones)
@@ -893,6 +902,12 @@ namespace iSpyApplication
         private void ddlTrigger_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void tbGain_Scroll(object sender, EventArgs e)
+        {
+            //if (VolumeLevel.AudioSource!=null)
+            //    VolumeLevel.Gain = tbGain.Value/100f;
         }
 
     }

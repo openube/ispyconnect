@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
+using System.Windows.Forms;
 using AForge.Video;
 using iSpy.Video.FFMPEG;
 using iSpyApplication.Audio;
@@ -24,11 +25,10 @@ namespace iSpyApplication.Video
         private int _initialSeek = -1;
         
         #region Audio
-        private float _volume;
+        private float _gain;
         private bool _listening;
         private Thread _tOutput;
         private const int MAXBuffer = 60;
-        private volatile bool _waitingOnMutex;
 
         private BufferedWaveProvider _waveProvider;
         public SampleChannel SampleChannel;
@@ -141,6 +141,8 @@ namespace iSpyApplication.Video
             }
         }
 
+
+        private volatile bool _isrunning;
         /// <summary>
         /// State of the video source.
         /// </summary>
@@ -151,16 +153,7 @@ namespace iSpyApplication.Video
         {
              get
             {
-                if (_thread != null)
-                {
-                    // check thread status
-                    if (_thread.Join(0) == false)
-                        return true;
-
-                    // the thread is not running, free resources
-                    _thread = null;
-                }
-                return false;
+                return _isrunning;
             }
         }
 
@@ -178,6 +171,8 @@ namespace iSpyApplication.Video
         public void Start()
         {
              if (IsRunning) return;
+
+             Debug.WriteLine("Starting "+_source);
             _framesReceived = 0;
 
             // create events
@@ -346,19 +341,16 @@ namespace iSpyApplication.Video
         private volatile bool _bufferFull;
         ReasonToFinishPlaying _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
 
-
-
         private void FfmpegListener()
         {
-
+            _isrunning = true;
             _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
             _vfr = null;
-            _waitingOnMutex = true;
-            Program.WriterMutex.WaitOne();
-            _waitingOnMutex = false;
             bool open = false;
+            string errmsg = "";
             try
             {
+                Program.WriterMutex.WaitOne();
                 _vfr = new VideoFileReader();
 
                 //ensure http/https is lower case for string compare in ffmpeg library
@@ -380,25 +372,24 @@ namespace iSpyApplication.Video
             }
             catch (Exception ex)
             {
-                MainForm.LogErrorToFile(ex.Message);
+                MainForm.LogErrorToFile(ex.Message+": "+_source);
             }
             finally
             {
-                try
-                {
-                    Program.WriterMutex.ReleaseMutex();
-                }
-                catch (ObjectDisposedException)
-                {
-                    //can happen on shutdown
-                }
+                Program.WriterMutex.ReleaseMutex();                
             }
+
             if (_vfr == null || !_vfr.IsOpen || !open)
             {
-                if (PlayingFinished!=null)
-                    PlayingFinished(this, ReasonToFinishPlaying.VideoSourceError);
+                ShutDown("Could not open stream" + ": " + _source);
                 return;
             }
+            if (_stopEvent.WaitOne(0))
+            {
+                ShutDown("");
+                return;
+            }
+
             bool hasaudio = false;
             _realtime = !IsFileSource;
 
@@ -420,12 +411,11 @@ namespace iSpyApplication.Video
                     HasAudioStream = null;
                 }
             }
-            Duration = _vfr.Duration;            
-            bool err = false;
+            Duration = _vfr.Duration;
 
             if (!NoBuffer)
             {
-                _tOutput = (new Thread(FrameEmitter));
+                _tOutput = (new Thread(FrameEmitter) {Name="ffmpeg frame emitter"});
                 _tOutput.Start();
             }
             else
@@ -448,11 +438,12 @@ namespace iSpyApplication.Video
             {
                 while (!_stopEvent.WaitOne(5))
                 {
+
                     _bufferFull = !_realtime && (_videoframes.Count > MAXBuffer || _audioframes.Count > MAXBuffer);
                     if (!_paused && !_bufferFull)
                     {
                         if (DecodeFrame(analyseInterval, hasaudio, ref firstmaxdrift, ref maxdrift, ref dtAnalyse)) break;
-                        if (NoBuffer)
+                        if (NoBuffer && !_stopEvent.WaitOne(0))
                         {
                             if (_videoframes.Count > 0)
                             {
@@ -481,45 +472,69 @@ namespace iSpyApplication.Video
                 StopOutput();
             }
             catch (Exception e)
-            {
-                StopOutput();
-
-                if (VideoSourceError != null)
-                    VideoSourceError(this, new VideoSourceErrorEventArgs(e.Message));
-
-                if (AudioSourceError != null)
-                    AudioSourceError(this, new AudioSourceErrorEventArgs(e.Message));
-
-                MainForm.LogExceptionToFile(e);
-                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
-                err = true;
+            {                
+                errmsg = e.Message;
             }
-           
-            if (IsFileSource && !err)
-                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;           
+            ShutDown(errmsg);
+        }
 
+        private void ShutDown(string errmsg)
+        {
+            bool err=!String.IsNullOrEmpty(errmsg);
+            if (err)
+            {
+                //if (VideoSourceError != null)
+                //    VideoSourceError(this, new VideoSourceErrorEventArgs(errmsg));
+
+                //if (AudioSourceError != null)
+                //    AudioSourceError(this, new AudioSourceErrorEventArgs(errmsg));
+
+                MainForm.LogErrorToFile(errmsg);
+                _reasonToStop = ReasonToFinishPlaying.DeviceLost;
+            }
+
+            StopOutput();
+            if (IsFileSource && !err)
+                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+
+            if (_vfr!=null && _vfr.IsOpen)  {
             try
             {
-                 _vfr.Close();
-                
+                Debug.WriteLine("Closing " + _source);
+                _vfr.Close();
+                Debug.WriteLine("Closed " + _source);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            _vfr.Dispose();           
+            Debug.WriteLine("Disposing " + _source);
+            try
+            {
+                _vfr.Dispose();
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            Debug.WriteLine("Disposed " + _source);
+                }
 
             // release events
-            _stopEvent.Close();
-            _stopEvent.Dispose();
-            _stopEvent = null;
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+            }
 
-            
             if (PlayingFinished != null)
                 PlayingFinished(this, _reasonToStop);
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
 
+            Debug.WriteLine("Quit");
+            _isrunning = false;
         }
 
         private DateTime _lastFrame = DateTime.MinValue;
@@ -527,8 +542,9 @@ namespace iSpyApplication.Video
         private bool DecodeFrame(int analyseInterval, bool hasaudio, ref double firstmaxdrift, ref double maxdrift,
                                  ref DateTime dtAnalyse)
         {
-
             object frame = _vfr.ReadFrame();
+            if (_stopEvent.WaitOne(0))
+                return false;
             switch (_vfr.LastFrameType)
             {
                 case 0:
@@ -702,10 +718,16 @@ namespace iSpyApplication.Video
 
         private void ClearBuffer()
         {
-            _videoframes.DisposeAll();
-            _videoframes.Clear();
-            _audioframes.DisposeAll();
-            _audioframes.Clear();
+            if (_videoframes != null)
+            {
+                _videoframes.DisposeAll();
+                _videoframes.Clear();
+            }
+            if (_audioframes != null)
+            {
+                _audioframes.DisposeAll();
+                _audioframes.Clear();
+            }
         }
         public void Seek(float percentage)
         {
@@ -731,12 +753,12 @@ namespace iSpyApplication.Video
 
 
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (SampleChannel != null)
                 {
                     SampleChannel.Volume = value;
@@ -789,38 +811,44 @@ namespace iSpyApplication.Video
             Stop();
         }
 
-
+        private bool _stopping;
         /// <summary>
         /// Stop video source.
         /// </summary>
         /// 
         public void Stop()
         {
-            if (IsRunning)
+            if (IsRunning && !_stopping)
             {
+                _stopping = true;
                 if (_vfr != null)
                 {
-                    _vfr.Abort();
-                    
-                }
-                _stopEvent.Set();
+                    try
+                    {
+                        _vfr.Abort();
+                    }
+                    catch
+                    {
+                        //disposed?
+                    }
 
-                if (!_waitingOnMutex)
+                }
+                if (_thread != null && _thread.IsAlive)
                 {
-                    //wait for video source shutdown
-                    //dont change this to a plain join as if a scheduled reconnect coincides with a manual reset there can be a deadlock
-                    _thread.Join(4000);
+                    _stopEvent.Set();
 
-                    if (_thread.Join(0))
-                        _thread.Abort();
-
+                    while (_thread!=null && _thread.IsAlive)
+                    {
+                        try
+                        {
+                            _thread.Join(50);
+                        }
+                        catch{}
+                        Application.DoEvents();
+                    }
                 }
-                else
-                {
-                    //thread is waiting on the mutex
-                    _thread.Abort();
-                }
-                _waitingOnMutex = false;
+                _thread = null;
+                _stopping = false;
             }
         }
         #endregion
