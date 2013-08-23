@@ -362,11 +362,13 @@ namespace iSpyApplication.Video
         /// 
         public void WaitForStop( )
 		{
-			if ( _thread != null )
-			{
+            if (IsRunning)
+            {
 				// wait for thread stop
-				_thread.Join( );
-
+                _stopEvent.Set();
+                _thread.Join(MainForm.ThreadKillDelay);
+                if (_thread != null && _thread.IsAlive)
+                    _thread.Abort();
 				Free( );
 			}
 		}
@@ -387,9 +389,6 @@ namespace iSpyApplication.Video
 		{
 			if ( IsRunning )
 			{
-                _stopEvent.Set( );
-                if (_thread!=null && _thread.IsAlive)
-                    _thread.Abort( );
 				WaitForStop( );
 			}
 		}
@@ -580,13 +579,14 @@ namespace iSpyApplication.Video
                 {
                     break;
                 }
-                catch ( Exception exception )
+                catch ( Exception ex )
 				{
                     // provide information to clients
-                    if ( VideoSourceError != null )
-                    {
-                        VideoSourceError( this, new VideoSourceErrorEventArgs( exception.Message ) );
-                    }
+                    MainForm.LogErrorToFile(ex.Message);
+                    //if ( VideoSourceError != null )
+                    //{
+                    //    VideoSourceError( this, new VideoSourceErrorEventArgs( exception.Message ) );
+                    //}
                     // wait for a while before the next try
                     Thread.Sleep( 250 );
                 }

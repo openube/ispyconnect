@@ -584,6 +584,7 @@ namespace iSpyApplication
                 bool bAlertVlc = false;
                 int camid = 0;
                 string path2;
+                _cameras = _cameras.OrderByDescending(p => p.settings.sourceindex != 10).ToList();
                 foreach (objectsCamera cam in _cameras)
                 {
                     if (cam.id >= camid)
@@ -676,6 +677,12 @@ namespace iSpyApplication
                     {
                         cam.settings.audiousername = "";
                         cam.settings.audiopassword = "";
+                    }
+
+                    if (String.IsNullOrEmpty(cam.settings.timestampforecolor))
+                    {
+                        cam.settings.timestampforecolor = "255,255,255";
+                        cam.settings.timestampbackcolor = "70,70,70";
                     }
 
                     if (Math.Abs(cam.detector.minsensitivity - 0) < double.Epsilon)
@@ -933,29 +940,77 @@ namespace iSpyApplication
 
         private void RenderObjects()
         {
-            foreach (objectsCamera oc in Cameras)
+            
+            for (int index = 0; index < Cameras.Count; index++)
             {
+                objectsCamera oc = Cameras[index];
                 DisplayCamera(oc);
             }
-            foreach (objectsMicrophone om in Microphones)
+            
+            for (int index = 0; index < Microphones.Count; index++)
             {
+                objectsMicrophone om = Microphones[index];
                 DisplayMicrophone(om);
             }
-            foreach (objectsFloorplan ofp in FloorPlans)
+
+            for (int index = 0; index < FloorPlans.Count; index++)
             {
+                objectsFloorplan ofp = FloorPlans[index];
                 DisplayFloorPlan(ofp);
             }
+
+            for (int index = 0; index < Cameras.Count; index++)
+            {
+                objectsCamera oc = Cameras[index];
+                var cw = GetCameraWindow(oc.id);
+                if (Conf.AutoSchedule && oc.schedule.active && oc.schedule.entries.Any())
+                {
+                    oc.settings.active = false;
+                    cw.ApplySchedule();
+                }
+                else
+                {
+                    try
+                    {
+                        if (oc.settings.active)
+                            cw.Enable();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogExceptionToFile(ex);
+                    }
+                }
+            }
+
+            for (int index = 0; index < Microphones.Count; index++)
+            {
+                objectsMicrophone om = Microphones[index];
+                var vl = GetVolumeLevel(om.id);
+                if (Conf.AutoSchedule && om.schedule.active && om.schedule.entries.Any())
+                {
+                    om.settings.active = false;
+                    vl.ApplySchedule();
+                }
+                else
+                {
+                    if (om.settings.active)
+                        vl.Enable();
+                }
+            }
+
+
             bool cam = false;
             if (_pnlCameras.Controls.Count > 0)
             {
                 //prevents layering issues
-                foreach (var c in _pnlCameras.Controls)
+                for (int index = 0; index < _pnlCameras.Controls.Count; index++)
                 {
+                    var c = _pnlCameras.Controls[index];
                     var cw = c as CameraWindow;
                     if (cw != null && cw.VolumeControl == null)
                     {
                         cam = true;
-                        //cw.BringToFront();
+                        cw.BringToFront();
                     }
                 }
                 _pnlCameras.Controls[0].Focus();
@@ -1074,7 +1129,7 @@ namespace iSpyApplication
             fpc.MouseMove += FloorPlanMouseMove;
         }
 
-        internal void DisplayMicrophone(objectsMicrophone mic)
+        private void DisplayMicrophone(objectsMicrophone mic)
         {
             var micControl = new VolumeLevel(mic);
             SetMicrophoneEvents(micControl);
@@ -1084,17 +1139,6 @@ namespace iSpyApplication
             micControl.Size = new Size(mic.width, mic.height);
             micControl.BringToFront();
             micControl.Tag = GetControlIndex();
-
-            if (Conf.AutoSchedule && mic.schedule.active && mic.schedule.entries.Any())
-            {
-                mic.settings.active = false;
-                micControl.ApplySchedule();
-            }
-            else
-            {
-                if (mic.settings.active)
-                    micControl.Enable();
-            }
 
             string path = Conf.MediaDirectory + "audio\\" + mic.directory + "\\";
             if (!Directory.Exists(path))
@@ -1545,7 +1589,9 @@ namespace iSpyApplication
             oc.settings.accessgroups = "";
             oc.settings.nobuffer = true;
             oc.settings.reconnectinterval = 0;
-
+            oc.settings.timestampforecolor = "255,255,255";
+            oc.settings.timestampbackcolor = "70,70,70";
+            
             oc.settings.youtube = new objectsCameraSettingsYoutube
             {
                 autoupload = false,
@@ -1558,8 +1604,7 @@ namespace iSpyApplication
             oc.settings.resize = false;
 
             if (VlcHelper.VlcInstalled)
-                oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config" + NL +
-                                      "--plugin-path=\"" + VlcHelper.VlcPluginsFolder + "\"";
+                oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
             else
                 oc.settings.vlcargs = "";
 
@@ -1676,8 +1721,7 @@ namespace iSpyApplication
             om.settings.buffer = 4;
             om.settings.samples = 8000;
             om.settings.bits = 16;
-            om.settings.volume = 50;
-            om.settings.gain = 1;
+            om.settings.gain = 100;
             om.settings.channels = 1;
             om.settings.decompress = true;
             om.settings.smsnumber = MobileNumber;
@@ -1685,8 +1729,7 @@ namespace iSpyApplication
             om.settings.active = false;
             om.settings.notifyondisconnect = false;
             if (VlcHelper.VlcInstalled)
-                om.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config" + NL + "--plugin-path=\"" +
-                                      VlcHelper.VlcPluginsFolder + "\"";
+                om.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
             else
                 om.settings.vlcargs = "";
 
@@ -2026,6 +2069,20 @@ namespace iSpyApplication
 
         private void LoadObjectList(string fileName)
         {
+
+            if (_cameras != null && (_cameras.Count > 0 || _microphones.Count > 0 || _floorplans.Count > 0))
+            {
+                switch(MessageBox.Show(this,"Save your current objects first?",LocRm.GetString("Confirm"),MessageBoxButtons.YesNoCancel))
+                {
+                    case DialogResult.Yes:
+                        SaveObjectList();
+                        break;
+                    case DialogResult.No:
+                        break;
+                    case DialogResult.Cancel:
+                        return;
+                }
+            }
             _houseKeepingTimer.Stop();
             _tsslStats.Text = LocRm.GetString("Loading");
             Application.DoEvents();
@@ -2136,7 +2193,7 @@ namespace iSpyApplication
 
             vl.Micobject.settings.accessgroups = "";
             SetNewStartPosition();
-            vl.Enable();
+            //vl.Enable();
             return vl;
         }
 
@@ -2240,7 +2297,12 @@ namespace iSpyApplication
         {
             string[] cfg = ((ToolStripMenuItem)sender).Tag.ToString().Split('|');
             int camid = Convert.ToInt32(cfg[0]);
-            GetCameraWindow(camid).PTZ.SendPTZCommand(cfg[1]);
+            var cw = GetCameraWindow(camid);
+            if (cw!=null && cw.PTZ!=null)
+            {
+                cw.Calibrating = true;
+                cw.PTZ.SendPTZCommand(cfg[1]);
+            }
         }
 
         private static void CameraControlMouseWheel(object sender, MouseEventArgs e)
@@ -2248,8 +2310,15 @@ namespace iSpyApplication
             var cameraControl = (CameraWindow)sender;
 
             cameraControl.PTZNavigate = false;
-            cameraControl.PTZ.SendPTZCommand(e.Delta > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut, true);
-            ((HandledMouseEventArgs)e).Handled = true;
+            if (cameraControl.PTZ != null)
+            {
+                cameraControl.Calibrating = true;
+                cameraControl.PTZ.SendPTZCommand(e.Delta > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut, true);
+                if (cameraControl.PTZ.IsContinuous)
+                    cameraControl.PTZ.SendPTZCommand(Enums.PtzCommand.Stop);
+                ((HandledMouseEventArgs) e).Handled = true;
+                
+            }
         }
 
         private static void CameraControlMouseUp(object sender, MouseEventArgs e)
@@ -2260,12 +2329,6 @@ namespace iSpyApplication
                 case MouseButtons.Left:
                     cameraControl.Camobject.x = cameraControl.Left;
                     cameraControl.Camobject.y = cameraControl.Top;
-                    break;
-                case MouseButtons.Middle:
-                    cameraControl.PTZNavigate = false;
-                    PTZSettings2Camera ptz = PTZs.SingleOrDefault(p => p.id == cameraControl.Camobject.ptz);
-                    if (ptz != null)
-                        cameraControl.PTZ.SendPTZCommand(ptz.Commands.Stop, true);
                     break;
             }
         }
@@ -2439,7 +2502,7 @@ namespace iSpyApplication
 
         #region RestoreSavedCameras
 
-        internal void DisplayCamera(objectsCamera cam)
+        private void DisplayCamera(objectsCamera cam)
         {
             var cameraControl = new CameraWindow(cam);
             SetCameraEvents(cameraControl);
@@ -2449,24 +2512,6 @@ namespace iSpyApplication
             cameraControl.Size = new Size(cam.width, cam.height);
             cameraControl.BringToFront();
             cameraControl.Tag = GetControlIndex();
-
-            if (Conf.AutoSchedule && cam.schedule.active && cam.schedule.entries.Any())
-            {
-                cam.settings.active = false;
-                cameraControl.ApplySchedule();
-            }
-            else
-            {
-                try
-                {
-                    if (cam.settings.active)
-                        cameraControl.Enable();
-                }
-                catch (Exception ex)
-                {
-                    LogExceptionToFile(ex);
-                }
-            }
 
             string path = Conf.MediaDirectory + "video\\" + cam.directory + "\\";
             if (!Directory.Exists(path))

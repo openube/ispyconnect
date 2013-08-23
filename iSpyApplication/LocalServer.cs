@@ -1540,9 +1540,14 @@ namespace iSpyApplication
                                 {
                                     try
                                     {
+                                        value = Uri.UnescapeDataString(value);
+                                        cw.Calibrating = true;
+                                        Console.WriteLine("set calibrating");
                                         if (value.StartsWith("ispydir_"))
+                                        {
                                             cw.PTZ.SendPTZCommand(
                                                 (Enums.PtzCommand) Convert.ToInt32(value.Replace("ispydir_", "")));
+                                        }
                                         else
                                             cw.PTZ.SendPTZCommand(value, true);
                                     }
@@ -2435,6 +2440,45 @@ namespace iSpyApplication
                         resp = "OK";
                     }
                     break;
+                case "togglealertmode":
+                    {
+                        switch (otid)
+                        {
+                            case 1:
+                                VolumeLevel vl = _parent.GetVolumeLevel(oid);
+                                if (vl != null)
+                                {
+                                        switch (vl.Micobject.alerts.mode)
+                                        {
+                                            case "sound":
+                                                vl.Micobject.alerts.mode = "nosound";
+                                                break;
+                                            case "nosound":
+                                                vl.Micobject.alerts.mode = "sound";
+                                                break;
+
+                                        }
+                                }
+                                break;
+                            case 2:
+                                CameraWindow cw = _parent.GetCameraWindow(oid);
+                                if (cw != null)
+                                {
+                                    switch (cw.Camobject.alerts.mode)
+                                    {
+                                        case "movement":
+                                            cw.Camobject.alerts.mode = "nomovement";
+                                            break;
+                                        case "nomovement":
+                                            cw.Camobject.alerts.mode = "movement";
+                                            break;
+                                    }
+                                }
+                                break;
+                        }
+                        resp = "OK";
+                    }
+                    break;
             }
             if (func!="")
                 resp = func.Replace("result", "\"" + resp + "\"");
@@ -3052,43 +3096,53 @@ namespace iSpyApplication
                     if (!cw.LastFrameNull)
                     {
                         Bitmap b = cw.LastFrame;
-                        using (var imageStream = new MemoryStream())
+                        if (b != null)
                         {
-
-                            if (w > 0)
+                            using (var imageStream = new MemoryStream())
                             {
-                                //resize
-                                if (h == 0)
+                                try
                                 {
-                                    var r = b.Width/w;
-                                    h = b.Height/r;
+                                    if (w > 0)
+                                    {
+                                        //resize
+                                        if (h == 0)
+                                        {
+                                            var r = b.Width/w;
+                                            h = b.Height/r;
+                                        }
+                                        Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
+                                        Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
+
+                                        // put the image into the memory stream
+
+                                        myThumbnail.Save(imageStream, ImageFormat.Jpeg);
+                                        myThumbnail.Dispose();
+                                    }
+                                    else
+                                    {
+                                        b.Save(imageStream, ImageFormat.Jpeg);
+                                    }
+
+                                    imageStream.Position = 0;
+                                    // load the byte array with the image             
+                                    b.Dispose();
+                                    Byte[] imageArray = imageStream.GetBuffer();
+                                    sResponse +=
+                                        "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
+                                        imageArray.Length + "\r\n\r\n";
+
+                                    Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
+
+                                    SendToBrowser(bSendData, mySocket);
+                                    sResponse = "";
+                                    SendToBrowser(imageArray, mySocket);
+                                    imageStream.Close();
                                 }
-                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback; 
-                                Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
+                                catch
+                                {
 
-                                // put the image into the memory stream
-
-                                myThumbnail.Save(imageStream, ImageFormat.Jpeg);
-                                myThumbnail.Dispose();
+                                }
                             }
-                            else
-                            {
-                                b.Save(imageStream, ImageFormat.Jpeg);
-                            }
-
-                            imageStream.Position = 0;
-                            // load the byte array with the image             
-                            b.Dispose();
-                            Byte[] imageArray = imageStream.GetBuffer();
-                            sResponse += "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
-                                         imageArray.Length + "\r\n\r\n";
-
-                            Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
-
-                            SendToBrowser(bSendData, mySocket);
-                            sResponse = "";
-                            SendToBrowser(imageArray, mySocket);
-                            imageStream.Close();
                         }
                         Thread.Sleep(MainForm.Conf.MJPEGStreamInterval);//throttle it
                     }
@@ -3191,7 +3245,7 @@ namespace iSpyApplication
                         {
                             g.DrawImage(img, x, y, camw, camh);
                         }
-                        g.FillRectangle(MainForm.TimestampBackgroundBrush, x, y+camh-20, camw, y+camh);
+                        g.FillRectangle(MainForm.OverlayBackgroundBrush, x, y + camh - 20, camw, y + camh);
                         g.DrawString(cw.Camobject.name,MainForm.Drawfont,Brushes.White,x+2,y+camh-17);
                         
 

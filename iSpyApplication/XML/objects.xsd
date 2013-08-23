@@ -40,6 +40,8 @@
                                                     <xs:element name="timestamplocation" type="xs:int"/>
                                                     <xs:element name="timestampfontsize" type="xs:int" default="10"/>
                                                     <xs:element name="timestampoffset" type="xs:decimal" default="0"/>
+                                                    <xs:element name="timestampforecolor" type="xs:string" default="0"/>
+                                                    <xs:element name="timestampbackcolor" type="xs:string" default="0"/>
                                                     <xs:element name="desktoparea" type="xs:string"/>
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="ptzusername" type="xs:string" default=""/>

@@ -184,6 +184,7 @@ namespace iSpyApplication
                                 angle = (0 - Math.PI) - angle;
                         }
 
+                        cw.Calibrating = true;
                         cw.PTZ.SendPTZDirection(angle);
                         if (!cw.PTZ.DigitalPTZ)
                             _needstop = _sentdirection = true;
@@ -197,6 +198,7 @@ namespace iSpyApplication
                         {
                             if (Conf.Joystick.InvertZAxis)
                                 z = 0-z;
+                            cw.Calibrating = true;
                             cw.PTZ.SendPTZCommand(z > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut);
 
                             if (!cw.PTZ.DigitalZoom)

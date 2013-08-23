@@ -67,6 +67,7 @@
             this.btnBack = new System.Windows.Forms.Button();
             this.llblDownloadVLC = new System.Windows.Forms.LinkLabel();
             this.llblScan = new System.Windows.Forms.LinkLabel();
+            this.llblFilter = new System.Windows.Forms.LinkLabel();
             this.pnlOptions = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlConfig = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
@@ -87,11 +88,10 @@
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.label15 = new System.Windows.Forms.Label();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
-            this.pnlmain = new System.Windows.Forms.Panel();
             this.tsddScanner = new System.Windows.Forms.ToolStripDropDownButton();
             this.quitScannerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.llblFilter = new System.Windows.Forms.LinkLabel();
+            this.tsslCurrent = new System.Windows.Forms.ToolStripStatusLabel();
+            this.pnlmain = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.tbl2.SuspendLayout();
@@ -147,7 +147,7 @@
             this.ddlMake.FormattingEnabled = true;
             this.ddlMake.Location = new System.Drawing.Point(3, 3);
             this.ddlMake.Name = "ddlMake";
-            this.ddlMake.Size = new System.Drawing.Size(231, 99);
+            this.ddlMake.Size = new System.Drawing.Size(231, 255);
             this.ddlMake.TabIndex = 0;
             this.ddlMake.SelectedIndexChanged += new System.EventHandler(this.ddlMake_SelectedIndexChanged);
             // 
@@ -335,14 +335,14 @@
             this.tbl2.Controls.Add(this.chkRTSP, 1, 2);
             this.tbl2.Controls.Add(this.chkHTTP, 1, 3);
             this.tbl2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbl2.Location = new System.Drawing.Point(153, 153);
+            this.tbl2.Location = new System.Drawing.Point(153, 309);
             this.tbl2.Name = "tbl2";
             this.tbl2.RowCount = 4;
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tbl2.Size = new System.Drawing.Size(409, 130);
+            this.tbl2.Size = new System.Drawing.Size(409, 196);
             this.tbl2.TabIndex = 0;
             // 
             // label13
@@ -412,19 +412,20 @@
             // 
             // flowLayoutPanel1
             // 
+            this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.Controls.Add(this.ddlMake);
             this.flowLayoutPanel1.Controls.Add(this.linkLabel1);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(100, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 105);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 261);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 113);
+            this.label11.Location = new System.Drawing.Point(3, 269);
             this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(36, 13);
@@ -435,7 +436,7 @@
             // 
             this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlModel.FormattingEnabled = true;
-            this.ddlModel.Location = new System.Drawing.Point(103, 108);
+            this.ddlModel.Location = new System.Drawing.Point(103, 264);
             this.ddlModel.Name = "ddlModel";
             this.ddlModel.Size = new System.Drawing.Size(149, 21);
             this.ddlModel.TabIndex = 8;
@@ -452,9 +453,9 @@
             // 
             this.panel1.Controls.Add(this.flowLayoutPanel3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(3, 428);
+            this.panel1.Location = new System.Drawing.Point(3, 442);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(706, 32);
+            this.panel1.Size = new System.Drawing.Size(702, 32);
             this.panel1.TabIndex = 5;
             // 
             // flowLayoutPanel3
@@ -468,13 +469,13 @@
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(706, 32);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(702, 32);
             this.flowLayoutPanel3.TabIndex = 3;
             // 
             // btnNext
             // 
             this.btnNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNext.Location = new System.Drawing.Point(628, 3);
+            this.btnNext.Location = new System.Drawing.Point(624, 3);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 0;
@@ -485,7 +486,7 @@
             // btnBack
             // 
             this.btnBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBack.Location = new System.Drawing.Point(547, 3);
+            this.btnBack.Location = new System.Drawing.Point(543, 3);
             this.btnBack.Name = "btnBack";
             this.btnBack.Size = new System.Drawing.Size(75, 23);
             this.btnBack.TabIndex = 1;
@@ -496,7 +497,7 @@
             // llblDownloadVLC
             // 
             this.llblDownloadVLC.AutoSize = true;
-            this.llblDownloadVLC.Location = new System.Drawing.Point(351, 6);
+            this.llblDownloadVLC.Location = new System.Drawing.Point(347, 6);
             this.llblDownloadVLC.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.llblDownloadVLC.Name = "llblDownloadVLC";
             this.llblDownloadVLC.Size = new System.Drawing.Size(190, 13);
@@ -508,7 +509,7 @@
             // llblScan
             // 
             this.llblScan.AutoSize = true;
-            this.llblScan.Location = new System.Drawing.Point(201, 6);
+            this.llblScan.Location = new System.Drawing.Point(197, 6);
             this.llblScan.Margin = new System.Windows.Forms.Padding(6);
             this.llblScan.Name = "llblScan";
             this.llblScan.Size = new System.Drawing.Size(141, 13);
@@ -516,6 +517,18 @@
             this.llblScan.TabStop = true;
             this.llblScan.Text = "Scan camera for more URLs";
             this.llblScan.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblScan_LinkClicked);
+            // 
+            // llblFilter
+            // 
+            this.llblFilter.AutoSize = true;
+            this.llblFilter.Location = new System.Drawing.Point(71, 6);
+            this.llblFilter.Margin = new System.Windows.Forms.Padding(6);
+            this.llblFilter.Name = "llblFilter";
+            this.llblFilter.Size = new System.Drawing.Size(114, 13);
+            this.llblFilter.TabIndex = 4;
+            this.llblFilter.TabStop = true;
+            this.llblFilter.Text = "Check and filter results";
+            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
             // pnlOptions
             // 
@@ -530,9 +543,9 @@
             // pnlConfig
             // 
             this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
-            this.pnlConfig.Location = new System.Drawing.Point(168, 20);
+            this.pnlConfig.Location = new System.Drawing.Point(38, 23);
             this.pnlConfig.Name = "pnlConfig";
-            this.pnlConfig.Size = new System.Drawing.Size(565, 286);
+            this.pnlConfig.Size = new System.Drawing.Size(565, 508);
             this.pnlConfig.TabIndex = 6;
             // 
             // tableLayoutPanel4
@@ -548,15 +561,15 @@
             this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 2;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 306F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 286);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 508);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // rdoUnlisted
             // 
             this.rdoUnlisted.AutoSize = true;
-            this.rdoUnlisted.Location = new System.Drawing.Point(3, 153);
+            this.rdoUnlisted.Location = new System.Drawing.Point(3, 309);
             this.rdoUnlisted.Name = "rdoUnlisted";
             this.rdoUnlisted.Size = new System.Drawing.Size(95, 17);
             this.rdoUnlisted.TabIndex = 15;
@@ -590,9 +603,9 @@
             this.tbl1.Location = new System.Drawing.Point(153, 3);
             this.tbl1.Name = "tbl1";
             this.tbl1.RowCount = 2;
-            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 105F));
-            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tbl1.Size = new System.Drawing.Size(409, 144);
+            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tbl1.Size = new System.Drawing.Size(409, 300);
             this.tbl1.TabIndex = 14;
             // 
             // pnlNetwork
@@ -672,7 +685,7 @@
             // 
             this.pnlConnect.Controls.Add(this.pnlOptions);
             this.pnlConnect.Controls.Add(this.panel4);
-            this.pnlConnect.Location = new System.Drawing.Point(23, 26);
+            this.pnlConnect.Location = new System.Drawing.Point(25, 351);
             this.pnlConnect.Name = "pnlConnect";
             this.pnlConnect.Size = new System.Drawing.Size(335, 269);
             this.pnlConnect.TabIndex = 9;
@@ -746,11 +759,29 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsddScanner,
             this.tsslCurrent});
-            this.statusStrip1.Location = new System.Drawing.Point(3, 460);
+            this.statusStrip1.Location = new System.Drawing.Point(3, 474);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(706, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(702, 22);
             this.statusStrip1.TabIndex = 11;
             this.statusStrip1.Text = "statusStrip1";
+            // 
+            // tsddScanner
+            // 
+            this.tsddScanner.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsddScanner.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.quitScannerToolStripMenuItem});
+            this.tsddScanner.Image = ((System.Drawing.Image)(resources.GetObject("tsddScanner.Image")));
+            this.tsddScanner.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddScanner.Name = "tsddScanner";
+            this.tsddScanner.Size = new System.Drawing.Size(62, 20);
+            this.tsddScanner.Text = "Scanner";
+            // 
+            // quitScannerToolStripMenuItem
+            // 
+            this.quitScannerToolStripMenuItem.Name = "quitScannerToolStripMenuItem";
+            this.quitScannerToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.quitScannerToolStripMenuItem.Text = "Quit Scanner";
+            this.quitScannerToolStripMenuItem.Click += new System.EventHandler(this.quitScannerToolStripMenuItem_Click);
             // 
             // tsslCurrent
             // 
@@ -767,44 +798,14 @@
             this.pnlmain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlmain.Location = new System.Drawing.Point(3, 3);
             this.pnlmain.Name = "pnlmain";
-            this.pnlmain.Size = new System.Drawing.Size(706, 425);
+            this.pnlmain.Size = new System.Drawing.Size(702, 439);
             this.pnlmain.TabIndex = 12;
-            // 
-            // tsddScanner
-            // 
-            this.tsddScanner.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.tsddScanner.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.quitScannerToolStripMenuItem});
-            this.tsddScanner.Image = ((System.Drawing.Image)(resources.GetObject("tsddScanner.Image")));
-            this.tsddScanner.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsddScanner.Name = "tsddScanner";
-            this.tsddScanner.Size = new System.Drawing.Size(62, 20);
-            this.tsddScanner.Text = "Scanner";
-            // 
-            // quitScannerToolStripMenuItem
-            // 
-            this.quitScannerToolStripMenuItem.Name = "quitScannerToolStripMenuItem";
-            this.quitScannerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.quitScannerToolStripMenuItem.Text = "Quit Scanner";
-            this.quitScannerToolStripMenuItem.Click += new System.EventHandler(this.quitScannerToolStripMenuItem_Click);
-            // 
-            // llblFilter
-            // 
-            this.llblFilter.AutoSize = true;
-            this.llblFilter.Location = new System.Drawing.Point(75, 6);
-            this.llblFilter.Margin = new System.Windows.Forms.Padding(6);
-            this.llblFilter.Name = "llblFilter";
-            this.llblFilter.Size = new System.Drawing.Size(114, 13);
-            this.llblFilter.TabIndex = 4;
-            this.llblFilter.TabStop = true;
-            this.llblFilter.Text = "Check and filter results";
-            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel2_LinkClicked);
             // 
             // FindCameras
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(712, 485);
+            this.ClientSize = new System.Drawing.Size(708, 499);
             this.Controls.Add(this.pnlmain);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);

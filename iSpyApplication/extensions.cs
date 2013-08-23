@@ -35,7 +35,16 @@ namespace iSpyApplication
 
             string[] cols = colorRGB.Split(',');
             var c = Color.FromArgb(Convert.ToInt16(cols[0]), Convert.ToInt16(cols[1]), Convert.ToInt16(cols[2]));
-            Colours.Add(colorRGB, c);
+            
+            try
+            {
+                Colours.Add(colorRGB, c);
+            }
+            catch
+            {
+                //multiple threads can add colours in simultaneously
+            }
+            
             return c;
 
         }

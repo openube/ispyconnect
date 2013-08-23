@@ -667,7 +667,7 @@ namespace iSpyApplication.Controls
                                     var vw = Owner.GetMicrophone(fpoe.id);
                                     if (vw != null)
                                     {
-                                        if (vw.Micobject.settings.active && !vw.NoSource)
+                                        if (vw.Micobject.settings.active && !vw.AudioSourceErrorState)
                                         {
                                             if (vw.Alerted)
                                             {

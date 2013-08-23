@@ -45,7 +45,7 @@ namespace iSpyApplication.Video
         public IAudioSource OutAudio;
 
         #region Audio
-        private float _volume;
+        private float _gain;
         private bool _listening;
 
         public int BytePacket = 400;
@@ -67,12 +67,12 @@ namespace iSpyApplication.Video
         /// </summary>
         private readonly byte[] _audioBuffer = new byte[50 * 16 * 2];
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;

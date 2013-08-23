@@ -11,7 +11,7 @@ namespace iSpyApplication.Controls
 {
     public class PreviewBox: AForge.Controls.PictureBox
     {
-        private static readonly Color COverlay = Color.FromArgb(190, 0, 0, 0);
+        private static readonly Color COverlay = Color.FromArgb(90, 0, 0, 0);
         private static readonly Brush BOverlay = new SolidBrush(Color.White);
         public bool Selected;
         public string FileName = "";

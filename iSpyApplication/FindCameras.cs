@@ -137,7 +137,7 @@ namespace iSpyApplication
             label4.Text = LocRm.GetString("IPAddress");
             label2.Text = LocRm.GetString("Username");
             label3.Text = LocRm.GetString("Password");
-            label1.Text = LocRm.GetString("CameraModel");
+            label1.Text = label13.Text = LocRm.GetString("Manufacturer");
             //label6.Text = LocRm.GetString("Port");
             label5.Text = LocRm.GetString("ScanInstructions");
             btnBack.Text = LocRm.GetString("Back");

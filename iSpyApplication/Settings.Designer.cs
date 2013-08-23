@@ -93,7 +93,6 @@ namespace iSpyApplication
             this.btnNoDetectColor = new System.Windows.Forms.Button();
             this.btnColorBack = new System.Windows.Forms.Button();
             this.btnColorArea = new System.Windows.Forms.Button();
-            this.btnTimestampColor = new System.Windows.Forms.Button();
             this.btnBorderHighlight = new System.Windows.Forms.Button();
             this.btnBorderDefault = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -152,19 +151,8 @@ namespace iSpyApplication
             this.label31 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.jbutton1 = new iSpyApplication.Controls.jbutton();
-            this.jbutton2 = new iSpyApplication.Controls.jbutton();
-            this.jbutton3 = new iSpyApplication.Controls.jbutton();
-            this.jbutton4 = new iSpyApplication.Controls.jbutton();
-            this.jbutton5 = new iSpyApplication.Controls.jbutton();
-            this.jbutton6 = new iSpyApplication.Controls.jbutton();
-            this.jbutton7 = new iSpyApplication.Controls.jbutton();
-            this.jaxis1 = new iSpyApplication.Controls.jaxis();
-            this.jaxis2 = new iSpyApplication.Controls.jaxis();
-            this.jaxis3 = new iSpyApplication.Controls.jaxis();
             this.btnCenterAxes = new System.Windows.Forms.Button();
             this.label37 = new System.Windows.Forms.Label();
-            this.jbutton8 = new iSpyApplication.Controls.jbutton();
             this.label38 = new System.Windows.Forms.Label();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
             this.label26 = new System.Windows.Forms.Label();
@@ -180,6 +168,17 @@ namespace iSpyApplication
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.tmrJSUpdate = new System.Windows.Forms.Timer(this.components);
+            this.jbutton1 = new iSpyApplication.Controls.jbutton();
+            this.jbutton2 = new iSpyApplication.Controls.jbutton();
+            this.jbutton3 = new iSpyApplication.Controls.jbutton();
+            this.jbutton4 = new iSpyApplication.Controls.jbutton();
+            this.jbutton5 = new iSpyApplication.Controls.jbutton();
+            this.jbutton6 = new iSpyApplication.Controls.jbutton();
+            this.jbutton7 = new iSpyApplication.Controls.jbutton();
+            this.jaxis1 = new iSpyApplication.Controls.jaxis();
+            this.jaxis2 = new iSpyApplication.Controls.jaxis();
+            this.jaxis3 = new iSpyApplication.Controls.jaxis();
+            this.jbutton8 = new iSpyApplication.Controls.jbutton();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -936,7 +935,6 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Controls.Add(this.btnNoDetectColor);
             this.flowLayoutPanel3.Controls.Add(this.btnColorBack);
             this.flowLayoutPanel3.Controls.Add(this.btnColorArea);
-            this.flowLayoutPanel3.Controls.Add(this.btnTimestampColor);
             this.flowLayoutPanel3.Controls.Add(this.btnBorderHighlight);
             this.flowLayoutPanel3.Controls.Add(this.btnBorderDefault);
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1029,22 +1027,10 @@ namespace iSpyApplication
             this.btnColorArea.UseVisualStyleBackColor = true;
             this.btnColorArea.Click += new System.EventHandler(this.BtnColorAreaClick);
             // 
-            // btnTimestampColor
-            // 
-            this.btnTimestampColor.AutoSize = true;
-            this.btnTimestampColor.Location = new System.Drawing.Point(184, 88);
-            this.btnTimestampColor.Margin = new System.Windows.Forms.Padding(0);
-            this.btnTimestampColor.Name = "btnTimestampColor";
-            this.btnTimestampColor.Size = new System.Drawing.Size(184, 44);
-            this.btnTimestampColor.TabIndex = 24;
-            this.btnTimestampColor.Text = "Timestamp";
-            this.btnTimestampColor.UseVisualStyleBackColor = true;
-            this.btnTimestampColor.Click += new System.EventHandler(this.BtnTimestampColorClick);
-            // 
             // btnBorderHighlight
             // 
             this.btnBorderHighlight.AutoSize = true;
-            this.btnBorderHighlight.Location = new System.Drawing.Point(368, 88);
+            this.btnBorderHighlight.Location = new System.Drawing.Point(184, 88);
             this.btnBorderHighlight.Margin = new System.Windows.Forms.Padding(0);
             this.btnBorderHighlight.Name = "btnBorderHighlight";
             this.btnBorderHighlight.Size = new System.Drawing.Size(184, 44);
@@ -1056,7 +1042,7 @@ namespace iSpyApplication
             // btnBorderDefault
             // 
             this.btnBorderDefault.AutoSize = true;
-            this.btnBorderDefault.Location = new System.Drawing.Point(0, 132);
+            this.btnBorderDefault.Location = new System.Drawing.Point(368, 88);
             this.btnBorderDefault.Margin = new System.Windows.Forms.Padding(0);
             this.btnBorderDefault.Name = "btnBorderDefault";
             this.btnBorderDefault.Size = new System.Drawing.Size(184, 44);
@@ -1628,11 +1614,11 @@ namespace iSpyApplication
             // 
             this.ddlTalkMic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlTalkMic.FormattingEnabled = true;
-            this.ddlTalkMic.Location = new System.Drawing.Point(115, 6);
-            this.ddlTalkMic.Margin = new System.Windows.Forms.Padding(6);
+            this.ddlTalkMic.Location = new System.Drawing.Point(112, 3);
             this.ddlTalkMic.Name = "ddlTalkMic";
             this.ddlTalkMic.Size = new System.Drawing.Size(207, 21);
             this.ddlTalkMic.TabIndex = 1;
+            this.ddlTalkMic.SelectedIndexChanged += new System.EventHandler(this.ddlTalkMic_SelectedIndexChanged);
             // 
             // chkSpeechRecognition
             // 
@@ -1806,90 +1792,6 @@ namespace iSpyApplication
             this.label27.TabIndex = 1;
             this.label27.Text = "Talk";
             // 
-            // jbutton1
-            // 
-            this.jbutton1.ID = 0;
-            this.jbutton1.Location = new System.Drawing.Point(153, 127);
-            this.jbutton1.Name = "jbutton1";
-            this.jbutton1.Size = new System.Drawing.Size(174, 25);
-            this.jbutton1.TabIndex = 23;
-            // 
-            // jbutton2
-            // 
-            this.jbutton2.ID = 0;
-            this.jbutton2.Location = new System.Drawing.Point(153, 158);
-            this.jbutton2.Name = "jbutton2";
-            this.jbutton2.Size = new System.Drawing.Size(174, 25);
-            this.jbutton2.TabIndex = 24;
-            // 
-            // jbutton3
-            // 
-            this.jbutton3.ID = 0;
-            this.jbutton3.Location = new System.Drawing.Point(153, 189);
-            this.jbutton3.Name = "jbutton3";
-            this.jbutton3.Size = new System.Drawing.Size(174, 25);
-            this.jbutton3.TabIndex = 25;
-            // 
-            // jbutton4
-            // 
-            this.jbutton4.ID = 0;
-            this.jbutton4.Location = new System.Drawing.Point(153, 220);
-            this.jbutton4.Name = "jbutton4";
-            this.jbutton4.Size = new System.Drawing.Size(174, 25);
-            this.jbutton4.TabIndex = 26;
-            // 
-            // jbutton5
-            // 
-            this.jbutton5.ID = 0;
-            this.jbutton5.Location = new System.Drawing.Point(153, 251);
-            this.jbutton5.Name = "jbutton5";
-            this.jbutton5.Size = new System.Drawing.Size(174, 25);
-            this.jbutton5.TabIndex = 27;
-            // 
-            // jbutton6
-            // 
-            this.jbutton6.ID = 0;
-            this.jbutton6.Location = new System.Drawing.Point(153, 313);
-            this.jbutton6.Name = "jbutton6";
-            this.jbutton6.Size = new System.Drawing.Size(174, 25);
-            this.jbutton6.TabIndex = 28;
-            // 
-            // jbutton7
-            // 
-            this.jbutton7.ID = 0;
-            this.jbutton7.Location = new System.Drawing.Point(153, 344);
-            this.jbutton7.Name = "jbutton7";
-            this.jbutton7.Size = new System.Drawing.Size(174, 25);
-            this.jbutton7.TabIndex = 29;
-            // 
-            // jaxis1
-            // 
-            this.jaxis1.ID = 0;
-            this.jaxis1.Invert = false;
-            this.jaxis1.Location = new System.Drawing.Point(153, 3);
-            this.jaxis1.Name = "jaxis1";
-            this.jaxis1.Size = new System.Drawing.Size(419, 25);
-            this.jaxis1.TabIndex = 30;
-            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
-            // 
-            // jaxis2
-            // 
-            this.jaxis2.ID = 0;
-            this.jaxis2.Invert = false;
-            this.jaxis2.Location = new System.Drawing.Point(153, 34);
-            this.jaxis2.Name = "jaxis2";
-            this.jaxis2.Size = new System.Drawing.Size(419, 25);
-            this.jaxis2.TabIndex = 31;
-            // 
-            // jaxis3
-            // 
-            this.jaxis3.ID = 0;
-            this.jaxis3.Invert = false;
-            this.jaxis3.Location = new System.Drawing.Point(153, 65);
-            this.jaxis3.Name = "jaxis3";
-            this.jaxis3.Size = new System.Drawing.Size(419, 25);
-            this.jaxis3.TabIndex = 32;
-            // 
             // btnCenterAxes
             // 
             this.btnCenterAxes.AutoSize = true;
@@ -1910,14 +1812,6 @@ namespace iSpyApplication
             this.label37.Size = new System.Drawing.Size(29, 13);
             this.label37.TabIndex = 34;
             this.label37.Text = "Stop";
-            // 
-            // jbutton8
-            // 
-            this.jbutton8.ID = 0;
-            this.jbutton8.Location = new System.Drawing.Point(153, 282);
-            this.jbutton8.Name = "jbutton8";
-            this.jbutton8.Size = new System.Drawing.Size(174, 25);
-            this.jbutton8.TabIndex = 35;
             // 
             // label38
             // 
@@ -2064,6 +1958,98 @@ namespace iSpyApplication
             this.tmrJSUpdate.Enabled = true;
             this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
             // 
+            // jbutton1
+            // 
+            this.jbutton1.ID = 0;
+            this.jbutton1.Location = new System.Drawing.Point(153, 127);
+            this.jbutton1.Name = "jbutton1";
+            this.jbutton1.Size = new System.Drawing.Size(174, 25);
+            this.jbutton1.TabIndex = 23;
+            // 
+            // jbutton2
+            // 
+            this.jbutton2.ID = 0;
+            this.jbutton2.Location = new System.Drawing.Point(153, 158);
+            this.jbutton2.Name = "jbutton2";
+            this.jbutton2.Size = new System.Drawing.Size(174, 25);
+            this.jbutton2.TabIndex = 24;
+            // 
+            // jbutton3
+            // 
+            this.jbutton3.ID = 0;
+            this.jbutton3.Location = new System.Drawing.Point(153, 189);
+            this.jbutton3.Name = "jbutton3";
+            this.jbutton3.Size = new System.Drawing.Size(174, 25);
+            this.jbutton3.TabIndex = 25;
+            // 
+            // jbutton4
+            // 
+            this.jbutton4.ID = 0;
+            this.jbutton4.Location = new System.Drawing.Point(153, 220);
+            this.jbutton4.Name = "jbutton4";
+            this.jbutton4.Size = new System.Drawing.Size(174, 25);
+            this.jbutton4.TabIndex = 26;
+            // 
+            // jbutton5
+            // 
+            this.jbutton5.ID = 0;
+            this.jbutton5.Location = new System.Drawing.Point(153, 251);
+            this.jbutton5.Name = "jbutton5";
+            this.jbutton5.Size = new System.Drawing.Size(174, 25);
+            this.jbutton5.TabIndex = 27;
+            // 
+            // jbutton6
+            // 
+            this.jbutton6.ID = 0;
+            this.jbutton6.Location = new System.Drawing.Point(153, 313);
+            this.jbutton6.Name = "jbutton6";
+            this.jbutton6.Size = new System.Drawing.Size(174, 25);
+            this.jbutton6.TabIndex = 28;
+            // 
+            // jbutton7
+            // 
+            this.jbutton7.ID = 0;
+            this.jbutton7.Location = new System.Drawing.Point(153, 344);
+            this.jbutton7.Name = "jbutton7";
+            this.jbutton7.Size = new System.Drawing.Size(174, 25);
+            this.jbutton7.TabIndex = 29;
+            // 
+            // jaxis1
+            // 
+            this.jaxis1.ID = 0;
+            this.jaxis1.Invert = false;
+            this.jaxis1.Location = new System.Drawing.Point(153, 3);
+            this.jaxis1.Name = "jaxis1";
+            this.jaxis1.Size = new System.Drawing.Size(419, 25);
+            this.jaxis1.TabIndex = 30;
+            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
+            // 
+            // jaxis2
+            // 
+            this.jaxis2.ID = 0;
+            this.jaxis2.Invert = false;
+            this.jaxis2.Location = new System.Drawing.Point(153, 34);
+            this.jaxis2.Name = "jaxis2";
+            this.jaxis2.Size = new System.Drawing.Size(419, 25);
+            this.jaxis2.TabIndex = 31;
+            // 
+            // jaxis3
+            // 
+            this.jaxis3.ID = 0;
+            this.jaxis3.Invert = false;
+            this.jaxis3.Location = new System.Drawing.Point(153, 65);
+            this.jaxis3.Name = "jaxis3";
+            this.jaxis3.Size = new System.Drawing.Size(419, 25);
+            this.jaxis3.TabIndex = 32;
+            // 
+            // jbutton8
+            // 
+            this.jbutton8.ID = 0;
+            this.jbutton8.Location = new System.Drawing.Point(153, 282);
+            this.jbutton8.Name = "jbutton8";
+            this.jbutton8.Size = new System.Drawing.Size(174, 25);
+            this.jbutton8.TabIndex = 35;
+            // 
             // Settings
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -2170,7 +2156,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkShowGettingStarted;
         private System.Windows.Forms.CheckBox chkStorage;
         private System.Windows.Forms.GroupBox gbStorage;
-        private System.Windows.Forms.Button btnTimestampColor;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TextBox txtYouTubePassword;
         private System.Windows.Forms.TextBox txtYouTubeUsername;

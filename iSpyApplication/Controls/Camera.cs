@@ -234,6 +234,12 @@ namespace iSpyApplication.Controls
             get { return (VideoSource != null) && VideoSource.IsRunning; }
         }
 
+        public void WaitForStop()
+        {
+            if (VideoSource!=null)
+                VideoSource.WaitForStop();
+        }
+
         //
 
 
@@ -326,12 +332,12 @@ namespace iSpyApplication.Controls
         {
             if (VideoSource != null)
             {
-                lock (_sync)
+                _requestedToStop = false;
+                _framerates = new Queue<double>();
+                _lastframeProcessed = DateTime.MinValue;
+                _lastframeEvent = DateTime.MinValue;
+                if (!CW.IsClone)
                 {
-                    _requestedToStop = false;
-                    _framerates = new Queue<double>();
-                    _lastframeProcessed = DateTime.MinValue;
-                    _lastframeEvent = DateTime.MinValue;
                     VideoSource.Start();
                 }
             }
@@ -340,31 +346,18 @@ namespace iSpyApplication.Controls
         // Signal video source to stop
         public void SignalToStop()
         {
-            lock (_sync)
-            {
+            if (CW.IsClone || _requestedToStop)
+                return;
+            //lock (_sync)
+            //{
                 if (VideoSource != null)
                 {
                     _requestedToStop = true;
                     VideoSource.SignalToStop();
                 }
-            }
+            //}
         }
 
-
-        // Abort camera
-        public void Stop()
-        {
-            // lock
-            lock (_sync)
-            {
-                if (VideoSource != null)
-                {
-                    _requestedToStop = true;
-                    VideoSource.Stop();
-                }
-                // unlock
-            }
-        }
 
         private double Mininterval
         {
@@ -507,7 +500,7 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                if (NewFrame != null)
+                if (NewFrame != null && !_requestedToStop)
                 {
                     NewFrame(this, new NewFrameEventArgs(bmOrig));
                 }
@@ -535,7 +528,7 @@ namespace iSpyApplication.Controls
             {
             }
 
-            var rs = gCam.MeasureString(timestamp, Drawfont).ToSize();
+            var rs = gCam.MeasureString(timestamp, DrawFont).ToSize();
             var p = new Point(0, 0);
             switch (CW.Camobject.settings.timestamplocation)
             {
@@ -558,15 +551,10 @@ namespace iSpyApplication.Controls
                     break;
             }
             var rect = new Rectangle(p, rs);
-            var b =  new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-            gCam.FillRectangle(b, rect);
-
-            var f = new Font(FontFamily.GenericSansSerif, CW.Camobject.settings.timestampfontsize);
-            gCam.DrawString(timestamp, f, Brushes.White, p);
-
+            gCam.FillRectangle(BackBrush, rect);
+            gCam.DrawString(timestamp, DrawFont, ForeBrush, p);
             gCam.Dispose();
-            f.Dispose();
-            b.Dispose();
+
         }
 
         private void ProcessAutoTracking()
@@ -666,7 +654,8 @@ namespace iSpyApplication.Controls
 
         private Bitmap ResizeBmOrig(NewFrameEventArgs e)
         {
-            Bitmap bmOrig;
+            var bmOrig = (Bitmap) e.Frame.Clone();
+
             if (CW.Camobject.settings.resize &&
                 (CW.Camobject.settings.desktopresizewidth != e.Frame.Width ||
                  CW.Camobject.settings.desktopresizeheight != e.Frame.Height))
@@ -682,14 +671,9 @@ namespace iSpyApplication.Controls
                     g2.SmoothingMode = SmoothingMode.None;
                     g2.InterpolationMode = InterpolationMode.Default;
                     //g2.GdiDrawImage(e.Frame, 0, 0, result.Width, result.Height);
-                    g2.DrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                    g2.DrawImage(bmOrig, 0, 0, result.Width, result.Height);
                 }
-                e.Frame.Dispose();
                 bmOrig = result;
-            }
-            else
-            {
-                bmOrig = e.Frame;
             }
             return bmOrig;
         }
@@ -756,7 +740,7 @@ namespace iSpyApplication.Controls
         }
 
         private Font _drawfont;
-        public Font Drawfont
+        public Font DrawFont
         {
             get
             {
@@ -767,5 +751,32 @@ namespace iSpyApplication.Controls
             }
             set { _drawfont = value; }
         }
+
+        private Brush _foreBrush, _backBrush;
+        public Brush ForeBrush
+        {
+            get
+            {
+                if (_foreBrush!=null)
+                    return _foreBrush;
+                Color c = CW.Camobject.settings.timestampforecolor.ToColor();
+                _foreBrush = new SolidBrush(Color.FromArgb(255,c.R,c.G,c.B));
+                return _foreBrush;
+            }
+            set { _foreBrush = value; }
+        }
+        public Brush BackBrush
+        {
+            get
+            {
+                if (_backBrush != null)
+                    return _backBrush;
+                Color c = CW.Camobject.settings.timestampbackcolor.ToColor();
+                _backBrush = new SolidBrush(Color.FromArgb(128, c.R, c.G, c.B));
+                return _backBrush;
+            }
+            set { _backBrush = value; }
+        }
+        
     }
 }

@@ -62,7 +62,8 @@ namespace iSpyApplication
             YouTube =           2097152,
             Scheduling =        4194304,
             Alerts =            8388608,
-            Source_ONVIF =      16777216  
+            Source_ONVIF =      16777216,
+            Source_Clone =      33554432
         }
 
     }

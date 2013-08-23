@@ -5,7 +5,7 @@ namespace iSpyApplication.Audio.streams
 {
     class AudioInStream: IAudioSource
     {
-        private float _volume;
+        private float _gain;
         private WaveFormat _recordingFormat;
 
         public int PacketSize = 882;
@@ -68,12 +68,12 @@ namespace iSpyApplication.Audio.streams
             get { return "audio in stream"; }
         }
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
             }
         }
 

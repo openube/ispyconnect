@@ -91,7 +91,7 @@ namespace iSpyPlugin.Audio.streams
                 if (_thread != null)
                 {
                     // check thread status
-                    if (_thread.Join(0) == false)
+                    if (!_thread.Join(0))
                         return true;
 
                     // the thread is not running, free resources

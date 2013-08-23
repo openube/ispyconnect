@@ -286,7 +286,7 @@ internal static class Program
     {
         try
         {
-            if (e.Exception.Message.IndexOf("NoDriver")!=-1)
+            if (e!=null && e.Exception!=null && !String.IsNullOrEmpty(e.Exception.Message) && e.Exception.Message.IndexOf("NoDriver", StringComparison.Ordinal)!=-1)
             {
                 //USB audio plugged/ unplugged (typically the cause) - no other way to catch this exception in the volume level control due to limitation in NAudio
             }

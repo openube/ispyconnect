@@ -15,7 +15,6 @@ using AForge.Video;
 using iSpyApplication.Audio;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.MP3Stream;
-using iSpyApplication.Video;
 using NAudio.Wave;
 using iSpy.Video.FFMPEG;
 using PictureBox = AForge.Controls.PictureBox;
@@ -30,14 +29,14 @@ namespace iSpyApplication.Controls
         
         private AudioFileWriter _writer;
         private DateTime _mouseMove = DateTime.MinValue;
-
+        public EventHandler AudioDeviceEnabled;
         private double _intervalCount;
         private long _lastRun = DateTime.Now.Ticks;
         private double _secondCount;
         private double _recordingTime;
-        private Point _mouseLoc;        
-        private bool _stopWrite;
-        private volatile float[] _levels = new float[] {0};
+        private Point _mouseLoc;
+        private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
+        private volatile float[] _levels;
         private readonly ToolTip _toolTipMic;
         private int _ttind = -1;
         private DateTime _errorTime = DateTime.MinValue;
@@ -51,7 +50,9 @@ namespace iSpyApplication.Controls
         private readonly object _obj = new object();
         private Thread _recordingThread;
         private const int ButtonOffset = 4, ButtonCount = 5;
+        private bool _requestRefresh;
         public bool ShuttingDown;
+        public bool IsClone;
         private static int ButtonWidth
         {
             get { return MainForm.ButtonWidth; }
@@ -68,7 +69,7 @@ namespace iSpyApplication.Controls
             get { return (ButtonWidth + ButtonOffset * 2); }
         }
         private bool _pairedRecording;
-        private volatile bool _isReconnect;
+        public volatile bool IsReconnect;
         private delegate void SwitchDelegate();
         private readonly StringBuilder _soundData = new StringBuilder(100000);
 
@@ -82,12 +83,13 @@ namespace iSpyApplication.Controls
 
         #region Public
         public volatile bool IsEnabled;
+        public string AudioSourceErrorMessage = "";
         private bool _audioSourceErrorState;
         public bool AudioSourceErrorState
         {
             get { return _audioSourceErrorState; }
             set { _audioSourceErrorState = value;
-                Invalidate();
+            _requestRefresh = true;
             }
         }
         public bool Paired
@@ -135,7 +137,7 @@ namespace iSpyApplication.Controls
         public bool ForcedRecording;
         public double InactiveRecord;
         public bool IsEdit;
-        public bool NoSource;
+        //public bool NoSource;
         public bool ResizeParent;
         public bool SoundDetected;
         public objectsMicrophone Micobject;
@@ -422,16 +424,13 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public float Volume
+        public float Gain
         {
-            get
-            {
-                return Micobject.settings.volume;
-            }
+            get { return Micobject.settings.gain; }
             set
             {
-                if (AudioSource != null)
-                    AudioSource.Volume = value;
+                //if (AudioSource != null)
+                //    AudioSource.Gain = value;
                 Micobject.settings.gain = value;
             }
         }
@@ -687,14 +686,14 @@ namespace iSpyApplication.Controls
             base.OnMouseLeave(e);
             Cursor = Cursors.Default;
             _mouseMove = DateTime.MinValue;
-            Invalidate();
+            _requestRefresh = true;
         }
 
         protected override void OnMouseEnter(EventArgs e)
         {
             if (CameraControl==null)
                 Cursor = Cursors.Hand;
-            Invalidate();
+            _requestRefresh = true;
         }
 
 
@@ -738,16 +737,22 @@ namespace iSpyApplication.Controls
             }
             set
             {
-                if (value.Length!=_levels.Length)
-                    _levels = new float[value.Length];
-                value.CopyTo(_levels, 0);
-
-                if (_levels.Length > 0 && AudioSourceErrorState)
+                if (value == null)
+                    _levels = null;
+                else
                 {
-                    if (AudioSourceErrorState)
-                        UpdateFloorplans(false);
-                    AudioSourceErrorState = false;
+                    if (_levels==null || value.Length != _levels.Length)
+                        _levels = new float[value.Length];
+                    value.CopyTo(_levels, 0);
+
+                    if (_levels.Length > 0 && AudioSourceErrorState)
+                    {
+                        if (AudioSourceErrorState)
+                            UpdateFloorplans(false);
+                        AudioSourceErrorState = false;
+                    }    
                 }
+                
 
                 Invalidate();
             }
@@ -844,7 +849,12 @@ namespace iSpyApplication.Controls
                     if (CheckSchedule()) goto skip;
                 }
 
-                CheckRecord();
+                if (Micobject.settings.active && _levels!=null)
+                {
+                    CheckVLCTimeStamp();
+
+                    CheckRecord();
+                }
             }
 
             CheckAlert();
@@ -852,6 +862,12 @@ namespace iSpyApplication.Controls
             skip:
             if (_secondCount > 1)
                 _secondCount = 0;
+
+            if (_requestRefresh)
+            {
+                _requestRefresh = false;
+                Invalidate();
+            }
         }
 
         private bool FlashBackground()
@@ -893,24 +909,29 @@ namespace iSpyApplication.Controls
 
         private void CheckReconnectInterval()
         {
-            if (Micobject.settings.active && AudioSource != null)
+            if (Micobject.settings.active && AudioSource != null && !IsClone && !IsReconnect && !(AudioSource is IVideoSource))
             {
-                if (Micobject.settings.reconnectinterval > 0 && !(AudioSource is IVideoSource))
+                if (Micobject.settings.reconnectinterval > 0)
                 {
                     ReconnectCount += _secondCount;
                     if (ReconnectCount > Micobject.settings.reconnectinterval)
                     {
-                        _isReconnect = true;
+                        IsReconnect = true;
                         lock (this)
                         {
                             AudioSource.Stop();
-                            while (AudioSource.IsRunning)
-                            {
-                                Thread.Sleep(100);
-                            }
+                        }
+                        while (AudioSource.IsRunning)
+                        {
+                            Thread.Sleep(100);
+                        }
+                        Application.DoEvents();
+
+                        lock (this)
+                        {
                             AudioSource.Start();
                         }
-                        _isReconnect = false;
+                        IsReconnect = false;
                         ReconnectCount = 0;
                     }
                     
@@ -1058,6 +1079,18 @@ namespace iSpyApplication.Controls
             }
         }
 
+        private void CheckVLCTimeStamp()
+        {
+            if (Micobject.settings.typeindex == 2)
+            {
+                var vlc = AudioSource as VLCStream;
+                if (vlc != null)
+                {
+                    vlc.CheckAudioTimestamp();
+                }
+            }
+        }
+
         private void CheckRecord()
         {
             if (((Micobject.detector.recordondetect && SoundDetected) || ForcedRecording) && !Recording)
@@ -1066,7 +1099,7 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                if (!_stopWrite && Recording && !_pairedRecording)
+                if (_stopWrite.WaitOne(0) && Recording && !_pairedRecording)
                 {
                     if (_recordingTime > Micobject.recorder.maxrecordtime ||
                         ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) &&
@@ -1078,7 +1111,7 @@ namespace iSpyApplication.Controls
 
         private bool CheckReconnect()
         {
-            if (_reconnectTime != DateTime.MinValue)
+            if (_reconnectTime != DateTime.MinValue && !IsClone && !IsReconnect && !(AudioSource is IVideoSource))
             {
                 if (AudioSource != null)
                 {
@@ -1103,13 +1136,13 @@ namespace iSpyApplication.Controls
 
         protected override void OnLostFocus(EventArgs e)
         {
-            Invalidate();
+            _requestRefresh = true;
             base.OnLostFocus(e);
         }
 
         protected override void OnGotFocus(EventArgs e)
         {
-            Invalidate();
+            _requestRefresh = true;
             base.OnGotFocus(e);
         }
 
@@ -1221,10 +1254,11 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                if (NoSource || AudioSourceErrorState)
+                if (AudioSourceErrorState)
                 {
-                    gMic.DrawString(LocRm.GetString("NoSource") + ": " + Micobject.name,
+                    gMic.DrawString(AudioSourceErrorMessage + ": " + Micobject.name,
                                      MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
+                    
                 }
                 else
                 {
@@ -1235,7 +1269,7 @@ namespace iSpyApplication.Controls
                     }
                     else
                     {
-                        gMic.DrawString(LocRm.GetString("Inactive") + ": " + Micobject.name,
+                        gMic.DrawString(LocRm.GetString("Offline") + ": " + Micobject.name,
                                          MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                     }
                 }
@@ -1246,7 +1280,7 @@ namespace iSpyApplication.Controls
                 int leftpoint = Width - ButtonPanelWidth-1;
                 const int ypoint = 0;
 
-                gMic.FillRectangle(MainForm.TimestampBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
+                gMic.FillRectangle(MainForm.OverlayBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
 
 
 
@@ -1302,9 +1336,10 @@ namespace iSpyApplication.Controls
 
         public void StopSaving()
         {
-            _stopWrite = true;
-            if (_recordingThread != null)
-                _recordingThread.Join();
+            if (Recording)
+            {
+                _stopWrite.Set();
+            }
         }
 
         public void StartSaving()
@@ -1318,7 +1353,7 @@ namespace iSpyApplication.Controls
 
         private void Record()
         {
-            _stopWrite = false;
+            _stopWrite.Reset();
             DateTime recordingStart = DateTime.MinValue;
 
             if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
@@ -1350,7 +1385,7 @@ namespace iSpyApplication.Controls
                     _pairedRecording = true;
                     CameraControl.StartSaving();
                     CameraControl.ForcedRecording = ForcedRecording;
-                    while (!_stopWrite)
+                    while (!_stopWrite.WaitOne(0))
                     {
                         _newRecordingFrame.WaitOne(200);
                     }
@@ -1372,9 +1407,11 @@ namespace iSpyApplication.Controls
 
                     
                     
-                    Program.WriterMutex.WaitOne();
+                    
                     try
                     {
+                        Program.WriterMutex.WaitOne();
+
                         _writer = new AudioFileWriter();
                         _writer.Open(filename + ".mp3", AudioCodec.MP3, AudioSource.RecordingFormat.BitsPerSample * AudioSource.RecordingFormat.SampleRate * AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate, AudioSource.RecordingFormat.Channels);
                     }
@@ -1419,7 +1456,7 @@ namespace iSpyApplication.Controls
 
                     try
                     {
-                        while (!_stopWrite)
+                        while (!_stopWrite.WaitOne(0))
                         {
                             while (WriterBuffer.Count > 0)
                             {
@@ -1490,9 +1527,10 @@ namespace iSpyApplication.Controls
                         MainForm.LogExceptionToFile(ex);                       
                     }
 
-                    Program.WriterMutex.WaitOne();
+                    
                     try
                     {
+                        Program.WriterMutex.WaitOne();
                         _writer.Close();
                         _writer.Dispose();
                     }
@@ -1508,7 +1546,6 @@ namespace iSpyApplication.Controls
                     _writer = null;
                     #endregion
                 }
-                _stopWrite = false;
                 WriterBuffer = null;
                 _recordingTime = 0;
                 UpdateFloorplans(false);
@@ -1583,36 +1620,41 @@ namespace iSpyApplication.Controls
             if (AudioSource != null)
             {
                 AudioSource.AudioFinished -= AudioDeviceAudioFinished;
-                AudioSource.AudioSourceError -= AudioDeviceAudioSourceError;
+                //AudioSource.AudioSourceError -= AudioDeviceAudioSourceError;
                 AudioSource.DataAvailable -= AudioDeviceDataAvailable;
                 AudioSource.LevelChanged -= AudioDeviceLevelChanged;
-
-                if (!(AudioSource is IVideoSource) && stopSource)
+                if (!IsClone && stopSource)
                 {
-                    lock (this)
+                    if (!(AudioSource is IVideoSource))
                     {
-                        AudioSource.Stop();
+                        lock (this)
+                        {
+                            AudioSource.Stop();
+                            //allow operations to complete in other threads
+                            Thread.Sleep(250);
+                        }
                     }
                 }
 
             }
-            //allow operations to complete in other threads
-            Thread.Sleep(250);
+            
             IsEnabled = false;
+            IsReconnect = false;
 
             if (AudioBuffer != null)
             {
                 AudioBuffer.Clear();
             }
 
+            Levels = null;
             SoundDetected = false;
             ForcedRecording = false;
             Alerted = false;
-            NoSource = false;
             FlashCounter = 0;
             _recordingTime = 0;
             Listening = false;
             ReconnectCount = 0;
+            AudioSourceErrorState = false;
 
             UpdateFloorplans(false);
             Micobject.settings.active = false;
@@ -1621,7 +1663,7 @@ namespace iSpyApplication.Controls
             _errorTime = _reconnectTime = DateTime.MinValue;
 
             if (!ShuttingDown)
-                Invalidate();
+                _requestRefresh = true;
         }
 
         public void Enable()
@@ -1648,6 +1690,7 @@ namespace iSpyApplication.Controls
             }
 
             IsEnabled = true;
+            IsReconnect = false;
 
             int sampleRate = Micobject.settings.samples;
             int channels = Micobject.settings.channels;
@@ -1661,6 +1704,8 @@ namespace iSpyApplication.Controls
             {
                 sampleRate = Micobject.settings.samples = 8000;
             }
+            IsClone = CameraControl != null && CameraControl.Camobject.settings.sourceindex == 10 &&
+                      Micobject.settings.typeindex == 4;
 
             switch (Micobject.settings.typeindex)
             {
@@ -1694,81 +1739,84 @@ namespace iSpyApplication.Controls
                                         };
                     break;
                 case 4: //From Camera Feed
+                    AudioSource = null;
                     if (CameraControl != null)
                     {
                         if (CameraControl.Camera != null)
                         {
-                            switch (CameraControl.Camobject.settings.sourceindex)
+                            AudioSource = CameraControl.Camera.VideoSource as IAudioSource;
+                            if (AudioSource==null)
                             {
-                                case 2: //ffmpeg
-                                    AudioSource = (FFMPEGStream) CameraControl.Camera.VideoSource;
-                                    break;
-                                case 5: //vlc
-                                    AudioSource = (VlcStream) CameraControl.Camera.VideoSource;
-                                    break;
-                                case 7: //kinect
-                                    AudioSource = (KinectStream) CameraControl.Camera.VideoSource;
-                                    break;
-                                case 8: //kinect
-                                    switch (CameraControl.Nv("custom"))
+                                if (IsClone)
+                                {
+                                    //cloned feed
+                                    int icam = Convert.ToInt32(CameraControl.Camobject.settings.videosourcestring);
+                                    var topLevelControl = (MainForm) TopLevelControl;
+                                    if (topLevelControl != null)
                                     {
-                                        case "Network Kinect":
-                                            AudioSource = (KinectNetworkStream) CameraControl.Camera.VideoSource;
-                                            break;
-                                        default:
-                                            throw new Exception("No custom provider found for " +
-                                                                CameraControl.Nv("custom"));
+                                        var cw = topLevelControl.GetCameraWindow(icam);
+                                        if (cw != null)
+                                        {
+                                            if (CameraControl != null && CameraControl.VolumeControl != null && cw.VolumeControl != null && cw.VolumeControl.AudioSource != null)
+                                            {
+                                                AudioSource = cw.VolumeControl.AudioSource;
+                                            }
+                                        }
                                     }
-                                    break;
-                                default:
-                                    AudioSource = null;
-                                    break;
+                                }
+                            }
+                            if (AudioSource!=null && AudioSource.RecordingFormat!=null)
+                            {
+                                Micobject.settings.samples = AudioSource.RecordingFormat.SampleRate;
+                                Micobject.settings.channels = AudioSource.RecordingFormat.Channels;
+
                             }
                         }
-                        else
-                            AudioSource = null;
+                        if (AudioSource == null)
+                        {
+                            SetErrorState("Mic source offline");
+                            AudioSourceErrorState = true;
+                            _requestRefresh = true;
+                        }
                     }
-                    else
-                        AudioSource = null;
                     break;
             }
 
-            if (AudioSource == null)
+            if (AudioSource != null)
             {
-                IsEnabled = false;
-                return;
-            }
-
-            WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout)
+                WaveOut = !String.IsNullOrEmpty(Micobject.settings.deviceout)
                             ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100)
                             : new DirectSoundOut(100);
 
-            AudioSource.AudioFinished += AudioDeviceAudioFinished;
-            AudioSource.AudioSourceError += AudioDeviceAudioSourceError;
-            AudioSource.DataAvailable += AudioDeviceDataAvailable;
-            AudioSource.LevelChanged += AudioDeviceLevelChanged;
+                AudioSource.AudioFinished -= AudioDeviceAudioFinished;
+                AudioSource.DataAvailable -= AudioDeviceDataAvailable;
+                AudioSource.LevelChanged -= AudioDeviceLevelChanged;
 
-            var l = new float[Micobject.settings.channels];
-            for (int i = 0; i < l.Length; i++)
-            {
-                l[i] = 0.0f;
-            }
-            AudioDeviceLevelChanged(this, new LevelChangedEventArgs(l));
+                AudioSource.AudioFinished += AudioDeviceAudioFinished;
+                AudioSource.DataAvailable += AudioDeviceDataAvailable;
+                AudioSource.LevelChanged += AudioDeviceLevelChanged;
 
-            //AudioSource.Volume = Micobject.settings.gain;
-
-            if (!AudioSource.IsRunning)
-            {
-                lock (this)
+                var l = new float[Micobject.settings.channels];
+                for (int i = 0; i < l.Length; i++)
                 {
-                    AudioSource.Start();
+                    l[i] = 0.0f;
                 }
-            }
+                AudioDeviceLevelChanged(this, new LevelChangedEventArgs(l));
+
+                //AudioSource.Gain = Micobject.settings.gain;
+
+                if (!AudioSource.IsRunning && !IsClone && !(AudioSource is IVideoSource))
+                {
+                    lock (this)
+                    {
+                        AudioSource.Start();
+                    }                    
+                }
+            }           
 
             AudioBuffer = new List<AudioAction>();
             SoundDetected = false;
             Alerted = false;
-            NoSource = false;
             FlashCounter = 0;
             _recordingTime = 0;
             ReconnectCount = 0;
@@ -1778,7 +1826,10 @@ namespace iSpyApplication.Controls
             Micobject.settings.active = true;
 
             MainForm.NeedsSync = true;
-            Invalidate();
+            _requestRefresh = true;
+
+            if (AudioDeviceEnabled != null)
+                AudioDeviceEnabled(this, EventArgs.Empty);
         }
 
         void AudioDeviceLevelChanged(object sender, LevelChangedEventArgs eventArgs)
@@ -1798,7 +1849,7 @@ namespace iSpyApplication.Controls
 
         void AudioDeviceDataAvailable(object sender, DataAvailableEventArgs e)
         {
-            if (Levels == null)
+            if (Levels == null || IsReconnect)
                 return;
             try
             {
@@ -1890,51 +1941,64 @@ namespace iSpyApplication.Controls
             }
         }
 
-        void AudioDeviceAudioSourceError(object sender, AudioSourceErrorEventArgs eventArgs)
-        {
-            if (eventArgs.Description=="not connected")
-            {
-                Micobject.settings.active = false;
-                NoSource = true;
-            }
-            if (!AudioSourceErrorState)
-            {
-                AudioSourceErrorState = true;
-                MainForm.LogExceptionToFile(new Exception("AudioSourceError: " + eventArgs.Description),
-                                            "Mic " + Micobject.id);
-                _reconnectTime = DateTime.Now;
-                if (_errorTime == DateTime.MinValue)
-                    _errorTime = DateTime.Now;
-            }
-            if (!ShuttingDown)
-                Invalidate();
-
-        }
+        //void AudioDeviceAudioSourceError(object sender, AudioSourceErrorEventArgs eventArgs)
+        //{
+        //    SetErrorState(eventArgs.Description);
+        //    Levels = null;
+            
+        //    if (!ShuttingDown)
+        //        _requestRefresh = true;
+        //}
 
         void AudioDeviceAudioFinished(object sender, ReasonToFinishPlaying reason)
         {
-            if ((CameraControl!=null && CameraControl.IsReconnect) || _isReconnect)
+            if (IsReconnect)
                 return;
+
+            if (IsClone)
+            {
+                SetErrorState("Mic source offline");
+                Levels = null;
+
+                if (!ShuttingDown)
+                    _requestRefresh = true;
+
+                return;
+            }
+            
+
             switch (reason)
             {
                 case ReasonToFinishPlaying.DeviceLost:
                 case ReasonToFinishPlaying.EndOfStreamReached:
                 case ReasonToFinishPlaying.VideoSourceError:
-                    if (!AudioSourceErrorState)
-                    {
-                        AudioSourceErrorState = true;
-                        MainForm.LogExceptionToFile(new Exception("AudioSourceFinished: " + reason), "Mic " + Micobject.id);
-                        _reconnectTime = DateTime.Now;
-                        if (_errorTime == DateTime.MinValue)
-                            _errorTime = DateTime.Now;
-                    }
+                    SetErrorState(reason.ToString());
                     break;
                 case ReasonToFinishPlaying.StoppedByUser:
                     SetDisabled(false);
                     break;
             }
+            
+            Levels = null;
+
             if (!ShuttingDown)
-                Invalidate();
+                _requestRefresh = true;
+        }
+
+        private void SetErrorState(string reason)
+        {
+            AudioSourceErrorMessage = reason;
+            if (!AudioSourceErrorState)
+            {
+                AudioSourceErrorState = true;
+                MainForm.LogExceptionToFile(new Exception("Error: " + reason), "Mic " + Micobject.id);
+                if (_reconnectTime == DateTime.MinValue)
+                {
+                    _reconnectTime = DateTime.Now;
+                }
+                if (_errorTime == DateTime.MinValue)
+                    _errorTime = DateTime.Now;
+            }
         }
 
         private void UpdateFloorplans(bool isAlert)

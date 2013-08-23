@@ -51,13 +51,17 @@ public partial class PTZSettings2Camera {
     private string commandURLField;
     
     private bool pOSTField;
+
+    private int portField;
     
     private PTZSettings2CameraCommands commandsField;
     
     private PTZSettings2CameraExtendedCommands extendedCommandsField;
     
     private int idField;
-    
+
+    private string cookiesField;
+
     /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("Make", IsNullable=false)]
     public PTZSettings2CameraMake[] Makes {
@@ -78,6 +82,16 @@ public partial class PTZSettings2Camera {
             this.commandURLField = value;
         }
     }
+
+    /// <remarks/>
+    public string Cookies {
+        get {
+            return this.cookiesField;
+        }
+        set {
+            this.cookiesField = value;
+        }
+    }
     
     /// <remarks/>
     public bool POST {
@@ -88,6 +102,18 @@ public partial class PTZSettings2Camera {
             this.pOSTField = value;
         }
     }
+
+    /// <remarks/>
+    public int port {
+        get {
+            return this.portField;
+        }
+        set {
+            this.portField = value;
+        }
+    }
+
+    
     
     /// <remarks/>
     public PTZSettings2CameraCommands Commands {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -7,6 +8,9 @@ namespace iSpyApplication
     {
         public int TimeStampLocation = 0, FontSize = 10;
         public decimal Offset = 0;
+        public Color TimestampForeColor;
+        public Color TimestampBackColor;
+
         public ConfigureTimestamp()
         {
             InitializeComponent();
@@ -37,6 +41,26 @@ namespace iSpyApplication
             Offset = numOffset.Value;
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var cd = new ColorDialog { Color = TimestampForeColor, AllowFullOpen = true, SolidColorOnly = false };
+            if (cd.ShowDialog(this)==DialogResult.OK)
+            {
+                TimestampForeColor = cd.Color;
+            }
+            cd.Dispose();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            var cd = new ColorDialog { Color = TimestampBackColor, AllowFullOpen = true, SolidColorOnly = false };
+            if (cd.ShowDialog(this) == DialogResult.OK)
+            {
+                TimestampBackColor = cd.Color;
+            }
+            cd.Dispose();
         }
     }
 }

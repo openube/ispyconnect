@@ -462,6 +462,10 @@ public partial class objectsCameraSettings {
     private int timestampfontsizeField;
     
     private decimal timestampoffsetField;
+
+    private string timestampforecolorField;
+
+    private string timestampbackcolorField;
     
     private string desktopareaField;
     
@@ -576,6 +580,8 @@ public partial class objectsCameraSettings {
         this.onvifidentField = "";
         this.rtspmodeField = 0;
         this.procAmpConfigField = "";
+        this.timestampforecolorField = "";
+        this.timestampbackcolorField = "";
     }
 
     /// <remarks/>
@@ -591,6 +597,32 @@ public partial class objectsCameraSettings {
         }
     }
 
+    /// <remarks/>
+    public string timestampforecolor
+    {
+        get
+        {
+            return this.timestampforecolorField;
+        }
+        set
+        {
+            this.timestampforecolorField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string timestampbackcolor
+    {
+        get
+        {
+            return this.timestampbackcolorField;
+        }
+        set
+        {
+            this.timestampbackcolorField = value;
+        }
+    }
+    
     /// <remarks/>
     public string ProcAmpConfig
     {
@@ -1836,7 +1868,7 @@ public partial class objectsCameraDetector {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    [System.ComponentModel.DefaultValueAttribute(true)]
+    [System.ComponentModel.DefaultValueAttribute(false)]
     public bool highlight {
         get {
             return this.highlightField;

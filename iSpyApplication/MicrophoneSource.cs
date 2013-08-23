@@ -78,6 +78,7 @@ namespace iSpyApplication
                         return;
                     }
                     Mic.settings.sourcename = t;
+                    
                     break;
                 case 3:
                     try
@@ -293,11 +294,13 @@ namespace iSpyApplication
         private void Test_Click(object sender, EventArgs e)
         {
             btnTest.Enabled = false;
-            Program.WriterMutex.WaitOne();
-            var afr = new AudioFileReader();
-            string source = cmbFFMPEGURL.Text;
+
+            string res = "OK";
             try
             {
+                Program.WriterMutex.WaitOne();
+                var afr = new AudioFileReader();
+                string source = cmbFFMPEGURL.Text;
                 int i = source.IndexOf("://", StringComparison.Ordinal);
                 if (i > -1)
                 {
@@ -312,34 +315,19 @@ namespace iSpyApplication
                 Mic.settings.samples = afr.SampleRate;
                 Mic.settings.bits = 16;
 
-                MessageBox.Show("Stream OK");
-
+                afr.Close();
+                afr = null;              
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                res = ex.Message;
             }
             finally
             {
-                try
-                {
-                    Program.WriterMutex.ReleaseMutex();
-                }
-                catch (ObjectDisposedException)
-                {
-                    //can happen on shutdown
-                }
+                Program.WriterMutex.ReleaseMutex();                
             }
+            MessageBox.Show(res);
             
-            try
-            {
-                afr.Close();
-            }
-            catch
-            {
-                
-            }
-            afr = null;
             btnTest.Enabled = true;
         }
 

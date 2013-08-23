@@ -9,7 +9,7 @@ namespace iSpyApplication.Audio.streams
     {
         private string _source;
         private volatile bool _isrunning;
-        private float _volume;
+        private float _gain;
         private bool _listening;
 
         private WaveIn _waveIn;
@@ -52,7 +52,7 @@ namespace iSpyApplication.Audio.streams
         /// <remarks>This event is used to notify clients about any type of errors occurred in
         /// audio source object, for example internal exceptions.</remarks>
         /// 
-        public event AudioSourceErrorEventHandler AudioSourceError;
+        //public event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// audio playing finished event.
@@ -75,12 +75,12 @@ namespace iSpyApplication.Audio.streams
             set { _source = value; }
         }
 
-        public float Volume
+        public float Gain
         {
-            get { return _volume; }
+            get { return _gain; }
             set
             {
-                _volume = value;
+                _gain = value;
                 if (_sampleChannel != null)
                 {
                     _sampleChannel.Volume = value;
@@ -170,8 +170,10 @@ namespace iSpyApplication.Audio.streams
                         selind = 0;
                     else
                     {
-                        if (AudioSourceError != null)
-                            AudioSourceError(this, new AudioSourceErrorEventArgs("not connected"));
+                        //if (AudioSourceError != null)
+                        //    AudioSourceError(this, new AudioSourceErrorEventArgs("not connected"));
+                        if (AudioFinished != null)
+                            AudioFinished(this, ReasonToFinishPlaying.DeviceLost);
                         return;    
                     }
                     
