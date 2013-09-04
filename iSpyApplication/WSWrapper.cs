@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Timers;
 using System.Windows.Forms;
 using iSpyApplication.iSpyWS;
@@ -66,6 +67,34 @@ namespace iSpyApplication
             get { return _websitelive; }
             set
             {
+                if (_websitelive && !value)
+                {
+                    //disconnected
+                    if (!String.IsNullOrEmpty(MainForm.Conf.AlertOnDisconnect))
+                    {
+                        try
+                        {
+                            Process.Start(MainForm.Conf.AlertOnDisconnect);
+                        }catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+                    }
+                }
+                if (!_websitelive && value)
+                {
+                    //reconnected
+                    if (!String.IsNullOrEmpty(MainForm.Conf.AlertOnReconnect))
+                    {
+                        try
+                        {
+                            Process.Start(MainForm.Conf.AlertOnReconnect);
+                        }catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+                    }
+                }
                 _websitelive = value;
                 if (!_websitelive)
                 {
@@ -301,28 +330,28 @@ namespace iSpyApplication
             return LocRm.GetString("iSpyDown");
         }
 
-        public static string SendMms(string mobileNumber, string message, byte[] imageData)
-        {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendMMS(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                      mobileNumber, message, imageData);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
-        }
+        //public static string SendMms(string mobileNumber, string message, byte[] imageData)
+        //{
+        //    if (!MainForm.Conf.ServicesEnabled)
+        //        return WebservicesDisabledMessage;
+        //    string r = "";
+        //    if (WebsiteLive)
+        //    {
+        //        try
+        //        {
+        //            r = Wsa.SendMMS(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
+        //                              mobileNumber, message, imageData);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MainForm.LogExceptionToFile(ex);
+        //            WebsiteLive = false;
+        //        }
+        //        if (WebsiteLive)
+        //            return r;
+        //    }
+        //    return LocRm.GetString("iSpyDown");
+        //}
 
         public static bool ForceSync()
         {

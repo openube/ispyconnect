@@ -457,10 +457,8 @@ namespace iSpyApplication.Controls
 
                         bmOrig = lfu.ToManagedImage();
                         lfu.Dispose();
-
-
                         
-                        if (CW.Camobject.settings.timestamplocation != 0 && CW.Camobject.settings.timestampformatter != "")
+                        if (CW.Camobject.settings.timestamplocation != 0 && !String.IsNullOrEmpty(CW.Camobject.settings.timestampformatter))
                         {
                              AddTimestamp(bmOrig);
                         }
@@ -550,8 +548,11 @@ namespace iSpyApplication.Controls
                     p.X = _width - rs.Width;
                     break;
             }
-            var rect = new Rectangle(p, rs);
-            gCam.FillRectangle(BackBrush, rect);
+            if (CW.Camobject.settings.timestampshowback)
+            {
+                var rect = new Rectangle(p, rs);
+                gCam.FillRectangle(BackBrush, rect);
+            }
             gCam.DrawString(timestamp, DrawFont, ForeBrush, p);
             gCam.Dispose();
 
@@ -608,6 +609,7 @@ namespace iSpyApplication.Controls
             }
         }
 
+        [HandleProcessCorruptedStateExceptions] 
         private void ApplyMotionDetector(UnmanagedImage lfu)
         {
             if (Alarm != null)
@@ -616,7 +618,15 @@ namespace iSpyApplication.Controls
                 if (_processFrameCount >= CW.Camobject.detector.processeveryframe || CW.Calibrating)
                 {
                     _processFrameCount = 0;
-                    MotionLevel = _motionDetector.ProcessFrame(lfu, Filter);
+                    try
+                    {
+                        MotionLevel = _motionDetector.ProcessFrame(lfu, Filter);
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Exception("Error processing motion: "+ex.Message);
+                    }
+
                     if (MotionLevel >= _alarmLevel)
                     {
                         if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
@@ -746,7 +756,7 @@ namespace iSpyApplication.Controls
             {
                 if (_drawfont!=null)
                     return _drawfont;
-                _drawfont = new Font(MainForm.Drawfont.FontFamily,CW.Camobject.settings.timestampfontsize);
+                _drawfont = FontXmlConverter.ConvertToFont(CW.Camobject.settings.timestampfont);
                 return _drawfont;
             }
             set { _drawfont = value; }

@@ -21,6 +21,7 @@ namespace iSpyApplication
         {
             if (!_logging)
                 return;
+
             try
             {
                 string em = ex.HelpLink + "<br/>" + ex.Message + "<br/>" + ex.Source + "<br/>" + ex.StackTrace +

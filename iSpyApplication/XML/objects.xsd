@@ -42,6 +42,8 @@
                                                     <xs:element name="timestampoffset" type="xs:decimal" default="0"/>
                                                     <xs:element name="timestampforecolor" type="xs:string" default="0"/>
                                                     <xs:element name="timestampbackcolor" type="xs:string" default="0"/>
+                                                    <xs:element name="timestampfont" type="xs:string" default=""/>
+                                                    <xs:element name="timestampshowback" type="xs:boolean" default="true"/>
                                                     <xs:element name="desktoparea" type="xs:string"/>
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="ptzusername" type="xs:string" default=""/>
@@ -84,6 +86,15 @@
                                                             </xs:sequence>
                                                         </xs:complexType>
                                                     </xs:element>
+                                                    <xs:element name="storagemanagement">
+                                                      <xs:complexType>
+                                                        <xs:sequence>
+                                                          <xs:element name="enabled" type="xs:boolean" default="false"/>
+                                                          <xs:element name="maxsize" type="xs:int" />
+                                                          <xs:element name="maxage" type="xs:int" />
+                                                        </xs:sequence>
+                                                      </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                                 <xs:attribute name="desktopresizewidth" type="xs:int" use="required"/>
                                                 <xs:attribute name="desktopresizeheight" type="xs:int" use="required"/>
@@ -112,6 +123,7 @@
                                                     <xs:element name="text" type="xs:string" default="www.ispyconnect.com"/>
                                                     <xs:element name="savelocal" type="xs:boolean" default="false"/>
                                                     <xs:element name="quality" type="xs:int" />
+                                                    <xs:element name="rename" type="xs:boolean" />
                                                     <xs:element name="localfilename" type="xs:string" default="{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg"/>
                                                 </xs:sequence>
                                             </xs:complexType>
@@ -304,6 +316,15 @@
                                                     <xs:element name="accessgroups" type="xs:string" default=""/>
                                                     <xs:element name="timeout" type="xs:int" default="8000"/>
                                                     <xs:element name="analyzeduration" type="xs:int" default="2000"/>
+                                                    <xs:element name="storagemanagement">
+                                                      <xs:complexType>
+                                                        <xs:sequence>
+                                                          <xs:element name="enabled" type="xs:boolean" default="false"/>
+                                                          <xs:element name="maxsize" type="xs:int" />
+                                                          <xs:element name="maxage" type="xs:int" />
+                                                        </xs:sequence>
+                                                      </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>

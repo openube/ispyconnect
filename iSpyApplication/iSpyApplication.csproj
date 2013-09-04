@@ -568,6 +568,7 @@
     <Compile Include="PTZTool.Designer.cs">
       <DependentUpon>PTZTool.cs</DependentUpon>
     </Compile>
+    <Compile Include="SerializableFont.cs" />
     <Compile Include="ShareCamera.cs">
       <SubType>Form</SubType>
     </Compile>

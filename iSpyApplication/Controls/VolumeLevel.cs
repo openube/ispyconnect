@@ -162,8 +162,18 @@ namespace iSpyApplication.Controls
         {
             string dir = MainForm.Conf.MediaDirectory + "audio\\" +Micobject.directory + "\\";
             if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
+            {
+                try
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                    _filelist = new List<FilesFile>();
+                    return;
+                }
+            }
             bool failed = false;
             if (File.Exists(dir + "data.xml"))
             {
@@ -1101,9 +1111,7 @@ namespace iSpyApplication.Controls
             {
                 if (_stopWrite.WaitOne(0) && Recording && !_pairedRecording)
                 {
-                    if (_recordingTime > Micobject.recorder.maxrecordtime ||
-                        ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) &&
-                         !ForcedRecording))
+                    if (_recordingTime > Micobject.recorder.maxrecordtime || ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
                         StopSaving();
                 }
             }
@@ -2224,14 +2232,22 @@ namespace iSpyApplication.Controls
             }
 
             ForcedRecording = false;
-            StopSaving();
-
-            var cw = CameraControl;
-            if (cw != null && CameraControl.Camobject.settings.active)
+            
+            if (_pairedRecording)
             {
-                cw.RecordSwitch(false);
+                var cc = CameraControl;
+                if (cc != null && cc.Recording)
+                    cc.RecordSwitch(false);
+                else
+                {
+                    StopSaving();
+                }
             }
-           
+            else
+            {
+                StopSaving();
+            }
+            
             return "notrecording," + LocRm.GetString("RecordingStopped");
         }
 

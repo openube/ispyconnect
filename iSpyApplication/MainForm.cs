@@ -351,7 +351,6 @@ namespace iSpyApplication
         };
         private ToolStripMenuItem oNVIFCameraToolStripMenuItem;
         private readonly List<float> _cpuAverages = new List<float>();
-        
 
         public MainForm(bool silent, string command)
         {
@@ -360,8 +359,8 @@ namespace iSpyApplication
             {
                 SilentStartup = true;
             }
-            
-            SilentStartup = silent || Conf.Enable_Password_Protect;
+
+            SilentStartup = SilentStartup || silent || Conf.Enable_Password_Protect || Conf.StartupMode == 1;
 
             //need to wrap initialize component
             if (SilentStartup)
@@ -372,23 +371,32 @@ namespace iSpyApplication
             }
             else
             {
-                _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
+                switch (Conf.StartupMode)
+                {
+                    case 0:
+                        _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
+                        break;
+                    case 2:
+                        WindowState = FormWindowState.Maximized;
+                        break;
+                    case 3:
+                        WindowState = FormWindowState.Maximized;
+                        FormBorderStyle = FormBorderStyle.None;
+                        break;
+                }
             }
             
             InitializeComponent();
+
+
+            if (!SilentStartup)
+            {
+                if (Conf.StartupMode==0)
+                    _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
+            }
             
 
-            if (SilentStartup)
-            {
-                ShowInTaskbar = false;
-                ShowIcon = false;
-                WindowState = FormWindowState.Minimized;
-            }
-            else
-            {
-                _mWindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
-            }
-
+           
             RenderResources();
 
             _startCommand = command;
@@ -496,7 +504,7 @@ namespace iSpyApplication
                     components.Dispose();
                 }
                 if (_mWindowState != null)
-                    _mWindowState.Dispose();
+                   _mWindowState.Dispose();
 
                 Drawfont.Dispose();
                 if (_updateTimer != null)
@@ -659,6 +667,21 @@ namespace iSpyApplication
             }
 
             InitLogging();
+
+            if (!SilentStartup)
+            {
+                switch (Conf.StartupMode)
+                {
+                    case 0:
+                        break;
+                    case 2:
+                        break;
+                    case 3:
+                        WinApi.SetWinFullScreen(Handle);
+                        break;
+                }
+            }
+
 
             EncoderParams = new EncoderParameters(1);
             EncoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, Conf.JPEGQuality);
@@ -854,9 +877,8 @@ namespace iSpyApplication
 
             StopAndStartServer();
 
-            if (SilentStartup)
+            if (_mWindowState==null)
             {
-
                 _mWindowState = new PersistWindowState {Parent = this, RegistryPath = @"Software\ispy\startup"};
             }
 
@@ -1006,7 +1028,7 @@ namespace iSpyApplication
 
             pTZControllerToolStripMenuItem.Checked = menuItem18.Checked = pTZControllerToolStripMenuItem1.Checked = Conf.ShowPTZController;
 
-            if (Conf.ShowPTZController)
+            if (Conf.ShowPTZController && !SilentStartup)
                 ShowHidePTZTool();
 
 
@@ -1054,6 +1076,19 @@ namespace iSpyApplication
                 {
                     var gv = new GridView(this, ref cg);
                     gv.Show();
+                    switch (Conf.StartupMode)
+                    {
+                        case 0:
+                            //gv.WindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
+                            break;
+                        case 2:
+                            gv.WindowState = FormWindowState.Maximized;
+                            break;
+                        case 3:
+                            gv.WindowState = FormWindowState.Maximized;
+                            gv.MaxMin();
+                            break;
+                    }
                 }
             }
 
@@ -1455,15 +1490,14 @@ namespace iSpyApplication
                     }
                 }
 
-                if (Conf.Enable_Storage_Management)
-                {
+                
                     _storageCounter++;
                     if (_storageCounter == 3600) // every hour
                     {
                         RunStorageManagement();
                         _storageCounter = 0;
                     }
-                }
+                
 
                 if (_pingCounter == 80)
                 {
@@ -1490,14 +1524,17 @@ namespace iSpyApplication
             }
 
             
+
             if (StorageThread == null || !StorageThread.IsAlive)
             {
                 LogMessageToFile("Running Storage Management");
-                StorageThread = new Thread(DeleteOldFiles) { IsBackground = true };
+                StorageThread = new Thread(DeleteOldFiles) {IsBackground = true};
                 StorageThread.Start();
             }
             else
                 LogMessageToFile("Storage Management is already running");
+            
+
         }
 
         private void UpdateTimerElapsed(object sender, ElapsedEventArgs e)

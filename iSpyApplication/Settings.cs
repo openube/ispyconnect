@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -14,13 +13,16 @@ using Microsoft.Win32;
 using NAudio.Wave;
 using iSpyApplication.Controls;
 using iSpyApplication.Joystick;
-using iSpyApplication.Video;
 using Encoder = System.Drawing.Imaging.Encoder;
 
 namespace iSpyApplication
 {
     public partial class Settings : Form
     {
+        public static readonly string[] StartupModes = new[]
+            {
+                "Normal","Minimised","Maximised","FullScreen"
+            };  
         private const int Rgbmax = 255;
         private JoystickDevice _jst;
         public int InitialTab;
@@ -29,6 +31,7 @@ namespace iSpyApplication
         private RegistryKey _rkApp;
         private string[] _sticks;
         private static readonly object Jslock = new object();
+        
 
         public Settings()
         {
@@ -138,6 +141,9 @@ namespace iSpyApplication
             MainForm.Conf.StartupForm = ddlStartUpForm.SelectedItem.ToString();
             MainForm.Conf.TrayOnMinimise = chkMinimiseToTray.Checked;
             MainForm.Conf.MJPEGStreamInterval = (int)numMJPEGStreamInterval.Value;
+            MainForm.Conf.AlertOnDisconnect = txtAlertOnDisconnect.Text;
+            MainForm.Conf.AlertOnReconnect = txtAlertOnReconnect.Text;
+            MainForm.Conf.StartupMode = ddlStartupMode.SelectedIndex;
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             
@@ -348,6 +354,15 @@ namespace iSpyApplication
             txtAppendLinkText.Text = MainForm.Conf.AppendLinkText;
             lblFeatureSet.Text = MainForm.Conf.FeatureSet.ToString(CultureInfo.InvariantCulture);
             numMJPEGStreamInterval.Value = MainForm.Conf.MJPEGStreamInterval;
+            txtAlertOnDisconnect.Text = MainForm.Conf.AlertOnDisconnect;
+            txtAlertOnReconnect.Text = MainForm.Conf.AlertOnReconnect;
+
+            foreach (string s in StartupModes)
+            {
+                ddlStartupMode.Items.Add(LocRm.GetString(s));
+            }
+
+            ddlStartupMode.SelectedIndex = MainForm.Conf.StartupMode;
 
             foreach(var grid in MainForm.Conf.GridViews)
             {
@@ -1031,6 +1046,61 @@ namespace iSpyApplication
         private void ddlTalkMic_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private string _lastPath = "";
+        private void btnChooseFile_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.InitialDirectory = _lastPath;
+                ofd.Filter = "All Files (*.*)|*.*";
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    string fileName = ofd.FileName;
+                    try
+                    {
+                        var fi = new FileInfo(fileName);
+                        _lastPath = fi.DirectoryName;
+                    }
+                    catch
+                    {
+                    }
+
+
+                    if (fileName.Trim() != "")
+                    {
+                        txtAlertOnDisconnect.Text = fileName;
+                    }
+                }
+            }
+        }
+
+        private void btnChooseFile2_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.InitialDirectory = _lastPath;
+                ofd.Filter = "All Files (*.*)|*.*";
+                if (ofd.ShowDialog(this) == DialogResult.OK)
+                {
+                    string fileName = ofd.FileName;
+                    try
+                    {
+                        var fi = new FileInfo(fileName);
+                        _lastPath = fi.DirectoryName;
+                    }
+                    catch
+                    {
+                    }
+
+
+                    if (fileName.Trim() != "")
+                    {
+                        txtAlertOnReconnect.Text = fileName;
+                    }
+                }
+            }
         }
     }
 }

@@ -880,10 +880,19 @@ namespace iSpyApplication
             get
             {
                 var pl = new List<string>();
-                if (PTZProfile != null && PTZSession!=null)
+                try
                 {
-                    var presets = PTZSession.GetPresets(PTZProfile.token).RunSynchronously();
-                    pl.AddRange(presets.Select(p => p.name));
+                    if (PTZProfile != null && PTZSession!=null)
+                    {
+                    
+                            var presets = PTZSession.GetPresets(PTZProfile.token).RunSynchronously();
+                            pl.AddRange(presets.Select(p => p.name));
+                    
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
                 }
                 return pl.ToArray();
             }
@@ -1487,6 +1496,7 @@ namespace iSpyApplication
 
             string un = _cameraControl.Camobject.settings.login;
             string pwd = _cameraControl.Camobject.settings.password;
+
             if (!String.IsNullOrEmpty(_cameraControl.Camobject.settings.ptzusername))
             {
                 un = _cameraControl.Camobject.settings.ptzusername;
@@ -1510,8 +1520,8 @@ namespace iSpyApplication
                 }
             }
 
-            url = url.Replace("[USERNAME]", un);
-            url = url.Replace("[PASSWORD]", pwd);
+            url = url.Replace("[USERNAME]", Uri.EscapeDataString(un));
+            url = url.Replace("[PASSWORD]", Uri.EscapeDataString(pwd));
             url = url.Replace("[CHANNEL]", _cameraControl.Camobject.settings.ptzchannel);
 
             _request = (HttpWebRequest) WebRequest.Create(url);
@@ -1532,7 +1542,7 @@ namespace iSpyApplication
             string authInfo = "";
             if (!String.IsNullOrEmpty(un))
             {
-                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(un + ":" + pwd));
+                authInfo = Convert.ToBase64String(Encoding.Default.GetBytes(Uri.EscapeDataString(un) + ":" + Uri.EscapeDataString(pwd)));
                 _request.Headers["Authorization"] = "Basic " + authInfo;
             }
             
@@ -1547,8 +1557,8 @@ namespace iSpyApplication
 
             if (!String.IsNullOrEmpty(ckies))
             {
-                ckies = ckies.Replace("[USERNAME]", _cameraControl.Camobject.settings.login);
-                ckies = ckies.Replace("[PASSWORD]", _cameraControl.Camobject.settings.password);
+                ckies = ckies.Replace("[USERNAME]", un);
+                ckies = ckies.Replace("[PASSWORD]", pwd);
                 ckies = ckies.Replace("[CHANNEL]", _cameraControl.Camobject.settings.ptzchannel);
                 ckies = ckies.Replace("[AUTH]", authInfo);
                 var myContainer = new CookieContainer();

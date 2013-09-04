@@ -235,6 +235,11 @@ public partial class configuration {
     private int featureSetField;
 
     private int MJPEGStreamIntervalField;
+
+    private string alertOnDisconnectField;
+    private string alertOnReconnectField;
+
+    private int startupModeField;
     
     public configuration() {
         this.maxRecordingThreadsField = 4;
@@ -270,9 +275,25 @@ public partial class configuration {
         this.trayOnMinimiseField = true;
         this.featureSetField = -1;
         this.MJPEGStreamIntervalField = 100;
+        this.alertOnDisconnectField = "";
+        this.alertOnReconnectField = "";
+        this.startupModeField = 0;
     }
 
 
+    /// <remarks/>
+    public int StartupMode
+    {
+        get
+        {
+            return this.startupModeField;
+        }
+        set
+        {
+            this.startupModeField = value;
+        }
+    }
+    
     /// <remarks/>
     public int MJPEGStreamInterval
     {
@@ -304,6 +325,32 @@ public partial class configuration {
         }
         set {
             this.wSUsernameField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string AlertOnDisconnect
+    {
+        get
+        {
+            return this.alertOnDisconnectField;
+        }
+        set
+        {
+            this.alertOnDisconnectField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string AlertOnReconnect
+    {
+        get
+        {
+            return this.alertOnReconnectField;
+        }
+        set
+        {
+            this.alertOnReconnectField = value;
         }
     }
     

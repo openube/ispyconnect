@@ -4890,7 +4890,29 @@
       <ZoomOut>
       </ZoomOut>
     </Commands>
-    <ExtendedCommands>
-    </ExtendedCommands>
+    <ExtendedCommands></ExtendedCommands>
   </Camera>
+  <Camera id="188">
+    <Makes>
+      <Make Name="Siemens" Model="CCID1410-ST" />
+    </Makes>
+    <CommandURL></CommandURL>
+      <Commands>
+        <Left>/cgi-bin/remotecon_ptz.cgi?Type=3&amp;Pan=20&amp;Tilt=20</Left>
+        <LeftUp>/cgi-bin/remotecon_ptz.cgi?Type=5&amp;Pan=20&amp;Tilt=20</LeftUp>
+        <Right>/cgi-bin/remotecon_ptz.cgi?Type=4&amp;Pan=20&amp;Tilt=20</Right>
+        <RightUp>/cgi-bin/remotecon_ptz.cgi?Type=6&amp;Pan=20&amp;Tilt=20</RightUp>
+        <Up>/cgi-bin/remotecon_ptz.cgi?Type=1&amp;Pan=20&amp;Tilt=20</Up>
+        <Down>/cgi-bin/remotecon_ptz.cgi?Type=2&amp;Pan=20&amp;Tilt=20</Down>
+        <LeftDown>/cgi-bin/remotecon_ptz.cgi?Type=7&amp;Pan=20&amp;Tilt=20</LeftDown>
+        <RightDown>/cgi-bin/remotecon_ptz.cgi?Type=8&amp;Pan=20&amp;Tilt=20</RightDown>
+        <Stop>/cgi-bin/remotecon_ptz.cgi?Type=9</Stop>
+        <ZoomIn>/cgi-bin/remotecon_ptz.cgi?Type=10</ZoomIn>
+        <ZoomOut>/cgi-bin/remotecon_ptz.cgi?Type=11</ZoomOut>
+      </Commands>
+      <ExtendedCommands>
+        <Command Name="Start Scanning">/cgi-bin/remotecon.cgi?Type=14</Command>
+        <Command Name="Stop All">/cgi-bin/remotecon_ptz.cgi?Type=9</Command>
+      </ExtendedCommands>
+    </Camera>
 </PTZSettings2>

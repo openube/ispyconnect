@@ -6,10 +6,12 @@ namespace iSpyApplication
 {
     public partial class ConfigureTimestamp : Form
     {
-        public int TimeStampLocation = 0, FontSize = 10;
+        public int TimeStampLocation = 0;
         public decimal Offset = 0;
         public Color TimestampForeColor;
         public Color TimestampBackColor;
+        public bool TimestampShowBack;
+        public SerializableFont CustomFont;
 
         public ConfigureTimestamp()
         {
@@ -21,7 +23,6 @@ namespace iSpyApplication
         {
             Text = LocRm.GetString("Configure");
             label1.Text = LocRm.GetString("Location");
-            label2.Text = LocRm.GetString("Size");
             label3.Text = LocRm.GetString("Offset");
             button1.Text = LocRm.GetString("OK");
         }
@@ -30,27 +31,18 @@ namespace iSpyApplication
         {
             ddlTimestampLocation.Items.AddRange(LocRm.GetString("TimeStampLocations").Split(','));
             ddlTimestampLocation.SelectedIndex = TimeStampLocation;
-            numFontSize.Value = FontSize;
             numOffset.Value = Offset;
+            chkTimestampBack.Checked = TimestampShowBack;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             TimeStampLocation = ddlTimestampLocation.SelectedIndex;
-            FontSize = (int) numFontSize.Value;
             Offset = numOffset.Value;
+            TimestampShowBack = chkTimestampBack.Checked;
+
             DialogResult = DialogResult.OK;
             Close();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            var cd = new ColorDialog { Color = TimestampForeColor, AllowFullOpen = true, SolidColorOnly = false };
-            if (cd.ShowDialog(this)==DialogResult.OK)
-            {
-                TimestampForeColor = cd.Color;
-            }
-            cd.Dispose();
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -59,6 +51,28 @@ namespace iSpyApplication
             if (cd.ShowDialog(this) == DialogResult.OK)
             {
                 TimestampBackColor = cd.Color;
+            }
+            cd.Dispose();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            var fd = new FontDialog {ShowColor = false, Font = CustomFont.FontValue,Color = TimestampForeColor, ShowEffects = true};
+
+            if (fd.ShowDialog() != DialogResult.Cancel)
+            {
+                CustomFont = new SerializableFont(fd.Font);
+                TimestampForeColor = fd.Color;
+            }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var cd = new ColorDialog { Color = TimestampForeColor, AllowFullOpen = true, SolidColorOnly = false };
+            if (cd.ShowDialog(this) == DialogResult.OK)
+            {
+                TimestampForeColor = cd.Color;
             }
             cd.Dispose();
         }

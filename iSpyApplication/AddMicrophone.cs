@@ -141,6 +141,10 @@ namespace iSpyApplication
 
             chkTwitter.Checked = VolumeLevel.Micobject.notifications.sendtwitter;
 
+            tblStorage.Enabled = chkStorageManagement.Checked = VolumeLevel.Micobject.settings.storagemanagement.enabled;
+            numMaxAge.Value = VolumeLevel.Micobject.settings.storagemanagement.maxage;
+            numMaxFolderSize.Value = VolumeLevel.Micobject.settings.storagemanagement.maxsize;
+
             //try
             //{
             //    tbGain.Value = Convert.ToInt32(VolumeLevel.Micobject.settings.gain*100f);
@@ -310,6 +314,7 @@ namespace iSpyApplication
             HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
+            HideTab(tabPage5, Helper.HasFeature(Enums.Features.Storage));
 
             if (!Helper.HasFeature(Enums.Features.Web_Settings))
             {
@@ -473,6 +478,7 @@ namespace iSpyApplication
                 VolumeLevel.Micobject.alerts.arguments = txtArguments.Text;
 
                 VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
+                VolumeLevel.Micobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -488,6 +494,9 @@ namespace iSpyApplication
 
                 VolumeLevel.Micobject.alerts.trigger = ((ListItem)ddlTrigger.SelectedItem).Value;
                 VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
+
+                VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
+                VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
 
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
@@ -908,6 +917,20 @@ namespace iSpyApplication
         {
             //if (VolumeLevel.AudioSource!=null)
             //    VolumeLevel.Gain = tbGain.Value/100f;
+        }
+
+        private void chkStorageManagement_CheckedChanged(object sender, EventArgs e)
+        {
+            tblStorage.Enabled = chkStorageManagement.Checked;
+        }
+
+        private void btnRunNow_Click(object sender, EventArgs e)
+        {
+            VolumeLevel.Micobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
+            VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
+            VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
+
+            ((MainForm)Owner).RunStorageManagement();
         }
 
     }
