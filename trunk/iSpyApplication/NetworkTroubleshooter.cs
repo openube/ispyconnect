@@ -316,6 +316,7 @@ namespace iSpyApplication
             try
             {
                 var httpWReq = (HttpWebRequest) WebRequest.Create(url);
+                httpWReq.Timeout = 5000;
                 httpWReq.Method = "GET";
 
                 var myResponse = (HttpWebResponse) httpWReq.GetResponse();

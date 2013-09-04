@@ -8,7 +8,7 @@ namespace iSpyApplication
 {
     public class AsynchronousFtpUpLoader
     {
-        public bool FTP(string server, bool passive, string username, string password, string filename, int counter, byte[] contents, out string error)
+        public bool FTP(string server, bool passive, string username, string password, string filename, int counter, byte[] contents, out string error, bool rename)
         {
             bool failed = false;
             try
@@ -16,6 +16,8 @@ namespace iSpyApplication
                 var target = new Uri(server);
                 int i = 0;
                 filename = filename.Replace("{C}", counter.ToString(CultureInfo.InvariantCulture));
+                if (rename)
+                    filename+=".tmp";
 
                 while (filename.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
                 {
@@ -25,7 +27,7 @@ namespace iSpyApplication
 
                 //try uploading
                 //directory tree
-                var filepath = filename.Split('/');
+                var filepath = filename.Trim('/').Split('/');
                 var path = "";
                 FtpWebRequest request;
                 for (var iDir = 0; iDir < filepath.Length - 1; iDir ++)
@@ -43,9 +45,8 @@ namespace iSpyApplication
                 request = (FtpWebRequest)WebRequest.Create(target + filename);
                 request.Credentials = new NetworkCredential(username, password);
                 request.UsePassive = passive;
+                //request.UseBinary = true;
                 request.Method = WebRequestMethods.Ftp.UploadFile;
-
-
                 request.ContentLength = contents.Length;
 
                 Stream requestStream = request.GetRequestStream();
@@ -60,6 +61,57 @@ namespace iSpyApplication
                 }
 
                 response.Close();
+                
+                if (rename && !failed)
+                {
+                    //delete existing
+                    request = (FtpWebRequest)WebRequest.Create(target + filename.Substring(0, filename.Length - 4));
+                    request.Credentials = new NetworkCredential(username, password);
+                    request.UsePassive = passive;
+                    //request.UseBinary = true;
+                    request.Method = WebRequestMethods.Ftp.DeleteFile;
+                    filename = "/" + filename;
+
+                    try
+                    {
+                        response = (FtpWebResponse) request.GetResponse();
+                        if (response.StatusCode != FtpStatusCode.ActionNotTakenFileUnavailable &&
+                            response.StatusCode != FtpStatusCode.FileActionOK)
+                        {
+                            MainForm.LogErrorToFile("FTP Delete Failed: " + response.StatusDescription);
+                            failed = true;
+                        }
+
+                        response.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        //ignore
+                    }
+
+                    //rename file
+                    if (!failed)
+                    {
+                        request = (FtpWebRequest) WebRequest.Create(target + filename);
+                        request.Credentials = new NetworkCredential(username, password);
+                        request.UsePassive = passive;
+                        //request.UseBinary = true;
+                        request.Method = WebRequestMethods.Ftp.Rename;
+                        filename = "/" + filename;
+
+                        request.RenameTo = filename.Substring(0, filename.Length - 4);
+
+                        response = (FtpWebResponse) request.GetResponse();
+                        if (response.StatusCode != FtpStatusCode.FileActionOK)
+                        {
+                            MainForm.LogErrorToFile("FTP Rename Failed: " + response.StatusDescription);
+                            failed = true;
+                        }
+
+                        response.Close();
+                    }
+                }
+
                 error = "";
             }
             catch (Exception ex)
@@ -80,7 +132,7 @@ namespace iSpyApplication
                 i++;
             }
             string error;
-            FTP(task.Server, task.UsePassive, task.Username, task.Password, task.FileName,task.Counter, task.Contents, out error);
+            FTP(task.Server, task.UsePassive, task.Username, task.Password, task.FileName,task.Counter, task.Contents, out error, task.Rename);
 
             if (error!="")
             {
@@ -107,9 +159,10 @@ namespace iSpyApplication
         public bool UsePassive;
         public string Username;
         public int Counter;
+        public bool Rename;
 
         public FTPTask(string server, bool usePassive, string username, string password, string fileName,
-                       byte[] contents, int cameraId, int counter)
+                       byte[] contents, int cameraId, int counter, bool rename)
         {
             Server = server;
             UsePassive = usePassive;
@@ -120,6 +173,7 @@ namespace iSpyApplication
             CameraId = cameraId;
             IsError = false;
             Counter = counter;
+            Rename = rename;
         }
     }
 }

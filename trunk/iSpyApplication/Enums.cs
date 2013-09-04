@@ -63,7 +63,8 @@ namespace iSpyApplication
             Scheduling =        4194304,
             Alerts =            8388608,
             Source_ONVIF =      16777216,
-            Source_Clone =      33554432
+            Source_Clone =      33554432,
+            Storage =           67108864
         }
 
     }

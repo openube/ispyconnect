@@ -466,6 +466,8 @@ public partial class objectsCameraSettings {
     private string timestampforecolorField;
 
     private string timestampbackcolorField;
+
+    private string timestampfontField;
     
     private string desktopareaField;
     
@@ -520,6 +522,8 @@ public partial class objectsCameraSettings {
     private int bordertimeoutField;
     
     private objectsCameraSettingsYoutube youtubeField;
+
+    private objectsCameraSettingsStoragemanagement storagemanagementField ;
     
     private int desktopresizewidthField;
     
@@ -544,6 +548,8 @@ public partial class objectsCameraSettings {
     private int rtspmodeField;
 
     private string procAmpConfigField;
+
+    private bool timestampshowbackField;
     
     public objectsCameraSettings() {
         this.timestampfontsizeField = 10;
@@ -582,6 +588,8 @@ public partial class objectsCameraSettings {
         this.procAmpConfigField = "";
         this.timestampforecolorField = "";
         this.timestampbackcolorField = "";
+        this.timestampfontField = "";
+        this.timestampshowbackField = true;
     }
 
     /// <remarks/>
@@ -594,6 +602,19 @@ public partial class objectsCameraSettings {
         set
         {
             this.rtspmodeField = value;
+        }
+    }
+
+    /// <remarks/>
+    public string timestampfont
+    {
+        get
+        {
+            return this.timestampfontField;
+        }
+        set
+        {
+            this.timestampfontField = value;
         }
     }
 
@@ -646,6 +667,20 @@ public partial class objectsCameraSettings {
         set
         {
             this.onvifidentField = value;
+        }
+    }
+
+
+    /// <remarks/>
+    public bool timestampshowback
+    {
+        get
+        {
+            return this.timestampshowbackField;
+        }
+        set
+        {
+            this.timestampshowbackField = value;
         }
     }
 
@@ -1245,6 +1280,19 @@ public partial class objectsCameraSettings {
             this.youtubeField = value;
         }
     }
+
+    /// <remarks/>
+    public objectsCameraSettingsStoragemanagement storagemanagement
+    {
+        get
+        {
+            return this.storagemanagementField;
+        }
+        set
+        {
+            this.storagemanagementField = value;
+        }
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -1323,58 +1371,132 @@ public partial class objectsCameraSettings {
 [System.SerializableAttribute()]
 [System.Diagnostics.DebuggerStepThroughAttribute()]
 [System.ComponentModel.DesignerCategoryAttribute("code")]
-[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-public partial class objectsCameraSettingsYoutube {
-    
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+public partial class objectsCameraSettingsYoutube
+{
+
     private bool autouploadField;
-    
+
     private bool publicField;
-    
+
     private string tagsField;
-    
+
     private string categoryField;
-    
-    public objectsCameraSettingsYoutube() {
+
+    public objectsCameraSettingsYoutube()
+    {
         this.publicField = false;
     }
-    
+
     /// <remarks/>
-    public bool autoupload {
-        get {
+    public bool autoupload
+    {
+        get
+        {
             return this.autouploadField;
         }
-        set {
+        set
+        {
             this.autouploadField = value;
         }
     }
-    
+
     /// <remarks/>
-    public bool @public {
-        get {
+    public bool @public
+    {
+        get
+        {
             return this.publicField;
         }
-        set {
+        set
+        {
             this.publicField = value;
         }
     }
-    
+
     /// <remarks/>
-    public string tags {
-        get {
+    public string tags
+    {
+        get
+        {
             return this.tagsField;
         }
-        set {
+        set
+        {
             this.tagsField = value;
         }
     }
-    
+
     /// <remarks/>
-    public string category {
-        get {
+    public string category
+    {
+        get
+        {
             return this.categoryField;
         }
-        set {
+        set
+        {
             this.categoryField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+public partial class objectsCameraSettingsStoragemanagement
+{
+
+    private bool enabledField;
+
+    private int maxsizeField;
+
+    private int maxageField;
+
+    public objectsCameraSettingsStoragemanagement()
+    {
+        this.enabledField = false;
+    }
+
+    /// <remarks/>
+    public bool enabled
+    {
+        get
+        {
+            return this.enabledField;
+        }
+        set
+        {
+            this.enabledField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int maxsize
+    {
+        get
+        {
+            return this.maxsizeField;
+        }
+        set
+        {
+            this.maxsizeField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int maxage
+    {
+        get
+        {
+            return this.maxageField;
+        }
+        set
+        {
+            this.maxageField = value;
         }
     }
 }
@@ -1420,14 +1542,30 @@ public partial class objectsCameraFtp {
     private int qualityField;
     
     private string localfilenameField;
+
+    private bool renameField;
     
     public objectsCameraFtp() {
         this.modeField = 2;
         this.textField = "www.ispyconnect.com";
         this.savelocalField = false;
         this.localfilenameField = "{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg";
+        this.renameField = false;
     }
-    
+
+    /// <remarks/>
+    public bool rename
+    {
+        get
+        {
+            return this.renameField;
+        }
+        set
+        {
+            this.renameField = value;
+        }
+    }
+
     /// <remarks/>
     public bool enabled {
         get {
@@ -2963,13 +3101,28 @@ public partial class objectsMicrophoneSettings {
     private int timeoutField;
 
     private int analysedurationField;
-    
+
+    private objectsMicrophoneSettingsStoragemanagement storagemanagementField;
+   
     public objectsMicrophoneSettings() {
         this.volumeField = 50;
         this.gainField = ((float)(1F));
         this.accessgroupsField = "";
         this.timeoutField = 8000;
         this.analysedurationField = 2000;
+    }
+
+    /// <remarks/>
+    public objectsMicrophoneSettingsStoragemanagement storagemanagement
+    {
+        get
+        {
+            return this.storagemanagementField;
+        }
+        set
+        {
+            this.storagemanagementField = value;
+        }
     }
 
     /// <remarks/>
@@ -3453,6 +3606,66 @@ public partial class objectsMicrophoneAlerts {
         }
         set {
             this.triggerField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+public partial class objectsMicrophoneSettingsStoragemanagement
+{
+
+    private bool enabledField;
+
+    private int maxsizeField;
+
+    private int maxageField;
+
+    public objectsMicrophoneSettingsStoragemanagement()
+    {
+        this.enabledField = false;
+    }
+
+    /// <remarks/>
+    public bool enabled
+    {
+        get
+        {
+            return this.enabledField;
+        }
+        set
+        {
+            this.enabledField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int maxsize
+    {
+        get
+        {
+            return this.maxsizeField;
+        }
+        set
+        {
+            this.maxsizeField = value;
+        }
+    }
+
+    /// <remarks/>
+    public int maxage
+    {
+        get
+        {
+            return this.maxageField;
+        }
+        set
+        {
+            this.maxageField = value;
         }
     }
 }

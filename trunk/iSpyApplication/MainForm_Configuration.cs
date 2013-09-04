@@ -613,6 +613,16 @@ namespace iSpyApplication
                             entries = new objectsCameraPtzscheduleEntry[] { }
                         };
                     }
+                    if (cam.settings.storagemanagement==null)
+                    {
+                        cam.settings.storagemanagement = new objectsCameraSettingsStoragemanagement
+                        {
+                            enabled = false,
+                            maxage = 72,
+                            maxsize = 1024
+                                                                 
+                        };
+                    }
                     cam.newrecordingcount = 0;
                     if (cam.settings.maxframerate == 0)
                         cam.settings.maxframerate = 10;
@@ -693,7 +703,15 @@ namespace iSpyApplication
                     }
 
                     if (!Directory.Exists(path2))
-                        Directory.CreateDirectory(path2);
+                    {
+                        try
+                        {   
+                            Directory.CreateDirectory(path2);
+                        }
+                        catch(IOException e)
+                        {
+                        }
+                    }
 
                     if (String.IsNullOrEmpty(cam.ftp.localfilename))
                     {
@@ -703,13 +721,36 @@ namespace iSpyApplication
                     if (String.IsNullOrEmpty(cam.settings.audiomodel))
                         cam.settings.audiomodel = "None";
 
+                    if (String.IsNullOrEmpty(cam.settings.timestampfont))
+                    {
+                        cam.settings.timestampfont = FontXmlConverter.ConvertToString(Drawfont);
+                        cam.settings.timestampshowback = true;
+                    }
+
+
                     path2 = Conf.MediaDirectory + "video\\" + cam.directory + "\\thumbs\\";
                     if (!Directory.Exists(path2))
+                    {
+                         try
+                        {
                         Directory.CreateDirectory(path2);
+                        }
+                        catch
+                        {
+                        }
+                    }
 
                     path2 = Conf.MediaDirectory + "video\\" + cam.directory + "\\grabs\\";
                     if (!Directory.Exists(path2))
+                    {
+                        try
+                        {
                         Directory.CreateDirectory(path2);
+                        }
+                        catch
+                        {
+                        }
+                    }
                     if (cam.alerts.trigger == null)
                         cam.alerts.trigger = "";
                 }
@@ -727,6 +768,17 @@ namespace iSpyApplication
 
                     if (mic.settings.accessgroups == null)
                         mic.settings.accessgroups = "";
+
+                    if (mic.settings.storagemanagement == null)
+                    {
+                        mic.settings.storagemanagement = new objectsMicrophoneSettingsStoragemanagement
+                        {
+                            enabled = false,
+                            maxage = 72,
+                            maxsize = 1024
+
+                        };
+                    }
 
                     if (mic.x < 0)
                         mic.x = 0;
@@ -762,6 +814,7 @@ namespace iSpyApplication
                     MessageBox.Show(LocRm.GetString("CamerasNotLoadedVLC"), LocRm.GetString("Message"));
 
                 NeedsSync = true;
+                LogMessageToFile("Loaded "+_cameras.Count+" cameras, "+_microphones.Count+" mics and "+_floorplans.Count+" floorplans");
             }
             catch (Exception ex)
             {
@@ -1024,90 +1077,254 @@ namespace iSpyApplication
         private DateTime _oldestFile = DateTime.MinValue;
         private void DeleteOldFiles()
         {
-            if (Conf.DeleteFilesOlderThanDays <= 0)
-                return;
-
-            DateTime dtref = DateTime.Now.AddDays(0 - Conf.DeleteFilesOlderThanDays);
-
-            //don't bother if oldest file isn't past cut-off
-            if (_oldestFile>dtref)
-                return;
-            
-            var lFi = new List<FileInfo>();
-            try
-            {
-                var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "video\\");
-                foreach (var d in dirinfo.GetDirectories())
-                {
-                    lFi.AddRange(d.GetFiles("*.*", SearchOption.AllDirectories));
-                }
-                dirinfo = new DirectoryInfo(Conf.MediaDirectory + "audio\\");
-                foreach (var d in dirinfo.GetDirectories())
-                {
-                    lFi.AddRange(d.GetFiles("*.*", SearchOption.AllDirectories));
-                }
-            }
-            catch (Exception ex)
-            {
-                LogExceptionToFile(ex);
-                return;
-            }
-
-            lFi = lFi.FindAll(f => f.Extension != ".xml");
-            lFi = lFi.OrderBy(f => f.CreationTime).ToList();
-
-            var size = lFi.Sum(p => p.Length);
-            var targetSize = (Conf.MaxMediaFolderSizeMB*0.7)*1048576d;
-            
-            if (size < targetSize)
-            {
-                return;
-            }
-
             bool fileschanged = false;
+            //walk through camera specific management first
             
-            var lCan = lFi.Where(p => p.CreationTime < dtref).OrderBy(p=>p.CreationTime).ToList();
-
-            for(int i=0;i<lCan.Count;i++)
+            foreach (var camobj in Cameras)
             {
-                var fi = lCan[i];
-                if (size>targetSize)
+                if (camobj.settings.storagemanagement.enabled)
                 {
-                    if (FileOperations.Delete(fi.FullName))
+                    try
                     {
-                        size -= fi.Length;
-                        fileschanged = true;
-                        lCan.Remove(fi);
-                        i--;
-                        if (size < targetSize)
+                        var cw = GetCameraWindow(camobj.id);
+                        if (cw != null)
                         {
-                            break;
+                            var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "video\\" + camobj.directory);
+
+                            var lFi = new List<FileInfo>();
+                            lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+
+                            lFi = lFi.FindAll(f => f.Extension != ".xml");
+                            lFi = lFi.OrderBy(f => f.CreationTime).ToList();
+
+                            var size = lFi.Sum(p => p.Length);
+                            var targetSize = (camobj.settings.storagemanagement.maxsize)*1048576d;
+                            while (size > targetSize)
+                            {
+                                for (int i = 0; i < lFi.Count; i++)
+                                {
+                                    var fi = lFi[i];
+                                    if (FileOperations.Delete(fi.FullName))
+                                    {
+                                        try
+                                        {
+                                            cw.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                            MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        }
+                                        catch
+                                        {
+                                        }
+                                        size -= fi.Length;
+                                        
+                                        fileschanged = true;
+                                        lFi.Remove(fi);
+                                        i--;
+                                        if (size < targetSize)
+                                            break;
+                                    }
+                                }
+                            }
+                            var targetdate = DateTime.Now.AddHours(0 - camobj.settings.storagemanagement.maxage);
+                            lFi = lFi.FindAll(p => p.CreationTime < targetdate).ToList();
+                            for (int i = 0; i < lFi.Count; i++)
+                            {
+                                var fi = lFi[i];
+                                if (FileOperations.Delete(fi.FullName))
+                                {
+                                    try
+                                    {
+                                        cw.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                    }
+                                    catch
+                                    {
+                                    }
+                                    fileschanged = true;
+                                    lFi.Remove(fi);
+                                    i--;
+                                }
+                            }
                         }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogExceptionToFile(ex);
                     }
                 }
             }
-            if (lCan.Count > 0)
-                _oldestFile = lCan.First().CreationTime;
-            else
-            {
-                var o = lFi.FirstOrDefault(p => p.CreationTime > dtref);
-                if (o != null)
-                    _oldestFile = o.CreationTime;
 
+            foreach (var micobj in Microphones)
+            {
+                if (micobj.settings.storagemanagement.enabled)
+                {
+                    try
+                    {
+                        var vl = GetVolumeLevel(micobj.id);
+                        if (vl != null)
+                        {
+                            var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "audio\\" + micobj.directory);
+
+                            var lFi = new List<FileInfo>();
+                            lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+
+                            lFi = lFi.FindAll(f => f.Extension != ".xml");
+                            lFi = lFi.OrderBy(f => f.CreationTime).ToList();
+
+                            var size = lFi.Sum(p => p.Length);
+                            var targetSize = (micobj.settings.storagemanagement.maxsize) * 1048576d;
+                            while (size > targetSize)
+                            {
+                                for (int i = 0; i < lFi.Count; i++)
+                                {
+                                    var fi = lFi[i];
+                                    if (FileOperations.Delete(fi.FullName))
+                                    {
+                                        try
+                                        {
+                                            vl.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                            MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        }
+                                        catch
+                                        {
+                                        }
+                                        size -= fi.Length;
+                                        fileschanged = true;
+                                        lFi.Remove(fi);
+                                        i--;
+                                    }
+                                }
+                            }
+                            var targetdate = DateTime.Now.AddHours(0 - micobj.settings.storagemanagement.maxage);
+                            lFi = lFi.FindAll(p => p.CreationTime < targetdate).ToList();
+                            for (int i = 0; i < lFi.Count; i++)
+                            {
+                                var fi = lFi[i];
+                                if (FileOperations.Delete(fi.FullName))
+                                {
+                                    try
+                                    {
+                                        vl.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                    }
+                                    catch
+                                    {
+                                    }
+                                    fileschanged = true;
+                                    lFi.Remove(fi);
+                                    i--;
+                                }
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogExceptionToFile(ex);
+                    }
+                }
             }
+
+
+            
 
             if (fileschanged)
             {
                 UISync.Execute(RefreshControls);
-                LogMessageToFile(LocRm.GetString("MediaStorageLimit").Replace("[AMOUNT]",Conf.MaxMediaFolderSizeMB.ToString(CultureInfo.InvariantCulture)));
             }
 
-            if ((size / 1048576) > Conf.MaxMediaFolderSizeMB && !StopRecordingFlag && Conf.StopSavingOnStorageLimit)
+            if (Conf.Enable_Storage_Management)
             {
-                StopRecordingFlag = true;
+                if (Conf.DeleteFilesOlderThanDays <= 0)
+                    return;
+
+                DateTime dtref = DateTime.Now.AddDays(0 - Conf.DeleteFilesOlderThanDays);
+
+                //don't bother if oldest file isn't past cut-off
+                if (_oldestFile > dtref)
+                    return;
+
+                var lFi = new List<FileInfo>();
+                try
+                {
+                    var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "video\\");
+                    lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+                    
+                    dirinfo = new DirectoryInfo(Conf.MediaDirectory + "audio\\");
+                    lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+                    
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex);
+                    return;
+                }
+
+                lFi = lFi.FindAll(f => f.Extension != ".xml");
+                lFi = lFi.OrderBy(f => f.CreationTime).ToList();
+
+                var size = lFi.Sum(p => p.Length);
+                var targetSize = (Conf.MaxMediaFolderSizeMB*0.7)*1048576d;
+
+                if (size < targetSize)
+                {
+                    return;
+                }
+
+                
+
+                var lCan = lFi.Where(p => p.CreationTime < dtref).OrderBy(p => p.CreationTime).ToList();
+
+                for (int i = 0; i < lCan.Count; i++)
+                {
+                    var fi = lCan[i];
+                    if (size > targetSize)
+                    {
+                        if (FileOperations.Delete(fi.FullName))
+                        {
+                            size -= fi.Length;
+                            fileschanged = true;
+                            lCan.Remove(fi);
+                            i--;
+                            try
+                            {
+                                MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                            }
+                            catch
+                            {
+                            }
+                            if (size < targetSize)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (lCan.Count > 0)
+                    _oldestFile = lCan.First().CreationTime;
+                else
+                {
+                    var o = lFi.FirstOrDefault(p => p.CreationTime > dtref);
+                    if (o != null)
+                        _oldestFile = o.CreationTime;
+
+                }
+
+                if (fileschanged)
+                {
+                    UISync.Execute(RefreshControls);
+                    LogMessageToFile(LocRm.GetString("MediaStorageLimit").Replace("[AMOUNT]",
+                                                                                  Conf.MaxMediaFolderSizeMB.ToString(
+                                                                                      CultureInfo.InvariantCulture)));
+                }
+
+                if ((size/1048576) > Conf.MaxMediaFolderSizeMB && !StopRecordingFlag && Conf.StopSavingOnStorageLimit)
+                {
+                    StopRecordingFlag = true;
+                }
+                else
+                    StopRecordingFlag = false;
             }
-            else
-                StopRecordingFlag = false;
 
         }
 
@@ -1140,9 +1357,16 @@ namespace iSpyApplication
             micControl.BringToFront();
             micControl.Tag = GetControlIndex();
 
-            string path = Conf.MediaDirectory + "audio\\" + mic.directory + "\\";
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
+            try
+            {
+                string path = Conf.MediaDirectory + "audio\\" + mic.directory + "\\";
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+            }            
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
             micControl.GetFiles();
         }
 
@@ -1591,6 +1815,8 @@ namespace iSpyApplication
             oc.settings.reconnectinterval = 0;
             oc.settings.timestampforecolor = "255,255,255";
             oc.settings.timestampbackcolor = "70,70,70";
+            oc.settings.timestampfont = FontXmlConverter.ConvertToString(Drawfont);
+            oc.settings.timestampshowback = true;
             
             oc.settings.youtube = new objectsCameraSettingsYoutube
             {
@@ -1598,6 +1824,14 @@ namespace iSpyApplication
                 category = Conf.YouTubeDefaultCategory,
                 tags = "iSpy, Motion Detection, Surveillance",
                 @public = false
+            };
+
+            oc.settings.storagemanagement = new objectsCameraSettingsStoragemanagement
+            {
+                enabled = false,
+                maxage = 72,
+                maxsize = 1024
+
             };
             oc.settings.desktopresizeheight = 480;
             oc.settings.desktopresizewidth = 640;
@@ -1732,6 +1966,14 @@ namespace iSpyApplication
                 om.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
             else
                 om.settings.vlcargs = "";
+
+            om.settings.storagemanagement = new objectsMicrophoneSettingsStoragemanagement
+            {
+                enabled = false,
+                maxage = 72,
+                maxsize = 1024
+
+            };
 
             om.detector.sensitivity = 60;
             om.detector.nosoundinterval = 30;
@@ -2514,27 +2756,34 @@ namespace iSpyApplication
             cameraControl.Tag = GetControlIndex();
 
             string path = Conf.MediaDirectory + "video\\" + cam.directory + "\\";
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            path = Conf.MediaDirectory + "video\\" + cam.directory + "\\thumbs\\";
-            if (!Directory.Exists(path))
+            try
             {
-                Directory.CreateDirectory(path);
-                //move existing thumbs into directory
-                var lfi =
-                    Directory.GetFiles(Conf.MediaDirectory + "video\\" + cam.directory + "\\", "*.jpg").ToList();
-                foreach (string file in lfi)
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+                path = Conf.MediaDirectory + "video\\" + cam.directory + "\\thumbs\\";
+                if (!Directory.Exists(path))
                 {
-                    string destfile = file;
-                    int i = destfile.LastIndexOf(@"\", StringComparison.Ordinal);
-                    destfile = file.Substring(0, i) + @"\thumbs" + file.Substring(i);
-                    File.Move(file, destfile);
+                    Directory.CreateDirectory(path);
+                    //move existing thumbs into directory
+                    var lfi =
+                        Directory.GetFiles(Conf.MediaDirectory + "video\\" + cam.directory + "\\", "*.jpg").ToList();
+                    foreach (string file in lfi)
+                    {
+                        string destfile = file;
+                        int i = destfile.LastIndexOf(@"\", StringComparison.Ordinal);
+                        destfile = file.Substring(0, i) + @"\thumbs" + file.Substring(i);
+                        File.Move(file, destfile);
+                    }
+                }
+                path = Conf.MediaDirectory + "video\\" + cam.directory + "\\grabs\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
                 }
             }
-            path = Conf.MediaDirectory + "video\\" + cam.directory + "\\grabs\\";
-            if (!Directory.Exists(path))
+            catch (Exception ex)
             {
-                Directory.CreateDirectory(path);
+                MainForm.LogExceptionToFile(ex);
             }
 
             cameraControl.GetFiles();

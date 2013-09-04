@@ -545,12 +545,7 @@ namespace iSpyApplication
             else
                 llblScan.Visible = false;
 
-            if (ddlMake.SelectedItem == null)
-            {
-                MessageBox.Show(this, "Select a camera make");
-                ShowPanel(pnlConfig);
-                return;
-            }
+            
             if (MainForm.IPLISTED)
             {
                 ListCameras(make, model);
@@ -616,8 +611,8 @@ namespace iSpyApplication
             
 
             var lp = new List<String>();
-            string login = txtUsername.Text.Trim();
-            string password = txtPassword.Text;
+            string login =  Uri.EscapeDataString(txtUsername.Text);
+            string password = Uri.EscapeDataString(txtPassword.Text);
 
             //list urls for current make first
             var m = MainForm.Sources.Where(p=>p.name.ToUpper()==make.ToUpper()).ToList();           
@@ -651,9 +646,8 @@ namespace iSpyApplication
         private void ScanListedURLs()
         {
             _quiturlscanner = false;
-            var lp = new List<String>();
-            string login = txtUsername.Text.Trim();
-            string password = txtPassword.Text;
+            string login = Uri.EscapeDataString(txtUsername.Text);
+            string password = Uri.EscapeDataString(txtPassword.Text);
 
             
             var mmurl = new List<ManufacturersManufacturerUrl>();
@@ -888,7 +882,7 @@ namespace iSpyApplication
                 var response = sock.Send(Encoding.UTF8.GetBytes(request));
                 if (response > 0)
                 {
-                    var bytesReceived = new byte[100];
+                    var bytesReceived = new byte[200];
                     var bytes = sock.Receive(bytesReceived, bytesReceived.Length, 0);
                     string resp = Encoding.ASCII.GetString(bytesReceived, 0, bytes);
                     if (resp.IndexOf("200 OK", StringComparison.Ordinal) != -1)
@@ -1197,8 +1191,8 @@ namespace iSpyApplication
 
         private string GetAddr(ManufacturersManufacturerUrl s)
         {
-            Username = txtUsername.Text.Trim();
-            Password = txtPassword.Text.Trim();
+            Username = txtUsername.Text;
+            Password = txtPassword.Text;
             Channel = txtChannel.Text.Trim();
 
             string addr = txtIPAddress.Text.Trim();
@@ -1214,10 +1208,10 @@ namespace iSpyApplication
 
             if (!String.IsNullOrEmpty(Username))
             {
-                connectUrl += Username;
+                connectUrl += Uri.EscapeDataString(Username);
 
                 if (!String.IsNullOrEmpty(Password))
-                    connectUrl += ":" + Password;
+                    connectUrl += ":" + Uri.EscapeDataString(Password);
                 connectUrl += "@";
                      
             }
@@ -1227,7 +1221,7 @@ namespace iSpyApplication
             if (!url.StartsWith("/"))
                 url = "/" + url;
             
-            url = url.Replace("[USERNAME]", Username).Replace("[PASSWORD]", Password);
+            url = url.Replace("[USERNAME]", Uri.EscapeDataString(Username)).Replace("[PASSWORD]", Uri.EscapeDataString(Password));
             url = url.Replace("[CHANNEL]", txtChannel.Text.Trim());
             //defaults:
             url = url.Replace("[WIDTH]", "320");
@@ -1235,7 +1229,7 @@ namespace iSpyApplication
 
             if (url.IndexOf("[AUTH]", StringComparison.Ordinal)!=-1)
             {
-                string credentials = String.Format("{0}:{1}", Username, Password);
+                string credentials = String.Format("{0}:{1}", Uri.EscapeDataString(Username), Uri.EscapeDataString(Password));
                 byte[] bytes = Encoding.ASCII.GetBytes(credentials);
                 url = url.Replace("[AUTH]", Convert.ToBase64String(bytes));
             }

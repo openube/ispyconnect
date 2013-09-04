@@ -8,6 +8,9 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
@@ -17,6 +20,7 @@ using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
 using iSpyApplication.Pelco;
 using iSpyApplication.Video;
+using Encoder = System.Drawing.Imaging.Encoder;
 
 
 namespace iSpyApplication
@@ -195,8 +199,7 @@ namespace iSpyApplication
             chkPublic.Checked = CameraControl.Camobject.settings.youtube.@public;
             txtTags.Text = CameraControl.Camobject.settings.youtube.tags;
             chkMovement.Checked = CameraControl.Camobject.alerts.active;
-            lblDirectory.Text = MainForm.Conf.MediaDirectory;
-
+            
             var youTubeCats = MainForm.Conf.YouTubeCategories.Split(',');
 
             int i = 0, ytcInd = 0;
@@ -262,7 +265,7 @@ namespace iSpyApplication
             chkSendSMSMovement.Checked = CameraControl.Camobject.notifications.sendsms;
             txtSMSNumber.Text = CameraControl.Camobject.settings.smsnumber;
             txtEmailAlert.Text = CameraControl.Camobject.settings.emailaddress;
-            chkMMS.Checked = CameraControl.Camobject.notifications.sendmms;
+            //chkMMS.Checked = CameraControl.Camobject.notifications.sendmms;
             chkSchedule.Checked = CameraControl.Camobject.schedule.active;
             chkFlipX.Checked = CameraControl.Camobject.flipx;
             chkFlipY.Checked = CameraControl.Camobject.flipy;
@@ -273,6 +276,7 @@ namespace iSpyApplication
             numMaxFRRecording.Value = CameraControl.Camobject.settings.maxframeraterecord;
             txtArguments.Text = CameraControl.Camobject.alerts.arguments;
             txtDirectory.Text = CameraControl.Camobject.directory;
+
             chkAutoHome.Checked = CameraControl.Camobject.settings.ptzautohome;
             //chkCRF.Checked = CameraControl.Camobject.recorder.crf;
             numTTH.Value = CameraControl.Camobject.settings.ptztimetohome;
@@ -287,6 +291,7 @@ namespace iSpyApplication
             txtPTZChannel.Text = CameraControl.Camobject.settings.ptzchannel;
             chkReverseTracking.Checked = CameraControl.Camobject.settings.ptzautotrackreverse;
             txtSound.Text = CameraControl.Camobject.alerts.playsound;
+            chkFTPRename.Checked = CameraControl.Camobject.ftp.rename;
             ShowSchedule(-1);
 
             if (CameraControl.Camera==null)
@@ -449,6 +454,11 @@ namespace iSpyApplication
             numMaxCounter.Value = CameraControl.Camobject.ftp.countermax;
 
             chkIgnoreAudio.Checked = CameraControl.Camobject.settings.ignoreaudio;
+
+            tblStorage.Enabled = chkStorageManagement.Checked = CameraControl.Camobject.settings.storagemanagement.enabled;
+            numMaxAge.Value = CameraControl.Camobject.settings.storagemanagement.maxage;
+            numMaxFolderSize.Value = CameraControl.Camobject.settings.storagemanagement.maxsize;
+
             _loaded = true;
         }
 
@@ -566,7 +576,7 @@ namespace iSpyApplication
             rdoMotion.Text = LocRm.GetString("WhenMotionDetected");
             rdoContinuous.Text = LocRm.GetString("Continuous");
             //chkCRF.Text = LocRm.GetString("Auto");
-            chkMMS.Text = LocRm.GetString("SendAsMmsWithImage2Credit");
+            //chkMMS.Text = LocRm.GetString("SendAsMmsWithImage2Credit");
             chkMon.Text = LocRm.GetString("Mon");
             chkMovement.Text = LocRm.GetString("AlertsEnabled");
             chkPublic.Text = LocRm.GetString("PubliccheckThisToMakeYour");
@@ -760,6 +770,7 @@ namespace iSpyApplication
             HideTab(tabPage7, Helper.HasFeature(Enums.Features.Save_Frames));
             HideTab(tabPage9, Helper.HasFeature(Enums.Features.YouTube) && Helper.HasFeature(Enums.Features.Web_Settings));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Scheduling));
+            HideTab(tabPage6, Helper.HasFeature(Enums.Features.Storage));
 
             if (!Helper.HasFeature(Enums.Features.Web_Settings))
             {
@@ -970,7 +981,7 @@ namespace iSpyApplication
                 if (sms == "")
                 {
                     chkSendSMSMovement.Checked = false;
-                    chkMMS.Checked = false;
+                    //chkMMS.Checked = false;
                 }
 
                 if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
@@ -1010,7 +1021,7 @@ namespace iSpyApplication
                             if (ws.DialogResult != DialogResult.Yes)
                             {
                                 chkSendEmailMovement.Checked = false;
-                                chkMMS.Checked = false;
+                                //chkMMS.Checked = false;
                                 chkEmailOnDisconnect.Checked = false;
                                 chkSendSMSMovement.Checked = false;
                             }
@@ -1078,8 +1089,7 @@ namespace iSpyApplication
                     }
                 }
 
-                CameraControl.Camobject.detector.processeveryframe =
-                    Convert.ToInt32(ddlProcessFrames.SelectedItem.ToString());
+                CameraControl.Camobject.detector.processeveryframe = Convert.ToInt32(ddlProcessFrames.SelectedItem.ToString());
                 CameraControl.Camobject.detector.motionzones = AreaControl.MotionZones;
                 CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
                 CameraControl.Camobject.detector.postprocessor = (string) _processortypes[ddlProcessor.SelectedIndex];
@@ -1104,7 +1114,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.alerts.alertoptions = chkBeep.Checked + "," + chkRestore.Checked;
                 CameraControl.Camobject.notifications.sendemail = chkSendEmailMovement.Checked;
                 CameraControl.Camobject.notifications.sendsms = chkSendSMSMovement.Checked;
-                CameraControl.Camobject.notifications.sendmms = chkMMS.Checked;
+                //CameraControl.Camobject.notifications.sendmms = chkMMS.Checked;
                 CameraControl.Camobject.settings.emailaddress = email;
                 CameraControl.Camobject.settings.smsnumber = sms;
                 CameraControl.Camobject.settings.notifyondisconnect = chkEmailOnDisconnect.Checked;
@@ -1125,6 +1135,11 @@ namespace iSpyApplication
                 CameraControl.Camobject.alerts.playsound = txtSound.Text;
                 CameraControl.Camobject.ftp.countermax = (int) numMaxCounter.Value;
                 CameraControl.Camobject.settings.ignoreaudio = chkIgnoreAudio.Checked;
+                CameraControl.Camobject.ftp.rename = chkFTPRename.Checked;
+
+                CameraControl.Camobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
+                CameraControl.Camobject.settings.storagemanagement.maxage = (int) numMaxAge.Value;
+                CameraControl.Camobject.settings.storagemanagement.maxsize = (int) numMaxFolderSize.Value;
                 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -1324,8 +1339,8 @@ namespace iSpyApplication
 
         private void ChkSendSmsMovementCheckedChanged(object sender, EventArgs e)
         {
-            if (chkSendSMSMovement.Checked)
-                chkMMS.Checked = false;
+            //if (chkSendSMSMovement.Checked)
+            //    chkMMS.Checked = false;
         }
 
         private void ChkSendEmailMovementCheckedChanged(object sender, EventArgs e)
@@ -1705,7 +1720,7 @@ namespace iSpyApplication
                     if ((new AsynchronousFtpUpLoader()).FTP(txtFTPServer.Text + ":" + txtFTPPort.Text,
                                                             chkUsePassive.Checked,
                                                             txtFTPUsername.Text, txtFTPPassword.Text, fn,0,
-                                                            imageStream.ToArray(), out error))
+                                                            imageStream.ToArray(), out error, chkFTPRename.Checked))
                     {
                         MessageBox.Show(LocRm.GetString("ImageUploaded"), LocRm.GetString("Success"));
                     }
@@ -1899,7 +1914,7 @@ namespace iSpyApplication
             if (ddlScheduleCommand.Items.Count > 0)
                 ddlScheduleCommand.SelectedIndex = 0;
 
-            if (ddlHomeCommand.SelectedIndex==-1)
+            if (ddlHomeCommand.SelectedIndex==-1 && ddlHomeCommand.Items.Count>0)
             {
                 ddlHomeCommand.SelectedIndex = 0;
             }
@@ -2179,8 +2194,8 @@ namespace iSpyApplication
 
         private void ChkMmsCheckedChanged(object sender, EventArgs e)
         {
-            if (chkMMS.Checked)
-                chkSendSMSMovement.Checked = false;
+            //if (chkMMS.Checked)
+            //    chkSendSMSMovement.Checked = false;
         }
 
         private void RdoFtpIntervalCheckedChanged(object sender, EventArgs e)
@@ -2492,18 +2507,21 @@ namespace iSpyApplication
             var ct = new ConfigureTimestamp
                          {
                              TimeStampLocation = CameraControl.Camobject.settings.timestamplocation,
-                             FontSize = CameraControl.Camobject.settings.timestampfontsize,
                              Offset = CameraControl.Camobject.settings.timestampoffset,
                              TimestampForeColor = CameraControl.Camobject.settings.timestampforecolor.ToColor(),
-                             TimestampBackColor = CameraControl.Camobject.settings.timestampbackcolor.ToColor()
+                             TimestampBackColor = CameraControl.Camobject.settings.timestampbackcolor.ToColor(),
+                             CustomFont = FontXmlConverter.ConvertToFont(CameraControl.Camobject.settings.timestampfont),
+                             TimestampShowBack = CameraControl.Camobject.settings.timestampshowback
                          };
+
             if (ct.ShowDialog(this)== DialogResult.OK)
             {
                 CameraControl.Camobject.settings.timestamplocation = ct.TimeStampLocation;
-                CameraControl.Camobject.settings.timestampfontsize = ct.FontSize;
+                CameraControl.Camobject.settings.timestampfont = ct.CustomFont.SerializeFontAttribute;
                 CameraControl.Camobject.settings.timestampoffset = ct.Offset;
                 CameraControl.Camobject.settings.timestampforecolor = ct.TimestampForeColor.ToRGBString();
                 CameraControl.Camobject.settings.timestampbackcolor = ct.TimestampBackColor.ToRGBString();
+                CameraControl.Camobject.settings.timestampshowback = ct.TimestampShowBack;
 
                 if (CameraControl.Camera != null)
                 {
@@ -2896,5 +2914,55 @@ namespace iSpyApplication
             }
 
         }
+
+        private void chkStorageManagement_CheckedChanged(object sender, EventArgs e)
+        {
+            tblStorage.Enabled = chkStorageManagement.Checked;
+
+        }
+
+        private void chkUsePassive_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRunNow_Click(object sender, EventArgs e)
+        {
+            CameraControl.Camobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
+            CameraControl.Camobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
+            CameraControl.Camobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
+
+            ((MainForm)Owner).RunStorageManagement();
+        }
+
+        //private void btnChooseDirectory_Click(object sender, EventArgs e)
+        //{
+        //    var fbdDirectory= new FolderBrowserDialog
+        //    {
+        //        Description = "Select a folder:",
+        //        ShowNewFolderButton = true
+        //    };
+
+        //    string p = txtDirectory.Text;
+        //    if (!Path.IsPathRooted(p))
+        //    {
+        //        p = MainForm.Conf.MediaDirectory + p;
+        //    }
+        //    if (IsPathValid(p))
+        //    {
+        //        fbdDirectory.SelectedPath = p;
+        //    }
+            
+        //    if (fbdDirectory.ShowDialog(this)==DialogResult.OK)
+        //    {
+        //        string s = fbdDirectory.SelectedPath;
+        //        s = s.Replace(MainForm.Conf.MediaDirectory, "");
+        //        txtDirectory.Text = s;
+        //    }
+        //    fbdDirectory.Dispose();
+
+        //}
+
+        //private bool IsPathValid(string path) { try { string fullPath = Path.GetFullPath(path); return fullPath == path; } catch { return false; } }
     }
 }

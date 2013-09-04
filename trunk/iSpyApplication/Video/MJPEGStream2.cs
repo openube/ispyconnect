@@ -446,6 +446,7 @@ namespace iSpyApplication.Video
 
 
             var encoding = new ASCIIEncoding();
+            var res = ReasonToFinishPlaying.StoppedByUser;
 
             while (!_stopEvent.WaitOne(0, false))
             {
@@ -720,12 +721,10 @@ namespace iSpyApplication.Video
                 {
                     // provide information to clients
                     MainForm.LogExceptionToFile(ex);
-                    //if (VideoSourceError != null)
-                    //{
-                    //    VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
-                    //}
+                    res = ReasonToFinishPlaying.DeviceLost;
+                    break;
                     // wait for a while before the next try
-                    Thread.Sleep(250);
+                    //Thread.Sleep(250);
                 }
                 finally
                 {
@@ -760,7 +759,7 @@ namespace iSpyApplication.Video
 
             if (PlayingFinished != null)
             {
-                PlayingFinished(this, ReasonToFinishPlaying.StoppedByUser);
+                PlayingFinished(this, res);
             }
         }
 
@@ -892,15 +891,7 @@ namespace iSpyApplication.Video
                 SslPolicyErrors policyErrors
             )
         {
-            //if (Convert.ToBoolean(ConfigurationManager.AppSettings["IgnoreSslErrors"]))
-            //{
-                // allow any old dodgy certificate...
             return true;
-            //}
-            //else
-            //{
-            //    return policyErrors == SslPolicyErrors.None;
-            //}
         }
     }
 

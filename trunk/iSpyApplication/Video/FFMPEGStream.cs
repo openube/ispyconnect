@@ -415,7 +415,7 @@ namespace iSpyApplication.Video
 
             if (!NoBuffer)
             {
-                _tOutput = (new Thread(FrameEmitter) {Name="ffmpeg frame emitter"});
+                _tOutput = new Thread(FrameEmitter) {Name="ffmpeg frame emitter"};
                 _tOutput.Start();
             }
             else

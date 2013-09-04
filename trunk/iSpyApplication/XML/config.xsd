@@ -107,6 +107,9 @@
         <xs:element name="TrayOnMinimise" type="xs:boolean" default="true"/>
         <xs:element name="FeatureSet" type="xs:int" default="0"/>
         <xs:element name="MJPEGStreamInterval" type="xs:int" default="100"/>
+        <xs:element name="AlertOnDisconnect" type="xs:string" default=""/>
+        <xs:element name="AlertOnReconnect" type="xs:string" default=""/>
+        <xs:element name="StartupMode" type="xs:int" default="0"/>
         <xsd:element name="GridViews">
           <xsd:complexType>
             <xsd:sequence>

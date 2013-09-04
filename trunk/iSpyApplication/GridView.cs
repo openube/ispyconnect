@@ -24,7 +24,7 @@ namespace iSpyApplication
             Text = _gv.Text;
         }
 
-        private void MaxMin()
+        internal void MaxMin()
         {
             if (!_fullscreen)
             {
@@ -46,6 +46,11 @@ namespace iSpyApplication
             {
                 MaxMin();
             }
+        }
+
+        private void fullScreenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MaxMin();
         }
     }
 }

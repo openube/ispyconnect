@@ -465,6 +465,7 @@ namespace iSpyApplication
                         var bReceive = new Byte[1024];
                         mySocket.Receive(bReceive);
                         string sBuffer = Encoding.ASCII.GetString(bReceive);
+                        Debug.WriteLine(sBuffer);
 
                         if (sBuffer.Substring(0, 4) == "TALK")
                         {
@@ -1506,14 +1507,14 @@ namespace iSpyApplication
                                 break;
                             case "sendsmsonalert":
                                 cw.Camobject.notifications.sendsms = Convert.ToBoolean(value);
-                                if (cw.Camobject.notifications.sendsms)
-                                    cw.Camobject.notifications.sendmms = false;
+                                //if (cw.Camobject.notifications.sendsms)
+                                //    cw.Camobject.notifications.sendmms = false;
                                 break;
-                            case "sendmmsonalert":
-                                cw.Camobject.notifications.sendmms = Convert.ToBoolean(value);
-                                if (cw.Camobject.notifications.sendmms)
-                                    cw.Camobject.notifications.sendsms = false;
-                                break;
+                            //case "sendmmsonalert":
+                            //    cw.Camobject.notifications.sendmms = Convert.ToBoolean(value);
+                            //    if (cw.Camobject.notifications.sendmms)
+                            //        cw.Camobject.notifications.sendsms = false;
+                            //    break;
                             case "emailframeevery":
                                 int gi;
                                 int.TryParse(value, out gi);
@@ -2259,13 +2260,13 @@ namespace iSpyApplication
                                  ",'sendsmsonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.smsnumber +
                                  "</td></tr>";
 
-                        strChecked = "";
-                        if (cw.Camobject.notifications.sendmms) strChecked = "checked=\"checked\"";
+                        //strChecked = "";
+                        //if (cw.Camobject.notifications.sendmms) strChecked = "checked=\"checked\"";
 
-                        html += "<tr><td>" + LocRm.GetString("SendAsMmsWithImage2Credit") + "</td><td><input type=\"checkbox\"" +
-                                 disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
-                                 ",'sendmmsonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.smsnumber +
-                                 "</td></tr>";
+                        //html += "<tr><td>" + LocRm.GetString("SendAsMmsWithImage2Credit") + "</td><td><input type=\"checkbox\"" +
+                        //         disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
+                        //         ",'sendmmsonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.smsnumber +
+                        //         "</td></tr>";
 
                         strChecked = "";
                         if (cw.Camobject.settings.notifyondisconnect) strChecked = "checked=\"checked\"";
@@ -2456,7 +2457,6 @@ namespace iSpyApplication
                                             case "nosound":
                                                 vl.Micobject.alerts.mode = "sound";
                                                 break;
-
                                         }
                                 }
                                 break;
