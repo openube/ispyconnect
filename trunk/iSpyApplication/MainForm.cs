@@ -1955,7 +1955,7 @@ namespace iSpyApplication
 
         private void Exit()
         {
-            ThreadKillDelay = 1000;
+            ThreadKillDelay = 3000;
 
             if (_houseKeepingTimer != null)
                 _houseKeepingTimer.Stop();

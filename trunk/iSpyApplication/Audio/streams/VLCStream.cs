@@ -366,7 +366,7 @@ namespace iSpyApplication.Audio.streams
 
         void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
         {
-            if (LevelChanged != null)
+            if (LevelChanged != null && e!=null && e.MaxSampleValues!=null)
                 LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
 
         }
