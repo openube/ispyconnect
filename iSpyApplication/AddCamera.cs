@@ -1206,6 +1206,13 @@ namespace iSpyApplication
                 CameraControl.Camobject.ftp.interval = ftpinterval;
                 CameraControl.Camobject.ftp.filename = txtFTPFilename.Text;
                 CameraControl.Camobject.ftp.text = txtFTPText.Text;
+                int ftpmode = 0;
+                if (rdoFTPAlerts.Checked)
+                    ftpmode = 1;
+                if (rdoFTPInterval.Checked)
+                    ftpmode = 2;
+                CameraControl.Camobject.ftp.mode = ftpmode;
+
                 CameraControl.Camobject.settings.ptzautotrack = chkTrack.Checked;
                 CameraControl.Camobject.settings.ptzautohome = chkAutoHome.Checked;
                 CameraControl.Camobject.settings.ptzautotrackmode = 0;
@@ -1217,13 +1224,7 @@ namespace iSpyApplication
 
                 CameraControl.Camobject.settings.ptztimetohome = Convert.ToInt32(numTTH.Value);
 
-                int ftpmode = 0;
-                if (rdoFTPAlerts.Checked)
-                    ftpmode = 1;
-                if (rdoFTPInterval.Checked)
-                    ftpmode = 2;
-
-                CameraControl.Camobject.ftp.mode = ftpmode;
+                
 
                 CameraControl.Camobject.recorder.timelapseframes = timelapseframes;
                 CameraControl.Camobject.recorder.timelapse = timelapsemovie;
@@ -1814,6 +1815,10 @@ namespace iSpyApplication
 
         private void PnlPtzMouseDown(object sender, MouseEventArgs e)
         {
+            CameraControl.Camobject.settings.ptzusername = txtPTZUsername.Text;
+            CameraControl.Camobject.settings.ptzpassword = txtPTZPassword.Text;
+            CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
+
             ProcessPtzInput(e.Location);
         }
 
