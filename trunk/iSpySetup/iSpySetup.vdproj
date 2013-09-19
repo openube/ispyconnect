@@ -838,12 +838,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A216588BD52849AEA767F97D96C261A4"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -869,6 +863,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_1B124CB969334F1AB9A329ACE33C490A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1286,7 +1286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.3.3.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.3.4.0, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_0286CBF0C7913EC19053FD74A498177E"
@@ -3511,15 +3511,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{B95EFFDD-DB3E-4307-AF39-F05802AAA53B}"
-        "PackageCode" = "8:{5DD83668-8F89-4350-814A-76B49A4C3034}"
+        "ProductCode" = "8:{E8E83D2D-3D16-4258-962C-BF5D2C7863DE}"
+        "PackageCode" = "8:{3E8AB222-0103-4513-8A57-6EB6E6918D97}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:5.4.8"
+        "ProductVersion" = "8:5.4.9"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
@@ -4412,7 +4412,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0EF428F9CB93474EB5E2B849BCF54454"
             {
-            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Release\\iSpy.exe"
+            "SourcePath" = "8:..\\iSpyApplication\\obj\\x86\\Debug\\iSpy.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -4440,7 +4440,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_1B124CB969334F1AB9A329ACE33C490A"
             {
-            "SourcePath" = "8:..\\InstallHelper\\obj\\x86\\Release\\InstallHelper.exe"
+            "SourcePath" = "8:..\\InstallHelper\\obj\\x86\\Debug\\InstallHelper.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
@@ -4468,7 +4468,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_5C5CCCBDCC3C4080A717F6665E95BD4D"
             {
-            "SourcePath" = "8:..\\iSpyServerSetup\\Release\\iSpyServerSetup.msi"
+            "SourcePath" = "8:..\\iSpyServerSetup\\Debug\\iSpyServerSetup.msi"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_91FF0471C59346029346D9D314477277"
@@ -4496,7 +4496,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DBA7E4641307477C8E9706D504556C48"
             {
-            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Release\\iSpyMonitor.exe"
+            "SourcePath" = "8:..\\iSpyMonitor\\obj\\x86\\Debug\\iSpyMonitor.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_B7011F9842E341CF9A67B0D859FE72B0"
