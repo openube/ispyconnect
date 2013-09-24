@@ -977,9 +977,9 @@ namespace iSpyApplication
                         }
                     }
                 }
-                lock (MasterFileList)
+                lock (_masterfilelist)
                 {
-                    MasterFileList.Clear();
+                    _masterfilelist.Clear();
                 }
                 foreach(PreviewBox pb in flowPreview.Controls)
                 {
@@ -1108,8 +1108,7 @@ namespace iSpyApplication
                                     {
                                         try
                                         {
-                                            cw.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                                            MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                            cw.RemoveFile(fi.Name);
                                         }
                                         catch
                                         {
@@ -1133,8 +1132,7 @@ namespace iSpyApplication
                                 {
                                     try
                                     {
-                                        cw.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                                        MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        cw.RemoveFile(fi.Name);
                                     }
                                     catch
                                     {
@@ -1182,8 +1180,7 @@ namespace iSpyApplication
                                     {
                                         try
                                         {
-                                            vl.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                                            MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                            vl.RemoveFile(fi.Name);
                                         }
                                         catch
                                         {
@@ -1204,8 +1201,7 @@ namespace iSpyApplication
                                 {
                                     try
                                     {
-                                        vl.FileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                                        MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                        vl.RemoveFile(fi.Name);
                                     }
                                     catch
                                     {
@@ -1286,12 +1282,9 @@ namespace iSpyApplication
                             fileschanged = true;
                             lCan.Remove(fi);
                             i--;
-                            try
+                            lock (_masterfilelist)
                             {
-                                MasterFileList.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                            }
-                            catch
-                            {
+                                _masterfilelist.RemoveAll(p => p.Filename.EndsWith(fi.Name));
                             }
                             if (size < targetSize)
                             {
@@ -1532,9 +1525,9 @@ namespace iSpyApplication
                 var oc = Cameras.FirstOrDefault(p => p.id == control.Camobject.id);
                 if (oc != null)
                 {
-                    lock (MasterFileList)
+                    lock (_masterfilelist)
                     {
-                        MasterFileList.RemoveAll(p => p.ObjectId == oc.id && p.ObjectTypeId == 2);
+                        _masterfilelist.RemoveAll(p => p.ObjectId == oc.id && p.ObjectTypeId == 2);
                     }
                     Cameras.Remove(oc);
                 }
@@ -1588,9 +1581,9 @@ namespace iSpyApplication
                 var om = Microphones.SingleOrDefault(p => p.id == control.Micobject.id);
                 if (om != null)
                 {
-                    lock (MasterFileList)
+                    lock (_masterfilelist)
                     {
-                        MasterFileList.RemoveAll(p => p.ObjectId == om.id && p.ObjectTypeId == 1);
+                        _masterfilelist.RemoveAll(p => p.ObjectId == om.id && p.ObjectTypeId == 1);
                     }
                     for (var index = 0; index < Cameras.Count(p => p.settings.micpair == om.id); index++)
                     {
@@ -2093,15 +2086,15 @@ namespace iSpyApplication
 
         void CameraControlFileListUpdated(object sender)
         {
-            lock (MasterFileList)
+            lock (_masterfilelist)
             {
                 var cw = sender as CameraWindow;
                 if (cw != null)
                 {
-                    MasterFileList.RemoveAll(p => p.ObjectId == cw.Camobject.id && p.ObjectTypeId == 2);
+                    _masterfilelist.RemoveAll(p => p.ObjectId == cw.Camobject.id && p.ObjectTypeId == 2);
                     foreach (var ff in cw.FileList)
                     {
-                        MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
+                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
                                                            ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm));
                     }
                     if (!cw.LoadedFiles)
@@ -2120,10 +2113,10 @@ namespace iSpyApplication
                 var vl = sender as VolumeLevel;
                 if (vl != null)
                 {
-                    MasterFileList.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
+                    _masterfilelist.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
                     foreach (var ff in vl.FileList)
                     {
-                        MasterFileList.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
+                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
                                                            ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
                     }
                 }
@@ -2466,6 +2459,7 @@ namespace iSpyApplication
         {
             var cameraControl = (CameraWindow)sender;
             cameraControl.Focus();
+            
             switch (e.Button)
             {
                 case MouseButtons.Left:
@@ -2477,6 +2471,7 @@ namespace iSpyApplication
                     break;
                 case MouseButtons.Right:
                     ContextTarget = cameraControl;
+                    pluginCommandsToolStripMenuItem.Visible = false;
                     _setInactiveToolStripMenuItem.Visible = false;
                     _activateToolStripMenuItem.Visible = false;
                     _recordNowToolStripMenuItem.Visible = false;
@@ -2515,8 +2510,32 @@ namespace iSpyApplication
                                     }
                                 }
                             }
-
                         }
+
+                        if (cameraControl.Camera != null && cameraControl.Camera.Plugin != null)
+                        {
+                            pluginCommandsToolStripMenuItem.Visible = true;
+                            
+                            while (pluginCommandsToolStripMenuItem.DropDownItems.Count > 1)
+                                pluginCommandsToolStripMenuItem.DropDownItems.RemoveAt(1);
+
+                            var pc = cameraControl.PluginCommands;
+                            if (pc != null)
+                            {
+                                foreach (var c in pc)
+                                {
+                                    ToolStripItem tsi = new ToolStripMenuItem
+                                                            {
+                                                                Text = c,
+                                                                Tag =
+                                                                    cameraControl.Camobject.id + "|" + c
+                                                            };
+                                    tsi.Click += PCClick;
+                                    pluginCommandsToolStripMenuItem.DropDownItems.Add(tsi);
+                                }
+                            }
+                        }
+
                     }
                     else
                     {
@@ -2544,6 +2563,17 @@ namespace iSpyApplication
             {
                 cw.Calibrating = true;
                 cw.PTZ.SendPTZCommand(cfg[1]);
+            }
+        }
+
+        private void PCClick(object sender, EventArgs e)
+        {
+            string[] cfg = ((ToolStripMenuItem)sender).Tag.ToString().Split('|');
+            int camid = Convert.ToInt32(cfg[0]);
+            var cw = GetCameraWindow(camid);
+            if (cw != null && cw.PluginCommands!=null)
+            {
+                cw.ExecutePluginCommand(cfg[1]);
             }
         }
 
@@ -2605,6 +2635,7 @@ namespace iSpyApplication
                     break;
                 case MouseButtons.Right:
                     ContextTarget = volumeControl;
+                    pluginCommandsToolStripMenuItem.Visible = false;
                     _setInactiveToolStripMenuItem.Visible = false;
                     _activateToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = true;
@@ -2695,6 +2726,7 @@ namespace iSpyApplication
                 if (e.Button == MouseButtons.Right)
                 {
                     ContextTarget = fpc;
+                    pluginCommandsToolStripMenuItem.Visible = false;
                     _setInactiveToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = false;
                     _activateToolStripMenuItem.Visible = false;

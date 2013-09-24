@@ -436,6 +436,7 @@ namespace iSpyApplication.Video
             // buffer to read stream
             var buffer = new byte[BufSize];
             var encoding = new ASCIIEncoding();
+            var res = ReasonToFinishPlaying.StoppedByUser;
 
             while (!_stopEvent.WaitOne(0, false))
             {
@@ -633,13 +634,11 @@ namespace iSpyApplication.Video
                 catch (Exception ex)
                 {
                     // provide information to clients
-                    MainForm.LogExceptionToFile(ex); 
-                    //(VideoSourceError != null)
-                    //{
-                    //    VideoSourceError(this, new VideoSourceErrorEventArgs(exception.Message));
-                    //}
+                    MainForm.LogExceptionToFile(ex);
+                    res = ReasonToFinishPlaying.DeviceLost;
+                    break;
                     // wait for a while before the next try
-                    Thread.Sleep(250);
+                    //Thread.Sleep(250);
                 }
                 finally
                 {
@@ -670,7 +669,7 @@ namespace iSpyApplication.Video
 
             if (PlayingFinished != null)
             {
-                PlayingFinished(this, ReasonToFinishPlaying.StoppedByUser);
+                PlayingFinished(this, res);
             }
         }
 

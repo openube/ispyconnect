@@ -26,7 +26,7 @@ namespace iSpyApplication.Controls
         readonly SolidBrush _bControl = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
         readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
 
-        private ToolTip _toolTip;
+        private readonly ToolTip _toolTip;
 
         public bool RequestFrame;
         public Timer TmrRefresh;
