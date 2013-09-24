@@ -631,9 +631,7 @@ namespace iSpyApplication.Controls
                     {
                         if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
                         {
-                            MotionDetected = true;
-                            _motionlastdetected = DateTime.Now;
-                            Alarm(this, new EventArgs());
+                            TriggerDetect();
                         }
                     }
                     else
@@ -642,6 +640,13 @@ namespace iSpyApplication.Controls
             }
             else
                 MotionDetected = false;
+        }
+
+        internal void TriggerDetect()
+        {
+            MotionDetected = true;
+            _motionlastdetected = DateTime.Now;
+            Alarm(this, new EventArgs());
         }
 
         [HandleProcessCorruptedStateExceptions] 

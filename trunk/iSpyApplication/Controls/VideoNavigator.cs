@@ -90,6 +90,14 @@ namespace iSpyApplication.Controls
         public void Init(FilesFile fileData)
         {
             _ff = fileData ?? new FilesFile { AlertData = "0" };
+            if (_activityGraph != null)
+            {
+                lock (_activityGraph)
+                {
+                    _activityGraph.Dispose();
+                    _activityGraph = null;
+                }
+            }
 
             _datapoints = _ff.AlertData.Split(',');
             _timelineHeight = Height;

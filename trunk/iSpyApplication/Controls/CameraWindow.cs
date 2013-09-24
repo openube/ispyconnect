@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -391,10 +392,6 @@ namespace iSpyApplication.Controls
             if (FileListUpdated != null)
                 FileListUpdated(this);
         }
-        public List<FilesFile> FileList
-        {
-            get { return _filelist ?? (_filelist = new List<FilesFile>()); }
-        }
 
         public void ClearFileList()
         {
@@ -402,49 +399,41 @@ namespace iSpyApplication.Controls
             {
                 _filelist.Clear();
             }
-            lock (MainForm.MasterFileList)
-            {
-                MainForm.MasterFileList.RemoveAll(p => p.ObjectTypeId == 2 && p.ObjectId == Camobject.id);
-            }
-
+            MainForm.MasterFileRemoveAll(2, Camobject.id);
         }
 
         public void RemoveFile(string filename)
         {
             lock (_filelist)
             {
-                FileList.RemoveAll(p => p.Filename == filename);
+                _filelist.RemoveAll(p => p.Filename == filename);
             }
-            lock (MainForm.MasterFileList)
-            {
-                MainForm.MasterFileList.RemoveAll(p => p.Filename == filename);
-            }
+            MainForm.MasterFileRemove(filename);
         }
 
         public void SaveFileList()
         {
             try
             {
-                if (FileList != null)
-                    lock (FileList)
+                lock (_filelist)
+                {
+                    var fl = new Files { File = _filelist.ToArray() };
+                    string dir = MainForm.Conf.MediaDirectory + "video\\" +
+                                 Camobject.directory + "\\";
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    var s = new XmlSerializer(typeof (Files));
+                    using (var fs = new FileStream(dir + "data.xml", FileMode.Create))
                     {
-                        var fl = new Files { File = FileList.ToArray() };
-                        string dir = MainForm.Conf.MediaDirectory + "video\\" +
-                                    Camobject.directory + "\\";
-                        if (!Directory.Exists(dir))
-                            Directory.CreateDirectory(dir);
-                        var s = new XmlSerializer(typeof(Files));
-                        using (var fs = new FileStream(dir + "data.xml", FileMode.Create))
+                        using (TextWriter writer = new StreamWriter(fs))
                         {
-                            using (TextWriter writer = new StreamWriter(fs))
-                            {
-                                fs.Position = 0;
-                                s.Serialize(writer, fl);
-                                writer.Close();
-                            }
-                            fs.Close();
+                            fs.Position = 0;
+                            s.Serialize(writer, fl);
+                            writer.Close();
                         }
+                        fs.Close();
                     }
+                }
             }
             catch (Exception ex)
             {
@@ -2112,7 +2101,7 @@ namespace iSpyApplication.Controls
             var fi = new FileInfo(fpath);
             var dSeconds = Convert.ToInt32((DateTime.Now - TimelapseStart).TotalSeconds);
 
-            FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(TimeLapseVideoFileName + CodecExtension));
+            FilesFile ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(TimeLapseVideoFileName + CodecExtension));
             bool newfile = false;
             if (ff == null)
             {
@@ -2133,13 +2122,13 @@ namespace iSpyApplication.Controls
 
             if (newfile)
             {
-                FileList.Insert(0, ff);
-                lock (MainForm.MasterFileList)
-                {
-                    MainForm.MasterFileList.Add(new FilePreview(TimeLapseVideoFileName + CodecExtension, dSeconds,
-                                                                Camobject.name, DateTime.Now.Ticks, 2, Camobject.id,
-                                                                ff.MaxAlarm));
-                }
+                lock(_filelist)
+                    _filelist.Insert(0, ff);
+
+                MainForm.MasterFileAdd(new FilePreview(TimeLapseVideoFileName + CodecExtension, dSeconds,
+                                                            Camobject.name, DateTime.Now.Ticks, 2, Camobject.id,
+                                                            ff.MaxAlarm));
+                
                 if (TopLevelControl != null)
                 {
                     //string thumbname = MainForm.Conf.MediaDirectory + "video\\" + Camobject.directory + "\\thumbs\\" + TimeLapseVideoFileName + ".jpg";
@@ -2564,6 +2553,11 @@ namespace iSpyApplication.Controls
             }
         }
 
+        public ReadOnlyCollection<FilesFile> FileList
+        {
+            get { return _filelist.AsReadOnly(); }
+        }
+
 
         private void CameraNewFrame(object sender, NewFrameEventArgs e)
         {
@@ -2703,11 +2697,6 @@ namespace iSpyApplication.Controls
                     {
                         
                         Program.WriterMutex.WaitOne();
-                        //if (_writer != null)
-                        //{
-                        //    _writer.Close();
-                        //    _writer.Dispose();
-                        //}
                         _writer = new VideoFileWriter();
                         if (vc == null || vc.AudioSource == null)
                             _writer.Open(avifilename, _videoWidth, _videoHeight, Camobject.recorder.crf, Codec,
@@ -2949,7 +2938,7 @@ namespace iSpyApplication.Controls
                 var fi = new FileInfo(path + CodecExtension);
                 var dSeconds = Convert.ToInt32((DateTime.Now - recordingStart).TotalSeconds);
 
-                var ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
+                var ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(fn));
                 bool newfile = false;
                 if (ff == null)
                 {
@@ -2970,12 +2959,11 @@ namespace iSpyApplication.Controls
 
                 if (newfile)
                 {
-                    FileList.Insert(0, ff);
-                    lock (MainForm.MasterFileList)
-                    {
-                        MainForm.MasterFileList.Add(new FilePreview(fn, dSeconds, Camobject.name, DateTime.Now.Ticks, 2,
+                    lock (_filelist)
+                        _filelist.Insert(0, ff);
+
+                    MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Camobject.name, DateTime.Now.Ticks, 2,
                                                                     Camobject.id, ff.MaxAlarm));
-                    }
                     if (TopLevelControl != null)
                     {
                         ((MainForm)TopLevelControl).NeedsMediaRefresh = DateTime.Now;
@@ -3117,36 +3105,49 @@ namespace iSpyApplication.Controls
                     Notification(this, new NotificationType("ALERT_UC", Camobject.name, ""));
             }
 
-            if (Camobject.alerts.executefile != "")
+            if (!String.IsNullOrEmpty(Camobject.alerts.executefile))
             {
-                try
+                string args =
+                    Camobject.alerts.arguments.Replace("{ID}", Camobject.id.ToString(CultureInfo.InvariantCulture)).
+                        Replace("{NAME}", Camobject.name);
+                var d = Camobject.alerts.executefile.ToLower().Trim();
+                if (d=="ispy.exe" || d=="ispy")
                 {
-
-                    var startInfo = new ProcessStartInfo
-                    {
-                        UseShellExecute = true,
-                        FileName = Camobject.alerts.executefile,
-                        Arguments = Camobject.alerts.arguments.Replace("{ID}", Camobject.id.ToString(CultureInfo.InvariantCulture)).Replace("{NAME}", Camobject.name)
-                    };
+                    var topLevelControl = (MainForm) TopLevelControl;
+                    if (topLevelControl != null) topLevelControl.ProcessCommandString(args);
+                }
+                else
+                {
                     try
                     {
-                        var fi = new FileInfo(Camobject.alerts.executefile);
-                        if (fi.DirectoryName != null)
-                            startInfo.WorkingDirectory = fi.DirectoryName;
-                    }
-                    catch { }
-                    if (!MainForm.Conf.CreateAlertWindows)
-                    {
-                        startInfo.CreateNoWindow = true;
-                        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    }
 
-                    Process.Start(startInfo);
+                        var startInfo = new ProcessStartInfo
+                        {
+                            UseShellExecute = true,
+                            FileName = Camobject.alerts.executefile,
+                            Arguments = args
+                        };
+                        try
+                        {
+                            var fi = new FileInfo(Camobject.alerts.executefile);
+                            if (fi.DirectoryName != null)
+                                startInfo.WorkingDirectory = fi.DirectoryName;
+                        }
+                        catch { }
+                        if (!MainForm.Conf.CreateAlertWindows)
+                        {
+                            startInfo.CreateNoWindow = true;
+                            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        }
+
+                        Process.Start(startInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        MainForm.LogExceptionToFile(e);
+                    }
                 }
-                catch (Exception e)
-                {
-                    MainForm.LogExceptionToFile(e);
-                }
+                
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
@@ -4291,6 +4292,38 @@ namespace iSpyApplication.Controls
 
             Camera = new Camera(source);
             SetVideoSourceProperties();
+        }
+
+        public List<string> PluginCommands
+        {
+            get
+            {
+                if (Camera.Plugin!=null)
+                {
+                    var c = Camera.Plugin.GetType().GetProperty("Commands");
+                    if (c!=null)
+                    {
+                        string commands = c.GetValue(Camera.Plugin, null).ToString();
+                        if (!String.IsNullOrEmpty(commands))
+                        {
+                            return commands.Split(',').ToList();
+                        }
+                    }
+                }
+                return null;
+            }
+        } 
+
+        public void ExecutePluginCommand(string command)
+        {
+            if (Camera.Plugin != null)
+            {
+                var a = (String)Camera.Plugin.GetType().GetMethod("ExecuteCommand").Invoke(Camera.Plugin, new object[] { command });
+                if (a!="OK")
+                {
+                    MainForm.LogErrorToFile("Plugin response: "+a);
+                }
+            }
         }
 
         void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)

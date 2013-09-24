@@ -421,6 +421,8 @@ namespace iSpyApplication.Video
 			var rand = new Random( (int) DateTime.Now.Ticks );
             // download start time and duration
             TimeSpan span;
+            var res = ReasonToFinishPlaying.StoppedByUser;
+            int err = 0;
 
             while ( !_stopEvent.WaitOne( 0, false ) )
 			{
@@ -574,6 +576,7 @@ namespace iSpyApplication.Video
                         if ( ( msec > 0 ) && ( _stopEvent.WaitOne( msec, false ) ) )
                             break;
 					}
+				    err = 0;
 				}
                 catch ( ThreadAbortException )
                 {
@@ -583,6 +586,12 @@ namespace iSpyApplication.Video
 				{
                     // provide information to clients
                     MainForm.LogErrorToFile(ex.Message);
+				    err++;
+                    if (err>3)
+                    {
+                        res = ReasonToFinishPlaying.DeviceLost;
+                        break;
+                    }
                     //if ( VideoSourceError != null )
                     //{
                     //    VideoSourceError( this, new VideoSourceErrorEventArgs( exception.Message ) );
@@ -619,7 +628,7 @@ namespace iSpyApplication.Video
 
             if ( PlayingFinished != null )
             {
-                PlayingFinished( this, ReasonToFinishPlaying.StoppedByUser );
+                PlayingFinished( this, res );
             }
 		}
 

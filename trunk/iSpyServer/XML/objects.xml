@@ -163,7 +163,7 @@
         <entries />
       </schedule>
     </camera>
-    <camera encodekey="" id="3" name="dfhg" description="" directory="PGSOO" x="1152" y="68" flipy="false" flipx="false" rotate90="false" width="320" height="240" resolution="320x240" ptz="-1" newrecordingcount="0">
+    <camera encodekey="" id="3" name="dfhg" description="" directory="PGSOO" x="1037" y="542" flipy="false" flipx="false" rotate90="false" width="320" height="240" resolution="320x240" ptz="-1" newrecordingcount="0">
       <settings resize="false" desktopresizewidth="640" desktopresizeheight="480">
         <desktopmouse>false</desktopmouse>
         <crossbarindex>-1</crossbarindex>

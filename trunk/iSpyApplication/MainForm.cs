@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -108,7 +109,11 @@ namespace iSpyApplication
         public static List<String> Plugins = new List<String>();
         public static bool NeedsRedraw;
         public McRemoteControlManager.RemoteControlDevice RemoteManager;
-        public static List<FilePreview> MasterFileList = new List<FilePreview>();
+        private static List<FilePreview> _masterfilelist = new List<FilePreview>();
+        public static ReadOnlyCollection<FilePreview> MasterFileList
+        {
+            get { return _masterfilelist.AsReadOnly(); }
+        }
         public static EncoderParameters EncoderParams;
         public static bool Reallyclose = false;
 
@@ -119,6 +124,30 @@ namespace iSpyApplication
         public static int ButtonWidth
         {
             get { return (Convert.ToInt32(Iconfont.Size)+1); }
+        }
+
+        public static void MasterFileAdd(FilePreview fp)
+        {
+            lock (_masterfilelist)
+            {
+                _masterfilelist.Add(fp);
+            }
+        }
+
+        public static void MasterFileRemoveAll(int objecttypeid, int objectid)
+        {
+            lock (_masterfilelist)
+            {
+                _masterfilelist.RemoveAll(p => p.ObjectTypeId == objecttypeid && p.ObjectId == objectid);
+            }
+        }
+
+        public static void MasterFileRemove(string filename)
+        {
+            lock (_masterfilelist)
+            {
+                _masterfilelist.RemoveAll(p => p.Filename == filename);
+            }
         }
 
         internal static LocalServer MWS;
@@ -350,6 +379,8 @@ namespace iSpyApplication
             Description = "Select a folder to copy the file to"
         };
         private ToolStripMenuItem oNVIFCameraToolStripMenuItem;
+        private ToolStripMenuItem pluginCommandsToolStripMenuItem;
+        private ToolStripMenuItem configurePluginToolStripMenuItem;
         private readonly List<float> _cpuAverages = new List<float>();
 
         public MainForm(bool silent, string command)
@@ -1627,34 +1658,20 @@ namespace iSpyApplication
             if (command == null) throw new ArgumentNullException("command");
             try
             {
-                command = Uri.UnescapeDataString(command);
-                
-
-                LogMessageToFile("Running External Command: " + command);
+                command = Uri.UnescapeDataString(command);             
 
                 if (command.ToLower().StartsWith("open "))
                 {
+                    LogMessageToFile("Loading List: " + command);
                     if (InvokeRequired)
                         Invoke(new ExternalCommandDelegate(LoadObjectList), command.Substring(5).Trim('"'));
                     else
                         LoadObjectList(command.Substring(5).Trim('"'));
+
+                    return;
                 }
-                int i = command.ToLower().IndexOf("commands ", StringComparison.Ordinal);
-                if (i!=-1)
-                {
-                    string cmd = command.Substring(i+9).Trim('"');
-                    string[] commands = cmd.Split('|');
-                    foreach (string command2 in commands)
-                    {
-                        if (!String.IsNullOrEmpty(command2))
-                        {
-                            if (InvokeRequired)
-                                Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
-                            else
-                                ProcessCommandInternal(command2.Trim('"'));
-                        }
-                    }
-                }
+                ProcessCommandString(command);
+                
                 if (command.ToLower()=="showform")
                 {
                     UISync.Execute(ShowIfUnlocked);
@@ -1664,6 +1681,27 @@ namespace iSpyApplication
             {
                 LogExceptionToFile(ex);
                 MessageBox.Show(LocRm.GetString("LoadFailed").Replace("[MESSAGE]", ex.Message));
+            }
+        }
+
+        internal void ProcessCommandString(string command)
+        {
+            int i = command.ToLower().IndexOf("commands ", StringComparison.Ordinal);
+            if (i!=-1)
+            {
+                command = command.Substring(i + 9);
+                string[] commands = command.Trim('"').Split('|');
+                foreach (string command2 in commands)
+                {
+                    if (!String.IsNullOrEmpty(command2))
+                    {
+                        LogMessageToFile("Running Command: " + command2);
+                        if (InvokeRequired)
+                            Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
+                        else
+                            ProcessCommandInternal(command2.Trim('"'));
+                    }
+                }
             }
         }
 
@@ -3948,6 +3986,8 @@ namespace iSpyApplication
             this._toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             this.ctxtMnu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.pluginCommandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.configurePluginToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this._viewMediaOnAMobileDeviceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._activateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -4987,6 +5027,7 @@ namespace iSpyApplication
             // ctxtMnu
             // 
             this.ctxtMnu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.pluginCommandsToolStripMenuItem,
             this._toolStripMenuItem1,
             this._viewMediaOnAMobileDeviceToolStripMenuItem,
             this._activateToolStripMenuItem,
@@ -5004,7 +5045,23 @@ namespace iSpyApplication
             this._showFilesToolStripMenuItem,
             this._deleteToolStripMenuItem});
             this.ctxtMnu.Name = "_ctxtMnu";
-            this.ctxtMnu.Size = new System.Drawing.Size(240, 356);
+            this.ctxtMnu.Size = new System.Drawing.Size(240, 378);
+            // 
+            // pluginCommandsToolStripMenuItem
+            // 
+            this.pluginCommandsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.configurePluginToolStripMenuItem});
+            this.pluginCommandsToolStripMenuItem.Image = global::iSpyApplication.Properties.Resources.plugin;
+            this.pluginCommandsToolStripMenuItem.Name = "pluginCommandsToolStripMenuItem";
+            this.pluginCommandsToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this.pluginCommandsToolStripMenuItem.Text = "Plugin";
+            // 
+            // configurePluginToolStripMenuItem
+            // 
+            this.configurePluginToolStripMenuItem.Name = "configurePluginToolStripMenuItem";
+            this.configurePluginToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.configurePluginToolStripMenuItem.Text = "Configure Plugin";
+            this.configurePluginToolStripMenuItem.Click += new System.EventHandler(this.configurePluginToolStripMenuItem_Click);
             // 
             // _toolStripMenuItem1
             // 
@@ -5811,6 +5868,20 @@ namespace iSpyApplication
             AddCamera(9);
         }
 
+
+        private void configurePluginToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (ContextTarget is CameraWindow)
+            {
+                var cameraControl = ((CameraWindow)ContextTarget);
+                if (cameraControl.Camera != null && cameraControl.Camera.Plugin != null)
+                {
+                    var o = cameraControl.Camera.Plugin.GetType();
+                    var config = (string)o.GetMethod("Configure").Invoke(cameraControl.Camera.Plugin, null);
+                    cameraControl.Camobject.alerts.pluginconfig = config;
+                }               
+            }           
+        }
     }
 
     

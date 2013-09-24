@@ -1231,6 +1231,44 @@ namespace iSpyApplication
                     }
                     resp = "OK";
                     break;
+                case "triggeralarm":
+                    if (otid == 1)
+                    {
+                        VolumeLevel vw = _parent.GetVolumeLevel(oid);
+                        if (vw != null)
+                        {
+                            vw.MicrophoneAlarm(this, EventArgs.Empty);
+                        }
+                    }
+                    else
+                    {
+                        CameraWindow cw = _parent.GetCameraWindow(oid);
+                        if (cw != null)
+                        {
+                            cw.CameraAlarm(this,EventArgs.Empty);
+                        }
+                    }
+                    resp = "OK";
+                    break;
+                case "triggerdetect":
+                    if (otid == 1)
+                    {
+                        VolumeLevel vw = _parent.GetVolumeLevel(oid);
+                        if (vw != null)
+                        {
+                            vw.TriggerDetect();
+                        }
+                    }
+                    else
+                    {
+                        CameraWindow cw = _parent.GetCameraWindow(oid);
+                        if (cw != null && cw.Camera!=null)
+                        {
+                            cw.Camera.TriggerDetect();
+                        }
+                    }
+                    resp = "OK";
+                    break;
                 case "smscmd":
                 case "executecmd":
                     int commandIndex = Convert.ToInt32(GetVar(sRequest, "id"));
@@ -1608,6 +1646,9 @@ namespace iSpyApplication
                                     case 3:
                                         lFi = lFi.OrderByDescending(p => p.MaxAlarm).ToList();
                                         break;
+                                    case 4:
+                                        lFi = lFi.OrderByDescending(p => p.CreatedDateTicks).ToList();
+                                        break;
                                 }
 
 
@@ -1643,6 +1684,9 @@ namespace iSpyApplication
                                         break;
                                     case 3:
                                         lFi2 = lFi2.OrderByDescending(p => p.MaxAlarm).ToList();
+                                        break;
+                                    case 4:
+                                        lFi2 = lFi2.OrderByDescending(p => p.CreatedDateTicks).ToList();
                                         break;
                                 }
 

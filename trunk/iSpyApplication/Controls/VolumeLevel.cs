@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -266,13 +267,10 @@ namespace iSpyApplication.Controls
             if (FileListUpdated != null)
                 FileListUpdated(this);
         }
-        public List<FilesFile> FileList
-        {
-            get
-            {
-                return _filelist;
-            }
-        }
+        //public List<FilesFile> FileList
+        //{
+        //    get { return _filelist ?? (_filelist = new List<FilesFile>()); }
+        //}
 
         public void ClearFileList()
         {
@@ -280,49 +278,42 @@ namespace iSpyApplication.Controls
             {
                 _filelist.Clear();
             }
-            lock (MainForm.MasterFileList)
-            {
-                MainForm.MasterFileList.RemoveAll(p=>p.ObjectTypeId==1 && p.ObjectId==Micobject.id);
-            }
 
+            MainForm.MasterFileRemoveAll(1,Micobject.id);
         }
 
         public void RemoveFile(string filename)
         {
             lock (_filelist)
             {
-                FileList.RemoveAll(p => p.Filename == filename);
+                _filelist.RemoveAll(p => p.Filename == filename);
             }
-            lock (MainForm.MasterFileList)
-            {
-                MainForm.MasterFileList.RemoveAll(p => p.Filename == filename);
-            }
+            MainForm.MasterFileRemove(filename);
         }
 
         public void SaveFileList()
         {
             try
             {
-                if (FileList != null)
-                    lock (FileList)
+                if (_filelist != null)
+                {
+                    var fl = new Files {File = _filelist.ToArray()};
+                    string dir = MainForm.Conf.MediaDirectory + "audio\\" +
+                                 Micobject.directory + "\\";
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    var s = new XmlSerializer(typeof (Files));
+                    using (var fs = new FileStream(dir + "data.xml", FileMode.Create))
                     {
-                        var fl = new Files {File = FileList.ToArray()};
-                        string dir = MainForm.Conf.MediaDirectory + "audio\\" +
-                                    Micobject.directory + "\\";
-                        if (!Directory.Exists(dir))
-                            Directory.CreateDirectory(dir);
-                        var s = new XmlSerializer(typeof (Files));
-                        using (var fs = new FileStream(dir+"data.xml", FileMode.Create))
+                        using (TextWriter writer = new StreamWriter(fs))
                         {
-                            using (TextWriter writer = new StreamWriter(fs))
-                            {
-                                fs.Position = 0;
-                                s.Serialize(writer, fl);
-                                writer.Close();
-                            }
-                            fs.Close();
+                            fs.Position = 0;
+                            s.Serialize(writer, fl);
+                            writer.Close();
                         }
+                        fs.Close();
                     }
+                }
             }
             catch (Exception ex)
             {
@@ -1109,7 +1100,7 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                if (_stopWrite.WaitOne(0) && Recording && !_pairedRecording)
+                if (Recording && !_pairedRecording)
                 {
                     if (_recordingTime > Micobject.recorder.maxrecordtime || ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
                         StopSaving();
@@ -1492,7 +1483,7 @@ namespace iSpyApplication.Controls
                         }
 
 
-                        FilesFile ff = FileList.FirstOrDefault(p => p.Filename.EndsWith(AudioFileName + ".mp3"));
+                        FilesFile ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(AudioFileName + ".mp3"));
                         bool newfile = false;
                         if (ff == null)
                         {
@@ -1519,13 +1510,13 @@ namespace iSpyApplication.Controls
 
                         if (newfile)
                         {
-                            FileList.Insert(0, ff);
-                            lock (MainForm.MasterFileList)
+                            lock (_filelist)
                             {
-                                MainForm.MasterFileList.Add(new FilePreview(fn, dSeconds, Micobject.name,
+                                _filelist.Insert(0, ff);
+                            }
+                            MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Micobject.name,
                                                                             DateTime.Now.Ticks, 1, Micobject.id,
                                                                             ff.MaxAlarm));
-                            }
                         }
 
 
@@ -1847,12 +1838,17 @@ namespace iSpyApplication.Controls
             Levels = eventArgs.MaxSamples;
             if (Levels.Max() * 100 > Micobject.detector.sensitivity)
             {
-                SoundDetected = true;
-                InactiveRecord = 0;
-                FlashCounter = 10;
-                MicrophoneAlarm(sender,EventArgs.Empty);
+                TriggerDetect();
             }         
 
+        }
+
+        internal void TriggerDetect()
+        {
+            SoundDetected = true;
+            InactiveRecord = 0;
+            FlashCounter = 10;
+            MicrophoneAlarm(this, EventArgs.Empty);
         }
 
         void AudioDeviceDataAvailable(object sender, DataAvailableEventArgs e)
@@ -2067,6 +2063,12 @@ namespace iSpyApplication.Controls
             }
         }
 
+
+        public ReadOnlyCollection<FilesFile> FileList
+        {
+            get { return _filelist.AsReadOnly(); }
+        }
+
         private void DoAlert()
         {
             if (IsEdit)
@@ -2102,34 +2104,49 @@ namespace iSpyApplication.Controls
             if (Notification != null)
                 Notification(this, new NotificationType("ALERT_UC", Micobject.name,""));
 
-            if (Micobject.alerts.executefile.Trim() != "")
+            if (!String.IsNullOrEmpty(Micobject.alerts.executefile))
             {
-                try
+                string args =
+                    Micobject.alerts.arguments.Replace("{ID}", Micobject.id.ToString(CultureInfo.InvariantCulture)).
+                        Replace("{NAME}", Micobject.name);
+                var d = Micobject.alerts.executefile.ToLower().Trim();
+                if (d == "ispy.exe" || d == "ispy")
                 {
-                    var startInfo = new ProcessStartInfo
-                    {
-                        UseShellExecute = true,
-                        FileName = Micobject.alerts.executefile,
-                        Arguments = Micobject.alerts.arguments.Replace("{ID}", Micobject.id.ToString(CultureInfo.InvariantCulture)).Replace("{NAME}", Micobject.name)
-                    };
+                    var topLevelControl = (MainForm)TopLevelControl;
+                    if (topLevelControl != null) topLevelControl.ProcessCommandString(args);
+                }
+                else
+                {
                     try
                     {
-                        var fi = new FileInfo(Micobject.alerts.executefile);
-                        if (fi.DirectoryName!=null)
-                            startInfo.WorkingDirectory = fi.DirectoryName;
+
+                        var startInfo = new ProcessStartInfo
+                        {
+                            UseShellExecute = true,
+                            FileName = Micobject.alerts.executefile,
+                            Arguments = args
+                        };
+                        try
+                        {
+                            var fi = new FileInfo(Micobject.alerts.executefile);
+                            if (fi.DirectoryName != null)
+                                startInfo.WorkingDirectory = fi.DirectoryName;
+                        }
+                        catch { }
+                        if (!MainForm.Conf.CreateAlertWindows)
+                        {
+                            startInfo.CreateNoWindow = true;
+                            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        }
+
+                        Process.Start(startInfo);
                     }
-                    catch { }
-                    if (!MainForm.Conf.CreateAlertWindows)
+                    catch (Exception e)
                     {
-                        startInfo.CreateNoWindow = true;
-                        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        MainForm.LogExceptionToFile(e);
                     }
-                    Process.Start(startInfo);
                 }
-                catch (Exception e)
-                {
-                    MainForm.LogExceptionToFile(e);
-                }
+
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
@@ -2238,10 +2255,7 @@ namespace iSpyApplication.Controls
                 var cc = CameraControl;
                 if (cc != null && cc.Recording)
                     cc.RecordSwitch(false);
-                else
-                {
-                    StopSaving();
-                }
+                StopSaving();
             }
             else
             {
