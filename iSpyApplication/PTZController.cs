@@ -586,6 +586,9 @@ namespace iSpyApplication
                             isangle = false;
                             _cameraControl.Camera.ZFactor = 1;
                             break;
+                        case Enums.PtzCommand.Stop:
+                            isangle = false;
+                            break;
 
                     }
                     if (isangle)

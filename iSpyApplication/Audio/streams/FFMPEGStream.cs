@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Windows.Forms;
 using AForge.Video;
@@ -109,6 +108,12 @@ namespace iSpyApplication.Audio.streams
                 {
                     _listening = false;
                     return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
                 }
 
                 if (value)
@@ -240,7 +245,6 @@ namespace iSpyApplication.Audio.streams
             RecordingFormat = new WaveFormat(_afr.SampleRate, 16, _afr.Channels);
             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
             
-            
             _sampleChannel = new SampleChannel(_waveProvider);
             _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
@@ -316,8 +320,23 @@ namespace iSpyApplication.Audio.streams
             }
             catch (Exception e)
             {
+                MainForm.LogExceptionToFile(e);
                 errmsg = e.Message;
             }
+
+            if (_sampleChannel != null)
+            {
+                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+                _sampleChannel = null;
+            }
+
+            if (_waveProvider != null)
+            {
+                if (_waveProvider.BufferedBytes > 0)
+                    _waveProvider.ClearBuffer();
+                _waveProvider = null;
+            }
+
             ShutDown(errmsg);
         }
 
@@ -326,10 +345,7 @@ namespace iSpyApplication.Audio.streams
             bool err = !String.IsNullOrEmpty(errmsg);
             if (err)
             {
-                //if (AudioSourceError != null)
-                //    AudioSourceError(this, new AudioSourceErrorEventArgs(errmsg));
-
-                MainForm.LogErrorToFile(errmsg + ": " + _source);
+                
                 _reasonToStop = ReasonToFinishPlaying.DeviceLost;
             }
 
@@ -338,17 +354,13 @@ namespace iSpyApplication.Audio.streams
 
             try
             {
-                Debug.WriteLine("Closing " + _source);
                 _afr.Close();
-                Debug.WriteLine("Closed " + _source);
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            Debug.WriteLine("Disposing " + _source);
             _afr.Dispose();
-            Debug.WriteLine("Disposed " + _source);
 
             // release events
             _stopEvent.Close();
@@ -357,7 +369,14 @@ namespace iSpyApplication.Audio.streams
 
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
-            Debug.WriteLine("Quit");
+
+            if (_waveProvider != null)
+            {
+                if (_waveProvider.BufferedBytes > 0)
+                    _waveProvider.ClearBuffer();
+                _waveProvider = null;
+            }
+
             _isrunning = false;
         }
 
@@ -383,18 +402,6 @@ namespace iSpyApplication.Audio.streams
             if (IsRunning && !_stopping)
             {
                 _stopping = true;
-                if (_afr != null)
-                {
-                    try
-                    {
-                        _afr.Abort();
-                    }
-                    catch
-                    {
-                        //disposed?
-                    }
-
-                }
                 if (_thread != null && _thread.IsAlive)
                 {
                     _stopEvent.Set();
@@ -403,12 +410,15 @@ namespace iSpyApplication.Audio.streams
                     {
                         try
                         {
-                            _thread.Join(1000);
+                            _thread.Join(50);
                         }
                         catch { }
                         Application.DoEvents();
                     }
                 }
+
+                Listening = false;
+
                 _thread = null;
                 _stopping = false;
             }

@@ -52,14 +52,12 @@ namespace iSpyApplication.Video
 
         private Stream _audioStream;
         private BufferedWaveProvider _waveProvider;
-        private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
 
         public event DataAvailableEventHandler DataAvailable;
         public event LevelChangedEventHandler LevelChanged;
-        public event AudioSourceErrorEventHandler AudioSourceError;
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
         /// <summary>
@@ -91,6 +89,18 @@ namespace iSpyApplication.Video
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -104,12 +114,6 @@ namespace iSpyApplication.Video
 
         #endregion
 
-        void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
-        {
-            if (LevelChanged != null)
-                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
-
-        }
 
         public KinectStream()
         {
@@ -247,13 +251,11 @@ namespace iSpyApplication.Video
 
                 RecordingFormat = new WaveFormat(16000, 16, 1);
 
-                WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
                 _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
 
 
                 _sampleChannel = new SampleChannel(_waveProvider);
-                _meteringProvider = new MeteringSampleProvider(_sampleChannel);
-                _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
+                _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
                 if (HasAudioStream != null)
                 {
@@ -277,24 +279,32 @@ namespace iSpyApplication.Video
             }
         }
 
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
+        {
+            if (LevelChanged != null)
+            {
+                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
+            }
+        }
+
         private void AudioThread()
         {
             while (_stopEvent!=null && !_stopEvent.WaitOne(0, false))
             {
-                var data = _audioStream.Read(_audioBuffer, 0, _audioBuffer.Length);
+                int dataLength = _audioStream.Read(_audioBuffer, 0, _audioBuffer.Length);
                 if (DataAvailable != null)
                 {
-                    _waveProvider.AddSamples(_audioBuffer, 0, data);
+                    _waveProvider.AddSamples(_audioBuffer, 0, dataLength);
 
                     if (Listening)
                     {
-                        WaveOutProvider.AddSamples(_audioBuffer, 0, data);
+                        WaveOutProvider.AddSamples(_audioBuffer, 0, dataLength);
                     }
 
                     //forces processing of volume level without piping it out
-                    var sampleBuffer = new float[data];
+                    var sampleBuffer = new float[dataLength];
+                    _sampleChannel.Read(sampleBuffer, 0, dataLength);
 
-                    _meteringProvider.Read(sampleBuffer, 0, data);
                     if (DataAvailable != null)
                         DataAvailable(this, new DataAvailableEventArgs((byte[])_audioBuffer.Clone()));
                 }
@@ -608,22 +618,47 @@ namespace iSpyApplication.Video
 
         public void Stop()
         {
-            try
-            {
-                if (_sensor!=null)
-                _sensor.Stop();
-            }
-            catch (Exception)
-            {
-            }
+            if (_sampleChannel != null)
+                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+
             if (_stopEvent != null)
             {
                 _stopEvent.Set();
                 Thread.Sleep(500);
                 _stopEvent.Close();
             }
+
+            try
+            {
+                if (_sensor != null)
+                {
+                    if (_sensor.AudioSource != null)
+                    {
+                        _sensor.AudioSource.Stop();
+                    }
+
+                    _sensor.Stop();
+                    _sensor.SkeletonFrameReady -= SensorSkeletonFrameReady;
+                    _sensor.ColorFrameReady -= SensorColorFrameReady;
+                    _sensor.DepthFrameReady -= SensorDepthFrameReady;
+
+                    _sensor.Dispose();
+
+                    _sensor = null;
+                }
+            }
+            catch (Exception)
+            {
+            }
+            
+
+            if (_waveProvider != null)
+                _waveProvider.ClearBuffer();
+
+            Listening = false;
+
             _stopEvent = null;
-            _sensor = null;
+            
             _isrunning = false;
 
         }

@@ -518,6 +518,7 @@ namespace iSpyApplication
                 if (WebsiteLive && r != "OK")
                 {
                     LoginFailed = true;
+                    MainForm.LogErrorToFile("Webservices: " + r[0]);
                     return LocRm.GetString(r);
                 }
                 if (WebsiteLive)

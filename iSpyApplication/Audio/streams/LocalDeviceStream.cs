@@ -99,6 +99,18 @@ namespace iSpyApplication.Audio.streams
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -243,8 +255,18 @@ namespace iSpyApplication.Audio.streams
                 {
                     MainForm.LogExceptionToFile(ex);
                 }
+                _waveIn.DataAvailable -= WaveInDataAvailable;
+                _waveIn.RecordingStopped -= WaveInRecordingStopped;
+
                 _waveIn = null;
                 _isrunning = false;
+
+                if (_sampleChannel != null)
+                    _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+
+                if (WaveOutProvider != null)
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+
             }
         }
 

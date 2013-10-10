@@ -10,7 +10,9 @@ using AForge;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
 using AForge.Video;
+using AForge.Video.Ximea;
 using AForge.Vision.Motion;
+using iSpyApplication.Video;
 using Point = System.Drawing.Point;
 
 namespace iSpyApplication.Controls
@@ -18,7 +20,7 @@ namespace iSpyApplication.Controls
     /// <summary>
     /// Camera class
     /// </summary>
-    public class Camera
+    public class Camera : IDisposable
     {
         public CameraWindow CW;
         public bool MotionDetected;
@@ -45,6 +47,9 @@ namespace iSpyApplication.Controls
         private DateTime _lastframeEvent = DateTime.MinValue;
 
         private int _width = -1;
+        private bool _pluginTrigger;
+        private Brush _foreBrush, _backBrush;
+        private Font _drawfont;
 
         //digital controls
         public float ZFactor = 1;
@@ -324,6 +329,7 @@ namespace iSpyApplication.Controls
 
         public event NewFrameEventHandler NewFrame;
         public event EventHandler Alarm;
+        public event PlayingFinishedEventHandler PlayingFinished;
 
         // Constructor
 
@@ -338,7 +344,10 @@ namespace iSpyApplication.Controls
                 _lastframeEvent = DateTime.MinValue;
                 if (!CW.IsClone)
                 {
+                    VideoSource.PlayingFinished -= VideoSourcePlayingFinished;
+                    VideoSource.PlayingFinished += VideoSourcePlayingFinished;
                     VideoSource.Start();
+                    
                 }
             }
         }
@@ -348,14 +357,11 @@ namespace iSpyApplication.Controls
         {
             if (CW.IsClone || _requestedToStop)
                 return;
-            //lock (_sync)
-            //{
-                if (VideoSource != null)
-                {
-                    _requestedToStop = true;
-                    VideoSource.SignalToStop();
-                }
-            //}
+            if (VideoSource != null)
+            {
+                _requestedToStop = true;
+                VideoSource.SignalToStop();
+            }
         }
 
 
@@ -649,13 +655,18 @@ namespace iSpyApplication.Controls
             Alarm(this, new EventArgs());
         }
 
+        internal void TriggerPlugin()
+        {
+            _pluginTrigger = true;
+        }
+
         [HandleProcessCorruptedStateExceptions] 
         private UnmanagedImage ZoomImage(UnmanagedImage lfu)
         {
+            var f1 =  new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+            var f2 = new Crop(ViewRectangle);
             try
             {
-                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-                var f2 = new Crop(ViewRectangle);
                 lfu = f2.Apply(lfu);
                 lfu = f1.Apply(lfu);
             }
@@ -730,31 +741,44 @@ namespace iSpyApplication.Controls
                 return bmOrig;
 
             bool runplugin = true;
-            if (CW.Camobject.alerts.processmode == "motion")
+            switch (CW.Camobject.alerts.processmode)
             {
-                //run plugin if motion detected in last 5 seconds
-                runplugin = _motionlastdetected > DateTime.Now.AddSeconds(-5);
+                case "motion":
+                    runplugin = _motionlastdetected > DateTime.Now.AddSeconds(-3);
+                    break;
+                case "trigger":
+                    runplugin = _pluginTrigger;
+                    _pluginTrigger = false;
+                    break;
             }
+            
             if (runplugin)
             {
                 PluginRunning = true;
+                var o = _plugin.GetType();
+
                 try
                 {
-                    bmOrig = (Bitmap) Plugin.GetType().GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
+                    bmOrig = (Bitmap) o.GetMethod("ProcessFrame").Invoke(Plugin, new object[] {bmOrig});
                 }
                 catch (Exception ex)
                 {
                     MainForm.LogExceptionToFile(ex);
                 }
-                var pluginAlert = (String) Plugin.GetType().GetField("Alert").GetValue(Plugin);
+               
+                var pluginAlert = (String) o.GetField("Alert").GetValue(Plugin);
                 if (pluginAlert != "")
                     Alarm(pluginAlert, EventArgs.Empty);
+                
+                if (o.GetMethod("ResetAlert") != null)
+                    o.GetMethod("ResetAlert").Invoke(_plugin, null);
+
                 PluginRunning = false;
             }
             return bmOrig;
         }
 
-        private Font _drawfont;
+        
         public Font DrawFont
         {
             get
@@ -766,8 +790,6 @@ namespace iSpyApplication.Controls
             }
             set { _drawfont = value; }
         }
-
-        private Brush _foreBrush, _backBrush;
         public Brush ForeBrush
         {
             get
@@ -792,6 +814,46 @@ namespace iSpyApplication.Controls
             }
             set { _backBrush = value; }
         }
-        
+
+        public void Dispose()
+        {
+            ClearMotionZones();
+            ForeBrush.Dispose();
+            BackBrush.Dispose();
+            DrawFont.Dispose();
+            if (_framerates!=null)
+                _framerates.Clear();
+
+            if (Mask != null)
+            {
+                Mask.Dispose();
+                Mask = null;
+            }
+            Alarm = null;
+            NewFrame = null;
+            PlayingFinished = null;
+            Plugin = null;
+
+            VideoSource = null;
+
+            if (MotionDetector != null)
+            {
+                try
+                {
+                    MotionDetector.Reset();
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex, "Camera " + CW.Camobject.id);
+                }
+                MotionDetector = null;
+            }
+        }
+
+        void VideoSourcePlayingFinished(object sender, ReasonToFinishPlaying reason)
+        {
+            if (PlayingFinished != null)
+                PlayingFinished(sender, reason);
+        }
     }
 }

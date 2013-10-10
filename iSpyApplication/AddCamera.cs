@@ -282,6 +282,7 @@ namespace iSpyApplication
             numTTH.Value = CameraControl.Camobject.settings.ptztimetohome;
             rdoContinuous.Checked = CameraControl.Camobject.alerts.processmode == "continuous";
             rdoMotion.Checked = CameraControl.Camobject.alerts.processmode == "motion";
+            rdoTrigger.Checked = CameraControl.Camobject.alerts.processmode == "trigger";
             tbFTPQuality.Value = CameraControl.Camobject.ftp.quality;
             chkSchedulePTZ.Checked = CameraControl.Camobject.ptzschedule.active;
             chkSuspendOnMovement.Checked = CameraControl.Camobject.ptzschedule.suspend;
@@ -1194,6 +1195,8 @@ namespace iSpyApplication
                 CameraControl.Camobject.alerts.processmode = "continuous";
                 if (rdoMotion.Checked)
                     CameraControl.Camobject.alerts.processmode = "motion";
+                if (rdoTrigger.Checked)
+                    CameraControl.Camobject.alerts.processmode = "trigger";
                 CameraControl.Camobject.recorder.maxrecordtime = maxrecord;
                 CameraControl.Camobject.recorder.timelapseenabled = chkTimelapse.Checked;
 
@@ -2938,6 +2941,11 @@ namespace iSpyApplication
             CameraControl.Camobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
 
             ((MainForm)Owner).RunStorageManagement();
+        }
+
+        private void rdoMotion_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         //private void btnChooseDirectory_Click(object sender, EventArgs e)
