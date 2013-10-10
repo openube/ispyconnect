@@ -2163,7 +2163,7 @@ namespace iSpyApplication
                     pb.CreatedDate = createdDate;
                     pb.MouseDown += PbMouseDown;
                     pb.MouseEnter += PbMouseEnter;
-                    string txt = name + ": " + createdDate.ToString(CultureInfo.InvariantCulture);
+                    string txt = name + ": " + createdDate.ToString(CultureInfo.CurrentUICulture);
                     pb.DisplayName = txt;
                     flowPreview.Controls.Add(pb);
 

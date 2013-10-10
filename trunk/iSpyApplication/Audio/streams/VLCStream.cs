@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
-using AForge.Video;
 using Declarations;
 using Declarations.Events;
 using Declarations.Media;
@@ -42,7 +38,6 @@ namespace iSpyApplication.Audio.streams
 
         private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
-        private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
@@ -190,7 +185,7 @@ namespace iSpyApplication.Audio.streams
                 _starting = true;
                 // check source
                 if (string.IsNullOrEmpty(_source))
-                    throw new ArgumentException("Video source is not specified.");
+                    throw new ArgumentException("Audio source is not specified.");
 
                 _mFactory = new MediaPlayerFactory();
 
@@ -215,11 +210,6 @@ namespace iSpyApplication.Audio.streams
                 _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
                 var ac = new AudioCallbacks { SoundCallback = SoundCallback };
                 _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
-
-                //_mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
-                //_mPlayer.CustomRenderer.SetCallback(FrameCallback);
-
-                //_mPlayer.CustomRenderer.SetExceptionHandler(Handler);
                 _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
 
                 _mMedia.Parse(true);
@@ -260,6 +250,7 @@ namespace iSpyApplication.Audio.streams
                     {
                         _starting = false;
                         _isrunning = false;
+                        Thread.Sleep(200); //lets buffered frames stop before raising finished event
                         //if file source then dont reconnect
                         if (!Seekable)
                         {
@@ -327,7 +318,6 @@ namespace iSpyApplication.Audio.streams
         #region Audio Stuff
         public event DataAvailableEventHandler DataAvailable;
         public event LevelChangedEventHandler LevelChanged;
-        //public event AudioSourceErrorEventHandler AudioSourceError;
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
 
@@ -355,21 +345,25 @@ namespace iSpyApplication.Audio.streams
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                }
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
                 }
-
+                
                 _listening = value;
             }
         }
 
-        void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
-        {
-            if (LevelChanged != null && e!=null && e.MaxSampleValues!=null)
-                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
-
-        }
         public WaveFormat RecordingFormat
         {
             get { return _recordingFormat; }
@@ -379,20 +373,19 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
-        private int RealChannels = 0;
+        private int _realChannels;
         private SoundFormat SoundFormatCallback(SoundFormat sf)
         {
             if (_needsSetup)
             {
-                int chan = RealChannels = sf.Channels;
+                int chan = _realChannels = sf.Channels;
                 if (chan > 1)
                     chan = 2;//downmix
                 _recordingFormat = new WaveFormat(sf.Rate, 16, chan);
                 _waveProvider = new BufferedWaveProvider(RecordingFormat);
                 _sampleChannel = new SampleChannel(_waveProvider);
 
-                _meteringProvider = new MeteringSampleProvider(_sampleChannel);
-                _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
+                _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
                 _needsSetup = false;
                 if (HasAudioStream != null)
                 {
@@ -404,6 +397,12 @@ namespace iSpyApplication.Audio.streams
             return sf;
         }
 
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
+        {
+            if (LevelChanged != null && e != null && e.MaxSampleValues != null)
+                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
+        }
+
         private void SoundCallback(Sound soundData)
         {
             if (DataAvailable == null || _needsSetup) return;
@@ -411,10 +410,10 @@ namespace iSpyApplication.Audio.streams
             var data = new byte[soundData.SamplesSize];
             Marshal.Copy(soundData.SamplesData, data, 0, (int)soundData.SamplesSize);
 
-            if (RealChannels > 2)
+            if (_realChannels > 2)
             {
                 //resample audio to 2 channels
-                data = ToStereo(data, RealChannels);
+                data = ToStereo(data, _realChannels);
             }
 
             _waveProvider.AddSamples(data, 0, data.Length);
@@ -426,7 +425,7 @@ namespace iSpyApplication.Audio.streams
 
             //forces processing of volume level without piping it out
             var sampleBuffer = new float[data.Length];
-            _meteringProvider.Read(sampleBuffer, 0, data.Length);
+            _sampleChannel.Read(sampleBuffer, 0, data.Length);
 
             if (DataAvailable != null)
                 DataAvailable(this, new DataAvailableEventArgs((byte[])data.Clone()));
@@ -449,17 +448,6 @@ namespace iSpyApplication.Audio.streams
             return output;
         }
         #endregion
-
-        //private void FrameCallback(Bitmap frame)
-        //{
-        //    _framesReceived++;
-        //    _lastframetimestamp = DateTime.Now;
-        //    if (NewFrame != null)
-        //    {
-        //        NewFrame(this, new NewFrameEventArgs(frame));
-        //    }
-        //    frame.Dispose();
-        //}
 
 
         /// <summary>
@@ -488,25 +476,11 @@ namespace iSpyApplication.Audio.streams
             {
                 if (_mPlayer.IsPlaying)
                 {
-                    _isstopping = true;
-                    //_mPlayer.CustomRenderer.RemoveCallbacks();
-                    //_mPlayer.CustomAudioRenderer.RemoveCallbacks();
-                    var t = new Thread(StopAudio);
-                    t.Start();
-                    while (t.IsAlive)
-                    {
-                        t.Join();
-                        Application.DoEvents();
-                    }
-                    _isstopping = false;
+                    _mPlayer.Stop();
                 }
             }
         }
 
-        private void StopAudio()
-        {
-            _mPlayer.Stop();
-        }
         #endregion
 
         public void Seek(float percentage)
@@ -522,11 +496,6 @@ namespace iSpyApplication.Audio.streams
             DisposePlayer();
             Duration = Time = 0;
             _starting = false;
-
-            //if (VideoSourceError != null)
-            //    VideoSourceError(sender, new VideoSourceErrorEventArgs("Error playing stream"));
-            //if (AudioSourceError != null)
-            //    AudioSourceError(sender, new AudioSourceErrorEventArgs("Error playing stream"));
 
             if (_isrunning)
             {
@@ -547,8 +516,8 @@ namespace iSpyApplication.Audio.streams
             if (_isrunning)
             {
                 _isrunning = false;
-                //if (PlayingFinished != null)
-                //    PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                Thread.Sleep(200); //lets buffered frames stop before raising finished event
+
                 if (AudioFinished != null)
                     AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
             }
@@ -564,8 +533,8 @@ namespace iSpyApplication.Audio.streams
             {
                 _isrunning = false;
 
-                //if (PlayingFinished != null)
-                //    PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
+                Thread.Sleep(200); //lets buffered frames stop before raising finished event
+
                 if (AudioFinished != null)
                     AudioFinished(sender, ReasonToFinishPlaying.DeviceLost);
             }
@@ -574,10 +543,16 @@ namespace iSpyApplication.Audio.streams
 
         private void DisposePlayer()
         {
+            if (_sampleChannel != null)
+                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+
             if (_mFactory == null)
                 return;
             try
             {
+                if (_mPlayer.CustomAudioRenderer != null)
+                    _mPlayer.CustomAudioRenderer.Dispose();
+
                 if (_mPlayer.Events != null)
                 {
                     _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
@@ -610,6 +585,11 @@ namespace iSpyApplication.Audio.streams
                 {
                 }
             }
+
+            if (_waveProvider!=null)
+                _waveProvider.ClearBuffer();
+
+            Listening = false;
 
             _mPlayer = null;
             _mFactory = null;

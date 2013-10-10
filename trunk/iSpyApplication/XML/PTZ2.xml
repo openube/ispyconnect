@@ -4915,4 +4915,27 @@
         <Command Name="Stop All">/cgi-bin/remotecon_ptz.cgi?Type=9</Command>
       </ExtendedCommands>
     </Camera>
+  <Camera id="189">
+    <Makes>
+      <Make Name="DLink" Model="DCS-5020L Series" />
+    </Makes>
+    <CommandURL>/PANTILTCONTROL.CGI</CommandURL>
+      <Commands>
+        <Center>PanTiltPresetPositionMove=0</Center>
+        <Left>PanSingleMoveDegree=1&amp;TiltSingleMoveDegree=1&amp;PanTiltSingleMove=3</Left>
+        <Right>PanSingleMoveDegree=1&amp;TiltSingleMoveDegree=1&amp;PanTiltSingleMove=5</Right>
+        <Up>PanSingleMoveDegree=1&amp;TiltSingleMoveDegree=1&amp;PanTiltSingleMove=1</Up>
+        <Down>PanSingleMoveDegree=1&amp;TiltSingleMoveDegree=1&amp;PanTiltSingleMove=7</Down>
+      </Commands>
+      <ExtendedCommands>
+        <Command Name="Position 1">PanTiltPresetPositionMove=1</Command>
+        <Command Name="Position 2">PanTiltPresetPositionMove=2</Command>
+        <Command Name="Position 3">PanTiltPresetPositionMove=3</Command>
+        <Command Name="Position 4">PanTiltPresetPositionMove=4</Command>
+        <Command Name="Position 5">PanTiltPresetPositionMove=5</Command>
+        <Command Name="Position 6">PanTiltPresetPositionMove=6</Command>
+        <Command Name="Position 7">PanTiltPresetPositionMove=7</Command>
+        <Command Name="Position 8">PanTiltPresetPositionMove=8</Command>
+      </ExtendedCommands>
+    </Camera>
 </PTZSettings2>

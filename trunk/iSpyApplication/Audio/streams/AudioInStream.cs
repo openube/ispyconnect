@@ -39,14 +39,6 @@ namespace iSpyApplication.Audio.streams
         /// 
         public event LevelChangedEventHandler LevelChanged;
 
-        /// <summary>
-        /// audio source error event.
-        /// </summary>
-        /// 
-        /// <remarks>This event is used to notify clients about any type of errors occurred in
-        /// audio source object, for example internal exceptions.</remarks>
-        /// 
-        public event AudioSourceErrorEventHandler AudioSourceError;
 
         /// <summary>
         /// audio playing finished event.

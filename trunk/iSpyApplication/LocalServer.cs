@@ -369,6 +369,10 @@ namespace iSpyApplication
                         MainForm.LogExceptionToFile(new Exception("Socket Error cannot Send Packet"));
                 }
             }
+            catch (SocketException)
+            {
+                //connection error
+            }
             catch (Exception e)
             {
                 MainForm.LogExceptionToFile(e);
@@ -891,11 +895,17 @@ namespace iSpyApplication
         {
             string cmd = sRequest.Trim('/').ToLower().Trim();
             string resp = "";
-            int i = cmd.IndexOf("?", StringComparison.Ordinal);
-            if (i!=-1)
-                cmd = cmd.Substring(0, i);
-            if (cmd.StartsWith("get /"))
+            
+            //hack for axis server commands
+            
+            if (cmd.StartsWith("get /") || cmd.StartsWith("get ?"))
                 cmd = cmd.Substring(5);
+
+            cmd = cmd.Trim('?');
+
+            int i = cmd.IndexOf("?", StringComparison.Ordinal);
+            if (i != -1)
+                cmd = cmd.Substring(0, i);
 
             int oid, otid;
             int.TryParse(GetVar(sRequest, "oid"), out oid);
@@ -1265,6 +1275,16 @@ namespace iSpyApplication
                         if (cw != null && cw.Camera!=null)
                         {
                             cw.Camera.TriggerDetect();
+                        }
+                    }
+                    resp = "OK";
+                    break;
+                case "triggerplugin":
+                    {
+                        CameraWindow cw = _parent.GetCameraWindow(oid);
+                        if (cw != null && cw.Camera != null)
+                        {
+                            cw.Camera.TriggerPlugin();
                         }
                     }
                     resp = "OK";
@@ -3065,14 +3085,7 @@ namespace iSpyApplication
             bool basicCt = GetVar(sPhysicalFilePath, "basicct") != "";
             bool maintainAR = GetVar(sPhysicalFilePath, "keepAR") == "true";
             int w = 320, h = 240;
-            int camid=-1;
-            if (scamid.IndexOf(',')!=-1)
-            {
-                
-            }
-            else
-                int.TryParse(scamid, out camid);
-
+            
             if (size != "")
             {
                 GetWidthHeight(size, out w, out h);           
@@ -3093,111 +3106,13 @@ namespace iSpyApplication
 
             try
             {
-                if (camid > -1)
-                {
-                    CameraWindow cw = _parent.GetCameraWindow(Convert.ToInt32(camid));
-                    if (cw.Camobject.settings.active)
-                    {
-                        var feed = new Thread(p => MJPEGFeed(cw, mySocket, w, h, basicCt));
-                        feed.Start();
-                    }
-                    else
-                    {
-                        DisconnectSocket(mySocket);
-                        NumErr = 0;
-                    }
-                }
-                else
-                {
-                    var feed = new Thread(p => MJPEGFeedMulti(scamid, mySocket, w, h, basicCt, maintainAR));
-                    feed.Start();
-                }
+                var feed2 = new Thread(p => MJPEGFeedMulti(scamid, mySocket, w, h, basicCt, maintainAR));
+                feed2.Start();
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
-        }
-
-        private void MJPEGFeed(CameraWindow cw, Socket mySocket, int w, int h, bool basicContentType)
-        {
-            String sResponse = "";
-
-            sResponse += "HTTP/1.1 200 OK\r\n";
-            sResponse += "Server: iSpy\r\n";
-            sResponse += "Expires: 0\r\n";
-            sResponse += "Pragma: no-cache\r\n";
-            sResponse += "Cache-Control: no-cache, must-revalidate\r\n";
-            if (!basicContentType)
-                sResponse += "Content-Type: multipart/x-mixed-replace; boundary=--myboundary";
-            else
-                sResponse += "Content-Type: text/html; boundary=--myboundary";
-            
-            try
-            {
-                while (cw != null && cw.Camera != null && cw.Camobject.settings.active && mySocket.Connected)
-                {
-                    if (!cw.LastFrameNull)
-                    {
-                        Bitmap b = cw.LastFrame;
-                        if (b != null)
-                        {
-                            using (var imageStream = new MemoryStream())
-                            {
-                                try
-                                {
-                                    if (w > 0)
-                                    {
-                                        //resize
-                                        if (h == 0)
-                                        {
-                                            var r = b.Width/w;
-                                            h = b.Height/r;
-                                        }
-                                        Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
-                                        Image myThumbnail = b.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
-
-                                        // put the image into the memory stream
-
-                                        myThumbnail.Save(imageStream, ImageFormat.Jpeg);
-                                        myThumbnail.Dispose();
-                                    }
-                                    else
-                                    {
-                                        b.Save(imageStream, ImageFormat.Jpeg);
-                                    }
-
-                                    imageStream.Position = 0;
-                                    // load the byte array with the image             
-                                    b.Dispose();
-                                    Byte[] imageArray = imageStream.GetBuffer();
-                                    sResponse +=
-                                        "\r\n\r\n--myboundary\r\nContent-type: image/jpeg\r\nContent-length: " +
-                                        imageArray.Length + "\r\n\r\n";
-
-                                    Byte[] bSendData = Encoding.ASCII.GetBytes(sResponse);
-
-                                    SendToBrowser(bSendData, mySocket);
-                                    sResponse = "";
-                                    SendToBrowser(imageArray, mySocket);
-                                    imageStream.Close();
-                                }
-                                catch
-                                {
-
-                                }
-                            }
-                        }
-                        Thread.Sleep(MainForm.Conf.MJPEGStreamInterval);//throttle it
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-            DisconnectSocket(mySocket);
-            
         }
 
         private void MJPEGFeedMulti(string cameraids, Socket mySocket, int w, int h, bool basicContentType, bool maintainAspectRatio)
@@ -3213,7 +3128,8 @@ namespace iSpyApplication
                 sResponse += "Content-Type: multipart/x-mixed-replace; boundary=--myboundary";
             else
                 sResponse += "Content-Type: text/html; boundary=--myboundary";
-
+            var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+            var drawfont = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Regular, GraphicsUnit.Pixel);
             try
             {
                 var cams = new List<CameraWindow>();
@@ -3238,7 +3154,7 @@ namespace iSpyApplication
                 int camw = Convert.ToInt32(Convert.ToDouble(w)/Convert.ToDouble(cols));
                 int camh = Convert.ToInt32(Convert.ToDouble(h) / Convert.ToDouble(rows));
 
-
+                
                 while (mySocket.Connected)
                 {
                     var bmpFinal = new Bitmap(w, h);
@@ -3283,14 +3199,28 @@ namespace iSpyApplication
                                 neww = Convert.ToInt32(camh/ar);
                             }
                             //offset for centering
-                            g.DrawImage(img, x + (camw - neww)/2, y + (camh - newh)/2, neww, newh);
+                            try
+                            {
+                                g.DrawImage(img, x + (camw - neww)/2, y + (camh - newh)/2, neww, newh);
+                            }
+                            catch (System.Exception)
+                            {
+                                //cam offline?
+                            }
                         }
                         else
                         {
-                            g.DrawImage(img, x, y, camw, camh);
+                            try
+                            {
+                                g.DrawImage(img, x, y, camw, camh);
+                            }
+                            catch (System.Exception)
+                            {
+                                //cam offline?
+                            }
                         }
-                        g.FillRectangle(MainForm.OverlayBackgroundBrush, x, y + camh - 20, camw, y + camh);
-                        g.DrawString(cw.Camobject.name,MainForm.Drawfont,Brushes.White,x+2,y+camh-17);
+                        g.FillRectangle(overlayBackgroundBrush, x, y + camh - 20, camw, y + camh);
+                        g.DrawString(cw.Camobject.name,drawfont,Brushes.White,x+2,y+camh-17);
                         
 
                     }
@@ -3316,11 +3246,14 @@ namespace iSpyApplication
                     }
                     Thread.Sleep(MainForm.Conf.MJPEGStreamInterval); //throttle it
                 }
+
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
+            overlayBackgroundBrush.Dispose();
+            drawfont.Dispose();
             DisconnectSocket(mySocket);
 
         }

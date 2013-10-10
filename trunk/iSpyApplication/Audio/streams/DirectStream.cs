@@ -104,6 +104,18 @@ namespace iSpyApplication.Audio.streams
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true};
@@ -174,7 +186,7 @@ namespace iSpyApplication.Audio.streams
 
                 _waveProvider = new BufferedWaveProvider(RecordingFormat);
                 _sampleChannel = new SampleChannel(_waveProvider);
-                _sampleChannel.PreVolumeMeter += new EventHandler<StreamVolumeEventArgs>(_sampleChannel_PreVolumeMeter);
+                _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
 
                 _stopEvent = new ManualResetEvent(false);
                 _thread = new Thread(DirectStreamListener)
@@ -186,7 +198,7 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
-        void _sampleChannel_PreVolumeMeter(object sender, StreamVolumeEventArgs e)
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
         {
             if (LevelChanged != null)
                 LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
@@ -268,12 +280,21 @@ namespace iSpyApplication.Audio.streams
         /// 
         public void Stop()
         {
-            if (this.IsRunning)
+            if (IsRunning)
             {
                 _stopEvent.Set();
                 _thread.Join();
 
                 Free();
+
+                if (_sampleChannel!=null)
+                    _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+
+                if (_waveProvider!=null)
+                    _waveProvider.ClearBuffer();
+
+                if (WaveOutProvider!=null)
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
             }
         }
 

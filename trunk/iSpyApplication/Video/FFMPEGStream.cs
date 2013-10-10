@@ -72,26 +72,14 @@ namespace iSpyApplication.Video
         /// </remarks>
         /// 
         public event NewFrameEventHandler NewFrame;
-
-        /// <summary>
-        /// Video source error event.
-        /// </summary>
-        /// 
-        /// <remarks>This event is used to notify clients about any type of errors occurred in
-        /// video source object, for example internal exceptions.</remarks>
-        /// 
         public event VideoSourceErrorEventHandler VideoSourceError;
-
-        /// <summary>
-        /// Video playing finished event.
-        /// </summary>
-        /// 
-        /// <remarks><para>This event is used to notify clients that the video playing has finished.</para>
-        /// </remarks>
-        /// 
         public event PlayingFinishedEventHandler PlayingFinished;
 
-        
+        public event DataAvailableEventHandler DataAvailable;
+        public event LevelChangedEventHandler LevelChanged;
+        public event AudioFinishedEventHandler AudioFinished;
+
+        public event HasAudioStreamEventHandler HasAudioStream;
 
         /// <summary>
         /// Video source.
@@ -407,10 +395,11 @@ namespace iSpyApplication.Video
 
                 if (HasAudioStream != null)
                 {
-                    HasAudioStream(this, EventArgs.Empty);
-                    HasAudioStream = null;
+                    HasAudioStream(this, EventArgs.Empty);        
                 }
             }
+            HasAudioStream = null;
+
             Duration = _vfr.Duration;
 
             if (!NoBuffer)
@@ -425,7 +414,6 @@ namespace iSpyApplication.Video
 
             _videoframes = new List<DelayedFrame>();
             _audioframes = new List<DelayedAudio>();
-
 
             double maxdrift = 0, firstmaxdrift = 0;
             const int analyseInterval = 10;
@@ -472,9 +460,24 @@ namespace iSpyApplication.Video
                 StopOutput();
             }
             catch (Exception e)
-            {                
+            {
+                MainForm.LogExceptionToFile(e);
                 errmsg = e.Message;
             }
+
+            if (SampleChannel != null)
+            {
+                SampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+                SampleChannel = null;
+            }
+
+            if (_waveProvider != null)
+            {
+                if (_waveProvider.BufferedBytes > 0)
+                    _waveProvider.ClearBuffer();
+                _waveProvider = null;
+            }
+
             ShutDown(errmsg);
         }
 
@@ -483,13 +486,6 @@ namespace iSpyApplication.Video
             bool err=!String.IsNullOrEmpty(errmsg);
             if (err)
             {
-                //if (VideoSourceError != null)
-                //    VideoSourceError(this, new VideoSourceErrorEventArgs(errmsg));
-
-                //if (AudioSourceError != null)
-                //    AudioSourceError(this, new AudioSourceErrorEventArgs(errmsg));
-
-                MainForm.LogErrorToFile(errmsg);
                 _reasonToStop = ReasonToFinishPlaying.DeviceLost;
             }
 
@@ -498,27 +494,23 @@ namespace iSpyApplication.Video
                 _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
 
             if (_vfr!=null && _vfr.IsOpen)  {
-            try
-            {
-                Debug.WriteLine("Closing " + _source);
-                _vfr.Close();
-                Debug.WriteLine("Closed " + _source);
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-            Debug.WriteLine("Disposing " + _source);
-            try
-            {
-                _vfr.Dispose();
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-            Debug.WriteLine("Disposed " + _source);
+                try
+                {
+                    _vfr.Close();
                 }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                try
+                {
+                    _vfr.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+            }
 
             // release events
             if (_stopEvent != null)
@@ -532,8 +524,9 @@ namespace iSpyApplication.Video
                 PlayingFinished(this, _reasonToStop);
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
+            
+            
 
-            Debug.WriteLine("Quit");
             _isrunning = false;
         }
 
@@ -650,37 +643,7 @@ namespace iSpyApplication.Video
 
                     if (WaveOutProvider != null && Listening)
                     {
-                        //if (Math.Abs(PlaybackRate - 1) > double.Epsilon)
-                        //{
-                        //    //resample audio if playback speed changed
-                        //    var newRate =
-                        //        Convert.ToInt32(_waveProvider.WaveFormat.SampleRate /
-                        //                        PlaybackRate);
-                        //    var wf = new WaveFormat(newRate, 16,
-                        //                            _waveProvider.WaveFormat.Channels);
-                        //    var resampleInputMemoryStream = new MemoryStream(data) { Position = 0 };
-
-                        //    WaveStream ws =
-                        //        new RawSourceWaveStream(resampleInputMemoryStream,
-                        //                                _waveProvider.WaveFormat);
-                        //    var wfcs = new WaveFormatConversionStream(wf, ws) { Position = 0 };
-                        //    var b = new byte[ws.WaveFormat.AverageBytesPerSecond];
-
-                        //    int bo = wfcs.Read(b, 0, ws.WaveFormat.AverageBytesPerSecond);
-                        //    while (bo > 0)
-                        //    {
-                        //        WaveOutProvider.AddSamples(b, 0, bo);
-                        //        bo = wfcs.Read(b, 0, ws.WaveFormat.AverageBytesPerSecond);
-                        //    }
-                        //    wfcs.Dispose();
-                        //    ws.Dispose();
-
-                        //}
-                        //else
-                        //{
                         WaveOutProvider.AddSamples(data, 0, data.Length);
-                        //}
-
                     }
                 }
             }
@@ -745,11 +708,7 @@ namespace iSpyApplication.Video
         }
 
         #region Audio Stuff
-        public event DataAvailableEventHandler DataAvailable;
-        public event LevelChangedEventHandler LevelChanged;
-        public event AudioSourceErrorEventHandler AudioSourceError;
-        public event AudioFinishedEventHandler AudioFinished;
-        public event HasAudioStreamEventHandler HasAudioStream;
+        
 
 
 
@@ -782,6 +741,14 @@ namespace iSpyApplication.Video
                     _listening = false;
                     return;
                 }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -821,32 +788,25 @@ namespace iSpyApplication.Video
             if (IsRunning && !_stopping)
             {
                 _stopping = true;
-                if (_vfr != null)
-                {
-                    try
-                    {
-                        _vfr.Abort();
-                    }
-                    catch
-                    {
-                        //disposed?
-                    }
 
-                }
                 if (_thread != null && _thread.IsAlive)
                 {
                     _stopEvent.Set();
 
-                    while (_thread!=null && _thread.IsAlive)
+                    while (_thread != null && _thread.IsAlive)
                     {
                         try
                         {
                             _thread.Join(50);
                         }
-                        catch{}
+                        catch { }
                         Application.DoEvents();
                     }
-                }
+                }            
+                
+                Listening = false;
+
+
                 _thread = null;
                 _stopping = false;
             }

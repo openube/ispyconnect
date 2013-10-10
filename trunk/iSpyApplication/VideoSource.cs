@@ -626,7 +626,7 @@ namespace iSpyApplication
                         return;
                     }
                     url = cmbJPEGURL.Text.Trim();
-                    if (url == String.Empty)
+                    if (String.IsNullOrEmpty(url))
                     {
                         MessageBox.Show(LocRm.GetString("Validate_SelectCamera"), LocRm.GetString("Note"));
                         return;
@@ -637,7 +637,7 @@ namespace iSpyApplication
                     break;
                 case 1:
                     url = cmbMJPEGURL.Text.Trim();
-                    if (url == String.Empty)
+                    if (String.IsNullOrEmpty(url))
                     {
                         MessageBox.Show(LocRm.GetString("Validate_SelectCamera"), LocRm.GetString("Note"));
                         return;
@@ -650,7 +650,7 @@ namespace iSpyApplication
                     break;
                 case 2:
                     url = cmbFile.Text.Trim();
-                    if (url == String.Empty)
+                    if (String.IsNullOrEmpty(url))
                     {
                         MessageBox.Show(LocRm.GetString("Validate_SelectCamera"), LocRm.GetString("Note"));
                         return;

@@ -42,7 +42,6 @@ namespace iSpyApplication.Video
 
         private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
-        private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
@@ -80,6 +79,18 @@ namespace iSpyApplication.Video
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -387,6 +398,9 @@ namespace iSpyApplication.Video
         /// 
         public void WaitForStop()
         {
+            if (_sampleChannel != null)
+                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+
             if (IsRunning)
             {
                 // wait for thread stop
@@ -395,6 +409,11 @@ namespace iSpyApplication.Video
                 if (_thread != null && _thread.IsAlive)
                     _thread.Abort();
                 Free();
+
+                if (_waveProvider != null)
+                    _waveProvider.ClearBuffer();
+
+                Listening = false;
             }
         }
 
@@ -559,13 +578,10 @@ namespace iSpyApplication.Video
                                             hasaudio = true;
                                             RecordingFormat = new WaveFormat(16000, 16, 1);
 
-                                            WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
                                             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
 
-
                                             _sampleChannel = new SampleChannel(_waveProvider);
-                                            _meteringProvider = new MeteringSampleProvider(_sampleChannel);
-                                            _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
+                                            _sampleChannel.PreVolumeMeter +=SampleChannelPreVolumeMeter;
                                             if (HasAudioStream != null)
                                             {
                                                 HasAudioStream(this, EventArgs.Empty);
@@ -590,8 +606,8 @@ namespace iSpyApplication.Video
 
                                             //forces processing of volume level without piping it out
                                             var sampleBuffer = new float[data.Length];
+                                            _sampleChannel.Read(sampleBuffer, 0, data.Length);
 
-                                            _meteringProvider.Read(sampleBuffer, 0, data.Length);
                                             DataAvailable(this, new DataAvailableEventArgs((byte[]) data.Clone()));
                                         }
 
@@ -673,12 +689,12 @@ namespace iSpyApplication.Video
             }
         }
 
-        void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
         {
             if (LevelChanged != null)
                 LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
-
         }
+
     }
 
 }

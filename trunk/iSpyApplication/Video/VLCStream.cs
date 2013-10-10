@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
 using AForge.Video;
 using Declarations;
 using Declarations.Events;
@@ -43,7 +41,6 @@ namespace iSpyApplication.Video
 
         private WaveFormat _recordingFormat;
         private BufferedWaveProvider _waveProvider;
-        private MeteringSampleProvider _meteringProvider;
         private SampleChannel _sampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
@@ -328,7 +325,6 @@ namespace iSpyApplication.Video
         #region Audio Stuff
         public event DataAvailableEventHandler DataAvailable;
         public event LevelChangedEventHandler LevelChanged;
-        //public event AudioSourceErrorEventHandler AudioSourceError;
         public event AudioFinishedEventHandler AudioFinished;
         public event HasAudioStreamEventHandler HasAudioStream;
 
@@ -356,6 +352,19 @@ namespace iSpyApplication.Video
             }
             set
             {
+                if (RecordingFormat == null)
+                {
+                    _listening = false;
+                    return;
+                }
+
+                if (WaveOutProvider != null)
+                {
+                    if (WaveOutProvider.BufferedBytes>0) WaveOutProvider.ClearBuffer();
+                    WaveOutProvider = null;
+                }
+
+
                 if (value)
                 {
                     WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
@@ -365,12 +374,6 @@ namespace iSpyApplication.Video
             }
         }
 
-        void MeteringProviderStreamVolume(object sender, StreamVolumeEventArgs e)
-        {
-            if (LevelChanged != null && e != null && e.MaxSampleValues != null)
-                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
-
-        }
         public WaveFormat RecordingFormat
         {
             get { return _recordingFormat; }
@@ -392,8 +395,7 @@ namespace iSpyApplication.Video
                 _waveProvider = new BufferedWaveProvider(RecordingFormat);
                 _sampleChannel = new SampleChannel(_waveProvider);
 
-                _meteringProvider = new MeteringSampleProvider(_sampleChannel);
-                _meteringProvider.StreamVolume += MeteringProviderStreamVolume;
+                _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
                 _needsSetup = false;
                 if (HasAudioStream != null)
                 {
@@ -403,6 +405,12 @@ namespace iSpyApplication.Video
             }
 
             return sf;
+        }
+
+        void SampleChannelPreVolumeMeter(object sender, StreamVolumeEventArgs e)
+        {
+            if (LevelChanged != null && e != null && e.MaxSampleValues != null)
+                LevelChanged(this, new LevelChangedEventArgs(e.MaxSampleValues));
         }
 
         private void SoundCallback(Sound soundData)
@@ -427,7 +435,7 @@ namespace iSpyApplication.Video
 
             //forces processing of volume level without piping it out
             var sampleBuffer = new float[data.Length];
-            _meteringProvider.Read(sampleBuffer, 0, data.Length);
+            _sampleChannel.Read(sampleBuffer, 0, data.Length);
 
             if (DataAvailable != null)
                 DataAvailable(this, new DataAvailableEventArgs((byte[])data.Clone()));
@@ -509,11 +517,6 @@ namespace iSpyApplication.Video
             DisposePlayer();
             _starting = false;
 
-            //if (VideoSourceError != null)
-            //    VideoSourceError(sender, new VideoSourceErrorEventArgs("Error playing stream"));
-            //if (AudioSourceError != null)
-            //    AudioSourceError(sender, new AudioSourceErrorEventArgs("Error playing stream"));
-
             if (_isrunning)
             {
                 _isrunning = false;
@@ -553,6 +556,8 @@ namespace iSpyApplication.Video
             {
                 _isrunning = false;
 
+                Thread.Sleep(200); //lets buffered frames stop before raising finished event
+
                 if (PlayingFinished != null)
                     PlayingFinished(sender, ReasonToFinishPlaying.VideoSourceError);
                 if (AudioFinished != null)
@@ -565,14 +570,12 @@ namespace iSpyApplication.Video
         {
             if (_mFactory == null)
                 return;
-            try
-            {
-                if (_mPlayer.CustomRenderer!=null)
-                    _mPlayer.CustomRenderer.Dispose();
-                
-                if (_mPlayer.CustomAudioRenderer != null)
-                    _mPlayer.CustomAudioRenderer.Dispose();
+            
+            if (_sampleChannel != null)
+                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
 
+            if (_mPlayer != null)
+            {
                 if (_mPlayer.Events != null)
                 {
                     _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
@@ -581,9 +584,25 @@ namespace iSpyApplication.Video
                     _mPlayer.Events.TimeChanged -= EventsTimeChanged;
                 }
 
-                _mPlayer.Dispose();
+                try
+                {
+                    if (_mPlayer.CustomRenderer != null)
+                        _mPlayer.CustomRenderer.Dispose();
+                }
+                catch
+                {
+                }
+
+                try {
+                    if (_mPlayer.CustomAudioRenderer != null)
+                        _mPlayer.CustomAudioRenderer.Dispose();
+
+                    _mPlayer.Dispose();
+                }
+                catch
+                {
+                }
             }
-            catch { }
             try
             {
                 _mFactory.Dispose();
@@ -605,6 +624,13 @@ namespace iSpyApplication.Video
                 {
                 }
             }
+
+            
+            if (_waveProvider != null)
+                _waveProvider.ClearBuffer();
+
+            Listening = false;
+
 
             _mPlayer = null;
             _mFactory = null;

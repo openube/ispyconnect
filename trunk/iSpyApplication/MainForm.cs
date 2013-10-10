@@ -76,7 +76,7 @@ namespace iSpyApplication
         public static Brush IconBrushOff = new SolidBrush(Color.FromArgb(64, 255, 255, 255));
         public static Brush IconBrushActive = new SolidBrush(Color.Red);
         public static Brush OverlayBrush = new SolidBrush(Color.White);
-        public static SolidBrush OverlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+        
         public static int ThreadKillDelay = 10000;
 
         public static SolidBrush CameraDrawBrush = new SolidBrush(Color.White);
@@ -182,7 +182,6 @@ namespace iSpyApplication
         private static List<PTZSettings2Camera> _ptzs;
         private static List<ManufacturersManufacturer> _sources;
         private PerformanceCounter _cpuCounter, _cputotalCounter, _pcMem;
-        private static bool _pcMemAvailable;
         private static IPAddress[] _ipv4Addresses, _ipv6Addresses;
         private Timer _houseKeepingTimer;
         private bool _shuttingDown;
@@ -602,9 +601,9 @@ namespace iSpyApplication
                     Plugins.Add(dll.FullName);
                 }
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {
-                LogExceptionToFile(ex);
+                //LogExceptionToFile(ex);
             }
         }
 
@@ -1079,11 +1078,9 @@ namespace iSpyApplication
                 }
                 catch
                 {
-                    //no working set - only total available on windows xp
                     try
                     {
                         _pcMem = new PerformanceCounter("Memory", "Available MBytes");
-                        _pcMemAvailable = true;
                     }
                     catch (Exception ex2)
                     {
@@ -1098,7 +1095,6 @@ namespace iSpyApplication
                 LogExceptionToFile(ex);
                 _cputotalCounter = null;
             }
-
 
             if (Conf.StartupForm != "iSpy")
             {
@@ -1399,9 +1395,6 @@ namespace iSpyApplication
 
                     if (_pcMem != null)
                     {
-                        //if (_pcMemAvailable)
-                        //    _counters += " RAM Available: " + Convert.ToInt32(_pcMem.NextValue()) + "Mb";
-                        //else
                         _counters += " RAM Usage: " + Convert.ToInt32(_pcMem.RawValue/1048576) + "Mb";
                     }
                     tsslMonitor.Text = _counters;

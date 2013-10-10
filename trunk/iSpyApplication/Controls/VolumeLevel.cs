@@ -30,7 +30,7 @@ namespace iSpyApplication.Controls
         
         private AudioFileWriter _writer;
         private DateTime _mouseMove = DateTime.MinValue;
-        public EventHandler AudioDeviceEnabled;
+        public event EventHandler AudioDeviceEnabled;
         private double _intervalCount;
         private long _lastRun = DateTime.Now.Ticks;
         private double _secondCount;
@@ -1182,6 +1182,7 @@ namespace iSpyApplication.Controls
             var grabBrush = new SolidBrush(BorderColor);
             var borderPen = new Pen(grabBrush,BorderWidth);
             var lgb = new SolidBrush(MainForm.VolumeLevelColor);
+
             //var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
             //var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             //var drawPen = new Pen(drawBrush);
@@ -1278,9 +1279,9 @@ namespace iSpyApplication.Controls
             {
                 int leftpoint = Width - ButtonPanelWidth-1;
                 const int ypoint = 0;
-
-                gMic.FillRectangle(MainForm.OverlayBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
-
+                var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+                gMic.FillRectangle(overlayBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
+                overlayBackgroundBrush.Dispose();
 
 
                 gMic.DrawString(">", MainForm.Iconfont, Micobject.settings.active ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ypoint + ButtonOffset);
@@ -1373,11 +1374,10 @@ namespace iSpyApplication.Controls
                 }
             }
 
+            WriterBuffer = new QueueWithEvents<AudioAction>();
+            WriterBuffer.Changed += WriterBufferChanged;
             try
             {
-                WriterBuffer = new QueueWithEvents<AudioAction>();
-                WriterBuffer.Changed += WriterBufferChanged;
-
                 _pairedRecording = false;
                 if (CameraControl!=null && CameraControl.Camobject.settings.active)
                 {
@@ -1448,7 +1448,7 @@ namespace iSpyApplication.Controls
                             maxlevel = aa.SoundLevel;
                     }
                     
-                    AudioBuffer.Clear();
+                    ClearAudioBuffer();
 
                     if (recordingStart == DateTime.MinValue)
                         recordingStart = DateTime.Now;
@@ -1477,6 +1477,7 @@ namespace iSpyApplication.Controls
                                 _soundData.Append(",");
                                 if (d > maxlevel)
                                     maxlevel = d;
+                                b.Nullify();
 
                             }
                             _newRecordingFrame.WaitOne(200);
@@ -1545,6 +1546,8 @@ namespace iSpyApplication.Controls
                     _writer = null;
                     #endregion
                 }
+                ClearWriterBuffer();
+                WriterBuffer.Changed -= WriterBufferChanged;
                 WriterBuffer = null;
                 _recordingTime = 0;
                 UpdateFloorplans(false);
@@ -1580,6 +1583,20 @@ namespace iSpyApplication.Controls
             }
         }
 
+        private void ClearWriterBuffer()
+        {
+            if (WriterBuffer != null)
+            {
+                lock (WriterBuffer)
+                {
+                    while (WriterBuffer.Count > 0)
+                    {
+                        WriterBuffer.Dequeue().Nullify();
+                    }
+                }
+            }
+        }
+
         void WriterBufferChanged(object sender, EventArgs e)
         {
             _newRecordingFrame.Set();
@@ -1611,6 +1628,21 @@ namespace iSpyApplication.Controls
             SetDisabled(true);
         }
 
+        public void ClearAudioBuffer()
+        {
+            if (AudioBuffer != null)
+            {
+                lock (AudioBuffer)
+                {
+                    while (AudioBuffer.Count > 0)
+                    {
+                        AudioBuffer[0].Nullify();
+                        AudioBuffer.RemoveAt(0);
+                    }
+                }
+            }
+        }
+
         private void SetDisabled(bool stopSource)
         {
             if (_recordingThread != null)
@@ -1619,9 +1651,9 @@ namespace iSpyApplication.Controls
             if (AudioSource != null)
             {
                 AudioSource.AudioFinished -= AudioDeviceAudioFinished;
-                //AudioSource.AudioSourceError -= AudioDeviceAudioSourceError;
                 AudioSource.DataAvailable -= AudioDeviceDataAvailable;
                 AudioSource.LevelChanged -= AudioDeviceLevelChanged;
+
                 if (!IsClone && stopSource)
                 {
                     if (!(AudioSource is IVideoSource))
@@ -1640,10 +1672,7 @@ namespace iSpyApplication.Controls
             IsEnabled = false;
             IsReconnect = false;
 
-            if (AudioBuffer != null)
-            {
-                AudioBuffer.Clear();
-            }
+            ClearAudioBuffer();
 
             Levels = null;
             SoundDetected = false;
@@ -1787,10 +1816,6 @@ namespace iSpyApplication.Controls
                             ? new DirectSoundOut(new Guid(Micobject.settings.deviceout), 100)
                             : new DirectSoundOut(100);
 
-                AudioSource.AudioFinished -= AudioDeviceAudioFinished;
-                AudioSource.DataAvailable -= AudioDeviceDataAvailable;
-                AudioSource.LevelChanged -= AudioDeviceLevelChanged;
-
                 AudioSource.AudioFinished += AudioDeviceAudioFinished;
                 AudioSource.DataAvailable += AudioDeviceDataAvailable;
                 AudioSource.LevelChanged += AudioDeviceLevelChanged;
@@ -1831,7 +1856,7 @@ namespace iSpyApplication.Controls
                 AudioDeviceEnabled(this, EventArgs.Empty);
         }
 
-        void AudioDeviceLevelChanged(object sender, LevelChangedEventArgs eventArgs)
+        public void AudioDeviceLevelChanged(object sender, LevelChangedEventArgs eventArgs)
         {
             if (Math.Abs(eventArgs.MaxSamples.Max() - 0) < float.Epsilon)
                 return;
@@ -1851,7 +1876,7 @@ namespace iSpyApplication.Controls
             MicrophoneAlarm(this, EventArgs.Empty);
         }
 
-        void AudioDeviceDataAvailable(object sender, DataAvailableEventArgs e)
+        public void AudioDeviceDataAvailable(object sender, DataAvailableEventArgs e)
         {
             if (Levels == null || IsReconnect)
                 return;
@@ -1862,7 +1887,11 @@ namespace iSpyApplication.Controls
                     if (Micobject.settings.buffer > 0)
                     {
                         var dt = DateTime.Now.AddSeconds(0 - Micobject.settings.buffer);
-                        AudioBuffer.RemoveAll(p => p.TimeStamp < dt);
+                        while (AudioBuffer.Count > 0 && AudioBuffer[0].TimeStamp < dt)
+                        {
+                            AudioBuffer[0].Nullify();
+                            AudioBuffer.RemoveAt(0);
+                        }
                         AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
                     }
                 }
@@ -1945,16 +1974,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        //void AudioDeviceAudioSourceError(object sender, AudioSourceErrorEventArgs eventArgs)
-        //{
-        //    SetErrorState(eventArgs.Description);
-        //    Levels = null;
-            
-        //    if (!ShuttingDown)
-        //        _requestRefresh = true;
-        //}
-
-        void AudioDeviceAudioFinished(object sender, ReasonToFinishPlaying reason)
+        public void AudioDeviceAudioFinished(object sender, ReasonToFinishPlaying reason)
         {
             if (IsReconnect)
                 return;
@@ -2040,6 +2060,10 @@ namespace iSpyApplication.Controls
                 Decoded = decoded;
                 SoundLevel = soundLevel;
                 TimeStamp = timestamp;
+            }
+            public void Nullify()
+            {
+                Decoded = null;
             }
         }
 
