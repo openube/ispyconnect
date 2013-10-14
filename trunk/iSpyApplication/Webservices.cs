@@ -106,12 +106,10 @@ namespace iSpyApplication
 
 
                 var result = WsWrapper.TestConnection(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, true);
-                WsWrapper.LoginFailed = false;
                 if (result[0] != "OK")
                 {
                     MessageBox.Show(result[0], LocRm.GetString("Error"));
                     failed = true;
-                    WsWrapper.LoginFailed = true;
                 }
 
                 if (!failed)

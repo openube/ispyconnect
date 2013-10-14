@@ -467,9 +467,7 @@ namespace iSpyApplication.Controls
                         if (CW.Camobject.settings.timestamplocation != 0 && !String.IsNullOrEmpty(CW.Camobject.settings.timestampformatter))
                         {
                              AddTimestamp(bmOrig);
-                        }
-                        
-                        
+                        }                       
                     }
                 }
                 catch (UnsupportedImageFormatException ex)
@@ -817,36 +815,39 @@ namespace iSpyApplication.Controls
 
         public void Dispose()
         {
-            ClearMotionZones();
-            ForeBrush.Dispose();
-            BackBrush.Dispose();
-            DrawFont.Dispose();
-            if (_framerates!=null)
-                _framerates.Clear();
-
-            if (Mask != null)
+            lock (_sync)
             {
-                Mask.Dispose();
-                Mask = null;
-            }
-            Alarm = null;
-            NewFrame = null;
-            PlayingFinished = null;
-            Plugin = null;
+                ClearMotionZones();
+                ForeBrush.Dispose();
+                BackBrush.Dispose();
+                DrawFont.Dispose();
+                if (_framerates != null)
+                    _framerates.Clear();
 
-            VideoSource = null;
+                if (Mask != null)
+                {
+                    Mask.Dispose();
+                    Mask = null;
+                }
+                Alarm = null;
+                NewFrame = null;
+                PlayingFinished = null;
+                Plugin = null;
 
-            if (MotionDetector != null)
-            {
-                try
+                VideoSource = null;
+
+                if (MotionDetector != null)
                 {
-                    MotionDetector.Reset();
+                    try
+                    {
+                        MotionDetector.Reset();
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex, "Camera " + CW.Camobject.id);
+                    }
+                    MotionDetector = null;
                 }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex, "Camera " + CW.Camobject.id);
-                }
-                MotionDetector = null;
             }
         }
 

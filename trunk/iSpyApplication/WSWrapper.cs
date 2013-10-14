@@ -458,7 +458,6 @@ namespace iSpyApplication
 
         public static string Disconnect()
         {
-
             if (!MainForm.Conf.ServicesEnabled)
                 return WebservicesDisabledMessage;
             string r = "";
@@ -514,20 +513,22 @@ namespace iSpyApplication
                     MainForm.LogExceptionToFile(ex);
                     WebsiteLive = false;
                 }
-                LoginFailed = false;
-                if (WebsiteLive && r != "OK")
-                {
-                    LoginFailed = true;
-                    MainForm.LogErrorToFile("Webservices: " + r[0]);
-                    return LocRm.GetString(r);
-                }
+
                 if (WebsiteLive)
+                {
+                    LoginFailed = (r == "Webservices_LoginFailed");
+                    if (r != "OK")
+                    {
+                        MainForm.LogErrorToFile("Webservices: " + r[0]);
+                        return LocRm.GetString(r);
+                    }
                     return r;
+                }
             }
             return LocRm.GetString("iSpyDown");
         }
 
-        public static bool LoginFailed = true;
+        public static bool LoginFailed = false;
 
         public static string[] TestConnection(string username, string password, bool tryLoopback)
         {
@@ -549,17 +550,15 @@ namespace iSpyApplication
             }
             if (WebsiteLive)
             {
-                LoginFailed = false;
+                LoginFailed = (r[0] == "Webservices_LoginFailed");
                 if (r.Length == 1 && r[0] != "OK")
                 {
-                    r[0] = LocRm.GetString(r[0]);
-                    LoginFailed = true;
+                    r[0] = LocRm.GetString(r[0]);                    
                     MainForm.LogErrorToFile("Webservices: "+r[0]);
                 }
                 if (r.Length > 3 && r[3] != "")
                 {
                     r[3] = LocRm.GetString(r[3]);
-                    LoginFailed = true;
                     MainForm.LogErrorToFile("Webservices: " + r[3]);
                 }
                 return r;

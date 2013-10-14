@@ -315,6 +315,7 @@ namespace iSpyApplication
             chkMinimise.Checked = MainForm.Conf.MinimiseOnClose;
             chkSpeechRecognition.Checked = MainForm.Conf.SpeechRecognition;
             chkMinimiseToTray.Checked = MainForm.Conf.TrayOnMinimise;
+            btnRunNow.Enabled = !((MainForm) Owner).StorageThreadRunning; 
 
             if (chkMonitor.Checked && !MainForm.Conf.Monitor)
             {
@@ -872,6 +873,7 @@ namespace iSpyApplication
         {
             SetStorageOptions();
             ((MainForm) Owner).RunStorageManagement();
+            btnRunNow.Enabled = !((MainForm)Owner).StorageThreadRunning; 
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -1005,8 +1007,8 @@ namespace iSpyApplication
                     }
                 }
 
-
             }
+            btnRunNow.Enabled = !((MainForm)Owner).StorageThreadRunning; 
         }
 
         private void btnCenterAxes_Click(object sender, EventArgs e)

@@ -414,7 +414,7 @@ namespace iSpyApplication
                 }
                 // Wait until a connection is made and processed before  
                 // continuing.
-                ClientConnected.WaitOne(); // Wait until a client has begun handling an event
+                ClientConnected.WaitOne(3000); // Wait until a client has begun handling an event
                 ClientConnected.Reset();
             }
         }
@@ -2680,7 +2680,7 @@ namespace iSpyApplication
                 {
                     using (var ms = new MemoryStream())
                     {
-                        Properties.Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
+                        Resources.cam_removed.Save(ms, ImageFormat.Jpeg);
                         _cameraRemoved = new Byte[ms.Length];
                         ms.Position = 0;
                         // load the byte array with the image
@@ -2702,7 +2702,7 @@ namespace iSpyApplication
                 {
                     using (var ms = new MemoryStream())
                     {
-                        Properties.Resources.cam_connecting.Save(ms, ImageFormat.Jpeg);
+                        Resources.cam_connecting.Save(ms, ImageFormat.Jpeg);
                         _cameraConnecting = new Byte[ms.Length];
                         ms.Position = 0;
                         // load the byte array with the image
@@ -2723,7 +2723,7 @@ namespace iSpyApplication
                 {
                     using (var ms = new MemoryStream())
                     {
-                        Properties.Resources.cam_offline.Save(ms, ImageFormat.Jpeg);
+                        Resources.cam_offline.Save(ms, ImageFormat.Jpeg);
                         _cameraOffline = new Byte[ms.Length];
                         ms.Position = 0;
                         // load the byte array with the image
@@ -3203,7 +3203,7 @@ namespace iSpyApplication
                             {
                                 g.DrawImage(img, x + (camw - neww)/2, y + (camh - newh)/2, neww, newh);
                             }
-                            catch (System.Exception)
+                            catch (Exception)
                             {
                                 //cam offline?
                             }
@@ -3214,7 +3214,7 @@ namespace iSpyApplication
                             {
                                 g.DrawImage(img, x, y, camw, camh);
                             }
-                            catch (System.Exception)
+                            catch (Exception)
                             {
                                 //cam offline?
                             }

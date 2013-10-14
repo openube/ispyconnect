@@ -424,7 +424,7 @@ namespace iSpyApplication.Video
             var res = ReasonToFinishPlaying.StoppedByUser;
             int err = 0;
 
-            while ( !_stopEvent.WaitOne( 0, false ) )
+            while (!_stopEvent.WaitOne(0, false) && !MainForm.Reallyclose)
 			{
 			    int	total = 0;
 

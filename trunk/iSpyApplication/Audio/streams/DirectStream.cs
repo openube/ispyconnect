@@ -212,7 +212,7 @@ namespace iSpyApplication.Audio.streams
                 var data = new byte[PacketSize];
                 if (_stream != null)
                 {
-                    while (!_stopEvent.WaitOne(0, false))
+                    while (!_stopEvent.WaitOne(0, false) && !MainForm.Reallyclose)
                     {
                        
                         if (DataAvailable != null)
