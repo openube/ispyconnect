@@ -221,7 +221,7 @@ namespace iSpyApplication.Audio.streams
                 if (stream != null)
                 {
                     stream.ReadTimeout = 5000;
-                    while (!_stopEvent.WaitOne(0, false))
+                    while (!_stopEvent.WaitOne(0, false) && !MainForm.Reallyclose)
                     {
                         if (DataAvailable != null)
                         {

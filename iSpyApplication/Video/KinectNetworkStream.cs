@@ -457,7 +457,7 @@ namespace iSpyApplication.Video
             var encoding = new ASCIIEncoding();
             var res = ReasonToFinishPlaying.StoppedByUser;
 
-            while (!_stopEvent.WaitOne(0, false))
+            while (!_stopEvent.WaitOne(0, false) && !MainForm.Reallyclose)
             {
                 // reset reload event
                 _reloadEvent.Reset();

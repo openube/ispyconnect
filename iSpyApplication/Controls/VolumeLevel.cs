@@ -419,7 +419,7 @@ namespace iSpyApplication.Controls
                     {
                         if (AudioSource != null) AudioSource.Listening = false;
                         WaveOut.Stop();
-                        WaveOut.Dispose();
+
                     }
                 }
             }
@@ -1173,7 +1173,7 @@ namespace iSpyApplication.Controls
         protected override void OnPaint(PaintEventArgs pe)
         {
             // lock
-            Monitor.Enter(this);
+            //Monitor.Enter(this);
 
             var gMic = pe.Graphics;
             var rc = ClientRectangle;
@@ -1329,7 +1329,7 @@ namespace iSpyApplication.Controls
 
             borderPen.Dispose();
             grabBrush.Dispose();
-            Monitor.Exit(this);
+            //Monitor.Exit(this);
 
             base.OnPaint(pe);
         }
@@ -1531,7 +1531,6 @@ namespace iSpyApplication.Controls
                     try
                     {
                         Program.WriterMutex.WaitOne();
-                        _writer.Close();
                         _writer.Dispose();
                     }
                     catch (Exception ex)
@@ -1609,9 +1608,13 @@ namespace iSpyApplication.Controls
                 Invalidate();              
             }
             if (WaveOut != null)
+            {
+                WaveOut.Stop();
                 WaveOut.Dispose();
+                WaveOut = null;
+            }
             _toolTipMic.RemoveAll();
-            _toolTipMic.Dispose();            
+            _toolTipMic.Dispose();
             base.Dispose(disposing);
         }
 

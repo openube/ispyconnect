@@ -424,7 +424,7 @@ namespace iSpyApplication.Video
                 _vfr.Seek(_initialSeek);
             try
             {
-                while (!_stopEvent.WaitOne(5))
+                while (!_stopEvent.WaitOne(5) && !MainForm.Reallyclose)
                 {
 
                     _bufferFull = !_realtime && (_videoframes.Count > MAXBuffer || _audioframes.Count > MAXBuffer);
@@ -496,15 +496,7 @@ namespace iSpyApplication.Video
             if (_vfr!=null && _vfr.IsOpen)  {
                 try
                 {
-                    _vfr.Close();
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                }
-                try
-                {
-                    _vfr.Dispose();
+                    _vfr.Dispose(); //calls close
                 }
                 catch (Exception ex)
                 {

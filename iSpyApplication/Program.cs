@@ -170,7 +170,7 @@ internal static class Program
             var mf = new MainForm(silentstartup, command);
             Application.Run(mf);
             WriterMutex.Close();
-            WriterMutex.Dispose();
+            //WriterMutex.Dispose();
             
         }
         catch (Exception ex)

@@ -338,7 +338,7 @@ namespace iSpyApplication
         private MenuItem menuItem13;
         private Panel panel2;
         private ToolStripButton tsbPlugins;
-        private Thread StorageThread;
+        private Thread _storageThread;
         private MenuItem menuItem14;
         private MenuItem menuItem15;
         private MenuItem menuItem16;
@@ -1549,16 +1549,20 @@ namespace iSpyApplication
 
             
 
-            if (StorageThread == null || !StorageThread.IsAlive)
+            if (_storageThread == null || !_storageThread.IsAlive)
             {
                 LogMessageToFile("Running Storage Management");
-                StorageThread = new Thread(DeleteOldFiles) {IsBackground = true};
-                StorageThread.Start();
+                _storageThread = new Thread(DeleteOldFiles) {IsBackground = true};
+                _storageThread.Start();
             }
             else
                 LogMessageToFile("Storage Management is already running");
             
 
+        }
+        public bool StorageThreadRunning
+        {
+            get { return _storageThread != null && _storageThread.IsAlive; }
         }
 
         private void UpdateTimerElapsed(object sender, ElapsedEventArgs e)
@@ -1981,6 +1985,7 @@ namespace iSpyApplication
                     return;
                 }
             }
+            Reallyclose = true;
             Exit();
         }
 
@@ -2008,7 +2013,6 @@ namespace iSpyApplication
                 }
             }
             _closing = true;
-
             try
             {
                 SaveObjects("");

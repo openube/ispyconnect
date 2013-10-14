@@ -2077,7 +2077,7 @@ namespace iSpyApplication.Controls
             try
             {
                 Program.WriterMutex.WaitOne();
-                _timeLapseWriter.Close();
+                _timeLapseWriter.Dispose();
             }
             catch (Exception ex)
             {
@@ -2240,7 +2240,8 @@ namespace iSpyApplication.Controls
             }
             else
                 AutoSize = false;
-            Monitor.Enter(this);
+            
+            //Monitor.Enter(this);
             Graphics gCam = pe.Graphics;
 
             var grabBrush = new SolidBrush(BorderColor);
@@ -2404,7 +2405,7 @@ namespace iSpyApplication.Controls
             grabBrush.Dispose();
             volBrush.Dispose();
 
-            Monitor.Exit(this);
+            //Monitor.Exit(this);
 
             base.OnPaint(pe);
             _lastRedraw = DateTime.Now;
@@ -2903,7 +2904,6 @@ namespace iSpyApplication.Controls
                         try
                         {
                             Program.WriterMutex.WaitOne();
-                            _writer.Close();
                             _writer.Dispose();
                         }
                         catch (Exception ex)

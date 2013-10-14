@@ -256,7 +256,7 @@ namespace iSpyApplication.Audio.streams
             try
             {
                 DateTime req = DateTime.Now;
-                while (!_stopEvent.WaitOne(10, false))
+                while (!_stopEvent.WaitOne(10, false) && !MainForm.Reallyclose)
                 {
                     byte[] data = _afr.ReadAudioFrame();
                     if (data==null || data.Equals(0))
@@ -354,13 +354,12 @@ namespace iSpyApplication.Audio.streams
 
             try
             {
-                _afr.Close();
+                _afr.Dispose();//calls close!
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            _afr.Dispose();
 
             // release events
             _stopEvent.Close();

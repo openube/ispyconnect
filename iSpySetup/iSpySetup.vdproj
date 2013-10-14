@@ -838,6 +838,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A216588BD52849AEA767F97D96C261A4"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -863,12 +869,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_1B124CB969334F1AB9A329ACE33C490A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F619B4478E6F7CDB15F729AE52BAE66C"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1286,7 +1286,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.3.4.2, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:iSpy.Video.FFMPEG, Version=3.3.4.3, Culture=neutral, PublicKeyToken=81785fde1d5460f5, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_0286CBF0C7913EC19053FD74A498177E"
@@ -3511,15 +3511,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:iSpy"
-        "ProductCode" = "8:{98ECB816-415D-4F65-821C-F75B35F0274C}"
-        "PackageCode" = "8:{45EBF05F-6DED-47E8-AA26-610E0C456E01}"
+        "ProductCode" = "8:{9EE3B466-743B-49D0-BDFF-D5B41BB29A4A}"
+        "PackageCode" = "8:{F3B8DB86-0A9E-410F-962F-B9B6169A11FF}"
         "UpgradeCode" = "8:{B70B8F0F-48E1-4149-AD58-636704EA8215}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:5.5.3"
+        "ProductVersion" = "8:5.5.4"
         "Manufacturer" = "8:iSpy"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.ispyconnect.com"
