@@ -586,7 +586,7 @@ namespace iSpyApplication.Audio.streams
                 }
             }
 
-            if (_waveProvider!=null)
+            if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
                 _waveProvider.ClearBuffer();
 
             Listening = false;

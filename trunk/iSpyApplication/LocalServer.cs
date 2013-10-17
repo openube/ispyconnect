@@ -391,12 +391,12 @@ namespace iSpyApplication
         //This method Accepts new connection and
         //First it receives the welcome massage from the client,
         //Then it sends the Current date time to the Client.
-        public void StartListen()
+        private void StartListen()
         {
             _connectedSockets = new Dictionary<IPEndPoint, Socket>();
             NumErr = 0;
 
-            while (!MainForm.Reallyclose && Running && NumErr < 5 && _myListener != null)
+            while (!MainForm.Reallyclose && NumErr < 5 && _myListener != null)
             {
                 try
                 {
@@ -414,7 +414,7 @@ namespace iSpyApplication
                 }
                 // Wait until a connection is made and processed before  
                 // continuing.
-                ClientConnected.WaitOne(3000); // Wait until a client has begun handling an event
+                ClientConnected.WaitOne(); // Wait until a client has begun handling an event
                 ClientConnected.Reset();
             }
         }

@@ -212,6 +212,7 @@ namespace iSpyApplication
                 MainForm.Conf.Joystick.id = nameid.Split('|')[1];
 
                 MainForm.Conf.Joystick.XAxis = jaxis1.ID;
+
                 MainForm.Conf.Joystick.InvertXAxis = jaxis1.Invert;
 
                 MainForm.Conf.Joystick.YAxis = jaxis2.ID;
@@ -377,7 +378,6 @@ namespace iSpyApplication
             var pbModes = LocRm.GetString("PlaybackModes").Split(',');
             foreach (var s in pbModes)
                 ddlPlayback.Items.Add(s.Trim());
-            //ddlPlayback.Items.Add("VLC");
 
             if (MainForm.Conf.PlaybackMode < 0)
                 MainForm.Conf.PlaybackMode = 0;
@@ -1103,6 +1103,16 @@ namespace iSpyApplication
                     }
                 }
             }
+        }
+
+        private void jbutton4_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void jbutton1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

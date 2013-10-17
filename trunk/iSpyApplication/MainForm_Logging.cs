@@ -116,7 +116,7 @@ namespace iSpyApplication
                     {
                         string fc = LogTemplate.Replace("<!--CONTENT-->", LogFile.ToString()).Replace("<!--VERSION-->",
                                                                                                       Application.
-                                                                                                          ProductVersion);
+                                                                                                          ProductVersion + " Platform: " + Program.Platform);
                         File.WriteAllText(Program.AppDataPath + @"log_" + NextLog + ".htm", fc);
                         _lastlog = LogFile.ToString();
                     }

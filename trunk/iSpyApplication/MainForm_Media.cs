@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
+using iSpyApplication.Properties;
 
 namespace iSpyApplication
 {
@@ -116,7 +117,6 @@ namespace iSpyApplication
 
             lock (flowPreview.Controls)
             {
-                //flowPreview.Controls.Clear();
                 if (MediaPanelPage * Conf.PreviewItems > MasterFileList.Count-1)
                 {
                     MediaPanelPage = 0;
@@ -150,15 +150,31 @@ namespace iSpyApplication
                     if (pb==null)
                     {
                         FilePreview fp1 = fp;
-                        var c = Cameras.SingleOrDefault(p => p.id == fp1.ObjectId);
-                        if (c != null)
+                        switch (fp1.ObjectTypeId)
                         {
-                            var filename = Conf.MediaDirectory + "video\\" + c.directory + "\\" + fp.Filename;
-                            var thumb = Conf.MediaDirectory + "video\\" + c.directory + "\\thumbs\\" +
-                                        fp.Filename.Substring(0, fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
-                                        ".jpg";
-                            pb = AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), c.name);
+                            case 1:
+                                var v = Microphones.SingleOrDefault(p => p.id == fp1.ObjectId);
+                                if (v != null)
+                                {
+                                    var filename = Conf.MediaDirectory + "audio\\" + v.directory + "\\" + fp.Filename;
+                                    pb = AddPreviewControl(Resources.audio, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)),v.name);
+                                }
+                                break;
+                            case 2:
+                                var c = Cameras.SingleOrDefault(p => p.id == fp1.ObjectId);
+                                if (c != null)
+                                {
+                                    var filename = Conf.MediaDirectory + "video\\" + c.directory + "\\" + fp.Filename;
+                                    var thumb = Conf.MediaDirectory + "video\\" + c.directory + "\\thumbs\\" +
+                                                fp.Filename.Substring(0,
+                                                                      fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
+                                                ".jpg";
+                                    pb = AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)),
+                                                           c.name);
+                                }
+                                break;
                         }
+                        
                     }
                     if (pb != null)
                     {

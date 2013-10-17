@@ -815,6 +815,8 @@
     <Content Include="Onvif\utils.common.dll" />
     <Content Include="Onvif\utils.diagnostics.dll" />
     <Content Include="Onvif\utils.fsharp.dll" />
+    <None Include="Resources\audio.jpg" />
+    <None Include="Resources\ispy1audio.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.mp3" />
     <Content Include="sounds\alsation_bark.wav" />
@@ -923,7 +925,6 @@
     <Content Include="XML\Sources.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="XML\test.xml" />
     <Content Include="XML\Translations.xml">
       <SubType>Designer</SubType>
     </Content>

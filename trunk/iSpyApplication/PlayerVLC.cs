@@ -100,8 +100,27 @@ namespace iSpyApplication
                 
                 string[] parts = filename.Split('\\');
                 string fn = parts[parts.Length - 1];
-                FilesFile ff =
-                    ((MainForm) Owner).GetCameraWindow(ObjectID).FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
+                FilesFile ff = null;
+                if (fn.EndsWith(".mp3") || fn.EndsWith(".wav"))
+                {
+                    var vl = ((MainForm)Owner).GetMicrophone(ObjectID);
+                    if (vl != null)
+                    {
+                        ff = vl.FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
+                    }
+                    vNav.IsAudio = true;
+                    pnlMovie.BackgroundImage = Properties.Resources.ispy1audio;
+                }
+                else
+                {
+                    var cw = ((MainForm)Owner).GetCameraWindow(ObjectID);
+                    if (cw!=null)   {
+                        ff = cw.FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
+                    }
+                    vNav.IsAudio = false;
+                    pnlMovie.BackgroundImage = Properties.Resources.ispy1;
+                }
+                
                 if (ff!=null)
                     vNav.Init(ff);
                 Text = titleText;
@@ -228,6 +247,8 @@ namespace iSpyApplication
             _mFactory.Dispose();
             _mMedia.Dispose();
             _mPlayer.Dispose();
+            if (vNav!=null)
+                vNav.ReleaseGraph();
         }
 
         private void tbSpeed_Scroll(object sender, EventArgs e)

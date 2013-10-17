@@ -334,7 +334,6 @@ namespace iSpyApplication.Audio.streams
             {
                 if (_waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
-                _waveProvider = null;
             }
 
             ShutDown(errmsg);
@@ -373,7 +372,6 @@ namespace iSpyApplication.Audio.streams
             {
                 if (_waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
-                _waveProvider = null;
             }
 
             _isrunning = false;

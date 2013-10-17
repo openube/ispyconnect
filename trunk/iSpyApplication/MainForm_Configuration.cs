@@ -1329,6 +1329,56 @@ namespace iSpyApplication
             vw.MouseMove += VolumeControlMouseMove;
             vw.RemoteCommand += VolumeControlRemoteCommand;
             vw.Notification += ControlNotification;
+            vw.FileListUpdated += VolumeControlFileListUpdated;
+        }
+
+        void VolumeControlFileListUpdated(object sender)
+        {
+            lock (_masterfilelist)
+            {
+                var vl = sender as VolumeLevel;
+                if (vl != null)
+                {
+                    _masterfilelist.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
+                    foreach (var ff in vl.FileList)
+                    {
+                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
+                                                           ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
+                    }
+                    if (!vl.LoadedFiles)
+                    {
+                        vl.LoadedFiles = true;
+                        //last one?
+                        bool all = true;
+                        foreach(Control c in _pnlCameras.Controls)
+                        {
+                            var cameraWindow = c as CameraWindow;
+                            if (cameraWindow != null)
+                            {
+                                if (!cameraWindow.LoadedFiles)
+                                {
+                                    all = false;
+                                    break;
+                                }
+                            }
+                            var volumeLevel = c as VolumeLevel;
+                            if (volumeLevel != null)
+                            {
+                                if (!volumeLevel.LoadedFiles)
+                                {
+                                    all = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (all)   {
+                            flowPreview.Loading = false;
+                            LoadPreviews();
+                        }
+                    }
+                }
+            }
+
         }
 
         private void SetFloorPlanEvents(FloorPlanControl fpc)
@@ -2101,23 +2151,33 @@ namespace iSpyApplication
                     {
                         cw.LoadedFiles = true;
                         //last one?
-                        if (_pnlCameras.Controls.OfType<CameraWindow>().All(c => (c).LoadedFiles))
+                        bool all = true;
+                        foreach (Control c in _pnlCameras.Controls)
+                        {
+                            var cameraWindow = c as CameraWindow;
+                            if (cameraWindow != null)
+                            {
+                                if (!cameraWindow.LoadedFiles)
+                                {
+                                    all = false;
+                                    break;
+                                }
+                            }
+                            var volumeLevel = c as VolumeLevel;
+                            if (volumeLevel != null)
+                            {
+                                if (!volumeLevel.LoadedFiles)
+                                {
+                                    all = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (all)
                         {
                             flowPreview.Loading = false;
                             LoadPreviews();
                         }
-                    }
-                    return;
-                }
-
-                var vl = sender as VolumeLevel;
-                if (vl != null)
-                {
-                    _masterfilelist.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
-                    foreach (var ff in vl.FileList)
-                    {
-                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
-                                                           ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
                     }
                 }
             }
@@ -2125,57 +2185,54 @@ namespace iSpyApplication
         }
 
 
+        public PreviewBox AddPreviewControl(Image thumb, string movieName, int duration, DateTime createdDate, string name)
+        {
+            var pb = new PreviewBox() {Image =  thumb};
+           
+            lock (flowPreview.Controls)
+            {
+                pb.Duration = duration;
+                pb.Width = pb.Image.Width;
+                pb.Height = pb.Image.Height + 20;
+                pb.Cursor = Cursors.Hand;
+                pb.Selected = false;
+                pb.FileName = movieName;
+                pb.CreatedDate = createdDate;
+                pb.MouseDown += PbMouseDown;
+                pb.MouseEnter += PbMouseEnter;
+                string txt = name + ": " + createdDate.ToString(CultureInfo.CurrentUICulture);
+                pb.DisplayName = txt;
+                flowPreview.Controls.Add(pb);
+            }
+           
+            return pb;
+        }
+
         public PreviewBox AddPreviewControl(string thumbname, string movieName, int duration, DateTime createdDate, string name)
         {
-            var pb = new PreviewBox();
-            bool add = true;
             string thumb = thumbname;
+            Image bmp;
             try
             {
                 if (!File.Exists(thumb))
                 {
-                    pb.Image = Resources.notfound;
+                    bmp = Resources.notfound;
                 }
                 else
                 {
                     using (var f = File.Open(thumb, FileMode.Open, FileAccess.Read))
                     {
-                        pb.Image = Image.FromStream(f);
+                        bmp = Image.FromStream(f);
                         f.Close();
-                    }    
+                    }
                 }
             }
             catch (Exception ex)
             {
                 LogExceptionToFile(ex);
-                add = false;
+                return null;
             }
-            if (add)
-            {
-                lock (flowPreview.Controls)
-                {
-                    pb.Duration = duration;
-                    pb.Width = pb.Image.Width;
-                    pb.Height = pb.Image.Height + 20;
-                    pb.Cursor = Cursors.Hand;
-                    pb.Selected = false;
-                    pb.FileName = movieName;
-                    pb.CreatedDate = createdDate;
-                    pb.MouseDown += PbMouseDown;
-                    pb.MouseEnter += PbMouseEnter;
-                    string txt = name + ": " + createdDate.ToString(CultureInfo.CurrentUICulture);
-                    pb.DisplayName = txt;
-                    flowPreview.Controls.Add(pb);
-
-                    //toolTip1.SetToolTip(pb,txt); //<-- causes memory leak - unable to dispose of object
-                }
-            }
-            else
-            {
-                pb.Dispose();
-                pb = null;
-            }
-            return pb;
+            return AddPreviewControl(bmp, movieName, duration, createdDate, name);
         }
 
 
@@ -2239,7 +2296,6 @@ namespace iSpyApplication
                     oc.height = occ.Height;
                     oc.x = occ.Location.X;
                     oc.y = occ.Location.Y;
-                    //occ.SaveFileList();
                 }
             }
             c.cameras = Cameras.ToArray();
@@ -2252,7 +2308,6 @@ namespace iSpyApplication
                     om.height = omc.Height;
                     om.x = omc.Location.X;
                     om.y = omc.Location.Y;
-                    //omc.SaveFileList();
                 }
             }
             c.microphones = Microphones.ToArray();

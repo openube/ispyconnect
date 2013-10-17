@@ -58,7 +58,7 @@ namespace iSpyApplication.Controls
                 g.DrawString(">", MainForm.DrawfontBig, BOverlay, Width / 2 - 10, 20);
             }
 
-            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, BOverlay, 0, Height - 18);
+            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + ":" + ZeroPad(CreatedDate.Second) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, BOverlay, 0, Height - 18);
         }
         private static string RecordTime(decimal sec)
         {
@@ -178,6 +178,11 @@ namespace iSpyApplication.Controls
             if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
             {
                 j = 1;
+            }
+            if (movie.EndsWith(".mp3") || movie.EndsWith(".wav"))
+            {
+                if (j!=3 && j!=1)
+                    j = 2;
             }
             if (!File.Exists(movie))
             {

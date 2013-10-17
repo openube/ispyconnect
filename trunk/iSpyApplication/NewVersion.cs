@@ -71,8 +71,7 @@ namespace iSpyApplication
         private void Button1Click(object sender, EventArgs e)
         {
             MainForm.OpenUrl( MainForm.Website+"/download.aspx");
-
-            MessageBox.Show(LocRm.GetString("ExportWarning"), LocRm.GetString("Note"));
+            //MessageBox.Show(LocRm.GetString("ExportWarning"), LocRm.GetString("Note"));
             Close();
         }
 

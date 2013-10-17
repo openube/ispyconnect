@@ -852,6 +852,7 @@ public partial class objectsCameraSettings {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute(Form = System.Xml.Schema.XmlSchemaForm.Qualified, Namespace = "http://www.w3.org/XML/1998/namespace")]
     public string audiousername {
         get {
             return this.audiousernameField;

@@ -411,7 +411,10 @@ namespace iSpyApplication.Video
                 Free();
 
                 if (_waveProvider != null)
-                    _waveProvider.ClearBuffer();
+                {
+                    if (_waveProvider.BufferedBytes > 0)
+                        _waveProvider.ClearBuffer();
+                }
 
                 Listening = false;
             }

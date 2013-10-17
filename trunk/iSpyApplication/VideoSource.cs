@@ -1601,7 +1601,7 @@ namespace iSpyApplication
                             devHolder.Address += uri.DnsSafeHost + "; ";
                     }
 
-                    devHolder.Address = devHolder.Address.TrimEnd(new Char[] { ';', ' ' });
+                    devHolder.Address = devHolder.Address.TrimEnd(new [] { ';', ' ' });
                     if (devHolder.Address == "")
                     {
                         devHolder.IsInvalidUris = true;

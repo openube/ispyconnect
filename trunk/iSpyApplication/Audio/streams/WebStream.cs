@@ -277,9 +277,9 @@ namespace iSpyApplication.Audio.streams
                     _thread.Abort();
                 Free();
 
-                
 
-                if (_waveProvider != null)
+
+                if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
 
                 if (WaveOutProvider != null)
