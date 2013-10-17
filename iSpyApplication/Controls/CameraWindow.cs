@@ -2125,8 +2125,6 @@ namespace iSpyApplication.Controls
                 
                 if (TopLevelControl != null)
                 {
-                    //string thumbname = MainForm.Conf.MediaDirectory + "video\\" + Camobject.directory + "\\thumbs\\" + TimeLapseVideoFileName + ".jpg";
-                    //((MainForm)TopLevelControl).AddPreviewControl(thumbname, fpath, dSeconds, DateTime.Now, true, Camobject.name);
                     ((MainForm)TopLevelControl).NeedsMediaRefresh = DateTime.Now;
                 }
             }
@@ -2206,6 +2204,11 @@ namespace iSpyApplication.Controls
                         //bitmap has been disposed
                         _lastFrame = null;
                     }
+                    catch (Exception e)
+                    {
+                        MainForm.LogExceptionToFile(e);
+                        _lastFrame = null;
+                    }
 
                     return bmp;
                 }
@@ -2241,7 +2244,7 @@ namespace iSpyApplication.Controls
             else
                 AutoSize = false;
             
-            //Monitor.Enter(this);
+            Monitor.Enter(this);
             Graphics gCam = pe.Graphics;
 
             var grabBrush = new SolidBrush(BorderColor);
@@ -2405,7 +2408,7 @@ namespace iSpyApplication.Controls
             grabBrush.Dispose();
             volBrush.Dispose();
 
-            //Monitor.Exit(this);
+            Monitor.Exit(this);
 
             base.OnPaint(pe);
             _lastRedraw = DateTime.Now;
@@ -2904,6 +2907,7 @@ namespace iSpyApplication.Controls
                         try
                         {
                             Program.WriterMutex.WaitOne();
+                            Console.WriteLine("closing video writer " + Camobject.name);
                             _writer.Dispose();
                         }
                         catch (Exception ex)
@@ -4415,6 +4419,7 @@ namespace iSpyApplication.Controls
             if (Recording)
             {
                 _stopWrite.Set();
+                _recordingThread.Join();
             }
         }
 

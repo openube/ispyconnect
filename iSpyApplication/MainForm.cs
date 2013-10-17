@@ -3558,6 +3558,11 @@ namespace iSpyApplication
             {
                 MaxMin();
             }
+            if (e.KeyCode == Keys.Delete)
+            {
+                ProcessKey("delete");
+                ProcessKey("next_control");
+            }
         }
 
         private void MaximiseControl(int index)

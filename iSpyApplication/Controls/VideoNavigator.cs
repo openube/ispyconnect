@@ -104,10 +104,23 @@ namespace iSpyApplication.Controls
             Invalidate();
         }
 
+        public void ReleaseGraph()
+        {
+            if (_activityGraph != null)
+            {
+                lock (_activityGraph)
+                {
+                    _activityGraph.Dispose();
+                    _activityGraph = null;
+                }
+            }
+        }
+
+        public bool IsAudio;
 
         private string[] _datapoints = null;
         private int _timelineHeight = 30;
-        readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
+        //readonly SolidBrush _bTimeLine = new SolidBrush(Color.FromArgb(200, 255, 255, 255));
         
         private Bitmap _activityGraph;
         private Bitmap ActivityGraph
@@ -124,7 +137,11 @@ namespace iSpyApplication.Controls
                     {
                         _activityGraph = new Bitmap(_datapoints.Length, _timelineHeight);
                         Graphics gGraph = Graphics.FromImage(_activityGraph);
-                        gGraph.FillRectangle(_bTimeLine, 0, 0, _activityGraph.Width, _activityGraph.Height);
+                        gGraph.Clear(ColorTranslator.FromHtml("#05AEE2"));
+                        //gGraph.FillRectangle(_bTimeLine, 0, 0, _activityGraph.Width, _activityGraph.Height);
+                        float dFact = 1;
+                        if (IsAudio)
+                            dFact = 100;
 
                         if (_ff != null && _datapoints.Length > 0)
                         {
@@ -134,7 +151,7 @@ namespace iSpyApplication.Controls
                             var triggermax = (float)100;
                             if (_ff.TriggerLevelMaxSpecified)
                             {
-                                triggermax = (float)_ff.TriggerLevelMax;
+                                triggermax = ((float)_ff.TriggerLevelMax) * dFact;
                             }
 
 
@@ -143,6 +160,7 @@ namespace iSpyApplication.Controls
                                 float d;
                                 if (float.TryParse(_datapoints[i], out d))
                                 {
+                                    d = d * dFact;
                                     if (d >= trigger && d <= triggermax)
                                     {
                                         gGraph.DrawLine(pAlarm, i, _timelineHeight, i,

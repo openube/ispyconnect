@@ -86,6 +86,8 @@ namespace iSpyApplication.Controls
         public volatile bool IsEnabled;
         public string AudioSourceErrorMessage = "";
         private bool _audioSourceErrorState;
+        public bool LoadedFiles;
+
         public bool AudioSourceErrorState
         {
             get { return _audioSourceErrorState; }
@@ -1339,6 +1341,7 @@ namespace iSpyApplication.Controls
             if (Recording)
             {
                 _stopWrite.Set();
+                _recordingThread.Join();
             }
         }
 
@@ -1406,12 +1409,10 @@ namespace iSpyApplication.Controls
 
                     
                     
-                    
+                    _writer = new AudioFileWriter();
                     try
                     {
-                        Program.WriterMutex.WaitOne();
-
-                        _writer = new AudioFileWriter();
+                        Program.WriterMutex.WaitOne();                       
                         _writer.Open(filename + ".mp3", AudioCodec.MP3, AudioSource.RecordingFormat.BitsPerSample * AudioSource.RecordingFormat.SampleRate * AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate, AudioSource.RecordingFormat.Channels);
                     }
                     catch (Exception ex)
@@ -1518,6 +1519,10 @@ namespace iSpyApplication.Controls
                             MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Micobject.name,
                                                                             DateTime.Now.Ticks, 1, Micobject.id,
                                                                             ff.MaxAlarm));
+                            if (TopLevelControl != null)
+                            {
+                                ((MainForm)TopLevelControl).NeedsMediaRefresh = DateTime.Now;
+                            }
                         }
 
 
@@ -1527,27 +1532,29 @@ namespace iSpyApplication.Controls
                         MainForm.LogExceptionToFile(ex);                       
                     }
 
-                    
-                    try
+
+                    if (_writer != null && _writer.IsOpen)
                     {
-                        Program.WriterMutex.WaitOne();
-                        _writer.Dispose();
+                        try
+                        {
+                            Program.WriterMutex.WaitOne();
+                            Console.WriteLine("closing audio writer " + Micobject.name);
+                            _writer.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+                        finally
+                        {
+                            Program.WriterMutex.ReleaseMutex();
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        MainForm.LogExceptionToFile(ex);
-                    }
-                    finally
-                    {
-                        Program.WriterMutex.ReleaseMutex();
-                    }
-                    
+
                     _writer = null;
                     #endregion
                 }
                 ClearWriterBuffer();
-                WriterBuffer.Changed -= WriterBufferChanged;
-                WriterBuffer = null;
                 _recordingTime = 0;
                 UpdateFloorplans(false);
             }
@@ -1592,7 +1599,9 @@ namespace iSpyApplication.Controls
                     {
                         WriterBuffer.Dequeue().Nullify();
                     }
+                    WriterBuffer.Changed -= WriterBufferChanged;
                 }
+                WriterBuffer = null;
             }
         }
 

@@ -475,7 +475,6 @@ namespace iSpyApplication.Video
             {
                 if (_waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
-                _waveProvider = null;
             }
 
             ShutDown(errmsg);

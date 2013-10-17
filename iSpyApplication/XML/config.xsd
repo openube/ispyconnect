@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified">
-  <xsd:element name="configuration">
-    <xsd:complexType>
-      <xsd:sequence>
+  <xs:element name="configuration">
+    <xs:complexType>
+      <xs:sequence>
         <xs:element name="WSUsername" type="xs:string" />
         <xs:element name="WSPassword" type="xs:string" />
         <xs:element name="ServicesEnabled" type="xs:boolean" />
@@ -110,58 +110,58 @@
         <xs:element name="AlertOnDisconnect" type="xs:string" default=""/>
         <xs:element name="AlertOnReconnect" type="xs:string" default=""/>
         <xs:element name="StartupMode" type="xs:int" default="0"/>
-        <xsd:element name="GridViews">
-          <xsd:complexType>
-            <xsd:sequence>
-              <xsd:element maxOccurs="unbounded" name="Grid">
-                <xsd:complexType>
-                  <xsd:sequence>
-                    <xsd:element maxOccurs="unbounded" name="GridItem">
-                      <xsd:complexType>
-                        <xsd:sequence>
-                          <xsd:element maxOccurs="unbounded" name="Item">
-                            <xsd:complexType>
-                              <xsd:attribute name="TypeID" type="xsd:int" use="required" />
-                              <xsd:attribute name="ObjectID" type="xsd:int" use="required" />
-                            </xsd:complexType>
-                          </xsd:element>
-                        </xsd:sequence>
-                        <xsd:attribute name="GridIndex" type="xsd:int" use="required" />
-                        <xsd:attribute name="CycleDelay" type="xsd:int" use="required" />
-                      </xsd:complexType>
-                    </xsd:element>
-                  </xsd:sequence>
-                  <xsd:attribute name="name" type="xsd:string" use="required" />
-                  <xsd:attribute name="Rows" type="xsd:int" use="required" />
-                  <xsd:attribute name="Columns" type="xsd:int" use="required" />
-                </xsd:complexType>
-              </xsd:element>
-            </xsd:sequence>
-          </xsd:complexType>
-        </xsd:element>
-        <xsd:element name="Joystick">
-          <xsd:complexType>
-            <xsd:attribute name="id" type="xsd:string" use="optional" />
-            <xsd:attribute name="XAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterXAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertXAxis" type="xsd:boolean" use="optional" />
-            <xsd:attribute name="YAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterYAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertYAxis" type="xsd:boolean" use="optional" />
-            <xsd:attribute name="ZAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="CenterZAxis" type="xsd:int" use="optional" />
-            <xsd:attribute name="InvertZAxis" type="xsd:boolean" use="optional" />
-            <xsd:attribute name="Record" type="xsd:int" use="optional" />
-            <xsd:attribute name="Snapshot" type="xsd:int" use="optional" />
-            <xsd:attribute name="Listen" type="xsd:int" use="optional" />
-            <xsd:attribute name="Talk" type="xsd:int" use="optional" />
-            <xsd:attribute name="Play" type="xsd:int" use="optional" />
-            <xsd:attribute name="Stop" type="xsd:int" use="optional" />
-            <xsd:attribute name="Next" type="xsd:int" use="optional" />
-            <xsd:attribute name="Previous" type="xsd:int" use="optional" />
-          </xsd:complexType>
-        </xsd:element>
-      </xsd:sequence>
-    </xsd:complexType>
-  </xsd:element>
+        <xs:element name="GridViews">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="Grid">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element maxOccurs="unbounded" name="GridItem">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="Item">
+                            <xs:complexType>
+                              <xs:attribute name="TypeID" type="xs:int" use="required" />
+                              <xs:attribute name="ObjectID" type="xs:int" use="required" />
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="GridIndex" type="xs:int" use="required" />
+                        <xs:attribute name="CycleDelay" type="xs:int" use="required" />
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="name" type="xs:string" use="required" />
+                  <xs:attribute name="Rows" type="xs:int" use="required" />
+                  <xs:attribute name="Columns" type="xs:int" use="required" />
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Joystick">
+          <xs:complexType>
+            <xs:attribute name="id" type="xs:string" default="" />
+            <xs:attribute name="XAxis" type="xs:int" default="0" />
+            <xs:attribute name="CenterXAxis" type="xs:int" default="0" />
+            <xs:attribute name="InvertXAxis" type="xs:boolean" default="false" />
+            <xs:attribute name="YAxis" type="xs:int" default="0" />
+            <xs:attribute name="CenterYAxis" type="xs:int" default="0" />
+            <xs:attribute name="InvertYAxis" type="xs:boolean" default="false" />
+            <xs:attribute name="ZAxis" type="xs:int" default="0" />
+            <xs:attribute name="CenterZAxis" type="xs:int" default="0" />
+            <xs:attribute name="InvertZAxis" type="xs:boolean" default="false" />
+            <xs:attribute name="Record" type="xs:int" default="0" />
+            <xs:attribute name="Snapshot" type="xs:int" default="0" />
+            <xs:attribute name="Listen" type="xs:int" default="0" />
+            <xs:attribute name="Talk" type="xs:int" default="0" />
+            <xs:attribute name="Play" type="xs:int" default="0" />
+            <xs:attribute name="Stop" type="xs:int" default="0" />
+            <xs:attribute name="Next" type="xs:int" default="0" />
+            <xs:attribute name="Previous" type="xs:int" default="0" />
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

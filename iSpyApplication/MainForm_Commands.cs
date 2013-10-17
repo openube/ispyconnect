@@ -636,6 +636,34 @@ namespace iSpyApplication
                 case "power":
                    Close();
                     break;
+                case "delete":
+                    foreach (Control c in _pnlCameras.Controls)
+                    {
+
+                        if (c.Focused)
+                        {
+                            var cameraControl = c as CameraWindow;
+                            if (cameraControl != null)
+                            {
+                                RemoveCamera(cameraControl,true);
+                                break;
+                            }
+                            var volumeControl = c as VolumeLevel;
+                            if (volumeControl != null)
+                            {
+                                RemoveMicrophone(volumeControl, true);
+                                break;
+                            }
+                            var floorPlanControl = c as FloorPlanControl;
+                            if (floorPlanControl != null)
+                            {
+                                RemoveFloorplan(floorPlanControl, true);
+                                break;
+                            }
+                        }
+
+                    }
+                    break;
 
             }
         }

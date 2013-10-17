@@ -299,7 +299,7 @@ namespace iSpyApplication.Audio.streams
                 if (_sampleChannel != null)
                     _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
 
-                if (_waveProvider != null)
+                if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
 
                 if (WaveOutProvider != null)

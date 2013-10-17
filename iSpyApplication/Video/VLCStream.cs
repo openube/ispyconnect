@@ -29,6 +29,7 @@ namespace iSpyApplication.Video
         private IMedia _mMedia;
         private IVideoPlayer _mPlayer;
         private volatile bool _isstopping;
+        private readonly object _lock = new object();
 
 
         #region Audio
@@ -182,7 +183,9 @@ namespace iSpyApplication.Video
         {
             if (!VlcHelper.VlcInstalled)
                 return;
-            _isstopping = false;
+            if (_isstopping)
+                return;
+            //_isstopping = false;
             if (!IsRunning && !_starting)
             {
                 _starting = true;
@@ -190,51 +193,54 @@ namespace iSpyApplication.Video
                 if (string.IsNullOrEmpty(_source))
                     throw new ArgumentException("Video source is not specified.");
 
-                _mFactory = new MediaPlayerFactory();
-
-                _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
-                _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
-                _mPlayer.Events.PlayerStopped += EventsPlayerStopped;
-                _mPlayer.Events.PlayerEncounteredError += EventsPlayerEncounteredError;
-                _mPlayer.Events.TimeChanged += EventsTimeChanged;
-
-                _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
-                _mMedia.Events.DurationChanged += EventsDurationChanged;
-                _mMedia.Events.StateChanged += EventsStateChanged;
-                _mPlayer.Open(_mMedia);
-
-                GC.KeepAlive(_mFactory);
-                GC.KeepAlive(_mPlayer);
-                GC.KeepAlive(_mMedia);
-
-                _needsSetup = true;
-                var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
-                _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
-                var ac = new AudioCallbacks { SoundCallback = SoundCallback };
-                _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
-
-                _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
-                _mPlayer.CustomRenderer.SetCallback(FrameCallback);
-
-                _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
-                _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
-
-                _mMedia.Parse(true);
-                _framesReceived = 0;
-                Duration = Time = 0;
-                _timestamp = _lastframetimestamp = DateTime.MinValue;
-                _mPlayer.Play();
-
-                //check if file source (isseekable in _mPlayer is not reliable)
-                Seekable = false;
-                try
+                lock (_lock)
                 {
-                    var p = Path.GetFullPath(_mMedia.Input);
-                    Seekable = !String.IsNullOrEmpty(p);
-                }
-                catch (Exception)
-                {
+                    _mFactory = new MediaPlayerFactory();
+
+                    _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
+                    _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
+                    _mPlayer.Events.PlayerStopped += EventsPlayerStopped;
+                    _mPlayer.Events.PlayerEncounteredError += EventsPlayerEncounteredError;
+                    _mPlayer.Events.TimeChanged += EventsTimeChanged;
+
+                    _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+                    _mMedia.Events.DurationChanged += EventsDurationChanged;
+                    _mMedia.Events.StateChanged += EventsStateChanged;
+                    _mPlayer.Open(_mMedia);
+
+                    GC.KeepAlive(_mFactory);
+                    GC.KeepAlive(_mPlayer);
+                    GC.KeepAlive(_mMedia);
+
+                    _needsSetup = true;
+                    var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
+                    _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
+                    var ac = new AudioCallbacks {SoundCallback = SoundCallback};
+                    _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
+
+                    _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
+                    _mPlayer.CustomRenderer.SetCallback(FrameCallback);
+
+                    _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
+                    _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
+
+                    _mMedia.Parse(true);
+                    _framesReceived = 0;
+                    Duration = Time = 0;
+                    _timestamp = _lastframetimestamp = DateTime.MinValue;
+                    _mPlayer.Play();
+
+                    //check if file source (isseekable in _mPlayer is not reliable)
                     Seekable = false;
+                    try
+                    {
+                        var p = Path.GetFullPath(_mMedia.Input);
+                        Seekable = !String.IsNullOrEmpty(p);
+                    }
+                    catch (Exception)
+                    {
+                        Seekable = false;
+                    }
                 }
             }
         }
@@ -298,8 +304,11 @@ namespace iSpyApplication.Video
                 if (_mPlayer != null && !_isstopping)
                 {
                     _isstopping = true;
-                    _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
-                    _mPlayer.Events.PlayerStopped += EventsPlayerStoppedForced;
+                    lock (_lock)
+                    {
+                        _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
+                        _mPlayer.Events.PlayerStopped += EventsPlayerStoppedForced;
+                    }
                     _mPlayer.Stop();
                 }
                
@@ -386,7 +395,7 @@ namespace iSpyApplication.Video
         private int _realChannels;
         private SoundFormat SoundFormatCallback(SoundFormat sf)
         {
-            if (_needsSetup)
+            if (_needsSetup && _isrunning)
             {
                 int chan = _realChannels = sf.Channels;
                 if (chan > 1)
@@ -394,7 +403,6 @@ namespace iSpyApplication.Video
                 _recordingFormat = new WaveFormat(sf.Rate, 16, chan);
                 _waveProvider = new BufferedWaveProvider(RecordingFormat);
                 _sampleChannel = new SampleChannel(_waveProvider);
-
                 _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
                 _needsSetup = false;
                 if (HasAudioStream != null)
@@ -497,6 +505,7 @@ namespace iSpyApplication.Video
             {
                 if (_mPlayer.IsPlaying)
                 {
+                    _isstopping = true;
                     _mPlayer.Stop();
                 }
             }
@@ -520,7 +529,7 @@ namespace iSpyApplication.Video
             if (_isrunning)
             {
                 _isrunning = false;
-                Thread.Sleep(200); //lets buffered frames stop before raising finished event
+                Thread.Sleep(500); //lets buffered frames stop before raising finished event
                 if (PlayingFinished != null)
                     PlayingFinished(sender, ReasonToFinishPlaying.DeviceLost);
                 if (AudioFinished != null)
@@ -544,6 +553,7 @@ namespace iSpyApplication.Video
                 if (AudioFinished != null)
                     AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
             }
+            _isstopping = false;
         }
 
         private void EventsPlayerStoppedForced(object sender, EventArgs e)
@@ -563,78 +573,105 @@ namespace iSpyApplication.Video
                 if (AudioFinished != null)
                     AudioFinished(sender, ReasonToFinishPlaying.VideoSourceError);
             }
+            _isstopping = false;
 
         }
 
         private void DisposePlayer()
         {
-            if (_mFactory == null)
-                return;
-            
             if (_sampleChannel != null)
-                _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
-
-            if (_mPlayer != null)
-            {
-                if (_mPlayer.Events != null)
-                {
-                    _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
-                    _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
-                    _mPlayer.Events.PlayerEncounteredError -= EventsPlayerEncounteredError;
-                    _mPlayer.Events.TimeChanged -= EventsTimeChanged;
-                }
-
-                try
-                {
-                    if (_mPlayer.CustomRenderer != null)
-                        _mPlayer.CustomRenderer.Dispose();
-                }
-                catch
-                {
-                }
-
-                try {
-                    if (_mPlayer.CustomAudioRenderer != null)
-                        _mPlayer.CustomAudioRenderer.Dispose();
-
-                    _mPlayer.Dispose();
-                }
-                catch
-                {
-                }
-            }
-            try
-            {
-                _mFactory.Dispose();
-            }
-            catch { }
-
-            if (_mMedia != null)
             {
                 try
                 {
-                    if (_mMedia.Events != null)
+                    _sampleChannel.PreVolumeMeter -= SampleChannelPreVolumeMeter;
+                }
+                catch
+                {
+                    
+                }
+                _sampleChannel = null;
+            }
+
+            lock (_lock)
+            {
+                
+
+                if (_mPlayer != null)
+                {
+
+                    if (_mPlayer.Events != null)
                     {
-                        _mMedia.Events.DurationChanged -= EventsDurationChanged;
-                        _mMedia.Events.StateChanged -= EventsStateChanged;
+                        _mPlayer.Events.PlayerStopped -= EventsPlayerStopped;
+                        _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
+                        _mPlayer.Events.PlayerEncounteredError -= EventsPlayerEncounteredError;
+                        _mPlayer.Events.TimeChanged -= EventsTimeChanged;
                     }
-                    _mMedia.Dispose();
+
+                    try
+                    {
+                        if (_mPlayer.CustomRenderer != null)
+                            _mPlayer.CustomRenderer.Dispose();
+                    }
+                    catch
+                    {
+                    }
+
+                    try
+                    {
+                        if (_mPlayer.CustomAudioRenderer != null)
+                            _mPlayer.CustomAudioRenderer.Dispose();
+
+                        _mPlayer.Dispose();
+                    }
+                    catch
+                    {
+                    }
+                }
+                try
+                {
+                    if (_mFactory != null)
+                        _mFactory.Dispose();
                 }
                 catch
                 {
                 }
+
+                if (_mMedia != null)
+                {
+                    try
+                    {
+                        if (_mMedia.Events != null)
+                        {
+                            _mMedia.Events.DurationChanged -= EventsDurationChanged;
+                            _mMedia.Events.StateChanged -= EventsStateChanged;
+                        }
+                        _mMedia.Dispose();
+                    }
+                    catch
+                    {
+                    }
+                }
+
+
+                if (_waveProvider != null && _waveProvider.BufferedBytes>0)
+                {
+                    try
+                    {
+                        _waveProvider.ClearBuffer();
+                    }
+                    catch (Exception ex)
+                    {
+                        string m = ex.Message;
+                    }
+                }
+
+                Listening = false;
+
+
+                _mPlayer = null;
+                _mFactory = null;
+                _mMedia = null;
             }
-
-            
-            if (_waveProvider != null)
-                _waveProvider.ClearBuffer();
-
-            Listening = false;
-
-
-            _mPlayer = null;
-            _mFactory = null;
-            _mMedia = null;
         }
 
         private void EventsPlayerPlaying(object sender, EventArgs e)
