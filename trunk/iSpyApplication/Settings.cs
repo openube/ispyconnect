@@ -31,7 +31,7 @@ namespace iSpyApplication
         private RegistryKey _rkApp;
         private string[] _sticks;
         private static readonly object Jslock = new object();
-        
+        private bool _loaded;
 
         public Settings()
         {
@@ -144,6 +144,7 @@ namespace iSpyApplication
             MainForm.Conf.AlertOnDisconnect = txtAlertOnDisconnect.Text;
             MainForm.Conf.AlertOnReconnect = txtAlertOnReconnect.Text;
             MainForm.Conf.StartupMode = ddlStartupMode.SelectedIndex;
+            MainForm.Conf.EnableGZip = chkGZip.Checked;
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             
@@ -481,7 +482,9 @@ namespace iSpyApplication
             jaxis2.GetInput += jaxis_GetInput;
             jaxis3.GetInput += jaxis_GetInput;
 
-            
+            chkGZip.Checked = MainForm.Conf.EnableGZip;
+
+            _loaded = true;
         }
 
         private void RenderResources()
@@ -1113,6 +1116,14 @@ namespace iSpyApplication
         private void jbutton1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void chkEnableIPv6_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_loaded && chkEnableIPv6.Checked)
+            {
+                MessageBox.Show(this, "IPv6 support can cause problems on some systems. Please disable IPv6 if you experience issues.", "Warning");
+            }
         }
     }
 }

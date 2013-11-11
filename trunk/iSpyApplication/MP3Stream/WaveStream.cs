@@ -22,62 +22,65 @@ namespace iSpyApplication.MP3Stream
     /// </summary>
 	public class WaveStream : Stream
 	{
-		private Stream m_Stream;
-		private long m_DataPos;
-		private long m_Length;
+		private readonly Stream _mStream;
+		private long _mDataPos;
+		private long _mLength;
 
-		private WaveFormat m_Format;
+		private WaveFormat _mFormat;
 
 		public WaveFormat Format
 		{
-			get { return m_Format; }
+			get { return _mFormat; }
 		}
 
 		private string ReadChunk(BinaryReader reader)
 		{
-			byte[] ch = new byte[4];
+			var ch = new byte[4];
 			reader.Read(ch, 0, ch.Length);
 			return System.Text.Encoding.ASCII.GetString(ch);
 		}
 
 		private void ReadHeader()
 		{
-			BinaryReader Reader = new BinaryReader(m_Stream);
-			if (ReadChunk(Reader) != "RIFF")
+			var reader = new BinaryReader(_mStream);
+			if (ReadChunk(reader) != "RIFF")
 				throw new Exception("Invalid file format");
 
-			Reader.ReadInt32(); // File length minus first 8 bytes of RIFF description, we don't use it
+			reader.ReadInt32(); // File length minus first 8 bytes of RIFF description, we don't use it
 
-			if (ReadChunk(Reader) != "WAVE")
+			if (ReadChunk(reader) != "WAVE")
 				throw new Exception("Invalid file format");
 
-			if (ReadChunk(Reader) != "fmt ")
+			if (ReadChunk(reader) != "fmt ")
 				throw new Exception("Invalid file format");
 
-			int FormatLength = Reader.ReadInt32();
-      if ( FormatLength < 16) // bad format chunk length
+			int formatLength = reader.ReadInt32();
+      if ( formatLength < 16) // bad format chunk length
 				throw new Exception("Invalid file format");
 
-			m_Format = new WaveFormat(22050, 16, 2); // initialize to any format
-			m_Format.wFormatTag = Reader.ReadInt16();
-			m_Format.nChannels = Reader.ReadInt16();
-			m_Format.nSamplesPerSec = Reader.ReadInt32();
-			m_Format.nAvgBytesPerSec = Reader.ReadInt32();
-			m_Format.nBlockAlign = Reader.ReadInt16();
-			m_Format.wBitsPerSample = Reader.ReadInt16(); 
-      if ( FormatLength > 16)
+			_mFormat = new WaveFormat(22050, 16, 2)
+			               {
+			                   wFormatTag = reader.ReadInt16(),
+			                   nChannels = reader.ReadInt16(),
+			                   nSamplesPerSec = reader.ReadInt32(),
+			                   nAvgBytesPerSec = reader.ReadInt32(),
+			                   nBlockAlign = reader.ReadInt16(),
+			                   wBitsPerSample = reader.ReadInt16()
+			               }; // initialize to any format
+		    if ( formatLength > 16)
       {
-        m_Stream.Position += (FormatLength-16);
+        _mStream.Position += (formatLength-16);
       }
 			// assume the data chunk is aligned
-			while(m_Stream.Position < m_Stream.Length && ReadChunk(Reader) != "data")
-				;
+			while(_mStream.Position < _mStream.Length && ReadChunk(reader) != "data")
+			{
+			}
 
-			if (m_Stream.Position >= m_Stream.Length)
+		    if (_mStream.Position >= _mStream.Length)
 				throw new Exception("Invalid file format");
 
-			m_Length = Reader.ReadInt32();
-			m_DataPos = m_Stream.Position;
+			_mLength = reader.ReadInt32();
+			_mDataPos = _mStream.Position;
 
 			Position = 0;
 		}
@@ -85,9 +88,9 @@ namespace iSpyApplication.MP3Stream
 		public WaveStream(string fileName) : this(new FileStream(fileName, FileMode.Open))
 		{
 		}
-		public WaveStream(Stream S)
+		public WaveStream(Stream s)
 		{
-			m_Stream = S;
+			_mStream = s;
 			ReadHeader();
 		}
 
@@ -95,7 +98,7 @@ namespace iSpyApplication.MP3Stream
         {
             if (disposing)
             {
-                m_Stream.Close();
+                _mStream.Close();
             }
         }
 
@@ -113,11 +116,11 @@ namespace iSpyApplication.MP3Stream
 		}
 		public override long Length
 		{
-			get { return m_Length; }
+			get { return _mLength; }
 		}
 		public override long Position
 		{
-			get { return m_Stream.Position - m_DataPos; }
+			get { return _mStream.Position - _mDataPos; }
 			set { Seek(value, SeekOrigin.Begin); }
 		}
 		public override void Flush()
@@ -132,21 +135,21 @@ namespace iSpyApplication.MP3Stream
 			switch(o)
 			{
 				case SeekOrigin.Begin:
-					m_Stream.Position = pos + m_DataPos;
+					_mStream.Position = pos + _mDataPos;
 					break;
 				case SeekOrigin.Current:
-					m_Stream.Seek(pos, SeekOrigin.Current);
+					_mStream.Seek(pos, SeekOrigin.Current);
 					break;
 				case SeekOrigin.End:
-					m_Stream.Position = m_DataPos + m_Length - pos;
+					_mStream.Position = _mDataPos + _mLength - pos;
 					break;
 			}
-			return this.Position;
+			return Position;
 		}
 		public override int Read(byte[] buf, int ofs, int count)
 		{
-			int toread = (int)Math.Min(count, m_Length - Position);
-			return m_Stream.Read(buf, ofs, toread);
+			var toread = (int)Math.Min(count, _mLength - Position);
+			return _mStream.Read(buf, ofs, toread);
 		}
 		public override void Write(byte[] buf, int ofs, int count)
 		{

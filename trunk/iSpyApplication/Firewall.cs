@@ -394,7 +394,7 @@ namespace Moah
             if (m_FirewallProfile == null)
                 return FW_ERROR_CODE.FW_ERR_INITIALIZED;
 
-            m_FirewallProfile.UnicastResponsesToMulticastBroadcastDisabled = bDisabled; ;
+            m_FirewallProfile.UnicastResponsesToMulticastBroadcastDisabled = bDisabled;
 
             return FW_ERROR_CODE.FW_NOERROR;
         }

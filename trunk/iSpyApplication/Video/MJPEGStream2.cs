@@ -430,9 +430,17 @@ namespace iSpyApplication.Video
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+            }
             _stopEvent = null;
-            _reloadEvent.Close();
+            if (_reloadEvent != null)
+            {
+                _reloadEvent.Close();
+                _reloadEvent.Dispose();
+            }
             _reloadEvent = null;
         }
 
@@ -529,10 +537,11 @@ namespace iSpyApplication.Video
                                 if (html.IndexOf("setup_kakulens.html", StringComparison.Ordinal) != -1)
                                 {
                                     //hack for panasonic cameras that redirect on reboot in privacy mode - POST a command to disable privacy
-                                    DisablePrivacy(request, encoding);
-
-                                    _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(3);
-                                    _needsPrivacyEnabled = true;
+                                    if (DisablePrivacy(request))
+                                    {
+                                        _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(3);
+                                        _needsPrivacyEnabled = true;
+                                    }
 
                                 }
                             }
@@ -676,8 +685,10 @@ namespace iSpyApplication.Video
                                     bitmap = null;
                                     if (_needsPrivacyEnabled && _needsPrivacyEnabledTarget < DateTime.Now)
                                     {
-                                        _needsPrivacyEnabled = false;
-                                        EnablePrivacy(request, encoding);
+                                        if (EnablePrivacy(request))
+                                        {
+                                            _needsPrivacyEnabled = false;
+                                        }
                                     }
                                 }
 
@@ -763,44 +774,78 @@ namespace iSpyApplication.Video
             }
         }
 
-        private void DisablePrivacy(HttpWebRequest request, ASCIIEncoding encoding)
+        private bool DisablePrivacy(HttpWebRequest request)
         {
             string uri = request.RequestUri.AbsoluteUri;
             uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
 
-            var request2 = GenerateRequest(uri + "/cgi-bin/powerdown?Language=0");
-            byte[] data = encoding.GetBytes("priv_mode=0&Language=0");
-
-            request2.Method = "POST";
+            var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=0");
+            request2.Method = "GET";
             request2.ContentType = "application/x-www-form-urlencoded";
-            request2.ContentLength = data.Length;
 
-            using (Stream stream2 = request2.GetRequestStream())
+
+            var res = false;
+            try
             {
-                stream2.Write(data, 0, data.Length);
+                var resp = (HttpWebResponse)request2.GetResponse();
+                if (resp.StatusCode == HttpStatusCode.OK)
+                {
+                    var str = resp.GetResponseStream();
+                    if (str != null)
+                    {
+                        var r = new StreamReader(str, true);
+                        var t = r.ReadToEnd().Trim();
+                        if (t == "Return:0")
+                        {
+                            res = true;
+                        }
+                    }
+                }
+                resp.Close();
             }
-            var resp = request2.GetResponse();
-            resp.Close();
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+
+            return res;
         }
 
-        private void EnablePrivacy(HttpWebRequest request, ASCIIEncoding encoding)
+        private bool EnablePrivacy(HttpWebRequest request)
         {
             string uri = request.RequestUri.AbsoluteUri;
             uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
 
-            var request2 = GenerateRequest(uri + "/cgi-bin/powerdown?Language=0");
-            byte[] data = encoding.GetBytes("priv_mode=1&Language=0");
-
-            request2.Method = "POST";
+            var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=1");
+            request2.Method = "GET";
             request2.ContentType = "application/x-www-form-urlencoded";
-            request2.ContentLength = data.Length;
 
-            using (Stream stream2 = request2.GetRequestStream())
+
+            var res = false;
+            try
             {
-                stream2.Write(data, 0, data.Length);
+                var resp = (HttpWebResponse)request2.GetResponse();
+                if (resp.StatusCode==HttpStatusCode.OK)
+                {
+                    var str = resp.GetResponseStream();
+                    if (str!=null)
+                    {
+                        var r = new StreamReader(str, true);
+                        var t = r.ReadToEnd().Trim();
+                        if (t=="Return:0")
+                        {
+                            res = true;
+                        }
+                    }
+                }
+                resp.Close();
             }
-            var resp = request2.GetResponse();
-            resp.Close();
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+
+            return res;
         }
 
         private HttpWebRequest GenerateRequest(string source)

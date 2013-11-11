@@ -160,7 +160,7 @@ namespace iSpyApplication.Audio.streams
         /// Initializes a new instance of the <see cref="LocalDeviceStream"/> class.
         /// </summary>
         /// 
-        /// <param name="source">source, which provides audio data.</param>
+        /// <param name="skt">socket, which provides audio data.</param>
         /// 
         public WebStream(Socket skt)
         {
@@ -308,7 +308,11 @@ namespace iSpyApplication.Audio.streams
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+            }
             _stopEvent = null;
         }
 

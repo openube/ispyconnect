@@ -64,8 +64,8 @@
                                                     <xs:element name="timestamplocation" type="xs:int"/>
                                                     <xs:element name="timestampfontsize" type="xs:int" default="10"/>
                                                     <xs:element name="timestampoffset" type="xs:decimal" default="0"/>
-                                                    <xs:element name="timestampforecolor" type="xs:string" default="0"/>
-                                                    <xs:element name="timestampbackcolor" type="xs:string" default="0"/>
+                                                    <xs:element name="timestampforecolor" type="xs:string" default=""/>
+                                                    <xs:element name="timestampbackcolor" type="xs:string" default=""/>
                                                     <xs:element name="timestampfont" type="xs:string" default=""/>
                                                     <xs:element name="timestampshowback" type="xs:boolean" default="true"/>
                                                     <xs:element name="desktoparea" type="xs:string"/>
@@ -260,6 +260,27 @@
                                                 <xs:attribute name="sendtwitter" type="xs:boolean" default="false" use="optional"/>
                                             </xs:complexType>
                                         </xs:element>
+                                      <xs:element name="alertevents">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="entries">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element maxOccurs="unbounded" name="entry">
+                                                    <xs:complexType>
+                                                      <xs:attribute name="type" type="xs:string" use="required" />
+                                                      <xs:attribute name="param1" type="xs:string" default="" />
+                                                      <xs:attribute name="param2" type="xs:string" default="" />
+                                                      <xs:attribute name="param3" type="xs:string" default="" />
+                                                      <xs:attribute name="param4" type="xs:string" default="" />
+                                                    </xs:complexType>
+                                                  </xs:element>
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
                                         <xs:element name="schedule">
                                             <xs:complexType>
                                                 <xs:sequence>
@@ -424,6 +445,27 @@
                                                 <xs:attribute name="sendtwitter" type="xs:boolean" default="false" use="optional"/>
                                             </xs:complexType>
                                         </xs:element>
+                                      <xs:element name="alertevents">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="entries">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element maxOccurs="unbounded" name="entry">
+                                                    <xs:complexType>
+                                                      <xs:attribute name="type" type="xs:string" use="required" />
+                                                      <xs:attribute name="param1" type="xs:string" default="" />
+                                                      <xs:attribute name="param2" type="xs:string" default="" />
+                                                      <xs:attribute name="param3" type="xs:string" default="" />
+                                                      <xs:attribute name="param4" type="xs:string" default="" />
+                                                    </xs:complexType>
+                                                  </xs:element>
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
                                         <xs:element name="schedule">
                                             <xs:complexType>
                                                 <xs:sequence>

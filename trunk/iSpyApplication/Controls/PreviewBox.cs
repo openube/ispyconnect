@@ -11,14 +11,14 @@ namespace iSpyApplication.Controls
 {
     public class PreviewBox: AForge.Controls.PictureBox
     {
-        private static readonly Color COverlay = Color.FromArgb(90, 0, 0, 0);
-        private static readonly Brush BOverlay = new SolidBrush(Color.White);
+        private readonly Brush _bPlay = new SolidBrush(Color.FromArgb(90,0,0,0));
         public bool Selected;
         public string FileName = "";
         public string DisplayName;
         public DateTime CreatedDate = DateTime.MinValue;
         public int Duration;
         private bool _linkPlay, _linkHover;
+        public bool ShowThumb = true;
 
         protected override void Dispose(bool disposing)
         {
@@ -26,6 +26,7 @@ namespace iSpyApplication.Controls
             {
                 Image.Dispose();
             }
+            _bPlay.Dispose();
 
             base.Dispose(disposing);
         }
@@ -35,30 +36,33 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
             var g = pe.Graphics;
 
-            if (_linkPlay)
+            if (ShowThumb)
             {
-                var bPlay = new SolidBrush(COverlay);
-                g.FillRectangle(bPlay, 0, 0, Width,Height-20);
-                bPlay.Dispose();
-            }
-            if (Selected)
-            {
-                g.DrawImage(Resources.checkbox, Width - 17, Height - 19, 17, 16);
-            }
-            else
-            {
-                if (_linkHover)
+                if (_linkPlay)
                 {
-                    g.DrawImage(Resources.checkbox_off, Width - 17, Height - 19, 17, 16);
+                    g.FillRectangle(_bPlay, 0, 0, Width, Height - 20);
                 }
-            }
+                if (Selected)
+                {
+                    g.DrawImage(Resources.checkbox, Width - 17, Height - 19, 17, 16);
+                }
+                else
+                {
+                    if (_linkHover)
+                    {
+                        g.DrawImage(Resources.checkbox_off, Width - 17, Height - 19, 17, 16);
+                    }
+                }
 
-            if (_linkPlay)
-            {
-                g.DrawString(">", MainForm.DrawfontBig, BOverlay, Width / 2 - 10, 20);
-            }
+                if (_linkPlay)
+                {
+                    g.DrawString(">", MainForm.DrawfontBig, Brushes.White, Width/2 - 10, 20);
+                }
 
-            g.DrawString(CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + ":" + ZeroPad(CreatedDate.Second) + " (" + RecordTime(Duration) + ")", MainForm.Drawfont, BOverlay, 0, Height - 18);
+                g.DrawString(
+                    CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + ":" + ZeroPad(CreatedDate.Second) + " (" +
+                    RecordTime(Duration) + ")", MainForm.Drawfont, Brushes.White, 0, Height - 18);
+            }
         }
         private static string RecordTime(decimal sec)
         {
@@ -186,7 +190,7 @@ namespace iSpyApplication.Controls
             }
             if (!File.Exists(movie))
             {
-                MessageBox.Show(this, "Movie could not be found on disk.");
+                MessageBox.Show(this, "File could not be found on disk.");
                 return;                
             }
             string[] parts = FileName.Split('\\');

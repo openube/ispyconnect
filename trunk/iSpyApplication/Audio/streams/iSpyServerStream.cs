@@ -329,7 +329,12 @@ namespace iSpyApplication.Audio.streams
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+            }
             _stopEvent = null;
         }
 

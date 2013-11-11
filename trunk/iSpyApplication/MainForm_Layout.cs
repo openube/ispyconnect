@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using C2BP;
 using iSpyApplication.Controls;
 using PictureBox = AForge.Controls.PictureBox;
 
@@ -197,10 +196,17 @@ namespace iSpyApplication
             Maximise(obj, true);
         }
 
+        private delegate void MaximiseDelegate(object obj, bool minimiseIfMaximised);
+
         public void Maximise(object obj, bool minimiseIfMaximised)
         {
             if (obj == null)
                 return;
+            if (InvokeRequired)
+            {
+                BeginInvoke(new MaximiseDelegate(Maximise), obj, minimiseIfMaximised);
+                return;
+            }
             if (obj is CameraWindow)
             {
 

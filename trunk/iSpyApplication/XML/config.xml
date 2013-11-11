@@ -107,4 +107,5 @@
   <Joystick></Joystick>
   <StartupForm>iSpy</StartupForm>
   <FeatureSet>0</FeatureSet>
+  <EnableGZip>true</EnableGZip>
 </configuration>

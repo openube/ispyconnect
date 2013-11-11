@@ -1,6 +1,6 @@
 ﻿namespace iSpyApplication.Controls
 {
-    partial class MediaPanel
+    sealed partial class MediaPanel
     {
         /// <summary> 
         /// Required designer variable.

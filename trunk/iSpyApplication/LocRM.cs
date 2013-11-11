@@ -33,9 +33,7 @@ namespace iSpyApplication
                     using (TextReader reader = new StreamReader(fs))
                     {
                         _translationsList = (Translations)s.Deserialize(reader);
-                        reader.Close();
                     }
-                    fs.Close();
                 }
 
                 return _translationsList;

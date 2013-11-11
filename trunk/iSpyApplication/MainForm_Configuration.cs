@@ -545,7 +545,6 @@ namespace iSpyApplication
         {
             try
             {
-                
                 objects c;
                 using (var fs = new FileStream(path, FileMode.Open))
                 {
@@ -623,6 +622,58 @@ namespace iSpyApplication
                                                                  
                         };
                     }
+                    bool migrate = false;
+                    if (cam.alertevents==null)
+                    {
+                        cam.alertevents = new objectsCameraAlertevents();
+                        migrate = true;
+                    }
+                    if (cam.alertevents.entries == null)
+                        cam.alertevents.entries = new objectsCameraAlerteventsEntry[] {};
+                    if (migrate)
+                    {
+                        var l = new List<objectsCameraAlerteventsEntry>();
+                        if (!String.IsNullOrEmpty(cam.alerts.executefile))
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "Exe", param1 = cam.alerts.executefile, param2=cam.alerts.arguments});
+                        }
+                        if (cam.notifications.sendemail)
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "E", param1 = cam.settings.emailaddress, param2 = "True"});
+                        }
+                        if (cam.notifications.sendsms)
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "SMS", param1 = cam.settings.smsnumber });
+                        }
+                        if (cam.alerts.maximise)
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "M" });
+                        }
+                        if (!String.IsNullOrEmpty(cam.alerts.playsound))
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "S", param1 = cam.alerts.playsound });
+                        }
+
+                        string[] alertOptions = cam.alerts.alertoptions.Split(','); //beep,restore
+
+                        if (Convert.ToBoolean(alertOptions[0]))
+                            l.Add(new objectsCameraAlerteventsEntry { type = "B" });
+                        if (Convert.ToBoolean(alertOptions[1]))
+                            l.Add(new objectsCameraAlerteventsEntry { type = "SW" });
+                                                
+                        if (cam.notifications.sendtwitter)
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "TM" });
+                        }
+
+                        if (!String.IsNullOrEmpty(cam.alerts.trigger))
+                        {
+                            l.Add(new objectsCameraAlerteventsEntry { type = "TA", param1=cam.alerts.trigger });
+                        }
+                        cam.alertevents.entries = l.ToArray();
+
+                    }
+
                     cam.newrecordingcount = 0;
                     if (cam.settings.maxframerate == 0)
                         cam.settings.maxframerate = 10;
@@ -689,9 +740,13 @@ namespace iSpyApplication
                         cam.settings.audiopassword = "";
                     }
 
-                    if (String.IsNullOrEmpty(cam.settings.timestampforecolor))
+                    if (String.IsNullOrEmpty(cam.settings.timestampforecolor) || cam.settings.timestampforecolor=="0")
                     {
                         cam.settings.timestampforecolor = "255,255,255";
+                    }
+
+                    if (String.IsNullOrEmpty(cam.settings.timestampbackcolor) || cam.settings.timestampbackcolor == "0")
+                    {
                         cam.settings.timestampbackcolor = "70,70,70";
                     }
 
@@ -778,6 +833,51 @@ namespace iSpyApplication
                             maxsize = 1024
 
                         };
+                    }
+
+                    bool migrate = false;
+                    if (mic.alertevents == null)
+                    {
+                        mic.alertevents = new objectsMicrophoneAlertevents();
+                        migrate = true;
+                    }
+                    if (mic.alertevents.entries==null)
+                    {
+                        mic.alertevents.entries = new objectsMicrophoneAlerteventsEntry[] {};
+                    }
+
+                    if (migrate)
+                    {
+                        var l = new List<objectsMicrophoneAlerteventsEntry>();
+                        if (!String.IsNullOrEmpty(mic.alerts.executefile))
+                        {
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "Exe", param1 = mic.alerts.executefile, param2 = mic.alerts.arguments });
+                        }
+                        if (mic.notifications.sendemail)
+                        {
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "E", param1 = mic.settings.emailaddress, param2 = "True" });
+                        }
+                        if (mic.notifications.sendsms)
+                        {
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "SMS", param1 = mic.settings.smsnumber });
+                        }
+
+                        string[] alertOptions = mic.alerts.alertoptions.Split(','); //beep,restore
+
+                        if (Convert.ToBoolean(alertOptions[0]))
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "B" });
+                        if (Convert.ToBoolean(alertOptions[1]))
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "SW" });
+
+                        if (mic.notifications.sendtwitter)
+                        {
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "TM" });
+                        }
+
+                        if (!String.IsNullOrEmpty(mic.alerts.trigger))
+                        {
+                            l.Add(new objectsMicrophoneAlerteventsEntry { type = "TA", param1 = mic.alerts.trigger });
+                        }
                     }
 
                     if (mic.x < 0)
@@ -1725,12 +1825,7 @@ namespace iSpyApplication
             LoadPreviews();
         }
 
-        private void AddCamera(int videoSourceIndex)
-        {
-            AddCamera(videoSourceIndex, false);
-        }
-
-        private void AddCamera(int videoSourceIndex, bool startWizard)
+        private void AddCamera(int videoSourceIndex, bool startWizard = false)
         {
             CameraWindow cw = NewCameraWindow(videoSourceIndex);
             TopMost = false;
@@ -1876,6 +1971,9 @@ namespace iSpyApplication
                 maxsize = 1024
 
             };
+
+            oc.alertevents = new objectsCameraAlertevents {entries = new objectsCameraAlerteventsEntry[] {}};
+
             oc.settings.desktopresizeheight = 480;
             oc.settings.desktopresizewidth = 640;
             oc.settings.resize = false;
@@ -2037,6 +2135,7 @@ namespace iSpyApplication
             om.notifications.sendsms = false;
 
             om.schedule.active = false;
+            om.alertevents = new objectsMicrophoneAlertevents {entries = new objectsMicrophoneAlerteventsEntry[] {}};
 
             var volumeControl = new VolumeLevel(om) { BackColor = Conf.BackColor.ToColor() };
             _pnlCameras.Controls.Add(volumeControl);
@@ -2187,7 +2286,7 @@ namespace iSpyApplication
 
         public PreviewBox AddPreviewControl(Image thumb, string movieName, int duration, DateTime createdDate, string name)
         {
-            var pb = new PreviewBox() {Image =  thumb};
+            var pb = new PreviewBox {Image =  thumb};
            
             lock (flowPreview.Controls)
             {
@@ -2236,11 +2335,13 @@ namespace iSpyApplication
         }
 
 
+        private DateTime _lastOver = DateTime.MinValue;
 
         void PbMouseEnter(object sender, EventArgs e)
         {
             var pb = (PreviewBox) sender;
             tsslMediaInfo.Text = pb.DisplayName;
+            _lastOver = DateTime.Now;
         }
 
         void PbMouseDown(object sender, MouseEventArgs e)

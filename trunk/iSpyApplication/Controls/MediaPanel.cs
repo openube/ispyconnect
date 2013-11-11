@@ -5,11 +5,11 @@ using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
-    public partial class MediaPanel : FlowLayoutPanel
+    public sealed partial class MediaPanel : FlowLayoutPanel
     {
         public bool Loading = false;
-        public Point selectStart = Point.Empty;
-        public Point selectEnd = Point.Empty;
+        public Point SelectStart = Point.Empty;
+        public Point SelectEnd = Point.Empty;
 
         public MediaPanel()
         {
@@ -39,14 +39,14 @@ namespace iSpyApplication.Controls
                 g.DrawString(txt, MainForm.Drawfont, MainForm.OverlayBrush, Convert.ToInt32(Width / 2) - s.Width / 2, Convert.ToInt32(Height / 2) - s.Height / 2);
             }
 
-            if (selectStart != Point.Empty && selectEnd != Point.Empty)
+            if (SelectStart != Point.Empty && SelectEnd != Point.Empty)
             {
                 var b = new SolidBrush(Color.White);
                 var p = new Pen(b, 1) { DashStyle = DashStyle.Dash };
-                g.DrawLine(p, selectStart.X, selectStart.Y, selectStart.X, selectEnd.Y);
-                g.DrawLine(p, selectStart.X, selectEnd.Y, selectEnd.X, selectEnd.Y);
-                g.DrawLine(p, selectEnd.X, selectEnd.Y, selectEnd.X, selectStart.Y);
-                g.DrawLine(p, selectEnd.X, selectStart.Y, selectStart.X, selectStart.Y);
+                g.DrawLine(p, SelectStart.X, SelectStart.Y, SelectStart.X, SelectEnd.Y);
+                g.DrawLine(p, SelectStart.X, SelectEnd.Y, SelectEnd.X, SelectEnd.Y);
+                g.DrawLine(p, SelectEnd.X, SelectEnd.Y, SelectEnd.X, SelectStart.Y);
+                g.DrawLine(p, SelectEnd.X, SelectStart.Y, SelectStart.X, SelectStart.Y);
 
                 b.Dispose();
                 p.Dispose();
@@ -58,14 +58,14 @@ namespace iSpyApplication.Controls
 
         private void MediaPanel_MouseDown(object sender, MouseEventArgs e)
         {
-            selectStart = e.Location;
+            SelectStart = e.Location;
         }
 
         private void MediaPanel_MouseUp(object sender, MouseEventArgs e)
         {
-            if (Math.Sqrt(Math.Pow(selectStart.X-selectEnd.X,2)+Math.Pow(selectStart.Y-selectEnd.Y,2))>5)
+            if (Math.Sqrt(Math.Pow(SelectStart.X-SelectEnd.X,2)+Math.Pow(SelectStart.Y-SelectEnd.Y,2))>5)
             {
-                var r = NormRect(selectStart, selectEnd);
+                var r = NormRect(SelectStart, SelectEnd);
                 foreach(PreviewBox pb in Controls)
                 {
                     if (pb.Location.X < r.X+r.Width && pb.Location.X+pb.Width > r.X &&
@@ -78,7 +78,7 @@ namespace iSpyApplication.Controls
                 }
 
             }
-            selectStart = Point.Empty;
+            SelectStart = Point.Empty;
             Invalidate();
         }
 
@@ -97,9 +97,9 @@ namespace iSpyApplication.Controls
 
         private void MediaPanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (selectStart != Point.Empty)
+            if (SelectStart != Point.Empty)
             {
-                selectEnd = e.Location;
+                SelectEnd = e.Location;
                 Invalidate();
             }
         }

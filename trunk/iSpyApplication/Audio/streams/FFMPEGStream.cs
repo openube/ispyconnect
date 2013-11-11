@@ -361,10 +361,14 @@ namespace iSpyApplication.Audio.streams
             }
 
             // release events
-            _stopEvent.Close();
-            _stopEvent.Dispose();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+            }
             _stopEvent = null;
-
+            
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
 

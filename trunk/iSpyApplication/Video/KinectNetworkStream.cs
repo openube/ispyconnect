@@ -446,9 +446,19 @@ namespace iSpyApplication.Video
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+            }
             _stopEvent = null;
-            _reloadEvent.Close();
+            if (_reloadEvent != null)
+            {
+                _reloadEvent.Close();
+                _reloadEvent.Dispose();
+                _reloadEvent = null;
+            }
             _reloadEvent = null;
         }
 
@@ -553,11 +563,11 @@ namespace iSpyApplication.Video
                                 var arr = new byte[br];
                                 System.Array.Copy(buffer, startPacket, arr, 0, br - startPacket);
                                 string s = Encoding.ASCII.GetString(arr);
-                                int k = s.IndexOf("Content-type: ", System.StringComparison.Ordinal);
+                                int k = s.IndexOf("Content-type: ", StringComparison.Ordinal);
                                 if (k!=-1)
                                 {
                                     s = s.Substring(k+14);
-                                    s = s.Substring(0,s.IndexOf("\r\n"));
+                                    s = s.Substring(0,s.IndexOf("\r\n", StringComparison.Ordinal));
                                     s = s.Trim();
                                 }
                                 switch (s)

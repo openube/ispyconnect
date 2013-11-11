@@ -72,7 +72,7 @@ namespace iSpyApplication
                 return;
             }
 
-            if (txtUsername.Text.Trim() != "")
+            if (!String.IsNullOrWhiteSpace(txtUsername.Text.Trim()))
             {
                 try
                 {

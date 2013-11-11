@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -88,7 +89,6 @@ namespace iSpyApplication
                                 _mimetypes.Add(sMimeExt, sMimeType);
                             }
                         }
-                        sr.Close();
                     }
                 }
                 return _mimetypes;
@@ -248,12 +248,17 @@ namespace iSpyApplication
         }
 
         public void SendHeader(string sHttpVersion, string sMimeHeader, int iTotBytes, string sStatusCode, int cacheDays,
-                               ref Socket socket)
+                               ref Socket socket, bool gZip)
         {
-            SendHeader(sHttpVersion, sMimeHeader, iTotBytes, sStatusCode, cacheDays, ref socket, "");
+            SendHeader(sHttpVersion, sMimeHeader, iTotBytes, sStatusCode, cacheDays, ref socket, "", gZip);
         }
         public void SendHeader(string sHttpVersion, string sMimeHeader, int iTotBytes, string sStatusCode, int cacheDays,
-                               ref Socket socket, string fileName)
+                               ref Socket socket)
+        {
+            SendHeader(sHttpVersion, sMimeHeader, iTotBytes, sStatusCode, cacheDays, ref socket, "", false);
+        }
+        public void SendHeader(string sHttpVersion, string sMimeHeader, int iTotBytes, string sStatusCode, int cacheDays,
+                               ref Socket socket, string fileName, bool gZip)
         {
             String sBuffer = "";
 
@@ -277,6 +282,10 @@ namespace iSpyApplication
             sBuffer += "Access-Control-Allow-Origin: *\r\n";
             if (iTotBytes > -1)
                 sBuffer += "Content-Length: " + iTotBytes + "\r\n";
+            if (gZip)
+            {
+                sBuffer += "Content-Encoding: gzip\r\n";
+            }
             //sBuffer += "Cache-Control:Date: Tue, 25 Jan 2011 08:18:53 GMT\r\nExpires: Tue, 08 Feb 2011 05:06:38 GMT\r\nConnection: keep-alive\r\n";
             if (cacheDays > 0)
             {
@@ -469,7 +478,7 @@ namespace iSpyApplication
                         var bReceive = new Byte[1024];
                         mySocket.Receive(bReceive);
                         string sBuffer = Encoding.ASCII.GetString(bReceive);
-                        Debug.WriteLine(sBuffer);
+                        //Debug.WriteLine(sBuffer);
 
                         if (sBuffer.Substring(0, 4) == "TALK")
                         {
@@ -521,8 +530,19 @@ namespace iSpyApplication
 
                         if (resp != "")
                         {
-                            SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket);
-                            SendToBrowser(resp, mySocket);
+                            bool gzip = resp.Length > 400 && MainForm.Conf.EnableGZip && HeaderEnabled(sBuffer, "Accept-Encoding", "gzip");
+
+                            if (gzip)
+                            {
+                                var arr = Gzip(Encoding.UTF8.GetBytes(resp));
+                                SendHeader(sHttpVersion, "text/javascript", arr.Length, " 200 OK", 0, ref mySocket, true);
+                                SendToBrowser(arr, mySocket);
+                            }
+                            else
+                            {
+                                SendHeader(sHttpVersion, "text/javascript", resp.Length, " 200 OK", 0, ref mySocket, false);
+                                SendToBrowser(resp, mySocket);
+                            }
                         }
                         else //not a js request
                         {
@@ -632,6 +652,41 @@ namespace iSpyApplication
             }
         }
 
+        private static bool HeaderEnabled(string req, string header, string val)
+        {
+            header = header.ToLower();
+            req = req.ToLower();
+            val = val.ToLower();
+
+            var p = req.Split(Environment.NewLine.ToCharArray());
+            foreach(var s in p)
+            {
+                if (!s.StartsWith(header)) continue;
+                var v = s.Split(':');
+                if (v.Length>1)
+                {
+                    string[] l = v[1].Split(',');
+
+                    return l.Any(lp => lp.Trim() == val);
+                }
+                return false;
+            }
+            return false;
+        }
+
+        private static byte[] Gzip(byte[] bytes)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var gs = new GZipStream(ms,CompressionMode.Compress, true))
+                {
+                    gs.Write(bytes, 0, bytes.Length);
+                }
+                ms.Position = 0L;
+                return ms.ToArray();
+            }
+        }
+
         private static void SetDesiredKeepAlive(Socket socket)
         {
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -658,7 +713,7 @@ namespace iSpyApplication
             // of course there are other ways to marshal up this byte array, this is just one way
 
             // call WSAIoctl via IOControl
-            int ignore = s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
+            s.IOControl(IOControlCode.KeepAliveValues, inOptionValues, null);
 
         }
 
@@ -757,7 +812,7 @@ namespace iSpyApplication
             }
             else
             {
-                SendHeader(sHttpVersion, sMimeType, iTotBytes, " 200 OK", 20, ref mySocket, filename);
+                SendHeader(sHttpVersion, sMimeType, iTotBytes, " 200 OK", 20, ref mySocket, filename, false);
             }
                 
 
@@ -917,7 +972,7 @@ namespace iSpyApplication
 
             long sdl = 0, edl = 0;
             string sd, ed;
-            int pageSize, ordermode, page;
+            int page;
 
             switch (cmd)
             {
@@ -1509,12 +1564,12 @@ namespace iSpyApplication
                             case "alerts":
                                 vw.Micobject.alerts.active = Convert.ToBoolean(value);
                                 break;
-                            case "sendemailonalert":
-                                vw.Micobject.notifications.sendemail = Convert.ToBoolean(value);
-                                break;
-                            case "sendsmsonalert":
-                                vw.Micobject.notifications.sendsms = Convert.ToBoolean(value);
-                                break;
+                            //case "sendemailonalert":
+                            //    vw.Micobject.notifications.sendemail = Convert.ToBoolean(value);
+                            //    break;
+                            //case "sendsmsonalert":
+                            //    vw.Micobject.notifications.sendsms = Convert.ToBoolean(value);
+                            //    break;
                             case "minimuminterval":
                                 int mi;
                                 int.TryParse(value, out mi);
@@ -1560,24 +1615,24 @@ namespace iSpyApplication
                             case "alerts":
                                 cw.Camobject.alerts.active = Convert.ToBoolean(value);
                                 break;
-                            case "sendemailonalert":
-                                cw.Camobject.notifications.sendemail = Convert.ToBoolean(value);
-                                break;
-                            case "sendsmsonalert":
-                                cw.Camobject.notifications.sendsms = Convert.ToBoolean(value);
-                                //if (cw.Camobject.notifications.sendsms)
-                                //    cw.Camobject.notifications.sendmms = false;
-                                break;
+                            //case "sendemailonalert":
+                            //    cw.Camobject.notifications.sendemail = Convert.ToBoolean(value);
+                            //    break;
+                            //case "sendsmsonalert":
+                            //    cw.Camobject.notifications.sendsms = Convert.ToBoolean(value);
+                            //    //if (cw.Camobject.notifications.sendsms)
+                            //    //    cw.Camobject.notifications.sendmms = false;
+                            //    break;
                             //case "sendmmsonalert":
                             //    cw.Camobject.notifications.sendmms = Convert.ToBoolean(value);
                             //    if (cw.Camobject.notifications.sendmms)
                             //        cw.Camobject.notifications.sendsms = false;
                             //    break;
-                            case "emailframeevery":
-                                int gi;
-                                int.TryParse(value, out gi);
-                                cw.Camobject.notifications.emailgrabinterval = gi;
-                                break;
+                            //case "emailframeevery":
+                            //    int gi;
+                            //    int.TryParse(value, out gi);
+                            //    cw.Camobject.notifications.emailgrabinterval = gi;
+                            //    break;
                             case "timelapseon":
                                 cw.Camobject.recorder.timelapseenabled = Convert.ToBoolean(value);
                                 break;
@@ -1601,7 +1656,6 @@ namespace iSpyApplication
                                     {
                                         value = Uri.UnescapeDataString(value);
                                         cw.Calibrating = true;
-                                        Console.WriteLine("set calibrating");
                                         if (value.StartsWith("ispydir_"))
                                         {
                                             cw.PTZ.SendPTZCommand(
@@ -1634,8 +1688,8 @@ namespace iSpyApplication
 
                     sd = GetVar(sRequest, "startdate");
                     ed = GetVar(sRequest, "enddate");
-                    pageSize = Convert.ToInt32(GetVar(sRequest, "pagesize"));
-                    ordermode = Convert.ToInt32(GetVar(sRequest, "ordermode"));
+                    int pageSize = Convert.ToInt32(GetVar(sRequest, "pagesize"));
+                    int ordermode = Convert.ToInt32(GetVar(sRequest, "ordermode"));
                     if (sd != "")
                         sdl = Convert.ToInt64(sd);
                     if (ed != "")
@@ -2211,21 +2265,21 @@ namespace iSpyApplication
                                  "</td><td><input type=\"checkbox\" onclick=\"send_changesetting(" + otid + "," +
                                  oid + "," + port + ",'alerts',this.checked)\" " + strChecked + "/></td></tr>";
 
-                        strChecked = "";
-                        if (vw.Micobject.notifications.sendemail) strChecked = "checked=\"checked\"";
+                        //strChecked = "";
+                        //if (vw.Micobject.notifications.sendemail) strChecked = "checked=\"checked\"";
 
-                        html += "<tr><td>" + LocRm.GetString("SendEmailOnAlert") + "</td><td><input type=\"checkbox\"" +
-                                 disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
-                                 ",'sendemailonalert',this.checked)\" " + strChecked + "/> " +
-                                 vw.Micobject.settings.emailaddress + "</td></tr>";
+                        //html += "<tr><td>" + LocRm.GetString("SendEmailOnAlert") + "</td><td><input type=\"checkbox\"" +
+                        //         disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
+                        //         ",'sendemailonalert',this.checked)\" " + strChecked + "/> " +
+                        //         vw.Micobject.settings.emailaddress + "</td></tr>";
 
-                        strChecked = "";
-                        if (vw.Micobject.notifications.sendsms) strChecked = "checked=\"checked\"";
+                        //strChecked = "";
+                        //if (vw.Micobject.notifications.sendsms) strChecked = "checked=\"checked\"";
 
-                        html += "<tr><td>" + LocRm.GetString("SendSmsOnAlert") + "</td><td><input type=\"checkbox\"" +
-                                 disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
-                                 ",'sendsmsonalert',this.checked)\" " + strChecked + "/> " + vw.Micobject.settings.smsnumber +
-                                 "</td></tr>";
+                        //html += "<tr><td>" + LocRm.GetString("SendSmsOnAlert") + "</td><td><input type=\"checkbox\"" +
+                        //         disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
+                        //         ",'sendsmsonalert',this.checked)\" " + strChecked + "/> " + vw.Micobject.settings.smsnumber +
+                        //         "</td></tr>";
 
                         strChecked = "";
                         if (vw.Micobject.settings.notifyondisconnect) strChecked = "checked=\"checked\"";
@@ -2239,6 +2293,7 @@ namespace iSpyApplication
                                  vw.Micobject.alerts.minimuminterval + "\" onblur=\"send_changesetting(" + otid + "," +
                                  oid + "," + port + ",'minimuminterval',this.value)\"/> " + LocRm.GetString("Seconds") + "</td></tr>";
 
+                        html += "<tr><td colspan=\"2\"><strong>" + LocRm.GetString("AccessGroups") + "</strong></td></tr>";
                         html += "<tr><td>" + LocRm.GetString("AccessGroups") +
                                  "</td><td><input style=\"width:100px\" type=\"text\" value=\"" +
                                  vw.Micobject.settings.accessgroups + "\" onblur=\"send_changesetting(" + otid + "," +
@@ -2307,22 +2362,22 @@ namespace iSpyApplication
                                  "</td><td><input type=\"checkbox\" onclick=\"send_changesetting(" + otid + "," +
                                  oid + "," + port + ",'alerts',this.checked)\" " + strChecked + "/></td></tr>";
 
-                        strChecked = "";
-                        if (cw.Camobject.notifications.sendemail) strChecked = "checked=\"checked\"";
+                        //strChecked = "";
+                        //if (cw.Camobject.notifications.sendemail) strChecked = "checked=\"checked\"";
 
-                        html += "<tr><td>" + LocRm.GetString("SendEmailOnAlert") + "</td><td><input type=\"checkbox\"" +
-                                 disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
-                                 ",'sendemailonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.emailaddress +
-                                 "</td></tr>";
+                        //html += "<tr><td>" + LocRm.GetString("SendEmailOnAlert") + "</td><td><input type=\"checkbox\"" +
+                        //         disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
+                        //         ",'sendemailonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.emailaddress +
+                        //         "</td></tr>";
 
 
-                        strChecked = "";
-                        if (cw.Camobject.notifications.sendsms) strChecked = "checked=\"checked\"";
+                        //strChecked = "";
+                        //if (cw.Camobject.notifications.sendsms) strChecked = "checked=\"checked\"";
 
-                        html += "<tr><td>" + LocRm.GetString("SendSmsOnAlert") + "</td><td><input type=\"checkbox\"" +
-                                 disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
-                                 ",'sendsmsonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.smsnumber +
-                                 "</td></tr>";
+                        //html += "<tr><td>" + LocRm.GetString("SendSmsOnAlert") + "</td><td><input type=\"checkbox\"" +
+                        //         disabled + " onclick=\"send_changesetting(" + otid + "," + oid + "," + port +
+                        //         ",'sendsmsonalert',this.checked)\" " + strChecked + "/> " + cw.Camobject.settings.smsnumber +
+                        //         "</td></tr>";
 
                         //strChecked = "";
                         //if (cw.Camobject.notifications.sendmms) strChecked = "checked=\"checked\"";
@@ -2343,6 +2398,8 @@ namespace iSpyApplication
                                  "</td><td><input style=\"width:50px\" type=\"text\" value=\"" +
                                  cw.Camobject.alerts.minimuminterval + "\" onblur=\"send_changesetting(" + otid + "," +
                                  oid + "," + port + ",'minimuminterval',this.value)\"/> " +LocRm.GetString("Seconds")+ "</td></tr>";
+
+                        html += "<tr><td colspan=\"2\"><strong>" + LocRm.GetString("AccessGroups") + "</strong></td></tr>";
 
                         html += "<tr><td>" + LocRm.GetString("AccessGroups") +
                                  "</td><td><input style=\"width:100px\" type=\"text\" value=\"" +
@@ -2662,9 +2719,7 @@ namespace iSpyApplication
                     bytes = new byte[iTotBytes];
                     reader.BaseStream.Seek(0, SeekOrigin.Begin);
                     bytes = reader.ReadBytes(bytes.Length);
-                    reader.Close();
-                }
-                fs.Close();
+               }
             }
 
             SendHeader(sHttpVersion, "text/html", iTotBytes, " 200 OK", 20, ref mySocket);
@@ -2707,7 +2762,6 @@ namespace iSpyApplication
                         ms.Position = 0;
                         // load the byte array with the image
                         ms.Read(_cameraConnecting, 0, (int) ms.Length);
-                        ms.Close();
                     }
                 }
                 return _cameraConnecting;
@@ -2728,7 +2782,6 @@ namespace iSpyApplication
                         ms.Position = 0;
                         // load the byte array with the image
                         ms.Read(_cameraOffline, 0, (int)ms.Length);
-                        ms.Close();
                     }
                 }
                 return _cameraOffline;
@@ -2865,16 +2918,16 @@ namespace iSpyApplication
                                                                                        IntPtr.Zero);
 
                             // put the image into the memory stream
-                            var ms = new MemoryStream();
-                            myThumbnail.Save(ms, ImageFormat.Jpeg);
-                            myThumbnail.Dispose();
+                            using (var ms = new MemoryStream())
+                            {
+                                myThumbnail.Save(ms, ImageFormat.Jpeg);
+                                myThumbnail.Dispose();
 
-                            bytes = new Byte[ms.Length];
-                            ms.Position = 0;
-                            // load the byte array with the image
-                            ms.Read(bytes, 0, (int)ms.Length);
-                            ms.Close();
-                            ms.Dispose();
+                                bytes = new Byte[ms.Length];
+                                ms.Position = 0;
+                                // load the byte array with the image
+                                ms.Read(bytes, 0, (int) ms.Length);
+                            }
                         }
                         else
                         {
@@ -2885,10 +2938,6 @@ namespace iSpyApplication
                                 while ((reader.Read(bytes, 0, bytes.Length)) != 0)
                                 {
                                 }
-
-                                
-                                reader.Close();
-                                fs.Close();
                             }
                         }
                         SendHeader(sHttpVersion, "image/jpeg", bytes.Length, " 200 OK", 30, ref mySocket);
@@ -3134,6 +3183,12 @@ namespace iSpyApplication
             {
                 var cams = new List<CameraWindow>();
                 string[] camids = cameraids.Split(',');
+                bool nw = w == -1;
+                if (nw)
+                {
+                    w = 0;
+                    h = 0;
+                }
                 foreach(string c in camids)
                 {
                     if (!String.IsNullOrEmpty(c))
@@ -3141,6 +3196,11 @@ namespace iSpyApplication
                         var cw = _parent.GetCameraWindow(Convert.ToInt32(c));
                         if (cw != null)
                         {
+                            if (nw)
+                            {
+                                w += cw.Camobject.width;
+                                h += cw.Camobject.height;
+                            }
                             cams.Add(cw);
                         }
                     }
@@ -3151,6 +3211,7 @@ namespace iSpyApplication
                 }
                 int cols = Convert.ToInt32(Math.Ceiling(Math.Sqrt(cams.Count)));
                 int rows = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(cams.Count)/cols));
+                
                 int camw = Convert.ToInt32(Convert.ToDouble(w)/Convert.ToDouble(cols));
                 int camh = Convert.ToInt32(Convert.ToDouble(h) / Convert.ToDouble(rows));
 

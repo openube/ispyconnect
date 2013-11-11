@@ -42,7 +42,7 @@ namespace iSpyApplication
             
             InitializeComponent();
 
-            _mFactory = new MediaPlayerFactory();
+            _mFactory = new MediaPlayerFactory(true);
             _mPlayer = _mFactory.CreatePlayer<IDiskPlayer>();
 
             _mPlayer.Events.PlayerPositionChanged += EventsPlayerPositionChanged;
@@ -89,7 +89,7 @@ namespace iSpyApplication
             {
                 _needsSize = _filename != filename;
                 _filename = filename;
-                _mMedia = _mFactory.CreateMedia<IMedia>(filename);
+                _mMedia = _mFactory.CreateMedia<IMediaFromFile>(filename);
                 _mMedia.Events.DurationChanged += EventsDurationChanged;
                 _mMedia.Events.StateChanged += EventsStateChanged;
                 _mMedia.Events.ParsedChanged += Events_ParsedChanged;

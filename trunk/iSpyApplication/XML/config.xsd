@@ -105,6 +105,7 @@
         <xs:element name="AppendLinkText" type="xs:string"/>
         <xs:element name="StartupForm" type="xs:string" default="iSpy"/>
         <xs:element name="TrayOnMinimise" type="xs:boolean" default="true"/>
+        <xs:element name="EnableGZip" type="xs:boolean" default="true"/>
         <xs:element name="FeatureSet" type="xs:int" default="0"/>
         <xs:element name="MJPEGStreamInterval" type="xs:int" default="100"/>
         <xs:element name="AlertOnDisconnect" type="xs:string" default=""/>

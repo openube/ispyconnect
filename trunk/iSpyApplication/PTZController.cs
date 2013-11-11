@@ -337,7 +337,6 @@ namespace iSpyApplication
             if (_cameraControl.Camera == null)
                 return;
 
-            bool d;
             PTZSettings2Camera ptz = null;
             switch (_cameraControl.Camobject.ptz)
             {
@@ -479,7 +478,7 @@ namespace iSpyApplication
                     break;
             }
 
-            d = (ptz == null || ptz.Commands == null);
+            bool d = (ptz == null || ptz.Commands == null);
 
             if (!d)
             {

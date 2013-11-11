@@ -26,6 +26,22 @@ namespace iSpyApplication.Controls
         public Rectangle RestoreRect = Rectangle.Empty;
         private readonly ToolTip _toolTipFp;
         private int _ttind = -1;
+        private readonly object _lockobject = new object();
+
+        private readonly SolidBrush _alertBrush = new SolidBrush(Color.FromArgb(200, 255, 0, 0));
+        private readonly SolidBrush _noalertBrush = new SolidBrush(Color.FromArgb(200, 75, 172, 21));
+        private readonly SolidBrush _offlineBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
+
+        private readonly SolidBrush _alertBrushScanner = new SolidBrush(Color.FromArgb(50, 255, 0, 0));
+        private readonly SolidBrush _noalertBrushScanner = new SolidBrush(Color.FromArgb(50, 75, 172, 21));
+
+        private readonly SolidBrush _drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
+        private readonly SolidBrush _sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+
+        private readonly Font _drawFont = new Font(FontFamily.GenericSansSerif, 9);
+
+
+
         public Image ImgPlan
         {
             
@@ -39,17 +55,19 @@ namespace iSpyApplication.Controls
             }
             set
             {
-                lock(this)
+                lock (_lockobject)
                 {
                     if (_imgview != null)
                         _imgview.Dispose();
                     if (_imgplan != null)
                         _imgplan.Dispose();
                     _imgplan = value;
-                    _imgview = (Bitmap)_imgplan.Clone();
+                    if (_imgplan!=null)
+                        _imgview = (Bitmap)_imgplan.Clone();
                 }
             }
         }
+
 
         public Image ImgView
         {
@@ -128,6 +146,17 @@ namespace iSpyApplication.Controls
             }
             _toolTipFp.RemoveAll();
             _toolTipFp.Dispose();
+
+            _alertBrush.Dispose();
+            _noalertBrush.Dispose();
+            _offlineBrush.Dispose();
+
+            _alertBrushScanner.Dispose();
+            _noalertBrushScanner.Dispose();
+            _drawBrush.Dispose();
+            _sbTs.Dispose();
+            _drawFont.Dispose();
+            
             base.Dispose(disposing);
         }
 
@@ -445,14 +474,8 @@ namespace iSpyApplication.Controls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            // lock
             Graphics gPlan = pe.Graphics;
-            //gPlan.CompositingMode = CompositingMode.SourceCopy;
-            //gPlan.CompositingQuality = CompositingQuality.HighSpeed;
-            //gPlan.PixelOffsetMode = PixelOffsetMode.HighSpeed;
-            //gPlan.SmoothingMode = SmoothingMode.None;
-            //gPlan.InterpolationMode = InterpolationMode.Default;
-            
+
             Rectangle rc = ClientRectangle;
 
             var grabPoints = new[]
@@ -461,14 +484,11 @@ namespace iSpyApplication.Controls
                                         new Point(rc.Width, rc.Height)
                                     };
             int textpos = rc.Height - 20;
-            var drawFont = new Font(FontFamily.GenericSansSerif, 9);
 
             var grabBrush = new SolidBrush(BorderColor);
             var borderPen = new Pen(grabBrush, BorderWidth);
             
-            var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
-            var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-
+            
             try
             {
                 
@@ -476,14 +496,14 @@ namespace iSpyApplication.Controls
 
                 if (_imgview != null)
                 {
-                    lock (_imgview)
+                    lock (_lockobject)
                     {
                         gPlan.DrawImage(_imgview, rc.X + 1, rc.Y + 1, rc.Width - 2, rc.Height - 26);
 
                         gPlan.CompositingMode = CompositingMode.SourceOver;
                         gPlan.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                        gPlan.DrawString(LocRm.GetString("FloorPlan") + ": " + Fpobject.name, drawFont,
-                                    drawBrush,
+                        gPlan.DrawString(LocRm.GetString("FloorPlan") + ": " + Fpobject.name, _drawFont,
+                                    _drawBrush,
                                     new PointF(5, textpos));
                     }
                 }
@@ -498,7 +518,7 @@ namespace iSpyApplication.Controls
                 int leftpoint = Width/2 - ButtonPanelWidth/2;
                 int ypoint = Height - 24 - ButtonPanelHeight;
 
-                gPlan.FillRectangle(sbTs, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
+                gPlan.FillRectangle(_sbTs, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
 
                 gPlan.DrawString("E", MainForm.Iconfont, MainForm.IconBrush, leftpoint + ButtonOffset,
                                  ypoint + ButtonOffset);
@@ -508,13 +528,9 @@ namespace iSpyApplication.Controls
             }
 
             gPlan.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
-
             gPlan.FillPolygon(grabBrush, grabPoints);
-
-            sbTs.Dispose();
-            grabBrush.Dispose();
-            drawBrush.Dispose();
-            drawFont.Dispose();            
+            grabBrush.Dispose();  
+            borderPen.Dispose();
 
             base.OnPaint(pe);
         }
@@ -551,7 +567,7 @@ namespace iSpyApplication.Controls
                 bool alert = false;
                 lock (this)
                 {
-                    if (RefreshImage || (_imgplan == null && Fpobject.image != ""))
+                    if (RefreshImage || (_imgplan == null && !String.IsNullOrEmpty(Fpobject.image)))
                     {
                         if (_imgplan!=null)
                         {
@@ -561,6 +577,7 @@ namespace iSpyApplication.Controls
                             } catch
                             {
                             }
+                            _imgplan = null;
                         }
                         if (_imgview != null)
                         {
@@ -570,9 +587,10 @@ namespace iSpyApplication.Controls
                             }
                             catch
                             {
-                            } 
+                            }
+                            _imgview = null;
                         }
-                        Image img = Image.FromFile(Fpobject.image);
+                        var img = Image.FromFile(Fpobject.image);
                         if (!Fpobject.originalsize)
                         {
                             var rf = new ResizeBilinear(533, 400);
@@ -589,12 +607,7 @@ namespace iSpyApplication.Controls
                     if (_imgplan == null)
                         return;
 
-                    var alertBrush = new SolidBrush(Color.FromArgb(200, 255, 0, 0));
-                    var noalertBrush = new SolidBrush(Color.FromArgb(200, 75, 172, 21));
-                    var offlineBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
-
-                    var alertBrushScanner = new SolidBrush(Color.FromArgb(50, 255, 0, 0));
-                    var noalertBrushScanner = new SolidBrush(Color.FromArgb(50, 75, 172, 21));
+                    
                     
 
                     Graphics gLf = Graphics.FromImage(_imgview);
@@ -636,22 +649,22 @@ namespace iSpyApplication.Controls
                                             int offset = (fpoe.radius / 2) - 11;
                                             if (cw.Alerted)
                                             {
-                                                gLf.FillPolygon(alertBrush, points);
+                                                gLf.FillPolygon(_alertBrush, points);
 
-                                                gLf.FillPie(alertBrushScanner, p.X - offset, p.Y - offset, fpoe.radius, fpoe.radius,
+                                                gLf.FillPie(_alertBrushScanner, p.X - offset, p.Y - offset, fpoe.radius, fpoe.radius,
                                                             (float)(fpoe.angle - 180 - (fpoe.fov / 2)), fpoe.fov);
                                                 alert = true;
                                             }
                                             else
                                             {
-                                                gLf.FillPolygon(noalertBrush, points);
-                                                gLf.FillPie(noalertBrushScanner, p.X - offset, p.Y - offset, fpoe.radius, fpoe.radius,
+                                                gLf.FillPolygon(_noalertBrush, points);
+                                                gLf.FillPie(_noalertBrushScanner, p.X - offset, p.Y - offset, fpoe.radius, fpoe.radius,
                                                             (float)(fpoe.angle - 180 - (fpoe.fov / 2)), fpoe.fov);
                                             }
                                         }
                                         else
                                         {
-                                            gLf.FillPolygon(offlineBrush, points);
+                                            gLf.FillPolygon(_offlineBrush, points);
                                         }
 
                                     }
@@ -671,17 +684,17 @@ namespace iSpyApplication.Controls
                                         {
                                             if (vw.Alerted)
                                             {
-                                                gLf.FillEllipse(alertBrush, p.X - 20, p.Y - 20, 40, 40);
+                                                gLf.FillEllipse(_alertBrush, p.X - 20, p.Y - 20, 40, 40);
                                                 alert = true;
                                             }
                                             else
                                             {
-                                                gLf.FillEllipse(noalertBrush, p.X - 15, p.Y - 15, 30, 30);
+                                                gLf.FillEllipse(_noalertBrush, p.X - 15, p.Y - 15, 30, 30);
                                             }
                                         }
                                         else
                                         {
-                                            gLf.FillEllipse(offlineBrush, p.X - 15, p.Y - 15, 30, 30);
+                                            gLf.FillEllipse(_offlineBrush, p.X - 15, p.Y - 15, 30, 30);
                                         }
                                     }
                                     else
@@ -699,12 +712,6 @@ namespace iSpyApplication.Controls
                     
 
                     gLf.Dispose();
-                    alertBrush.Dispose();
-                    noalertBrush.Dispose();
-                    alertBrushScanner.Dispose();
-                    noalertBrushScanner.Dispose();
-                    offlineBrush.Dispose();
-
                 }
                 Invalidate();
                 LastRefreshTimestamp = DateTime.Now.UnixTicks();
