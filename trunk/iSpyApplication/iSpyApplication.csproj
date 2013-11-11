@@ -317,12 +317,6 @@
     <Compile Include="Audio\streams\GainHelper.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Audio\VolumeWaveProvider16.cs" />
-    <Compile Include="ConfigureNetworkMessage.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ConfigureNetworkMessage.Designer.cs">
-      <DependentUpon>ConfigureNetworkMessage.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\ActionEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -736,7 +730,6 @@
     </Compile>
     <Compile Include="Translations.cs" />
     <Compile Include="upnp.cs" />
-    <Compile Include="Video\VLCStreamOld.cs" />
     <Compile Include="VideoSource.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -975,9 +968,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AddFloorPlan.resx">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ConfigureNetworkMessage.resx">
-      <DependentUpon>ConfigureNetworkMessage.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
