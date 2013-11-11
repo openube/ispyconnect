@@ -26,6 +26,10 @@ namespace iSpyApplication.Controls
         private readonly Timer _tmrRefresh;
         public configurationGrid Cg;
 
+        private readonly Pen _pline = new Pen(Color.Gray, 2);
+        private readonly Pen _pAlert = new Pen(Color.Red, 2);
+        private readonly SolidBrush _bOverlay = new SolidBrush(Color.FromArgb(100, Color.Black));
+
         #endregion
 
 
@@ -94,18 +98,19 @@ namespace iSpyApplication.Controls
                 Invalidate();
 
             }
+
+            _pAlert.Dispose();
+            _pline.Dispose();
+            _bOverlay.Dispose();
            
             base.Dispose(disposing);
         }
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            Monitor.Enter(this);
             Graphics gGrid = pe.Graphics;
             
-            var pline = new Pen(Color.Gray, 2);
-            var pAlert = new Pen(Color.Red, 2);
-            var bOverlay = new SolidBrush(Color.FromArgb(100, Color.Black));
+            
             try
             {
                 Rectangle rc = ClientRectangle;
@@ -116,13 +121,13 @@ namespace iSpyApplication.Controls
                 for (var i = 0; i < Cg.Columns; i++)
                 {
                     var x = (i*(_itemwidth + Itempadding) - Itempadding/2);
-                    gGrid.DrawLine(pline, x, 0, x, rc.Height);
+                    gGrid.DrawLine(_pline, x, 0, x, rc.Height);
                 }
                 for (var i = 0; i < Cg.Rows; i++)
                 {
                     var y = (i*(_itemheight + Itempadding) - Itempadding/2);
 
-                    gGrid.DrawLine(pline, 0, y, rc.Width, y);
+                    gGrid.DrawLine(_pline, 0, y, rc.Width, y);
                 }
 
                 var ind = 0;
@@ -166,7 +171,7 @@ namespace iSpyApplication.Controls
                                         gGrid.DrawImage(cw.LastFrame, x, y, _itemwidth, _itemheight);
                                         if (cw.Alerted)
                                         {
-                                            gGrid.DrawRectangle(pAlert, x - 1, y - 1, _itemwidth + 2, _itemheight + 2);
+                                            gGrid.DrawRectangle(_pAlert, x - 1, y - 1, _itemwidth + 2, _itemheight + 2);
                                         }
                                     }
                                     else
@@ -179,7 +184,7 @@ namespace iSpyApplication.Controls
                                     }
                                     if (cw.Camobject != null)
                                     {
-                                        gGrid.FillRectangle(bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        gGrid.FillRectangle(_bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
                                         gGrid.DrawString(cw.Camobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
                                                          x + 5,
                                                          y + _itemheight - 16);
@@ -198,7 +203,7 @@ namespace iSpyApplication.Controls
                                     if (fp.Fpobject != null && fp.ImgPlan!=null)
                                     {
                                         gGrid.DrawImage(fp.ImgView, x, y, _itemwidth, _itemheight);
-                                        gGrid.FillRectangle(bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        gGrid.FillRectangle(_bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
                                         gGrid.DrawString(fp.Fpobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
                                                          x + 5,
                                                          y + _itemheight - 16);
@@ -225,10 +230,7 @@ namespace iSpyApplication.Controls
             {
                 MainForm.LogExceptionToFile(ex);
             }
-            Monitor.Exit(this);
-            pline.Dispose();
-            pAlert.Dispose();
-            bOverlay.Dispose();
+
             base.OnPaint(pe);
         }
 

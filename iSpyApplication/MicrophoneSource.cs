@@ -106,7 +106,7 @@ namespace iSpyApplication
             Mic.settings.decompress = true; // chkDecompress.Checked;
             Mic.settings.vlcargs = txtVLCArgs.Text.Trim();
 
-            Mic.settings.analyseduration = (int)numAnalyseDuration.Value;
+            Mic.settings.analyzeduration = (int)numAnalyseDuration.Value;
             //int samplerate;
             //if (Int32.TryParse(txtSampleRate.Text, out samplerate))
             //    Mic.settings.samples = samplerate;
@@ -218,8 +218,9 @@ namespace iSpyApplication
                 lblCamera.Text = c == null ? LocRm.GetString("Removed") : c.name;
             }
 
-            txtVLCArgs.Text = Mic.settings.vlcargs;
-            numAnalyseDuration.Value = Mic.settings.analyseduration;
+            txtVLCArgs.Text = Mic.settings.vlcargs.Replace("\r\n", "\n").Replace("\n\n", "\n").Replace("\n", Environment.NewLine);
+
+            numAnalyseDuration.Value = Mic.settings.analyzeduration;
         }
 
         private void RenderResources()
@@ -315,7 +316,7 @@ namespace iSpyApplication
                 Mic.settings.samples = afr.SampleRate;
                 Mic.settings.bits = 16;
 
-                afr.Close();
+                afr.Dispose();
                 afr = null;              
             }
             catch (Exception ex)

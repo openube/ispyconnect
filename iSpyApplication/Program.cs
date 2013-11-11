@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
+using iSpy.Video.FFMPEG;
 using iSpyApplication;
 using iSpyApplication.Video;
 using Microsoft.Win32;
@@ -13,6 +14,7 @@ internal static class Program
     //public static Mutex Mutex;
     private static string _apppath = "", _appdatapath = "";
     public static string Platform = "x86";
+    private static uint _previousExecutionState;
     public static string AppPath
     {
         get
@@ -166,10 +168,23 @@ internal static class Program
             
             WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;
-                
+            
+            var ffmpegSetup = new Init();
+            ffmpegSetup.Initialise();
+
+            _previousExecutionState = NativeCalls.SetThreadExecutionState(NativeCalls.ES_CONTINUOUS | NativeCalls.ES_SYSTEM_REQUIRED);
+            
+            
             var mf = new MainForm(silentstartup, command);
+            //iSpy.Video.FFMPEG.Init();
             Application.Run(mf);
             WriterMutex.Close();
+            ffmpegSetup.DeInitialise();
+
+            if (_previousExecutionState != 0)
+            {
+                NativeCalls.SetThreadExecutionState(_previousExecutionState);
+            }
             //WriterMutex.Dispose();
             
         }
@@ -292,7 +307,7 @@ internal static class Program
             }
             else
             {
-                if (MainForm.Conf.Enable_Error_Reporting && _reportedExceptionCount == 0 &&
+                if (MainForm.Conf.Enable_Error_Reporting && _reportedExceptionCount == 0 && e!=null && 
                     e.Exception != null && e.Exception.Message.Trim() != "")
                 {
                     if (_er == null)
@@ -305,7 +320,8 @@ internal static class Program
                     }
                 }
             }
-            MainForm.LogExceptionToFile(e.Exception);
+            if (e!=null)
+                MainForm.LogExceptionToFile(e.Exception);
         }
         catch (Exception ex2)
         {

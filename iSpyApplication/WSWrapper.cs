@@ -1,15 +1,12 @@
 using System;
 using System.Diagnostics;
-using System.Timers;
 using System.Windows.Forms;
 using iSpyApplication.iSpyWS;
-using Timer = System.Timers.Timer;
 
 namespace iSpyApplication
 {
     public static class WsWrapper
     {
-        private static Timer _reconnect;
         private static iSpySecure _wsa;
         private static string _externalIP = "";
         private static bool _websitelive = true;
@@ -24,9 +21,16 @@ namespace iSpyApplication
                 _wsa = new iSpySecure
                     {
                         Url = MainForm.WebserverSecure + "/webservices/ispysecure.asmx",
-                        Timeout = 20000,
+                        Timeout = 15000,
                     };
                 _wsa.Disposed += WsaDisposed;
+                _wsa.SyncCompleted += WsaSyncCompleted;
+                _wsa.PingAlive4Completed += WsaPingAlive4Completed;
+                _wsa.SendAlertCompleted += WsaSendAlertCompleted;
+                _wsa.SendContentCompleted += WsaSendContentCompleted;
+                _wsa.SendAlertWithImageCompleted += WsaSendAlertWithImageCompleted;
+                _wsa.SendSMSCompleted += WsaSendSMSCompleted;
+                _wsa.SendTweetCompleted += WsaSendTweetCompleted;
                 
                 return _wsa;
             }
@@ -35,26 +39,6 @@ namespace iSpyApplication
         static void WsaDisposed(object sender, EventArgs e)
         {
             _wsa = null;
-        }
-
-        public static Timer ReconnectTimer
-        {
-            get
-            {
-                if (_reconnect == null)
-                {
-                    _reconnect = new Timer { Interval = 60 * 1000 };
-                    _reconnect.Elapsed += ReconnectElapsed;
-                    _reconnect.Disposed += ReconnectDisposed;
-                }
-
-                return _reconnect;
-            }
-        }
-
-        static void ReconnectDisposed(object sender, EventArgs e)
-        {
-            _reconnect = null;
         }
 
         public static string WebservicesDisabledMessage
@@ -94,148 +78,49 @@ namespace iSpyApplication
                             MainForm.LogExceptionToFile(ex);
                         }
                     }
+                    
+                    _websitelive = true;
+
+                    if (Connect()=="OK")
+                        ForceSync();
                 }
                 _websitelive = value;
-                if (!_websitelive)
-                {
-                    if (!ReconnectTimer.Enabled)
-                    {
-                        MainForm.LogErrorToFile("Starting reconnect timer");
-                        ReconnectTimer.Start();
-                    }
-                }
             }
         }
 
-        private static void ReconnectElapsed(object sender, ElapsedEventArgs e)
+        public static void SendAlert(string emailAddress, string subject, string message)
         {
-            try
-            {
-                string s = Wsa.Ping();
-                if (s == "OK")
-                {
-                    ReconnectTimer.Stop();
-                    
-                    if (MainForm.Conf.ServicesEnabled)
-                    {
-                        MainForm.LogMessageToFile("Reconnecting...");
-                        try
-                        {
-                            s = Connect(MainForm.Conf.Loopback);
-                            if (s == "OK")
-                            {
-                                MainForm.StopAndStartServer();
-                                ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort, MainForm.MWS.GetObjectList());
-                            }
-                            WebsiteLive = true;
-                            MainForm.LogMessageToFile("Connected");
-                        }
-                        catch (Exception ex)
-                        {
-                            MainForm.LogExceptionToFile(ex);
-                            ReconnectTimer.Start();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
+            if (!Enabled)
+                return;
+            
+            Wsa.SendAlertAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
+                                        emailAddress, subject, message, Guid.NewGuid());
         }
 
-        public static string SendAlert(string emailAddress, string subject, string message)
+        public static void SendContent(string emailAddress, string subject, string message)
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
+            if (!Enabled)
+                return;
+
             if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendAlert(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                        emailAddress, subject, message);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
+            {                
+                Wsa.SendContentAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
+                                         emailAddress, subject, message,Guid.NewGuid());
             }
-            return LocRm.GetString("iSpyDown");
         }
-
-        public static string SendContent(string emailAddress, string subject, string message)
+        private static bool Enabled
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendContent(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                         emailAddress, subject, message);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
+            get { return MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed && WebsiteLive && !LoginFailed; }
         }
 
-        public static string SendAlertWithImage(string emailAddress, string subject, string message, byte[] imageData)
+        public static void SendAlertWithImage(string emailAddress, string subject, string message, byte[] imageData)
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendAlertWithImage(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                                 emailAddress, subject, message, imageData);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
-        }
+            if (!Enabled)
+                return;
 
-        public static string SendFrameGrab(string emailAddress, string subject, string message, byte[] imageData)
-        {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendFrameGrab(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                            emailAddress, subject, message, imageData);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
+            Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
+                                                emailAddress, subject, message, imageData,Guid.NewGuid());
         }
-
 
         public static string ExternalIPv4(bool refresh)
         {
@@ -283,110 +168,42 @@ namespace iSpyApplication
             return LocRm.GetString("iSpyDown");
         }
 
-        public static string SendSms(string smsNumber, string message)
+        public static void SendSms(string smsNumber, string message)
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendSMS(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, smsNumber,
-                                     message);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
+            if (!Enabled)
+                return;
+            Wsa.SendSMSAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, smsNumber, message, Guid.NewGuid());
         }
 
-        public static string SendTweet(string message)
+        public static void SendTweet(string message)
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
-            string r = "";
-            if (WebsiteLive)
-            {
-                try
-                {
-                    r = Wsa.SendTweet(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, message);
-                    if (r!="OK")
-                        MainForm.LogMessageToFile(r);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return LocRm.GetString("iSpyDown");
+            if (!Enabled)
+                return;
+            Wsa.SendTweetAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, message, Guid.NewGuid());
         }
 
-        //public static string SendMms(string mobileNumber, string message, byte[] imageData)
-        //{
-        //    if (!MainForm.Conf.ServicesEnabled)
-        //        return WebservicesDisabledMessage;
-        //    string r = "";
-        //    if (WebsiteLive)
-        //    {
-        //        try
-        //        {
-        //            r = Wsa.SendMMS(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-        //                              mobileNumber, message, imageData);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            MainForm.LogExceptionToFile(ex);
-        //            WebsiteLive = false;
-        //        }
-        //        if (WebsiteLive)
-        //            return r;
-        //    }
-        //    return LocRm.GetString("iSpyDown");
-        //}
-
-        public static bool ForceSync()
+        public static void ForceSync()
         {
-            return ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort,
-                             MainForm.MWS.GetObjectList());
+            ForceSync(MainForm.IPAddress, MainForm.Conf.LANPort, MainForm.MWS.GetObjectList());
         }
 
-        private static bool _forcesyncprocessing;
-        private static bool ForceSync(string internalIPAddress, int internalPort, string settings)
+        private static void ForceSync(string internalIPAddress, int internalPort, string settings)
         {
-            if (!MainForm.Conf.ServicesEnabled || _forcesyncprocessing)
-                return false;
-            if (WebsiteLive)
-            {
-                int port = MainForm.Conf.ServerPort;
-                if (MainForm.Conf.IPMode == "IPv6")
-                    port = MainForm.Conf.LANPort;
+            if (LoginFailed || !WebsiteLive || !MainForm.Conf.ServicesEnabled)
+                return;
+
+            MainForm.NeedsSync = false;
+            int port = MainForm.Conf.ServerPort;
+            if (MainForm.Conf.IPMode == "IPv6")
+                port = MainForm.Conf.LANPort;
                 
-                string ip = MainForm.IPAddressExternal;
-                if (WebsiteLive && !_forcesyncprocessing)
-                {
-                    Wsa.SyncCompleted+=WsaSyncCompleted;
-                    _forcesyncprocessing = true;
-                    Wsa.SyncAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
-                                        internalIPAddress, internalPort, settings, MainForm.Conf.IPMode == "IPv4", ip);
-                    return true;
-                }
-                
-            }
-            return false;
+            string ip = MainForm.IPAddressExternal;
+            Wsa.SyncAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, internalIPAddress, internalPort, settings, MainForm.Conf.IPMode == "IPv4", ip, Guid.NewGuid());
         }
 
         public static void PingServer()
         {
-            if (!MainForm.Conf.ServicesEnabled)
+            if (!MainForm.Conf.ServicesEnabled || LoginFailed)
                 return;
             
             try
@@ -395,8 +212,7 @@ namespace iSpyApplication
                 if (MainForm.Conf.IPMode == "IPv6")
                     port = MainForm.Conf.LANPort;
 
-                Wsa.PingAlive4Completed += WsaPingAlive4Completed;
-                Wsa.PingAlive4Async(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.IPAddress);
+                Wsa.PingAlive4Async(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.IPAddress, Guid.NewGuid());
 
             }
             catch (Exception ex)
@@ -410,14 +226,13 @@ namespace iSpyApplication
 
         static void WsaPingAlive4Completed(object sender, PingAlive4CompletedEventArgs e)
         {
-            bool islive = WebsiteLive;
             if (e.Error == null)
             {
                 string[] r = e.Result;
                 
                 if (r.Length > 1)
                 {
-                    WebsiteLive = true;
+                    
                     if (MainForm.Conf.ServicesEnabled)
                     {
                         if (!MainForm.MWS.Running)
@@ -425,6 +240,9 @@ namespace iSpyApplication
                             MainForm.StopAndStartServer();
                         }
                     }
+                    
+                    WebsiteLive = true;
+
                     if (MainForm.Conf.IPMode == "IPv4")
                         _externalIP = r[1];
                 }
@@ -437,23 +255,61 @@ namespace iSpyApplication
             {
                 WebsiteLive = false;
             }
-            if (!islive && WebsiteLive)
+        }
+
+        static void WsaSendAlertCompleted(object sender, SendAlertCompletedEventArgs e)
+        {
+            if (e.Error != null)
             {
-                Connect();
-                ForceSync();
+                MainForm.LogExceptionToFile(e.Error);
             }
+
+        }
+
+        static void WsaSendContentCompleted(object sender, SendContentCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MainForm.LogExceptionToFile(e.Error);
+            }
+
+        }
+
+        static void WsaSendAlertWithImageCompleted(object sender, SendAlertWithImageCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MainForm.LogExceptionToFile(e.Error);
+            }
+
+        }
+
+        static void WsaSendSMSCompleted(object sender, SendSMSCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MainForm.LogExceptionToFile(e.Error);
+            }
+
+        }
+
+        static void WsaSendTweetCompleted(object sender, SendTweetCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                MainForm.LogExceptionToFile(e.Error);
+            }
+
         }
 
         static void WsaSyncCompleted(object sender, SyncCompletedEventArgs e)
         {
-            _forcesyncprocessing = false;
             if (e.Error != null)
             {
                 WebsiteLive = false;
-            }
-            else
-                if (e.Result=="OK")
-                    WebsiteLive = true;
+                MainForm.NeedsSync = true;
+                MainForm.LogExceptionToFile(e.Error);
+            }               
         }
 
         public static string Disconnect()

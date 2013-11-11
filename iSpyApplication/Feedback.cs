@@ -70,7 +70,7 @@ namespace iSpyApplication
 
         private static bool IsValidEmail(string email)
         {
-            if (email.IndexOf("@") == -1 || email.IndexOf(".") == -1 || email.Length < 5)
+            if (email.IndexOf("@", StringComparison.Ordinal) == -1 || email.IndexOf(".", StringComparison.Ordinal) == -1 || email.Length < 5)
                 return false;
             return true;
         }

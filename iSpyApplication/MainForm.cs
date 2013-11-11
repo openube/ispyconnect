@@ -763,7 +763,7 @@ namespace iSpyApplication
                        };
             _fsw.Changed += FswChanged;
             _fsw.EnableRaisingEvents = true;
-            GC.KeepAlive(_fsw);
+            //GC.KeepAlive(_fsw);
 
 
             Menu = mainMenu;
@@ -790,7 +790,7 @@ namespace iSpyApplication
                 }
             }
 
-            GC.KeepAlive(MWS);
+            //GC.KeepAlive(MWS);
 
             SetBackground();
 
@@ -840,13 +840,13 @@ namespace iSpyApplication
             _updateTimer.Elapsed += UpdateTimerElapsed;
             _updateTimer.AutoReset = true;
             _updateTimer.SynchronizingObject = this;
-            GC.KeepAlive(_updateTimer);
+            //GC.KeepAlive(_updateTimer);
 
             _houseKeepingTimer = new Timer(1000);
             _houseKeepingTimer.Elapsed += HouseKeepingTimerElapsed;
             _houseKeepingTimer.AutoReset = true;
             _houseKeepingTimer.SynchronizingObject = this;
-            GC.KeepAlive(_houseKeepingTimer);
+            //GC.KeepAlive(_houseKeepingTimer);
 
             //load plugins
             var plugindir = new DirectoryInfo(Program.AppPath + "Plugins");
@@ -1092,7 +1092,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                LogExceptionToFile(ex);
+                //LogExceptionToFile(ex);
                 _cputotalCounter = null;
             }
 
@@ -1420,6 +1420,15 @@ namespace iSpyApplication
                 _counters = "Stats Unavailable - See Log File";
             }
 
+            if (_lastOver>DateTime.MinValue)
+            {
+                if (_lastOver<DateTime.Now.AddSeconds(-4))
+                {
+                    tsslMediaInfo.Text = "";
+                    _lastOver = DateTime.MinValue;
+                }
+            }
+
             _pingCounter++;
 
             if (NeedsMediaRefresh > DateTime.MinValue && NeedsMediaRefresh<DateTime.Now.AddSeconds(-3))
@@ -1490,37 +1499,24 @@ namespace iSpyApplication
 
                 if (Conf.ServicesEnabled && !WsWrapper.LoginFailed)
                 {
-                    try
+                    if (NeedsSync)
                     {
-                        if (NeedsSync)
-                        {
-                            DateTime dt = _syncLastRequested;
-                            if (WsWrapper.ForceSync())
-                            {
-                                if (dt == _syncLastRequested)
-                                    NeedsSync = false;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        LogExceptionToFile(ex);
+                        WsWrapper.ForceSync();
                     }
 
-
-                    if (_pingCounter == 180)
+                    if (_pingCounter == 180 || (!WsWrapper.WebsiteLive && _pingCounter % 60 == 0))
                     {
                         WsWrapper.PingServer();
                     }
                 }
 
                 
-                    _storageCounter++;
-                    if (_storageCounter == 3600) // every hour
-                    {
-                        RunStorageManagement();
-                        _storageCounter = 0;
-                    }
+                _storageCounter++;
+                if (_storageCounter == 3600) // every hour
+                {
+                    RunStorageManagement();
+                    _storageCounter = 0;
+                }
                 
 
                 if (_pingCounter == 80)

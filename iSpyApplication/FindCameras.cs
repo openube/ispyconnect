@@ -670,7 +670,8 @@ namespace iSpyApplication
                         //test this url
                         if (!SendHTTPReq(addr, u.cookies, login, password))
                         {
-                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j));
+                            int j1 = j;
+                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j1));
                             j--;
                         }
                         break;
@@ -679,7 +680,8 @@ namespace iSpyApplication
                         UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
                         if (!SendRTSPReq(addr, login, password))
                         {
-                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j));
+                            int j1 = j;
+                            UISync.Execute(() => pnlOptions.Controls.RemoveAt(j1));
                             j--;
                         }
                         break;

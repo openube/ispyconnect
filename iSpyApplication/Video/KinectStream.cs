@@ -626,6 +626,9 @@ namespace iSpyApplication.Video
                 _stopEvent.Set();
                 Thread.Sleep(500);
                 _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+                
             }
 
             try

@@ -96,8 +96,8 @@ namespace iSpyApplication
             if (lbManualAlerts.SelectedIndex > -1)
             {
                 string al = lbManualAlerts.SelectedItem.ToString();
-                al = al.Substring(0, al.IndexOf(":")).Trim();
-                objectsCommand oc = MainForm.RemoteCommands.Where(p => p.id == Convert.ToInt32(al)).FirstOrDefault();
+                al = al.Substring(0, al.IndexOf(":", StringComparison.Ordinal)).Trim();
+                objectsCommand oc = MainForm.RemoteCommands.FirstOrDefault(p => p.id == Convert.ToInt32(al));
                 if (oc != null)
                 {
                     MainForm.RemoteCommands.Remove(oc);
@@ -135,8 +135,8 @@ namespace iSpyApplication
             if (lbManualAlerts.SelectedIndex>-1)
             {
                string al = lbManualAlerts.SelectedItem.ToString();
-                al = al.Substring(0, al.IndexOf(":")).Trim();
-                objectsCommand oc = MainForm.RemoteCommands.Where(p => p.id == Convert.ToInt32(al)).FirstOrDefault();
+                al = al.Substring(0, al.IndexOf(":", StringComparison.Ordinal)).Trim();
+                objectsCommand oc = MainForm.RemoteCommands.FirstOrDefault(p => p.id == Convert.ToInt32(al));
                 if (oc != null)
                 {
                     lblCommand.Text = oc.command;

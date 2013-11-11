@@ -8,6 +8,7 @@ using System.Threading;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using iSpyApplication.Audio;
+using iSpyApplication.Audio.streams;
 
 namespace iSpyPlugin.Audio.streams
 {
@@ -217,7 +218,10 @@ namespace iSpyPlugin.Audio.streams
                     Debug.WriteLine("Exiting");
                     // was doing this in a finally block, but for some reason
                     // we are hanging on response stream .Dispose so never get there
-                    decompressor.Dispose();
+                    if (decompressor != null) { 
+                        decompressor.Dispose();
+                        decompressor = null;
+                    }
                 }
             }
             finally
@@ -270,7 +274,11 @@ namespace iSpyPlugin.Audio.streams
             _thread = null;
 
             // release events
-            _stopEvent.Close();
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+            }
             _stopEvent = null;
         }
 

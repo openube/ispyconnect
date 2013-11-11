@@ -1,6 +1,6 @@
 namespace iSpyApplication.Controls
 {
-    partial class AngleSelector
+    sealed partial class AngleSelector
     {
         /// <summary> 
         /// Required designer variable.

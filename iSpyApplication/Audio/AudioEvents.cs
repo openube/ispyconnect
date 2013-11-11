@@ -48,14 +48,14 @@ namespace iSpyApplication.Audio
     /// 
     public class DataAvailableEventArgs : EventArgs
     {
-        private byte[] raw;
+        private readonly byte[] _raw;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAvailableEventArgs"/> class.
         /// </summary>
         public DataAvailableEventArgs(byte[] raw)
         {
-            this.raw = raw;
+            _raw = raw;
         }
 
         /// <summary>
@@ -64,20 +64,20 @@ namespace iSpyApplication.Audio
         /// 
         public byte[] RawData
         {
-            get { return raw; }
+            get { return _raw; }
         }
     }
 
     public class LevelChangedEventArgs : EventArgs
     {
-        private float[] maxsamples;
+        private readonly float[] _maxsamples;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAvailableEventArgs"/> class.
         /// </summary>
         public LevelChangedEventArgs(float[] maxsamples)
         {
-            this.maxsamples = maxsamples;
+            _maxsamples = maxsamples;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace iSpyApplication.Audio
         /// 
         public float[] MaxSamples
         {
-            get { return maxsamples; }
+            get { return _maxsamples; }
         }
     }
 
@@ -96,7 +96,7 @@ namespace iSpyApplication.Audio
     /// 
     public class AudioSourceErrorEventArgs : EventArgs
     {
-        private string description;
+        private readonly string _description;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AudioSourceErrorEventArgs"/> class.
@@ -106,7 +106,7 @@ namespace iSpyApplication.Audio
         /// 
         public AudioSourceErrorEventArgs(string description)
         {
-            this.description = description;
+            _description = description;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace iSpyApplication.Audio
         /// 
         public string Description
         {
-            get { return description; }
+            get { return _description; }
         }
     }
 }

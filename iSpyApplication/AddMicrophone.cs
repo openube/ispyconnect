@@ -61,7 +61,6 @@ namespace iSpyApplication
                 VolumeLevel.CameraControl.IsEdit = true;
             
             btnBack.Enabled = false;
-            gpbSubscriber.Enabled = MainForm.Conf.Subscribed;
             txtMicrophoneName.Text = VolumeLevel.Micobject.name;
             tbSensitivity.Value = VolumeLevel.Micobject.detector.sensitivity;
             //tbGain.Value = (int)(VolumeLevel.Micobject.settings.gain * 100);
@@ -70,19 +69,12 @@ namespace iSpyApplication
             rdoRecordDetect.Checked = VolumeLevel.Micobject.detector.recordondetect;
             rdoRecordAlert.Checked = VolumeLevel.Micobject.detector.recordonalert;
             rdoNoRecord.Checked = !rdoRecordDetect.Checked && !rdoRecordAlert.Checked;
-            txtExecuteAudio.Text = VolumeLevel.Micobject.alerts.executefile;
 
             if (VolumeLevel.Micobject.alerts.mode == "sound")
                 rdoMovement.Checked = true;
             else
                 rdoNoMovement.Checked = true;
 
-            chkSendEmailSound.Checked = VolumeLevel.Micobject.notifications.sendemail;
-            chkSendSMSMovement.Checked = VolumeLevel.Micobject.notifications.sendsms;
-
-            
-            txtEmailAlert.Text = VolumeLevel.Micobject.settings.emailaddress;
-            txtSMSNumber.Text = VolumeLevel.Micobject.settings.smsnumber;
             chkSchedule.Checked = VolumeLevel.Micobject.schedule.active;
             chkActive.Checked = VolumeLevel.Micobject.settings.active;
 
@@ -112,9 +104,7 @@ namespace iSpyApplication
             }
 
 
-            string[] alertOptions = VolumeLevel.Micobject.alerts.alertoptions.Split(','); //beep,restore
-            chkBeep.Checked = Convert.ToBoolean(alertOptions[0]);
-            chkRestore.Checked = Convert.ToBoolean(alertOptions[1]);
+            
             Text = LocRm.GetString("EditMicrophone");
             if (VolumeLevel.Micobject.id > -1)
                 Text += string.Format(" (ID: {0}, DIR: {1})", VolumeLevel.Micobject.id, VolumeLevel.Micobject.directory);
@@ -131,15 +121,12 @@ namespace iSpyApplication
 
             ddlHourStart.SelectedIndex =
                 ddlHourEnd.SelectedIndex = ddlMinuteStart.SelectedIndex = ddlMinuteEnd.SelectedIndex = 0;
-            linkLabel5.Visible = !(MainForm.Conf.Subscribed);
+            
             ShowSchedule(-1);
-            chkEmailOnDisconnect.Checked = VolumeLevel.Micobject.settings.notifyondisconnect;
-            txtArguments.Text = VolumeLevel.Micobject.alerts.arguments;
-
+            
             txtAccessGroups.Text = VolumeLevel.Micobject.settings.accessgroups;
             txtDirectory.Text = VolumeLevel.Micobject.directory;
-
-            chkTwitter.Checked = VolumeLevel.Micobject.notifications.sendtwitter;
+            
 
             tblStorage.Enabled = chkStorageManagement.Checked = VolumeLevel.Micobject.settings.storagemanagement.enabled;
             numMaxAge.Value = VolumeLevel.Micobject.settings.storagemanagement.maxage;
@@ -184,31 +171,25 @@ namespace iSpyApplication
 
 
 
-            string t = VolumeLevel.Micobject.alerts.trigger ?? "";
             string t2 = VolumeLevel.Micobject.recorder.trigger ?? "";
 
-            ddlTrigger.Items.Add(new ListItem("None", ""));
+            
             ddlTriggerRecording.Items.Add(new ListItem("None", ""));
 
             foreach (var c in MainForm.Cameras.Where(p => p.settings.micpair!=VolumeLevel.Micobject.id))
             {   
-                ddlTrigger.Items.Add(new ListItem(c.name, "2," + c.id));
                 ddlTriggerRecording.Items.Add(new ListItem(c.name, "2," + c.id));   
             }
             foreach (var c in MainForm.Microphones.Where(p=>p.id != VolumeLevel.Micobject.id))
             {
-                ddlTrigger.Items.Add(new ListItem(c.name, "1," + c.id));
                 ddlTriggerRecording.Items.Add(new ListItem(c.name, "1," + c.id));
             }
-            foreach (ListItem li in ddlTrigger.Items)
+            foreach (ListItem li in ddlTriggerRecording.Items)
             {
-                if (li.Value == t)
-                    ddlTrigger.SelectedItem = li;
                 if (li.Value == t2)
                     ddlTriggerRecording.SelectedItem = li;
             }
-            if (ddlTrigger.SelectedIndex == -1)
-                ddlTrigger.SelectedIndex = 0;
+
             if (ddlTriggerRecording.SelectedIndex == -1)
                 ddlTriggerRecording.SelectedIndex = 0;
 
@@ -217,23 +198,31 @@ namespace iSpyApplication
                 txtBuffer.Enabled = false;
                 toolTip1.SetToolTip(txtBuffer,"Change the buffer on the paired camera to update");
             }
+
+            actionEditor1.Init(VolumeLevel.Micobject.alertevents);
+            actionEditor1.LoginRequested += ActionEditor1LoginRequested;
+
+            chkNotifyDisconnect.Checked = VolumeLevel.Micobject.settings.notifyondisconnect;
+
             _loaded = true;
 
+        }
+
+        void ActionEditor1LoginRequested(object sender, EventArgs e)
+        {
+            Login();
         }
 
         private void RenderResources()
         {
             btnBack.Text = LocRm.GetString("Back");
             btnDelete.Text = LocRm.GetString("Delete");
-            btnDetectSound.Text = LocRm.GetString("chars_3014702301470230147");
             btnFinish.Text = LocRm.GetString("Finish");
             btnNext.Text = LocRm.GetString("Next");
             btnSelectSource.Text = LocRm.GetString("chars_3014702301470230147");
             btnUpdate.Text = LocRm.GetString("Update");
             button2.Text = LocRm.GetString("Add");
             chkActive.Text = LocRm.GetString("MicrophoneActive");
-            chkBeep.Text = LocRm.GetString("Beep");
-            chkEmailOnDisconnect.Text = LocRm.GetString("SendEmailOnDisconnect");
             chkFri.Text = LocRm.GetString("Fri");
             chkMon.Text = LocRm.GetString("Mon");
             groupBox1.Text = LocRm.GetString("RecordingSettings");
@@ -243,24 +232,19 @@ namespace iSpyApplication
             rdoRecordAlert.Text = LocRm.GetString("RecordOnAlert");
             rdoNoRecord.Text = LocRm.GetString("NoRecord");
             chkRecordSchedule.Text = LocRm.GetString("RecordOnScheduleStart");
-            chkRestore.Text = LocRm.GetString("ShowIspyWindow");
             chkSat.Text = LocRm.GetString("Sat");
             chkSchedule.Text = LocRm.GetString("ScheduleMicrophone");
             chkScheduleActive.Text = LocRm.GetString("ScheduleActive");
             chkScheduleAlerts.Text = LocRm.GetString("AlertsEnabled");
             chkScheduleRecordOnDetect.Text = LocRm.GetString("RecordOnDetect");
             chkRecordAlertSchedule.Text = LocRm.GetString("RecordOnAlert");
-            chkSendEmailSound.Text = LocRm.GetString("SendEmailOnAlert");
-            chkSendSMSMovement.Text = LocRm.GetString("SendSmsOnAlert");
             chkSound.Text = LocRm.GetString("AlertsEnabled");
             chkSun.Text = LocRm.GetString("Sun");
             chkThu.Text = LocRm.GetString("Thu");
             chkTue.Text = LocRm.GetString("Tue");
             chkWed.Text = LocRm.GetString("Wed");
-            gpbSubscriber.Text = LocRm.GetString("WebServiceOptions");
             label1.Text = LocRm.GetString("Name");
             label10.Text = label18.Text = LocRm.GetString("chars_3801146");
-            label11.Text = LocRm.GetString("SmsNumber");
             label12.Text = LocRm.GetString("MaxRecordTime");
             label13.Text = LocRm.GetString("Seconds");
             label14.Text = LocRm.GetString("Seconds");
@@ -273,12 +257,10 @@ namespace iSpyApplication
             label21.Text = LocRm.GetString("ExitThisToEnableAlertsAnd");
             label3.Text = LocRm.GetString("Sensitivity");
             label4.Text = LocRm.GetString("WhenSound");
-            label45.Text = LocRm.GetString("EmailAddress");
             label48.Text = LocRm.GetString("Seconds");
             label49.Text = LocRm.GetString("Days");
             label5.Text = LocRm.GetString("Seconds");
             label50.Text = LocRm.GetString("ImportantMakeSureYourSche");
-            label6.Text = LocRm.GetString("ExecuteFile");
             label8.Text = LocRm.GetString("Start");
 
             label9.Text = LocRm.GetString("chars_3801146");
@@ -286,8 +268,6 @@ namespace iSpyApplication
             label10.Text = LocRm.GetString("Stop");
 
             lblAudioSource.Text = LocRm.GetString("Audiosource");
-            linkLabel1.Text = LocRm.GetString("HowToEnterYourNumber");
-            linkLabel5.Text = LocRm.GetString("YouNeedAnActiveSubscripti");
             rdoMovement.Text = LocRm.GetString("IsDetectedFor");
             rdoNoMovement.Text = LocRm.GetString("IsNotDetectedFor");
             tabPage1.Text = LocRm.GetString("Microphone");
@@ -302,24 +282,16 @@ namespace iSpyApplication
             toolTip1.SetToolTip(txtBuffer, LocRm.GetString("ToolTip_BufferAudio"));
             toolTip1.SetToolTip(lbSchedule, LocRm.GetString("ToolTip_PressDelete"));
             llblHelp.Text = LocRm.GetString("help");
-            label72.Text = LocRm.GetString("arguments");
             lblAccessGroups.Text = LocRm.GetString("AccessGroups");
             label74.Text = LocRm.GetString("Directory");
 
             LocRm.SetString(label23,"Listen");
-            LocRm.SetString(chkTwitter, "MessageOnAlert");
-            LocRm.SetString(linkLabel12, "AuthoriseTwitter");
             LocRm.SetString(label22, "TriggerRecording");
 
             HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Storage));
-
-            if (!Helper.HasFeature(Enums.Features.Web_Settings))
-            {
-                gpbSubscriber.Visible = linkLabel5.Visible = false;
-            }
         }
 
         private void HideTab(TabPage t, bool show)
@@ -380,35 +352,7 @@ namespace iSpyApplication
             if (CheckStep1())
             {
                 string err = "";
-                if (chkSendSMSMovement.Checked && MainForm.Conf.ServicesEnabled &&
-                    txtSMSNumber.Text.Trim() == "")
-                    err += LocRm.GetString("Validate_Camera_MobileNumber") + Environment.NewLine;
-
-                string[] smss = txtSMSNumber.Text.Trim().Replace(" ", "").Split(';');
-                string sms = "";
-                foreach (string s in smss)
-                {
-                    string sms2 = s.Trim();
-                    if (!String.IsNullOrEmpty(sms2))
-                    {
-                        if (sms2.StartsWith("00"))
-                            sms2 = sms2.Substring(2);
-                        if (sms2.StartsWith("+"))
-                            sms2 = sms2.Substring(1);
-                        if (sms2 != "")
-                        {
-                            sms += sms2 + ";";
-                            if (!IsNumeric(sms2))
-                            {
-                                err += LocRm.GetString("Validate_Camera_SMSNumbers") + Environment.NewLine;
-                                break;
-                            }
-
-                        }
-                    }
-                }
-                sms = sms.Trim(';');
-
+                
                 int nosoundinterval;
                 if (!int.TryParse(txtNoSound.Text, out nosoundinterval))
                     err += LocRm.GetString("Validate_Microphone_NoSound") + Environment.NewLine;
@@ -416,21 +360,6 @@ namespace iSpyApplication
                 if (!int.TryParse(txtSound.Text, out soundinterval))
                     err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
 
-                string email = txtEmailAlert.Text.Replace(" ", "");
-                if (email != "" && !email.IsValidEmail())
-                {
-                    err += LocRm.GetString("Validate_Camera_EmailAlerts") + Environment.NewLine;
-                }
-                
-                if (email == "")
-                {
-                    chkSendEmailSound.Checked = false;
-                    chkEmailOnDisconnect.Checked = false;
-                }
-                if (sms == "")
-                {
-                    chkSendSMSMovement.Checked = false;
-                }
 
                 if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 || txtMinimumInterval.Text.Length < 1 ||
                     txtMaxRecordTime.Text.Length < 1)
@@ -453,18 +382,13 @@ namespace iSpyApplication
                 VolumeLevel.Micobject.name = txtMicrophoneName.Text.Trim();
                 VolumeLevel.Micobject.detector.sensitivity = tbSensitivity.Value;
                 VolumeLevel.Micobject.alerts.active = chkSound.Checked;
-                VolumeLevel.Micobject.alerts.executefile = txtExecuteAudio.Text;
-                VolumeLevel.Micobject.alerts.alertoptions = chkBeep.Checked + "," + chkRestore.Checked;
+                
                 VolumeLevel.Micobject.alerts.mode = "sound";
                 if (rdoNoMovement.Checked)
                     VolumeLevel.Micobject.alerts.mode = "nosound";
                 VolumeLevel.Micobject.detector.nosoundinterval = nosoundinterval;
                 VolumeLevel.Micobject.detector.soundinterval = soundinterval;
-                VolumeLevel.Micobject.notifications.sendemail = chkSendEmailSound.Checked;
-                VolumeLevel.Micobject.notifications.sendsms = chkSendSMSMovement.Checked;
-                VolumeLevel.Micobject.settings.smsnumber = sms;
-                VolumeLevel.Micobject.settings.emailaddress = email;
-
+                
                 VolumeLevel.Micobject.schedule.active = chkSchedule.Checked;
                 VolumeLevel.Micobject.width = VolumeLevel.Width;
                 VolumeLevel.Micobject.height = VolumeLevel.Height;
@@ -472,11 +396,7 @@ namespace iSpyApplication
                 VolumeLevel.Micobject.settings.active = chkActive.Checked;
                 VolumeLevel.Micobject.detector.recordondetect = rdoRecordDetect.Checked;
                 VolumeLevel.Micobject.detector.recordonalert = rdoRecordAlert.Checked;
-                VolumeLevel.Micobject.notifications.sendtwitter = chkTwitter.Checked;
-                VolumeLevel.Micobject.settings.notifyondisconnect = chkEmailOnDisconnect.Checked;
-
-                VolumeLevel.Micobject.alerts.arguments = txtArguments.Text;
-
+                
                 VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
                 VolumeLevel.Micobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
 
@@ -491,12 +411,11 @@ namespace iSpyApplication
                 }
 
                 VolumeLevel.Micobject.directory = txtDirectory.Text;
-
-                VolumeLevel.Micobject.alerts.trigger = ((ListItem)ddlTrigger.SelectedItem).Value;
                 VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
                 VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
                 VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
+                VolumeLevel.Micobject.settings.notifyondisconnect = chkNotifyDisconnect.Checked;
 
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
@@ -515,27 +434,6 @@ namespace iSpyApplication
             VolumeLevel.Micobject.alerts.active = chkSound.Checked;
         }
 
-        private void BtnDetectMovementClick(object sender, EventArgs e)
-        {
-            ofdDetect.FileName = "";
-            var initpath = Program.AppPath + @"sounds\";
-            if (txtExecuteAudio.Text.Trim() != "")
-            {
-                try
-                {
-                    var fi = new FileInfo(txtExecuteAudio.Text);
-                    initpath = fi.DirectoryName;
-                }
-                catch { }
-            }
-            ofdDetect.InitialDirectory = initpath;
-            ofdDetect.ShowDialog(this);
-            if (ofdDetect.FileName != "")
-            {
-                txtExecuteAudio.Text = ofdDetect.FileName;
-            }
-        }
-
         private void ChkScheduleCheckedChanged(object sender, EventArgs e)
         {
             pnlScheduler.Enabled = chkSchedule.Checked;
@@ -548,14 +446,7 @@ namespace iSpyApplication
             VolumeLevel.Micobject.name = txtMicrophoneName.Text;
         }
 
-        private void ChkSendSmsMovementCheckedChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void ChkSendEmailSoundCheckedChanged(object sender, EventArgs e)
-        {
-        }
-
+        
         private void AddMicrophoneFormClosing(object sender, FormClosingEventArgs e)
         {
             VolumeLevel.IsEdit = false;
@@ -699,15 +590,9 @@ namespace iSpyApplication
                 lbSchedule.SelectedIndex = selectedIndex;
         }
 
-        private void LinkLabel5LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Login();
-        }
-
         private void Login()
         {
             ((MainForm) Owner).Connect(MainForm.Website+"/subscribe.aspx", false);
-            gpbSubscriber.Enabled = MainForm.Conf.Subscribed;
         }
 
 
@@ -770,11 +655,6 @@ namespace iSpyApplication
                     chkScheduleAlerts.Checked = sched.alerts;
                 }
             }
-        }
-
-        private void LinkLabel1LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Website + "/countrycodes.aspx");
         }
 
         private void BtnUpdateClick(object sender, EventArgs e)
@@ -866,11 +746,6 @@ namespace iSpyApplication
             }
         }
 
-        private void linkLabel12_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl(MainForm.Webserver+"/account.aspx?task=twitter-auth");
-        }
-
         private void tmrUpdateSourceDetails_Tick(object sender, EventArgs e)
         {
             if (VolumeLevel.Micobject.settings.needsupdate)
@@ -908,17 +783,6 @@ namespace iSpyApplication
             }
         }
 
-        private void ddlTrigger_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tbGain_Scroll(object sender, EventArgs e)
-        {
-            //if (VolumeLevel.AudioSource!=null)
-            //    VolumeLevel.Gain = tbGain.Value/100f;
-        }
-
         private void chkStorageManagement_CheckedChanged(object sender, EventArgs e)
         {
             tblStorage.Enabled = chkStorageManagement.Checked;
@@ -931,6 +795,23 @@ namespace iSpyApplication
             VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
 
             ((MainForm)Owner).RunStorageManagement();
+        }
+
+        private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
+        }
+
+        private void chkNotifyDisconnect_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkNotifyDisconnect.Checked && _loaded)
+            {
+                if (!MainForm.Conf.Subscribed)
+                {
+                    Login();
+                    chkNotifyDisconnect.Checked = false;
+                }
+            }
         }
 
     }

@@ -428,8 +428,6 @@ namespace iSpyApplication.MP3Stream
     /// All this information should be made available to the user of your product 
     /// through a dialog box or something similar.
     /// </summary>
-    /// <param name="pbeVersion"Where version number, release date and URL for homepage 
-    /// is returned.</param>
     [DllImport(@"Lame_enc.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void beVersion([Out] BE_VERSION pbeVersion);
     [DllImport(@"Lame_enc.dll", CallingConvention = CallingConvention.Cdecl, CharSet=CharSet.Ansi)]

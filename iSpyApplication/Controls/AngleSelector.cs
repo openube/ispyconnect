@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
 {
-    public partial class AngleSelector : UserControl
+    public sealed partial class AngleSelector : UserControl
     {
         public int Maximum;
         public int Minimum;

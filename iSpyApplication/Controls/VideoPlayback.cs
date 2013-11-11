@@ -135,9 +135,10 @@ namespace iSpyApplication.Controls
                 }
             }
         }
+        private readonly object _frameLock = new object();
         protected override void OnPaint(PaintEventArgs pe)
         {
-            lock(this)
+            lock (_frameLock)
             {
                 Graphics gCam = pe.Graphics;
 

@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Media;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -87,6 +89,7 @@ namespace iSpyApplication.Controls
         public string AudioSourceErrorMessage = "";
         private bool _audioSourceErrorState;
         public bool LoadedFiles;
+        internal Color BackgroundColor = MainForm.BackgroundColor;
 
         public bool AudioSourceErrorState
         {
@@ -724,7 +727,7 @@ namespace iSpyApplication.Controls
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
-            BackColor = MainForm.BackgroundColor;
+            BackgroundColor = MainForm.BackgroundColor;
             Micobject = om;
 
             _toolTipMic = new ToolTip { AutomaticDelay = 500, AutoPopDelay = 1500 };
@@ -753,7 +756,7 @@ namespace iSpyApplication.Controls
                         if (AudioSourceErrorState)
                             UpdateFloorplans(false);
                         AudioSourceErrorState = false;
-                    }    
+                    }
                 }
                 
 
@@ -800,6 +803,12 @@ namespace iSpyApplication.Controls
             _lastRun = DateTime.Now.Ticks;
             _secondCount += ts.Milliseconds/1000.0;
 
+            if (Micobject.schedule.active)
+            {
+                if (CheckSchedule()) goto skip;
+            }
+
+            if (!Micobject.settings.active) goto skip;
 
             if (FlashCounter <= 5)
             {
@@ -830,11 +839,10 @@ namespace iSpyApplication.Controls
             {
                 reset = FlashBackground();
             }
-
             if (reset)
-                BackColor = MainForm.BackgroundColor;
+                BackgroundColor = MainForm.BackgroundColor;
 
-            if (_secondCount > 1) //approx every second
+            if (_secondCount > 1 && Micobject.settings.active) //every second
             {
                 if (CheckReconnect()) goto skip;
 
@@ -847,12 +855,7 @@ namespace iSpyApplication.Controls
                     InactiveRecord += _secondCount;
                 }
 
-                if (Micobject.schedule.active)
-                {
-                    if (CheckSchedule()) goto skip;
-                }
-
-                if (Micobject.settings.active && _levels!=null)
+                if (_levels!=null)
                 {
                     CheckVLCTimeStamp();
 
@@ -878,9 +881,9 @@ namespace iSpyApplication.Controls
             bool reset = true;
             if (FlashCounter > 0 && _isTrigger)
             {
-                BackColor = (BackColor == MainForm.ActivityColor)
-                                ? MainForm.BackgroundColor
-                                : MainForm.ActivityColor;
+                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                     ? MainForm.BackgroundColor
+                                     : MainForm.ActivityColor;
                 reset = false;
             }
             else
@@ -890,20 +893,30 @@ namespace iSpyApplication.Controls
                     case "sound":
                         if (FlashCounter > 0)
                         {
-                            BackColor = (BackColor == MainForm.ActivityColor)
-                                            ? MainForm.BackgroundColor
-                                            : MainForm.ActivityColor;
+                            BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                  ? MainForm.BackgroundColor
+                                                  : MainForm.ActivityColor;
                             reset = false;
                         }
                         break;
                     case "nosound":
                         if (!SoundDetected)
                         {
-                            BackColor = (BackColor == MainForm.NoActivityColor)
-                                            ? MainForm.BackgroundColor
-                                            : MainForm.NoActivityColor;
+                            BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
+                                                  ? MainForm.BackgroundColor
+                                                  : MainForm.NoActivityColor;
                             reset = false;
                         }
+                        break;
+                    default:
+                        if (FlashCounter > 0)
+                        {
+                            BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                  ? MainForm.BackgroundColor
+                                                  : MainForm.ActivityColor;
+                            reset = false;
+                        }
+
                         break;
                 }
             }
@@ -920,20 +933,25 @@ namespace iSpyApplication.Controls
                     if (ReconnectCount > Micobject.settings.reconnectinterval)
                     {
                         IsReconnect = true;
-                        lock (this)
+
+                        try
                         {
                             AudioSource.Stop();
                         }
-                        while (AudioSource.IsRunning)
+                        catch(Exception ex)
                         {
-                            Thread.Sleep(100);
+                            MainForm.LogExceptionToFile(ex);
                         }
-                        Application.DoEvents();
 
-                        lock (this)
+                        try
                         {
                             AudioSource.Start();
                         }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+
                         IsReconnect = false;
                         ReconnectCount = 0;
                     }
@@ -957,8 +975,7 @@ namespace iSpyApplication.Controls
                     message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
 
 
-                    if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
-                        WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
+                    WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
 
                     _errorTime = DateTime.MinValue;
                 }
@@ -1089,7 +1106,7 @@ namespace iSpyApplication.Controls
                 var vlc = AudioSource as VLCStream;
                 if (vlc != null)
                 {
-                    vlc.CheckAudioTimestamp();
+                    vlc.CheckTimestamp();
                 }
             }
         }
@@ -1104,7 +1121,8 @@ namespace iSpyApplication.Controls
             {
                 if (Recording && !_pairedRecording)
                 {
-                    if (_recordingTime > Micobject.recorder.maxrecordtime || ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
+                    if (_recordingTime > Micobject.recorder.maxrecordtime || 
+                        ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
                         StopSaving();
                 }
             }
@@ -1121,11 +1139,8 @@ namespace iSpyApplication.Controls
                     {
                         //try to reconnect every 10 seconds
                         if (!AudioSource.IsRunning)
-                        {
-                            lock (this)
-                            {
-                                AudioSource.Start();
-                            }
+                        {  
+                            AudioSource.Start();
                         }
                         _reconnectTime = DateTime.Now;
                         return true;
@@ -1174,9 +1189,6 @@ namespace iSpyApplication.Controls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            // lock
-            //Monitor.Enter(this);
-
             var gMic = pe.Graphics;
             var rc = ClientRectangle;
 
@@ -1185,12 +1197,11 @@ namespace iSpyApplication.Controls
             var borderPen = new Pen(grabBrush,BorderWidth);
             var lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
-            //var drawBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 255));
-            //var sbTs = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-            //var drawPen = new Pen(drawBrush);
-           
+            gMic.Clear(BackgroundColor);
+
             if (Micobject.settings.active && _levels != null && !AudioSourceErrorState)
             {
+
                 int bh = (rc.Height - 20) / Micobject.settings.channels - (Micobject.settings.channels - 1) * 2;
                 if (bh <= 2)
                     bh = 2;
@@ -1280,13 +1291,13 @@ namespace iSpyApplication.Controls
             if (_mouseMove > DateTime.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
             {
                 int leftpoint = Width - ButtonPanelWidth-1;
-                const int ypoint = 0;
+                //const int ypoint = 0;
                 var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-                gMic.FillRectangle(overlayBackgroundBrush, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
+                gMic.FillRectangle(overlayBackgroundBrush, leftpoint, 0, ButtonPanelWidth, ButtonPanelHeight);
                 overlayBackgroundBrush.Dispose();
 
 
-                gMic.DrawString(">", MainForm.Iconfont, Micobject.settings.active ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ypoint + ButtonOffset);
+                gMic.DrawString(">", MainForm.Iconfont, Micobject.settings.active ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ButtonOffset);
 
                 var b = MainForm.IconBrushOff;
                 if (Micobject.settings.active)
@@ -1296,15 +1307,15 @@ namespace iSpyApplication.Controls
                 gMic.DrawString("R", MainForm.Iconfont,
                                     Recording ? MainForm.IconBrushActive : b,
                                     leftpoint + (ButtonOffset * 2) + ButtonWidth,
-                                    ypoint + ButtonOffset);
+                                    ButtonOffset);
 
                 gMic.DrawString("E", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 3) + (ButtonWidth * 2),
-                                ypoint + ButtonOffset);
+                                ButtonOffset);
                 gMic.DrawString("C", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 4) + (ButtonWidth * 3),
-                                ypoint + ButtonOffset);
+                                ButtonOffset);
 
                 gMic.DrawString("L", MainForm.Iconfont, Listening ? MainForm.IconBrushActive : b, leftpoint + (ButtonOffset * 5) + (ButtonWidth * 4),
-                                ypoint + ButtonOffset);
+                                ButtonOffset);
             }
 
 
@@ -1331,7 +1342,6 @@ namespace iSpyApplication.Controls
 
             borderPen.Dispose();
             grabBrush.Dispose();
-            //Monitor.Exit(this);
 
             base.OnPaint(pe);
         }
@@ -1670,7 +1680,7 @@ namespace iSpyApplication.Controls
                 {
                     if (!(AudioSource is IVideoSource))
                     {
-                        lock (this)
+                        lock (_obj)
                         {
                             AudioSource.Stop();
                             //allow operations to complete in other threads
@@ -1701,7 +1711,7 @@ namespace iSpyApplication.Controls
 
             MainForm.NeedsSync = true;
             _errorTime = _reconnectTime = DateTime.MinValue;
-
+            BackgroundColor = MainForm.BackgroundColor;
             if (!ShuttingDown)
                 _requestRefresh = true;
         }
@@ -1774,7 +1784,7 @@ namespace iSpyApplication.Controls
                     AudioSource = new FFMPEGAudioStream(Micobject.settings.sourcename)
                                         {
                                             RecordingFormat = new WaveFormat(sampleRate, bitsPerSample, channels),
-                                            AnalyseDuration = Micobject.settings.analyseduration,
+                                            AnalyseDuration = Micobject.settings.analyzeduration,
                                             Timeout = Micobject.settings.timeout
                                         };
                     break;
@@ -1839,11 +1849,9 @@ namespace iSpyApplication.Controls
                 }
                 AudioDeviceLevelChanged(this, new LevelChangedEventArgs(l));
 
-                //AudioSource.Gain = Micobject.settings.gain;
-
                 if (!AudioSource.IsRunning && !IsClone && !(AudioSource is IVideoSource))
                 {
-                    lock (this)
+                    lock (_obj)
                     {
                         AudioSource.Start();
                     }                    
@@ -1857,7 +1865,7 @@ namespace iSpyApplication.Controls
             _recordingTime = 0;
             ReconnectCount = 0;
             Listening = false;
-            _soundLastDetected = DateTime.MinValue;
+            _soundLastDetected = DateTime.Now;
             UpdateFloorplans(false);
             Micobject.settings.active = true;
 
@@ -1979,12 +1987,318 @@ namespace iSpyApplication.Controls
                     DataAvailable(this, new NewDataAvailableArgs((byte[])e.RawData.Clone()));
                 }
 
+                if (_reconnectTime != DateTime.MinValue)
+                {
+                    Micobject.settings.active = true;
+                    _errorTime = _reconnectTime = DateTime.MinValue;
+                }
+                _errorTime = DateTime.MinValue;
+
             }
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
         }
+
+        private void ProcessAlertEvent(string pluginmessage, string type, string param1, string param2, string param3, string param4)
+        {
+            string id = Micobject.id.ToString(CultureInfo.InvariantCulture);
+
+            param1 = param1.Replace("{ID}", id).Replace("{NAME}", Micobject.name).Replace("{MSG}", pluginmessage);
+            param2 = param2.Replace("{ID}", id).Replace("{NAME}", Micobject.name).Replace("{MSG}", pluginmessage);
+            param3 = param3.Replace("{ID}", id).Replace("{NAME}", Micobject.name).Replace("{MSG}", pluginmessage);
+            param4 = param4.Replace("{ID}", id).Replace("{NAME}", Micobject.name).Replace("{MSG}", pluginmessage);
+
+            try
+            {
+                switch (type)
+                {
+                    case "Exe":
+                        {
+                            if (param1.ToLower() == "ispy.exe" || param1.ToLower() == "ispy")
+                            {
+                                var topLevelControl = (MainForm)TopLevelControl;
+                                if (topLevelControl != null) topLevelControl.ProcessCommandString(param2);
+                            }
+                            else
+                            {
+                                try
+                                {
+
+                                    var startInfo = new ProcessStartInfo
+                                    {
+                                        UseShellExecute = true,
+                                        FileName = param1,
+                                        Arguments = param2
+                                    };
+                                    try
+                                    {
+                                        var fi = new FileInfo(param1);
+                                        if (fi.DirectoryName != null)
+                                            startInfo.WorkingDirectory = fi.DirectoryName;
+                                    }
+                                    catch
+                                    {
+                                    }
+                                    if (!MainForm.Conf.CreateAlertWindows)
+                                    {
+                                        startInfo.CreateNoWindow = true;
+                                        startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                    }
+
+                                    Process.Start(startInfo);
+                                }
+                                catch (Exception e)
+                                {
+                                    MainForm.LogExceptionToFile(e);
+                                }
+                            }
+                        }
+                        break;
+                    case "URL":
+                        {
+                            var request = (HttpWebRequest)WebRequest.Create(param1);
+                            request.Credentials = CredentialCache.DefaultCredentials;
+                            var response = (HttpWebResponse)request.GetResponse();
+
+                            // Get the stream associated with the response.
+                            Stream receiveStream = response.GetResponseStream();
+
+                            // Pipes the stream to a higher level stream reader with the required encoding format. 
+                            if (receiveStream != null)
+                            {
+                                var readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                                readStream.ReadToEnd();
+                                response.Close();
+                                readStream.Close();
+                                receiveStream.Close();
+                            }
+                            response.Close();
+                        }
+                        break;
+                    case "NM": //network message
+                        switch (param1)
+                        {
+                            case "TCP":
+                                {
+                                    IPAddress ip;
+                                    if (IPAddress.TryParse(param2, out ip))
+                                    {
+                                        int port;
+                                        if (int.TryParse(param3, out port))
+                                        {
+                                            using (var tcpClient = new TcpClient())
+                                            {
+                                                try
+                                                {
+                                                    tcpClient.Connect(ip, port);
+                                                    using (var networkStream = tcpClient.GetStream())
+                                                    {
+                                                        using (var clientStreamWriter = new StreamWriter(networkStream))
+                                                        {
+                                                            clientStreamWriter.Write(param4);
+                                                            clientStreamWriter.Flush();
+                                                            clientStreamWriter.Close();
+                                                        }
+                                                        networkStream.Close();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MainForm.LogExceptionToFile(ex);
+                                                }
+                                                tcpClient.Close();
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case "UDP":
+                                {
+                                    IPAddress ip;
+                                    if (IPAddress.TryParse(param2, out ip))
+                                    {
+                                        int port;
+                                        if (int.TryParse(param3, out port))
+                                        {
+                                            using (var udpClient = new UdpClient())
+                                            {
+                                                try
+                                                {
+
+                                                    udpClient.Connect(ip, port);
+                                                    var cmd = Encoding.ASCII.GetBytes(param4);
+                                                    udpClient.Send(cmd, cmd.Length);
+
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MainForm.LogExceptionToFile(ex);
+                                                }
+                                                finally
+                                                {
+                                                    udpClient.Close();
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                        break;
+                    case "S":
+                        try
+                        {
+                            using (var sp = new SoundPlayer(param1))
+                            {
+                                sp.Play();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+                        break;
+                    case "SW":
+                        RemoteCommand(this, new ThreadSafeCommand("show"));
+                        break;
+                    case "B":
+                        Console.Beep();
+                        break;
+                    case "M":
+                        if (TopLevelControl != null)
+                        {
+                            var mf = ((MainForm)TopLevelControl);
+                            mf.Maximise(this, false);
+                        }
+                        break;
+                    case "TA":
+                        {
+                            if (TopLevelControl != null)
+                            {
+                                string[] tid = param1.Split(',');
+                                switch (tid[0])
+                                {
+                                    case "1":
+                                        VolumeLevel vl =
+                                            ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                        if (vl != null)
+                                            vl.MicrophoneAlarm(this, EventArgs.Empty);
+                                        break;
+                                    case "2":
+                                        CameraWindow cw =
+                                            ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                                        if (cw != null)
+                                            cw.CameraAlarm(this, EventArgs.Empty);
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case "E":
+                        {
+                            string subject = LocRm.GetString("MicrophoneAlertMailSubject").Replace("[OBJECTNAME]", Micobject.name);
+                            string message = LocRm.GetString("MicrophoneAlertMailBody");
+                            message = message.Replace("[OBJECTNAME]", Micobject.name);
+
+                            string body = "";
+                            switch (Micobject.alerts.mode)
+                            {
+                                case "sound":
+                                    body = LocRm.GetString("MicrophoneAlertBodySound").Replace("[TIME]",
+                                                                                                DateTime.Now.ToLongTimeString());
+
+                                    if (Recording)
+                                    {
+                                        body += " " + LocRm.GetString("AudioCaptured");
+                                    }
+                                    else
+                                        body += " " + LocRm.GetString("AudioNotCaptured");
+                                    break;
+                                case "nosound":
+
+                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
+                                    int seconds = (Micobject.detector.nosoundinterval % 60);
+
+                                    body =
+                                        LocRm.GetString("MicrophoneAlertBodyNoSound").Replace("[TIME]",
+                                                                                              DateTime.Now.ToLongTimeString()).
+                                            Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
+                                    break;
+                            }
+
+                            message = message.Replace("[BODY]", body + "<br/>" + MainForm.Conf.AppendLinkText);
+
+                            WsWrapper.SendAlert(param1, subject, message);
+                        }
+                        break;
+                    case "SMS":
+                        {
+                            string message = LocRm.GetString("SMSAudioAlert").Replace("[OBJECTNAME]", Micobject.name) + " ";
+                            switch (Micobject.alerts.mode)
+                            {
+                                case "sound":
+                                    message += LocRm.GetString("SMSAudioDetected");
+                                    message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
+                                    break;
+                                case "nosound":
+                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
+                                    int seconds = (Micobject.detector.nosoundinterval % 60);
+
+                                    message +=
+                                        LocRm.GetString("SMSNoAudioDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace(
+                                            "[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
+                                    break;
+                            }
+
+                            if (pluginmessage != "")
+                                message = pluginmessage + ": " + message;
+                            if (message.Length > 160)
+                                message = message.Substring(0, 159);
+
+                            WsWrapper.SendSms(param1, message);
+                        }
+                        break;
+                    case "TM":
+                        {
+                            string message = LocRm.GetString("SMSAudioAlert").Replace("[OBJECTNAME]", Micobject.name) + " ";
+                            switch (Micobject.alerts.mode)
+                            {
+                                case "sound":
+                                    message += LocRm.GetString("SMSAudioDetected");
+                                    message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
+                                    break;
+                                case "nosound":
+                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
+                                    int seconds = (Micobject.detector.nosoundinterval % 60);
+
+                                    message +=
+                                        LocRm.GetString("SMSNoAudioDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace(
+                                            "[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
+                                    break;
+                            }
+
+                            if (pluginmessage != "")
+                                message = pluginmessage + ": " + message;
+                            if (message.Length > 160)
+                                message = message.Substring(0, 159);
+
+                            WsWrapper.SendTweet(message + " " + MainForm.Webserver + "/mobile/");
+                        }
+                        break;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
 
         public void AudioDeviceAudioFinished(object sender, ReasonToFinishPlaying reason)
         {
@@ -2105,7 +2419,7 @@ namespace iSpyApplication.Controls
             get { return _filelist.AsReadOnly(); }
         }
 
-        private void DoAlert()
+        private void DoAlert(string msg = "")
         {
             if (IsEdit)
                 return;
@@ -2114,162 +2428,32 @@ namespace iSpyApplication.Controls
             UpdateFloorplans(true);
 
             var t = new Thread(AlertThread) { Name = "Alert (" + Micobject.id + ")", IsBackground = false };
-            t.Start();
+            t.Start(msg);
         }
 
-        private void AlertThread()
+        private void AlertThread(object omsg)
         {
-            if (!String.IsNullOrEmpty(Micobject.alerts.trigger) && TopLevelControl != null)
-            {
-                string[] tid = Micobject.alerts.trigger.Split(',');
-                switch (tid[0])
-                {
-                    case "1":
-                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null)
-                            vl.MicrophoneAlarm(this,EventArgs.Empty);
-                        break;
-                    case "2":
-                        CameraWindow cw = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (cw != null)
-                            cw.CameraAlarm(this,EventArgs.Empty);
-                        break;
-                }
-            }
+            string msg = omsg.ToString();
 
             if (Notification != null)
-                Notification(this, new NotificationType("ALERT_UC", Micobject.name,""));
-
-            if (!String.IsNullOrEmpty(Micobject.alerts.executefile))
             {
-                string args =
-                    Micobject.alerts.arguments.Replace("{ID}", Micobject.id.ToString(CultureInfo.InvariantCulture)).
-                        Replace("{NAME}", Micobject.name);
-                var d = Micobject.alerts.executefile.ToLower().Trim();
-                if (d == "ispy.exe" || d == "ispy")
-                {
-                    var topLevelControl = (MainForm)TopLevelControl;
-                    if (topLevelControl != null) topLevelControl.ProcessCommandString(args);
-                }
+                if (omsg is String)
+                    Notification(this, new NotificationType("ALERT_UC", Micobject.name, "", omsg.ToString()));
                 else
-                {
-                    try
-                    {
-
-                        var startInfo = new ProcessStartInfo
-                        {
-                            UseShellExecute = true,
-                            FileName = Micobject.alerts.executefile,
-                            Arguments = args
-                        };
-                        try
-                        {
-                            var fi = new FileInfo(Micobject.alerts.executefile);
-                            if (fi.DirectoryName != null)
-                                startInfo.WorkingDirectory = fi.DirectoryName;
-                        }
-                        catch { }
-                        if (!MainForm.Conf.CreateAlertWindows)
-                        {
-                            startInfo.CreateNoWindow = true;
-                            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                        }
-
-                        Process.Start(startInfo);
-                    }
-                    catch (Exception e)
-                    {
-                        MainForm.LogExceptionToFile(e);
-                    }
-                }
-
+                    Notification(this, new NotificationType("ALERT_UC", Micobject.name, ""));
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
                 ScreenSaver.KillScreenSaver();
 
-            string[] alertOptions = Micobject.alerts.alertoptions.Split(','); //beep,restore
-            if (Convert.ToBoolean(alertOptions[0]))
-                Console.Beep();
-            if (Convert.ToBoolean(alertOptions[1]))
-                RemoteCommand(this, new ThreadSafeCommand("show"));
 
-
-            if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
+            
+            foreach (var ev in Micobject.alertevents.entries)
             {
-                if (Micobject.notifications.sendemail)
-                {
-                    string subject = LocRm.GetString("MicrophoneAlertMailSubject").Replace("[OBJECTNAME]",
-                                                                                            Micobject.name);
-                    string message = LocRm.GetString("MicrophoneAlertMailBody");
-                    message = message.Replace("[OBJECTNAME]", Micobject.name);
-
-                    string body = "";
-                    switch (Micobject.alerts.mode)
-                    {
-                        case "sound":
-                            body = LocRm.GetString("MicrophoneAlertBodySound").Replace("[TIME]",
-                                                                                        DateTime.Now.ToLongTimeString());
-
-                            if (Recording)
-                            {
-                                body += " " + LocRm.GetString("AudioCaptured");
-                            }
-                            else
-                                body += " " + LocRm.GetString("AudioNotCaptured");
-                            break;
-                        case "nosound":
-
-                            int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
-                            int seconds = (Micobject.detector.nosoundinterval % 60);
-
-                            body =
-                                LocRm.GetString("MicrophoneAlertBodyNoSound").Replace("[TIME]",
-                                                                                      DateTime.Now.ToLongTimeString()).
-                                    Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
-                            break;
-                    }
-
-                    message = message.Replace("[BODY]", body + "<br/>" + MainForm.Conf.AppendLinkText);
-
-
-                    if (MainForm.Conf.ServicesEnabled && MainForm.Conf.Subscribed)
-                    {
-                        WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
-                    }
-
-                }
-
-                if (Micobject.notifications.sendsms || Micobject.notifications.sendtwitter)
-                {
-                    string message = LocRm.GetString("SMSAudioAlert").Replace("[OBJECTNAME]", Micobject.name) + " ";
-                    switch (Micobject.alerts.mode)
-                    {
-                        case "sound":
-                            message += LocRm.GetString("SMSAudioDetected");
-                            message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
-                            break;
-                        case "nosound":
-                            int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval/60);
-                            int seconds = (Micobject.detector.nosoundinterval%60);
-
-                            message +=
-                                LocRm.GetString("SMSNoAudioDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace(
-                                    "[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
-                            break;
-                    }
-
-                    if (Micobject.notifications.sendsms)
-                    {
-                        WsWrapper.SendSms(Micobject.settings.smsnumber, message);
-                    }
-
-                    if (Micobject.notifications.sendtwitter)
-                    {
-                        WsWrapper.SendTweet(message + " "+MainForm.Webserver+"/mobile/");
-                    }
-                }
+                ProcessAlertEvent(msg, ev.type, ev.param1, ev.param2, ev.param3, ev.param4);
             }
+
+            
         }
 
         public string RecordSwitch(bool record)

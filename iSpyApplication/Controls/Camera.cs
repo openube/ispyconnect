@@ -10,9 +10,7 @@ using AForge;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
 using AForge.Video;
-using AForge.Video.Ximea;
 using AForge.Vision.Motion;
-using iSpyApplication.Video;
 using Point = System.Drawing.Point;
 
 namespace iSpyApplication.Controls
@@ -178,10 +176,10 @@ namespace iSpyApplication.Controls
                                     if (o.GetProperty("CameraName") != null)
                                         o.GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
                                     //config corrupted
-                                    MainForm.LogErrorToFile("Error configuring plugin - trying with a blank configuration");
+                                    MainForm.LogErrorToFile("Error configuring plugin - trying with a blank configuration ("+ex.Message+")");
                                     CW.Camobject.alerts.pluginconfig = "";
                                     _plugin.GetType().GetProperty("Configuration").SetValue(_plugin,
                                                                                             CW.Camobject.alerts.
@@ -622,9 +620,10 @@ namespace iSpyApplication.Controls
                 if (_processFrameCount >= CW.Camobject.detector.processeveryframe || CW.Calibrating)
                 {
                     _processFrameCount = 0;
+                    
                     try
                     {
-                        MotionLevel = _motionDetector.ProcessFrame(lfu, Filter);
+                        MotionLevel = _motionDetector.ProcessFrame(Filter != null ? Filter.Apply(lfu) : lfu);
                     }
                     catch(Exception ex)
                     {
@@ -678,28 +677,35 @@ namespace iSpyApplication.Controls
 
         private Bitmap ResizeBmOrig(NewFrameEventArgs e)
         {
-            var bmOrig = (Bitmap) e.Frame.Clone();
-
             if (CW.Camobject.settings.resize &&
                 (CW.Camobject.settings.desktopresizewidth != e.Frame.Width ||
                  CW.Camobject.settings.desktopresizeheight != e.Frame.Height))
             {
+
                 var result = new Bitmap(CW.Camobject.settings.desktopresizewidth, CW.Camobject.settings.desktopresizeheight,
                                         PixelFormat.Format24bppRgb);
-
-                using (Graphics g2 = Graphics.FromImage(result))
+                try
                 {
-                    g2.CompositingMode = CompositingMode.SourceCopy;
-                    g2.CompositingQuality = CompositingQuality.HighSpeed;
-                    g2.PixelOffsetMode = PixelOffsetMode.Half;
-                    g2.SmoothingMode = SmoothingMode.None;
-                    g2.InterpolationMode = InterpolationMode.Default;
-                    //g2.GdiDrawImage(e.Frame, 0, 0, result.Width, result.Height);
-                    g2.DrawImage(bmOrig, 0, 0, result.Width, result.Height);
+                    using (Graphics g2 = Graphics.FromImage(result))
+                    {
+                        g2.CompositingMode = CompositingMode.SourceCopy;
+                        g2.CompositingQuality = CompositingQuality.HighSpeed;
+                        g2.PixelOffsetMode = PixelOffsetMode.Half;
+                        g2.SmoothingMode = SmoothingMode.None;
+                        g2.InterpolationMode = InterpolationMode.Default;
+                        //g2.GdiDrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                        g2.DrawImage(e.Frame, 0, 0, result.Width, result.Height);
+                    }
+                    return result;
                 }
-                bmOrig = result;
+                catch
+                {
+                    result.Dispose();
+                    return e.Frame;
+                }
+                
             }
-            return bmOrig;
+            return e.Frame;
         }
 
         private void CalculateFramerates()
@@ -719,8 +725,7 @@ namespace iSpyApplication.Controls
 
         private void ApplyMask(Bitmap bmOrig)
         {
-            Graphics g = Graphics.FromImage(bmOrig);
-            g = Graphics.FromImage(bmOrig);
+            Graphics             g = Graphics.FromImage(bmOrig);
             g.CompositingMode = CompositingMode.SourceOver;//.SourceCopy;
             g.CompositingQuality = CompositingQuality.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.Half;

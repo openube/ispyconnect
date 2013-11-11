@@ -153,8 +153,19 @@ namespace iSpyApplication
             this.label31 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
+            this.jbutton1 = new iSpyApplication.Controls.jbutton();
+            this.jbutton2 = new iSpyApplication.Controls.jbutton();
+            this.jbutton3 = new iSpyApplication.Controls.jbutton();
+            this.jbutton4 = new iSpyApplication.Controls.jbutton();
+            this.jbutton5 = new iSpyApplication.Controls.jbutton();
+            this.jbutton6 = new iSpyApplication.Controls.jbutton();
+            this.jbutton7 = new iSpyApplication.Controls.jbutton();
+            this.jaxis1 = new iSpyApplication.Controls.jaxis();
+            this.jaxis2 = new iSpyApplication.Controls.jaxis();
+            this.jaxis3 = new iSpyApplication.Controls.jaxis();
             this.btnCenterAxes = new System.Windows.Forms.Button();
             this.label37 = new System.Windows.Forms.Label();
+            this.jbutton8 = new iSpyApplication.Controls.jbutton();
             this.label38 = new System.Windows.Forms.Label();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
             this.label26 = new System.Windows.Forms.Label();
@@ -182,17 +193,7 @@ namespace iSpyApplication
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.tmrJSUpdate = new System.Windows.Forms.Timer(this.components);
-            this.jbutton1 = new iSpyApplication.Controls.jbutton();
-            this.jbutton2 = new iSpyApplication.Controls.jbutton();
-            this.jbutton3 = new iSpyApplication.Controls.jbutton();
-            this.jbutton4 = new iSpyApplication.Controls.jbutton();
-            this.jbutton5 = new iSpyApplication.Controls.jbutton();
-            this.jbutton6 = new iSpyApplication.Controls.jbutton();
-            this.jbutton7 = new iSpyApplication.Controls.jbutton();
-            this.jaxis1 = new iSpyApplication.Controls.jaxis();
-            this.jaxis2 = new iSpyApplication.Controls.jaxis();
-            this.jaxis3 = new iSpyApplication.Controls.jaxis();
-            this.jbutton8 = new iSpyApplication.Controls.jbutton();
+            this.chkGZip = new System.Windows.Forms.CheckBox();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -242,7 +243,7 @@ namespace iSpyApplication
             this.btnBrowseVideo.Location = new System.Drawing.Point(347, 6);
             this.btnBrowseVideo.Margin = new System.Windows.Forms.Padding(6);
             this.btnBrowseVideo.Name = "btnBrowseVideo";
-            this.btnBrowseVideo.Size = new System.Drawing.Size(29, 23);
+            this.btnBrowseVideo.Size = new System.Drawing.Size(30, 27);
             this.btnBrowseVideo.TabIndex = 11;
             this.btnBrowseVideo.Text = "...";
             this.btnBrowseVideo.UseVisualStyleBackColor = true;
@@ -375,6 +376,7 @@ namespace iSpyApplication
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel1.Controls.Add(this.chkGZip, 0, 16);
             this.tableLayoutPanel1.Controls.Add(this.linkLabel2, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.linkLabel1, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.ddlLanguage, 0, 0);
@@ -848,6 +850,7 @@ namespace iSpyApplication
             this.chkEnableIPv6.TabIndex = 77;
             this.chkEnableIPv6.Text = "Enable IPv6 Support";
             this.chkEnableIPv6.UseVisualStyleBackColor = true;
+            this.chkEnableIPv6.CheckedChanged += new System.EventHandler(this.chkEnableIPv6_CheckedChanged);
             // 
             // chkMinimiseToTray
             // 
@@ -1128,7 +1131,7 @@ namespace iSpyApplication
             // 
             this.tableLayoutPanel2.SetColumnSpan(this.gbStorage, 2);
             this.gbStorage.Controls.Add(this.tableLayoutPanel3);
-            this.gbStorage.Location = new System.Drawing.Point(99, 70);
+            this.gbStorage.Location = new System.Drawing.Point(99, 74);
             this.gbStorage.Margin = new System.Windows.Forms.Padding(6);
             this.gbStorage.Name = "gbStorage";
             this.gbStorage.Padding = new System.Windows.Forms.Padding(6);
@@ -1267,7 +1270,7 @@ namespace iSpyApplication
             // 
             this.chkStorage.AutoSize = true;
             this.tableLayoutPanel2.SetColumnSpan(this.chkStorage, 2);
-            this.chkStorage.Location = new System.Drawing.Point(99, 41);
+            this.chkStorage.Location = new System.Drawing.Point(99, 45);
             this.chkStorage.Margin = new System.Windows.Forms.Padding(6);
             this.chkStorage.Name = "chkStorage";
             this.chkStorage.Size = new System.Drawing.Size(161, 17);
@@ -1831,6 +1834,105 @@ namespace iSpyApplication
             this.label27.TabIndex = 1;
             this.label27.Text = "Talk";
             // 
+            // jbutton1
+            // 
+            this.jbutton1.ID = 0;
+            this.jbutton1.Location = new System.Drawing.Point(154, 128);
+            this.jbutton1.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton1.Name = "jbutton1";
+            this.jbutton1.Size = new System.Drawing.Size(174, 23);
+            this.jbutton1.TabIndex = 23;
+            this.jbutton1.Load += new System.EventHandler(this.jbutton1_Load);
+            // 
+            // jbutton2
+            // 
+            this.jbutton2.ID = 0;
+            this.jbutton2.Location = new System.Drawing.Point(154, 159);
+            this.jbutton2.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton2.Name = "jbutton2";
+            this.jbutton2.Size = new System.Drawing.Size(174, 23);
+            this.jbutton2.TabIndex = 24;
+            // 
+            // jbutton3
+            // 
+            this.jbutton3.ID = 0;
+            this.jbutton3.Location = new System.Drawing.Point(154, 190);
+            this.jbutton3.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton3.Name = "jbutton3";
+            this.jbutton3.Size = new System.Drawing.Size(174, 23);
+            this.jbutton3.TabIndex = 25;
+            // 
+            // jbutton4
+            // 
+            this.jbutton4.ID = 0;
+            this.jbutton4.Location = new System.Drawing.Point(154, 221);
+            this.jbutton4.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton4.Name = "jbutton4";
+            this.jbutton4.Size = new System.Drawing.Size(174, 23);
+            this.jbutton4.TabIndex = 26;
+            this.jbutton4.Load += new System.EventHandler(this.jbutton4_Load);
+            // 
+            // jbutton5
+            // 
+            this.jbutton5.ID = 0;
+            this.jbutton5.Location = new System.Drawing.Point(154, 252);
+            this.jbutton5.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton5.Name = "jbutton5";
+            this.jbutton5.Size = new System.Drawing.Size(174, 23);
+            this.jbutton5.TabIndex = 27;
+            // 
+            // jbutton6
+            // 
+            this.jbutton6.ID = 0;
+            this.jbutton6.Location = new System.Drawing.Point(154, 314);
+            this.jbutton6.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton6.Name = "jbutton6";
+            this.jbutton6.Size = new System.Drawing.Size(174, 23);
+            this.jbutton6.TabIndex = 28;
+            // 
+            // jbutton7
+            // 
+            this.jbutton7.ID = 0;
+            this.jbutton7.Location = new System.Drawing.Point(154, 345);
+            this.jbutton7.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton7.Name = "jbutton7";
+            this.jbutton7.Size = new System.Drawing.Size(174, 23);
+            this.jbutton7.TabIndex = 29;
+            // 
+            // jaxis1
+            // 
+            this.jaxis1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis1.ID = 0;
+            this.jaxis1.Invert = false;
+            this.jaxis1.Location = new System.Drawing.Point(150, 0);
+            this.jaxis1.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis1.Name = "jaxis1";
+            this.jaxis1.Size = new System.Drawing.Size(482, 31);
+            this.jaxis1.TabIndex = 30;
+            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
+            // 
+            // jaxis2
+            // 
+            this.jaxis2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis2.ID = 0;
+            this.jaxis2.Invert = false;
+            this.jaxis2.Location = new System.Drawing.Point(150, 31);
+            this.jaxis2.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis2.Name = "jaxis2";
+            this.jaxis2.Size = new System.Drawing.Size(482, 31);
+            this.jaxis2.TabIndex = 31;
+            // 
+            // jaxis3
+            // 
+            this.jaxis3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis3.ID = 0;
+            this.jaxis3.Invert = false;
+            this.jaxis3.Location = new System.Drawing.Point(150, 62);
+            this.jaxis3.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis3.Name = "jaxis3";
+            this.jaxis3.Size = new System.Drawing.Size(482, 31);
+            this.jaxis3.TabIndex = 32;
+            // 
             // btnCenterAxes
             // 
             this.btnCenterAxes.AutoSize = true;
@@ -1851,6 +1953,15 @@ namespace iSpyApplication
             this.label37.Size = new System.Drawing.Size(29, 13);
             this.label37.TabIndex = 34;
             this.label37.Text = "Stop";
+            // 
+            // jbutton8
+            // 
+            this.jbutton8.ID = 0;
+            this.jbutton8.Location = new System.Drawing.Point(154, 283);
+            this.jbutton8.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton8.Name = "jbutton8";
+            this.jbutton8.Size = new System.Drawing.Size(174, 23);
+            this.jbutton8.TabIndex = 35;
             // 
             // label38
             // 
@@ -2132,113 +2243,16 @@ namespace iSpyApplication
             this.tmrJSUpdate.Enabled = true;
             this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
             // 
-            // jbutton1
+            // chkGZip
             // 
-            this.jbutton1.ID = 0;
-            this.jbutton1.Location = new System.Drawing.Point(154, 128);
-            this.jbutton1.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton1.Name = "jbutton1";
-            this.jbutton1.Size = new System.Drawing.Size(174, 23);
-            this.jbutton1.TabIndex = 23;
-            this.jbutton1.Load += new System.EventHandler(this.jbutton1_Load);
-            // 
-            // jbutton2
-            // 
-            this.jbutton2.ID = 0;
-            this.jbutton2.Location = new System.Drawing.Point(154, 159);
-            this.jbutton2.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton2.Name = "jbutton2";
-            this.jbutton2.Size = new System.Drawing.Size(174, 23);
-            this.jbutton2.TabIndex = 24;
-            // 
-            // jbutton3
-            // 
-            this.jbutton3.ID = 0;
-            this.jbutton3.Location = new System.Drawing.Point(154, 190);
-            this.jbutton3.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton3.Name = "jbutton3";
-            this.jbutton3.Size = new System.Drawing.Size(174, 23);
-            this.jbutton3.TabIndex = 25;
-            // 
-            // jbutton4
-            // 
-            this.jbutton4.ID = 0;
-            this.jbutton4.Location = new System.Drawing.Point(154, 221);
-            this.jbutton4.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton4.Name = "jbutton4";
-            this.jbutton4.Size = new System.Drawing.Size(174, 23);
-            this.jbutton4.TabIndex = 26;
-            this.jbutton4.Load += new System.EventHandler(this.jbutton4_Load);
-            // 
-            // jbutton5
-            // 
-            this.jbutton5.ID = 0;
-            this.jbutton5.Location = new System.Drawing.Point(154, 252);
-            this.jbutton5.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton5.Name = "jbutton5";
-            this.jbutton5.Size = new System.Drawing.Size(174, 23);
-            this.jbutton5.TabIndex = 27;
-            // 
-            // jbutton6
-            // 
-            this.jbutton6.ID = 0;
-            this.jbutton6.Location = new System.Drawing.Point(154, 314);
-            this.jbutton6.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton6.Name = "jbutton6";
-            this.jbutton6.Size = new System.Drawing.Size(174, 23);
-            this.jbutton6.TabIndex = 28;
-            // 
-            // jbutton7
-            // 
-            this.jbutton7.ID = 0;
-            this.jbutton7.Location = new System.Drawing.Point(154, 345);
-            this.jbutton7.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton7.Name = "jbutton7";
-            this.jbutton7.Size = new System.Drawing.Size(174, 23);
-            this.jbutton7.TabIndex = 29;
-            // 
-            // jaxis1
-            // 
-            this.jaxis1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis1.ID = 0;
-            this.jaxis1.Invert = false;
-            this.jaxis1.Location = new System.Drawing.Point(150, 0);
-            this.jaxis1.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis1.Name = "jaxis1";
-            this.jaxis1.Size = new System.Drawing.Size(482, 31);
-            this.jaxis1.TabIndex = 30;
-            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
-            // 
-            // jaxis2
-            // 
-            this.jaxis2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis2.ID = 0;
-            this.jaxis2.Invert = false;
-            this.jaxis2.Location = new System.Drawing.Point(150, 31);
-            this.jaxis2.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis2.Name = "jaxis2";
-            this.jaxis2.Size = new System.Drawing.Size(482, 31);
-            this.jaxis2.TabIndex = 31;
-            // 
-            // jaxis3
-            // 
-            this.jaxis3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis3.ID = 0;
-            this.jaxis3.Invert = false;
-            this.jaxis3.Location = new System.Drawing.Point(150, 62);
-            this.jaxis3.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis3.Name = "jaxis3";
-            this.jaxis3.Size = new System.Drawing.Size(482, 31);
-            this.jaxis3.TabIndex = 32;
-            // 
-            // jbutton8
-            // 
-            this.jbutton8.ID = 0;
-            this.jbutton8.Location = new System.Drawing.Point(154, 283);
-            this.jbutton8.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton8.Name = "jbutton8";
-            this.jbutton8.Size = new System.Drawing.Size(174, 23);
-            this.jbutton8.TabIndex = 35;
+            this.chkGZip.AutoSize = true;
+            this.chkGZip.Location = new System.Drawing.Point(6, 498);
+            this.chkGZip.Margin = new System.Windows.Forms.Padding(6);
+            this.chkGZip.Name = "chkGZip";
+            this.chkGZip.Size = new System.Drawing.Size(148, 17);
+            this.chkGZip.TabIndex = 86;
+            this.chkGZip.Text = "Enable GZip Compression";
+            this.chkGZip.UseVisualStyleBackColor = true;
             // 
             // Settings
             // 
@@ -2488,5 +2502,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Button btnChooseFile;
         private System.Windows.Forms.Label label47;
         private System.Windows.Forms.ComboBox ddlStartupMode;
+        private System.Windows.Forms.CheckBox chkGZip;
     }
 }

@@ -241,6 +241,8 @@ public partial class configuration {
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
+
+    private bool enableGZipField;
     
     public configuration() {
         this.maxRecordingThreadsField = 4;
@@ -278,6 +280,7 @@ public partial class configuration {
         this.alertOnDisconnectField = "";
         this.alertOnReconnectField = "";
         this.startupModeField = 0;
+        this.enableGZipField = true;
     }
     
     /// <remarks/>
@@ -297,6 +300,19 @@ public partial class configuration {
         }
         set {
             this.wSPasswordField = value;
+        }
+    }
+
+    /// <remarks/>
+    public bool EnableGZip
+    {
+        get
+        {
+            return this.enableGZipField;
+        }
+        set
+        {
+            this.enableGZipField = value;
         }
     }
     

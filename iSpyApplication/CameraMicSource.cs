@@ -37,8 +37,7 @@ namespace iSpyApplication
             {
                 objectsMicrophone om1 = om;
                 if (
-                    MainForm.Cameras.Where(p => p.settings.micpair == om1.id && p.id != CameraControl.Camobject.id).
-                        Count() == 0)
+                    MainForm.Cameras.Count(p => p.settings.micpair == om1.id && p.id != CameraControl.Camobject.id) == 0)
                 {
                     ddlMic.Items.Add(new ListItem(om.name, om.id.ToString()));
                     if (CameraControl.Camobject.settings.micpair == om.id)

@@ -19,6 +19,12 @@ namespace iSpyApplication
             LocRm.GetString("retry");
         }
 
+        public override sealed string Text
+        {
+            get { return base.Text; }
+            set { base.Text = value; }
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             Close();
@@ -87,7 +93,8 @@ namespace iSpyApplication
             string res = "";
             if (!loadurl(localserver+"/ping", out res))
             {
-                UISync.Execute(() => rtbOutput.Text += "Failed: " + res + NL);
+                string res1 = res;
+                UISync.Execute(() => rtbOutput.Text += "Failed: " + res1 + NL);
                 if (MainForm.MWS.Running)
                 {
                     UISync.Execute(() => rtbOutput.Text += "Server reports it IS running" + NL);
@@ -290,7 +297,7 @@ namespace iSpyApplication
                                 "Failed: Communication with webserver failed." + NL + NL);
                         else
                             UISync.Execute(() => rtbOutput.Text +=
-                                "Success!"+NL+NL+"If you cannot access content locally please ensure 'Use LAN IP when available' is checked on "+MainForm.Webserver+"/account.aspx and also ensure you're using an up to date web browser (we recommend google Chrome. Opera is incompatible)");
+                                "Success!"+NL+NL+"If you cannot access content locally please ensure 'Use LAN IP when available' is checked on "+MainForm.Webserver+"/account.aspx and also ensure you're using an up to date web browser (we recommend google Chrome)");
                     }
                 }
                 else
@@ -313,6 +320,7 @@ namespace iSpyApplication
 
         private bool loadurl(string url, out string result)
         {
+            result = "";
             try
             {
                 var httpWReq = (HttpWebRequest) WebRequest.Create(url);
@@ -320,9 +328,12 @@ namespace iSpyApplication
                 httpWReq.Method = "GET";
 
                 var myResponse = (HttpWebResponse) httpWReq.GetResponse();
-
-                var read = new StreamReader(myResponse.GetResponseStream());
-                result = read.ReadToEnd();
+                var s = myResponse.GetResponseStream();
+                if (s != null)
+                {
+                    var read = new StreamReader(s);
+                    result = read.ReadToEnd();
+                }
                 myResponse.Close();
                 
                 return true;

@@ -4938,4 +4938,33 @@
         <Command Name="Position 8">PanTiltPresetPositionMove=8</Command>
       </ExtendedCommands>
     </Camera>
+  <Camera id="190">
+    <Makes>
+      <Make Name="Avacom" Model="M1060W" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=6</Left>
+      <LeftUp>command=93</LeftUp>
+      <Right>command=4</Right>
+      <RightUp>command=92</RightUp>
+      <Up>command=2</Up>
+      <Down>command=0</Down>
+      <LeftDown>command=91</LeftDown>
+      <RightDown>command=90</RightDown>
+      <Stop>command=1</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="Horizon patrol">command=28</Command>
+      <Command Name="Stop horizon patrol">command=29</Command>
+      <Command Name="Vertical patrol">command=26</Command>
+      <Command Name="Stop vertical patrol">command=27</Command>
+    </ExtendedCommands>
+  </Camera>
 </PTZSettings2>
