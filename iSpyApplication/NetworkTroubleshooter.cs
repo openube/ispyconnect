@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Forms;
-using Moah;
 
 namespace iSpyApplication
 {
@@ -74,19 +73,22 @@ namespace iSpyApplication
             }
             
             bool portMapOk = false;
-            bool IPv6 = MainForm.Conf.IPMode == "IPv6";
+            bool bIPv6 = MainForm.Conf.IPMode == "IPv6";
             UISync.Execute(() => button2.Enabled = false);
 
             
 
             string localserver = "http://" + MainForm.IPAddress + ":" + MainForm.Conf.LANPort;
             
-            UISync.Execute(() => rtbOutput.Text = "Local iSpy Server: "+localserver+NL);
+            UISync.Execute(() => rtbOutput.Text = string.Format("Local iSpy Server: {0}{1}", localserver, NL));
             if (MainForm.Conf.LANPort!=8080)
             {
                 UISync.Execute(() => rtbOutput.Text +=
-                    "--Warning, running a local server on a non-standard port ("+MainForm.Conf.LANPort+") may cause web-browser security errors. Click the link above to test in your web browser." +
-                    NL);
+                    string.Format("Warning: Running a local server on a non-standard port ({0}) may cause web-browser security errors. Click the link above to test in your web browser.{1}", MainForm.Conf.LANPort, NL));
+            }
+            if (MainForm.IPAddress.StartsWith("169.254"))
+            {
+                UISync.Execute(() => rtbOutput.Text += NL+"Warning: Your network adaptor has assigned itself a link-local address (169.254.x.x). This means your PC is setup for DHCP but can't find a DHCP server and iSpy will be unavailable over your LAN. Try resetting your router."+NL);
             }
             UISync.Execute(() => rtbOutput.Text += "Checking local server... ");
             Application.DoEvents();
@@ -94,7 +96,7 @@ namespace iSpyApplication
             if (!loadurl(localserver+"/ping", out res))
             {
                 string res1 = res;
-                UISync.Execute(() => rtbOutput.Text += "Failed: " + res1 + NL);
+                UISync.Execute(() => rtbOutput.Text += string.Format("Failed: {0}{1}", res1, NL));
                 if (MainForm.MWS.Running)
                 {
                     UISync.Execute(() => rtbOutput.Text += "Server reports it IS running" + NL);
@@ -102,7 +104,10 @@ namespace iSpyApplication
                 else
                     UISync.Execute(() => rtbOutput.Text += "Server reports it IS NOT running - check the log file for errors (View-> Log File)" + NL);
 
-                UISync.Execute(() => rtbOutput.Text += "Do you have a third party firewall or antivirus running (AVG/ zonealarm etc)?" + NL);               
+                UISync.Execute(() => rtbOutput.Text += "Do you have a third party firewall or antivirus running (AVG/ zonealarm etc)?" + NL);
+
+                
+
             }
             else
             {
@@ -114,7 +119,7 @@ namespace iSpyApplication
                 else
                 {
                     string res1 = res;
-                    UISync.Execute(() => rtbOutput.Text += "Unexpected output: " + res1);
+                    UISync.Execute(() => rtbOutput.Text += string.Format("Unexpected output: {0}", res1));
                 }
             }
             UISync.Execute(() => rtbOutput.Text += NL);
@@ -127,35 +132,42 @@ namespace iSpyApplication
             else
             {
                 if (res.IndexOf("error occurred while", StringComparison.Ordinal)!=-1)
-                    UISync.Execute(() => rtbOutput.Text += "Error with webservices. Please try again later.");
+                    UISync.Execute(() => rtbOutput.Text += "Error with webservices. Please try again later (check your internet connection).");
                 else
                     UISync.Execute(() => rtbOutput.Text += "OK");
             }
             UISync.Execute(() => rtbOutput.Text += NL);
             UISync.Execute(() => rtbOutput.Text += "Checking your firewall... ");
             Application.DoEvents();
-            var fw = new WinXPSP2FireWall();
+            var fw = new FireWall();
             fw.Initialize();
 
-            bool bOn = false;
-            fw.IsWindowsFirewallOn(ref bOn);
-            if (bOn)
+            bool bOn;
+            var r = fw.IsWindowsFirewallOn(out bOn);
+
+            if (r == FireWall.FwErrorCode.FwNoerror)
             {
-                string strApplication = Application.StartupPath + "\\iSpy.exe";
-                bool bEnabled = false;
-                fw.IsAppEnabled(strApplication, ref bEnabled);
-                if (!bEnabled)
+                if (bOn)
                 {
-                    UISync.Execute(() => rtbOutput.Text += "iSpy is *not* enabled");
+                    string strApplication = Application.StartupPath + "\\iSpy.exe";
+                    bool bEnabled = false;
+                    fw.IsAppEnabled(strApplication, ref bEnabled);
+                    if (!bEnabled)
+                    {
+                        UISync.Execute(() => rtbOutput.Text += "iSpy is *NOT ENABLED* - add ispy.exe to the windows firewall allowed list");}
+                    else
+                    {
+                        UISync.Execute(() => rtbOutput.Text += "iSpy is enabled");
+                    }
                 }
                 else
                 {
-                    UISync.Execute(() => rtbOutput.Text += "iSpy is enabled");
+                    UISync.Execute(() => rtbOutput.Text += "Firewall is off");
                 }
             }
             else
             {
-                UISync.Execute(() => rtbOutput.Text += "Firewall is off");
+                UISync.Execute(() => rtbOutput.Text += "Firewall error: " + r.ToString());
             }
             UISync.Execute(() => rtbOutput.Text += NL);
 
@@ -194,46 +206,55 @@ namespace iSpyApplication
                                 while (!portMapOk && j > 0)
                                 {
                                     var enumerator = NATControl.Mappings.GetEnumerator();
-
-                                    while (enumerator.MoveNext())
+                                    try
                                     {
-                                        var map = (NATUPNPLib.IStaticPortMapping) enumerator.Current;
-                                        UISync.Execute(
-                                            () =>
-                                            rtbOutput.Text +=
-                                            map.ExternalPort + " -> " + map.InternalPort + " on " + map.InternalClient +
-                                            " (" +
-                                            map.Protocol + ")" + NL);
-                                        if (map.ExternalPort == MainForm.Conf.ServerPort)
+                                        while (enumerator.MoveNext())
                                         {
-                                            if (map.InternalPort != MainForm.Conf.LANPort)
+                                            var map = (NATUPNPLib.IStaticPortMapping)enumerator.Current;
+                                            UISync.Execute(
+                                                () =>
+                                                rtbOutput.Text +=
+                                                map.ExternalPort + " -> " + map.InternalPort + " on " +
+                                                map.InternalClient +
+                                                " (" +
+                                                map.Protocol + ")" + NL);
+                                            if (map.ExternalPort == MainForm.Conf.ServerPort)
                                             {
-                                                UISync.Execute(
-                                                    () =>
-                                                    rtbOutput.Text +=
-                                                    "*** External port is routing to " + map.InternalPort +
-                                                    " instead of " +
-                                                    MainForm.Conf.LANPort + NL);
-                                            }
-                                            else
-                                            {
-                                                if (map.InternalClient != MainForm.AddressIPv4)
+                                                if (map.InternalPort != MainForm.Conf.LANPort)
                                                 {
                                                     UISync.Execute(
                                                         () =>
                                                         rtbOutput.Text +=
-                                                        "*** Port is mapping to IP Address " + map.InternalClient +
-                                                        " - should be " +
-                                                        MainForm.AddressIPv4 +
-                                                        ". Set a static IP address for your computer and then update the port mapping." +
-                                                        NL);
+                                                        "*** External port is routing to " + map.InternalPort +
+                                                        " instead of " +
+                                                        MainForm.Conf.LANPort + NL);
                                                 }
                                                 else
                                                 {
-                                                    portMapOk = true;
+                                                    if (map.InternalClient != MainForm.AddressIPv4)
+                                                    {
+                                                        UISync.Execute(
+                                                            () =>
+                                                            rtbOutput.Text +=
+                                                            "*** Port is mapping to IP Address " + map.InternalClient +
+                                                            " - should be " +
+                                                            MainForm.AddressIPv4 +
+                                                            ". Set a static IP address for your computer and then update the port mapping." +
+                                                            NL);
+                                                    }
+                                                    else
+                                                    {
+                                                        portMapOk = true;
+                                                    }
                                                 }
                                             }
                                         }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        UISync.Execute(
+                                            () => rtbOutput.Text += "Port mapping lookup failed. If the connection fails try resetting your router or manually configure port forwarding. " + NL);
+                                        throw;
                                     }
                                     if (!portMapOk)
                                     {
@@ -256,6 +277,7 @@ namespace iSpyApplication
                         catch (Exception ex)
                         {
                             MainForm.LogExceptionToFile(ex);
+                           
                         }
                     }
                     
@@ -266,9 +288,10 @@ namespace iSpyApplication
 
                     if (result.Length>3 && result[3] != "")
                     {
+                        MainForm.Conf.Loopback = MainForm.LoopBack = false;
                         UISync.Execute(() => rtbOutput.Text += "iSpyConnect is trying to contact your server at: "+result[6] + NL);
                         UISync.Execute(() => rtbOutput.Text += "Failed: " + result[3] + NL);
-                        if (!IPv6)
+                        if (!bIPv6)
                         {
                             UISync.Execute(
                                 () =>
@@ -288,16 +311,35 @@ namespace iSpyApplication
                                     " or check if your antivirus protection (eset, zonealarm etc) is blocking iSpy. ");
                             }
                         }
+
+                        if (MainForm.AddressListIPv4.Length > 1)
+                        {
+                            UISync.Execute(() => rtbOutput.Text += NL+"Warning: There are multiple network adaptors in your PC. Try selecting a different IP address to listen on in iSpy web settings or disable unused network adaptors and restart iSpy: " + NL);
+                            foreach (var ip in MainForm.AddressListIPv4)
+                            {
+                                string ip1 = ip.ToString();
+                                if (ip1 != MainForm.IPAddress)
+                                    UISync.Execute(() => rtbOutput.Text += "\t" + ip1 + NL);
+                            }
+                        }
                         UISync.Execute(() => rtbOutput.Text += NL + NL + "Please see the troubleshooting section here: http://www.ispyconnect.com/userguide-remote-access-troubleshooting.aspx");
+
                     }
                     else
                     {
-                        if (result.Length==1)
+                        if (result.Length == 1)
+                        {
                             UISync.Execute(() => rtbOutput.Text +=
-                                "Failed: Communication with webserver failed." + NL + NL);
+                                                 "Failed: Communication with webserver failed." + NL + NL);
+                        }
                         else
+                        {
                             UISync.Execute(() => rtbOutput.Text +=
-                                "Success!"+NL+NL+"If you cannot access content locally please ensure 'Use LAN IP when available' is checked on "+MainForm.Webserver+"/account.aspx and also ensure you're using an up to date web browser (we recommend google Chrome)");
+                                "Success!" + NL + NL + "If you cannot access content locally please ensure 'Use LAN IP when available' is checked on " + MainForm.Webserver + "/account.aspx and also ensure you're using an up to date web browser (we recommend google Chrome)");
+
+                            MainForm.Conf.Loopback = MainForm.LoopBack = true;
+                        }
+                            
                     }
                 }
                 else

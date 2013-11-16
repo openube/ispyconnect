@@ -1,402 +1,390 @@
 using System;
 using NetFwTypeLib;
 
-namespace Moah
+namespace iSpyApplication
 {
-    class WinXPSP2FireWall
+    class FireWall
     {
-        public enum FW_ERROR_CODE
+        public enum FwErrorCode
         {
-            FW_NOERROR = 0,
-            FW_ERR_INITIALIZED,					// Already initialized or doesn't call Initialize()
-            FW_ERR_CREATE_SETTING_MANAGER,		// Can't create an instance of the firewall settings manager
-            FW_ERR_LOCAL_POLICY,				// Can't get local firewall policy
-            FW_ERR_PROFILE,						// Can't get the firewall profile
-            FW_ERR_FIREWALL_IS_ENABLED,			// Can't get the firewall enable information
-            FW_ERR_FIREWALL_ENABLED,			// Can't set the firewall enable option
-            FW_ERR_INVALID_ARG,					// Invalid Arguments
-            FW_ERR_AUTH_APPLICATIONS,			// Failed to get authorized application list
-            FW_ERR_APP_ENABLED,					// Failed to get the application is enabled or not
-            FW_ERR_CREATE_APP_INSTANCE,			// Failed to create an instance of an authorized application
-            FW_ERR_SYS_ALLOC_STRING,			// Failed to alloc a memory for BSTR
-            FW_ERR_PUT_PROCESS_IMAGE_NAME,		// Failed to put Process Image File Name to Authorized Application
-            FW_ERR_PUT_REGISTER_NAME,			// Failed to put a registered name
-            FW_ERR_ADD_TO_COLLECTION,			// Failed to add to the Firewall collection
-            FW_ERR_REMOVE_FROM_COLLECTION,		// Failed to remove from the Firewall collection
-            FW_ERR_GLOBAL_OPEN_PORTS,			// Failed to retrieve the globally open ports
-            FW_ERR_PORT_IS_ENABLED,				// Can't get the firewall port enable information
-            FW_ERR_PORT_ENABLED,				// Can't set the firewall port enable option
-            FW_ERR_CREATE_PORT_INSTANCE,		// Failed to create an instance of an authorized port
-            FW_ERR_SET_PORT_NUMBER,				// Failed to set port number
-            FW_ERR_SET_IP_PROTOCOL,				// Failed to set IP Protocol
-            FW_ERR_EXCEPTION_NOT_ALLOWED,		// Failed to get or put the exception not allowed
-            FW_ERR_NOTIFICATION_DISABLED,		// Failed to get or put the notification disabled
-            FW_ERR_UNICAST_MULTICAST,			// Failed to get or put the UnicastResponses To MulticastBroadcast Disabled Property 
-            FW_ERR_APPLICATION_ITEM,            // Failed to returns the specified application if it is in the collection.
-            FW_ERR_SAME_PORT_EXIST,             // The port which you try to add is already existed.
-            FW_ERR_UNKNOWN,                     // Unknown Error or Exception occured
+            FwNoerror = 0,
+            FwErrInitialized,					// Already initialized or doesn't call Initialize()
+            FwErrCreateSettingManager,		// Can't create an instance of the firewall settings manager
+            FwErrLocalPolicy,				// Can't get local firewall policy
+            FwErrProfile,						// Can't get the firewall profile
+            FwErrFirewallIsEnabled,			// Can't get the firewall enable information
+            FwErrFirewallEnabled,			// Can't set the firewall enable option
+            FwErrInvalidArg,					// Invalid Arguments
+            FwErrAuthApplications,			// Failed to get authorized application list
+            FwErrAppEnabled,					// Failed to get the application is enabled or not
+            FwErrCreateAppInstance,			// Failed to create an instance of an authorized application
+            FwErrSysAllocString,			// Failed to alloc a memory for BSTR
+            FwErrPutProcessImageName,		// Failed to put Process Image File Name to Authorized Application
+            FwErrPutRegisterName,			// Failed to put a registered name
+            FwErrAddToCollection,			// Failed to add to the Firewall collection
+            FwErrRemoveFromCollection,		// Failed to remove from the Firewall collection
+            FwErrGlobalOpenPorts,			// Failed to retrieve the globally open ports
+            FwErrPortIsEnabled,				// Can't get the firewall port enable information
+            FwErrPortEnabled,				// Can't set the firewall port enable option
+            FwErrCreatePortInstance,		// Failed to create an instance of an authorized port
+            FwErrSetPortNumber,				// Failed to set port number
+            FwErrSetIPProtocol,				// Failed to set IP Protocol
+            FwErrExceptionNotAllowed,		// Failed to get or put the exception not allowed
+            FwErrNotificationDisabled,		// Failed to get or put the notification disabled
+            FwErrUnicastMulticast,			// Failed to get or put the UnicastResponses To MulticastBroadcast Disabled Property 
+            FwErrApplicationItem,            // Failed to returns the specified application if it is in the collection.
+            FwErrSamePortExist,             // The port which you try to add is already existed.
+            FwErrUnknown,                     // Unknown Error or Exception occured
         };
 
-        INetFwProfile m_FirewallProfile = null;
+        INetFwProfile _mFirewallProfile;
 
-        public FW_ERROR_CODE Initialize()
+        public FwErrorCode Initialize()
         {
-            if (m_FirewallProfile != null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile != null)
+                return FwErrorCode.FwErrInitialized;
 
-            Type typFwMgr;
-            INetFwMgr fwMgr;
+            Type typFwMgr = Type.GetTypeFromCLSID(new Guid("{304CE942-6E39-40D8-943A-B913C40C9CD4}"));
+            var fwMgr = (INetFwMgr)Activator.CreateInstance(typFwMgr);
 
-            typFwMgr = Type.GetTypeFromCLSID(new Guid("{304CE942-6E39-40D8-943A-B913C40C9CD4}"));
-            fwMgr = (INetFwMgr)Activator.CreateInstance(typFwMgr);
-
-            if (fwMgr == null)
-                return FW_ERROR_CODE.FW_ERR_CREATE_SETTING_MANAGER;
             INetFwPolicy fwPolicy = fwMgr.LocalPolicy;
             if (fwPolicy == null)
-                return FW_ERROR_CODE.FW_ERR_LOCAL_POLICY;
+                return FwErrorCode.FwErrLocalPolicy;
 
             try
             {
-                m_FirewallProfile = fwPolicy.GetProfileByType(fwMgr.CurrentProfileType);
+                _mFirewallProfile = fwPolicy.GetProfileByType(fwMgr.CurrentProfileType);
             }
             catch
             {
-                return FW_ERROR_CODE.FW_ERR_PROFILE;
+                return FwErrorCode.FwErrProfile;
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE Uninitialize()
+        public FwErrorCode Uninitialize()
         {
-            m_FirewallProfile = null;
-            return FW_ERROR_CODE.FW_NOERROR;
+            _mFirewallProfile = null;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsWindowsFirewallOn(ref bool bOn)
+        public FwErrorCode IsWindowsFirewallOn(out bool bOn)
         {
             bOn = false;
 
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            bOn = m_FirewallProfile.FirewallEnabled;
+            bOn = _mFirewallProfile.FirewallEnabled;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE TurnOnWindowsFirewall()
+        public FwErrorCode TurnOnWindowsFirewall()
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             // Check whether the firewall is off
-            bool bFWOn = false;
-            FW_ERROR_CODE ret = IsWindowsFirewallOn(ref bFWOn);
-            if (ret != FW_ERROR_CODE.FW_NOERROR)
+            bool bFwOn;
+            FwErrorCode ret = IsWindowsFirewallOn(out bFwOn);
+            if (ret != FwErrorCode.FwNoerror)
                 return ret;
 
             // If it is off now, turn it on
-            if (!bFWOn)
-                m_FirewallProfile.FirewallEnabled = true;
+            if (!bFwOn)
+                _mFirewallProfile.FirewallEnabled = true;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE TurnOffWindowsFirewall()
+        public FwErrorCode TurnOffWindowsFirewall()
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             // Check whether the firewall is off
-            bool bFWOn = false;
-            FW_ERROR_CODE ret = IsWindowsFirewallOn(ref bFWOn);
+            bool bFwOn;
+            FwErrorCode ret = IsWindowsFirewallOn(out bFwOn);
 
-            if (ret != FW_ERROR_CODE.FW_NOERROR)
+            if (ret != FwErrorCode.FwNoerror)
                 return ret;
 
             // If it is on now, turn it off
-            if (bFWOn)
-                m_FirewallProfile.FirewallEnabled = false;
+            if (bFwOn)
+                _mFirewallProfile.FirewallEnabled = false;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsAppEnabled(string strProcessImageFileName, ref bool bEnable)
+        public FwErrorCode IsAppEnabled(string strProcessImageFileName, ref bool bEnable)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             if (strProcessImageFileName.Length == 0)
-                return FW_ERROR_CODE.FW_ERR_INVALID_ARG;
+                return FwErrorCode.FwErrInvalidArg;
 
-            INetFwAuthorizedApplications FWApps = m_FirewallProfile.AuthorizedApplications;
-            if (FWApps == null)
-                return FW_ERROR_CODE.FW_ERR_AUTH_APPLICATIONS;
+            INetFwAuthorizedApplications fwApps = _mFirewallProfile.AuthorizedApplications;
+            if (fwApps == null)
+                return FwErrorCode.FwErrAuthApplications;
 
             try
             {
-                INetFwAuthorizedApplication FWApp = FWApps.Item(strProcessImageFileName);
+                INetFwAuthorizedApplication fwApp = fwApps.Item(strProcessImageFileName);
                 // If FAILED, the appliacation is not in the collection list
-                if (FWApp == null)
-                    return FW_ERROR_CODE.FW_ERR_APPLICATION_ITEM;
+                if (fwApp == null)
+                    return FwErrorCode.FwErrApplicationItem;
 
-                bEnable = FWApp.Enabled;
+                bEnable = fwApp.Enabled;
             }
             catch (System.IO.FileNotFoundException)
             {
                 bEnable = false;
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE AddApplication(string strProcessImageFileName, string strRegisterName)
+        public FwErrorCode AddApplication(string strProcessImageFileName, string strRegisterName)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             if (strProcessImageFileName.Length == 0 || strRegisterName.Length == 0)
-                return FW_ERROR_CODE.FW_ERR_INVALID_ARG;
+                return FwErrorCode.FwErrInvalidArg;
 
             // First of all, check the application is already authorized;
             bool bAppEnable = true;
-            FW_ERROR_CODE nError = IsAppEnabled(strProcessImageFileName, ref bAppEnable);
-            if (nError != FW_ERROR_CODE.FW_NOERROR)
+            FwErrorCode nError = IsAppEnabled(strProcessImageFileName, ref bAppEnable);
+            if (nError != FwErrorCode.FwNoerror)
                 return nError;
 
             // Only add the application if it isn't authorized
             if (bAppEnable == false)
             {
                 // Retrieve the authorized application collection
-                INetFwAuthorizedApplications FWApps = m_FirewallProfile.AuthorizedApplications;
+                INetFwAuthorizedApplications fwApps = _mFirewallProfile.AuthorizedApplications;
 
-                if (FWApps == null)
-                    return FW_ERROR_CODE.FW_ERR_AUTH_APPLICATIONS;
+                if (fwApps == null)
+                    return FwErrorCode.FwErrAuthApplications;
 
                 // Create an instance of an authorized application
                 Type typeFwApp = Type.GetTypeFromCLSID(new Guid("{EC9846B3-2762-4A6B-A214-6ACB603462D2}"));
 
-                INetFwAuthorizedApplication FWApp = (INetFwAuthorizedApplication)Activator.CreateInstance(typeFwApp);
-                if (FWApp == null)
-                    return FW_ERROR_CODE.FW_ERR_CREATE_APP_INSTANCE;
+                var fwApp = (INetFwAuthorizedApplication)Activator.CreateInstance(typeFwApp);
 
                 // Set the process image file name
-                FWApp.ProcessImageFileName = strProcessImageFileName;
-                FWApp.Name = strRegisterName;
+                fwApp.ProcessImageFileName = strProcessImageFileName;
+                fwApp.Name = strRegisterName;
 
                 try
                 {
-                    FWApps.Add(FWApp);
+                    fwApps.Add(fwApp);
                 }
                 catch
                 {
-                    return FW_ERROR_CODE.FW_ERR_ADD_TO_COLLECTION;
+                    return FwErrorCode.FwErrAddToCollection;
                 }
 
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE RemoveApplication(string strProcessImageFileName)
+        public FwErrorCode RemoveApplication(string strProcessImageFileName)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
             if (strProcessImageFileName.Length == 0)
-                return FW_ERROR_CODE.FW_ERR_INVALID_ARG;
+                return FwErrorCode.FwErrInvalidArg;
 
             bool bAppEnable = true;
-            FW_ERROR_CODE nError = IsAppEnabled(strProcessImageFileName, ref bAppEnable);
+            FwErrorCode nError = IsAppEnabled(strProcessImageFileName, ref bAppEnable);
 
-            if (nError != FW_ERROR_CODE.FW_NOERROR)
+            if (nError != FwErrorCode.FwNoerror)
                 return nError;
 
             // Only remove the application if it is authorized
             if (bAppEnable)
             {
                 // Retrieve the authorized application collection
-                INetFwAuthorizedApplications FWApps = m_FirewallProfile.AuthorizedApplications;
-                if (FWApps == null)
-                    return FW_ERROR_CODE.FW_ERR_AUTH_APPLICATIONS;
+                INetFwAuthorizedApplications fwApps = _mFirewallProfile.AuthorizedApplications;
+                if (fwApps == null)
+                    return FwErrorCode.FwErrAuthApplications;
 
                 try
                 {
-                    FWApps.Remove(strProcessImageFileName);
+                    fwApps.Remove(strProcessImageFileName);
                 }
                 catch
                 {
-                    return FW_ERROR_CODE.FW_ERR_REMOVE_FROM_COLLECTION;
+                    return FwErrorCode.FwErrRemoveFromCollection;
                 }
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsPortEnabled(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol, ref bool bEnable)
+        public FwErrorCode IsPortEnabled(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol, ref bool bEnable)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             // Retrieve the open ports collection
-            INetFwOpenPorts FWOpenPorts = m_FirewallProfile.GloballyOpenPorts;
-            if (FWOpenPorts == null)
-                return FW_ERROR_CODE.FW_ERR_GLOBAL_OPEN_PORTS;
+            INetFwOpenPorts fwOpenPorts = _mFirewallProfile.GloballyOpenPorts;
+            if (fwOpenPorts == null)
+                return FwErrorCode.FwErrGlobalOpenPorts;
 
             // Get the open port
             try
             {
-                INetFwOpenPort FWOpenPort = FWOpenPorts.Item(nPortNumber, ipProtocol);
-                if (FWOpenPort != null)
-                    bEnable = FWOpenPort.Enabled;
-                else
-                    bEnable = false;
+                INetFwOpenPort fwOpenPort = fwOpenPorts.Item(nPortNumber, ipProtocol);
+                bEnable = fwOpenPort != null && fwOpenPort.Enabled;
             }
             catch (System.IO.FileNotFoundException)
             {
                 bEnable = false;
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE AddPort(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol, string strRegisterName)
+        public FwErrorCode AddPort(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol, string strRegisterName)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             bool bEnablePort = true;
-            FW_ERROR_CODE nError = IsPortEnabled(nPortNumber, ipProtocol, ref bEnablePort);
-            if (nError != FW_ERROR_CODE.FW_NOERROR)
+            FwErrorCode nError = IsPortEnabled(nPortNumber, ipProtocol, ref bEnablePort);
+            if (nError != FwErrorCode.FwNoerror)
                 return nError;
 
             // Only add the port, if it isn't added to the collection
             if (bEnablePort == false)
             {
                 // Retrieve the collection of globally open ports
-                INetFwOpenPorts FWOpenPorts = m_FirewallProfile.GloballyOpenPorts;
-                if (FWOpenPorts == null)
-                    return FW_ERROR_CODE.FW_ERR_GLOBAL_OPEN_PORTS;
+                INetFwOpenPorts fwOpenPorts = _mFirewallProfile.GloballyOpenPorts;
+                if (fwOpenPorts == null)
+                    return FwErrorCode.FwErrGlobalOpenPorts;
 
                 // Create an instance of an open port
                 Type typeFwPort = Type.GetTypeFromCLSID(new Guid("{0CA545C6-37AD-4A6C-BF92-9F7610067EF5}"));
-                INetFwOpenPort FWOpenPort = (INetFwOpenPort)Activator.CreateInstance(typeFwPort);
-                if (FWOpenPort == null)
-                    return FW_ERROR_CODE.FW_ERR_CREATE_PORT_INSTANCE;
+                var fwOpenPort = (INetFwOpenPort)Activator.CreateInstance(typeFwPort);
 
                 // Set the port number
-                FWOpenPort.Port = nPortNumber;
+                fwOpenPort.Port = nPortNumber;
 
                 // Set the IP Protocol
-                FWOpenPort.Protocol = ipProtocol;
+                fwOpenPort.Protocol = ipProtocol;
 
                 // Set the registered name
-                FWOpenPort.Name = strRegisterName;
+                fwOpenPort.Name = strRegisterName;
 
                 try
                 {
-                    FWOpenPorts.Add(FWOpenPort);
+                    fwOpenPorts.Add(fwOpenPort);
                 }
                 catch
                 {
-                    return FW_ERROR_CODE.FW_ERR_ADD_TO_COLLECTION;
+                    return FwErrorCode.FwErrAddToCollection;
                 }
             }
             else
-                return FW_ERROR_CODE.FW_ERR_SAME_PORT_EXIST;
+                return FwErrorCode.FwErrSamePortExist;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE RemovePort(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol)
+        public FwErrorCode RemovePort(int nPortNumber, NET_FW_IP_PROTOCOL_ ipProtocol)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
             bool bEnablePort = false;
-            FW_ERROR_CODE nError = IsPortEnabled(nPortNumber, ipProtocol, ref bEnablePort);
-            if (nError != FW_ERROR_CODE.FW_NOERROR)
+            FwErrorCode nError = IsPortEnabled(nPortNumber, ipProtocol, ref bEnablePort);
+            if (nError != FwErrorCode.FwNoerror)
                 return nError;
 
             // Only remove the port, if it is on the collection
             if (bEnablePort)
             {
                 // Retrieve the collection of globally open ports
-                INetFwOpenPorts FWOpenPorts = m_FirewallProfile.GloballyOpenPorts;
-                if (FWOpenPorts == null)
-                    return FW_ERROR_CODE.FW_ERR_GLOBAL_OPEN_PORTS;
+                INetFwOpenPorts fwOpenPorts = _mFirewallProfile.GloballyOpenPorts;
+                if (fwOpenPorts == null)
+                    return FwErrorCode.FwErrGlobalOpenPorts;
 
                 try
                 {
-                    FWOpenPorts.Remove(nPortNumber, ipProtocol);
+                    fwOpenPorts.Remove(nPortNumber, ipProtocol);
                 }
                 catch
                 {
-                    return FW_ERROR_CODE.FW_ERR_REMOVE_FROM_COLLECTION;
+                    return FwErrorCode.FwErrRemoveFromCollection;
                 }
             }
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsExceptionNotAllowed(ref bool bNotAllowed)
+        public FwErrorCode IsExceptionNotAllowed(ref bool bNotAllowed)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
-            bNotAllowed = m_FirewallProfile.ExceptionsNotAllowed;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
+            bNotAllowed = _mFirewallProfile.ExceptionsNotAllowed;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE SetExceptionNotAllowed(bool bNotAllowed)
+        public FwErrorCode SetExceptionNotAllowed(bool bNotAllowed)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            m_FirewallProfile.ExceptionsNotAllowed = bNotAllowed;
+            _mFirewallProfile.ExceptionsNotAllowed = bNotAllowed;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsNotificationDiabled(ref bool bDisabled)
+        public FwErrorCode IsNotificationDiabled(ref bool bDisabled)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            bDisabled = m_FirewallProfile.NotificationsDisabled;
+            bDisabled = _mFirewallProfile.NotificationsDisabled;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE SetNotificationDiabled(bool bDisabled)
+        public FwErrorCode SetNotificationDiabled(bool bDisabled)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            m_FirewallProfile.NotificationsDisabled = bDisabled;
+            _mFirewallProfile.NotificationsDisabled = bDisabled;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE IsUnicastResponsesToMulticastBroadcastDisabled(ref bool bDisabled)
+        public FwErrorCode IsUnicastResponsesToMulticastBroadcastDisabled(ref bool bDisabled)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            bDisabled = m_FirewallProfile.UnicastResponsesToMulticastBroadcastDisabled;
+            bDisabled = _mFirewallProfile.UnicastResponsesToMulticastBroadcastDisabled;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
 
-        public FW_ERROR_CODE SetUnicastResponsesToMulticastBroadcastDisabled(bool bDisabled)
+        public FwErrorCode SetUnicastResponsesToMulticastBroadcastDisabled(bool bDisabled)
         {
-            if (m_FirewallProfile == null)
-                return FW_ERROR_CODE.FW_ERR_INITIALIZED;
+            if (_mFirewallProfile == null)
+                return FwErrorCode.FwErrInitialized;
 
-            m_FirewallProfile.UnicastResponsesToMulticastBroadcastDisabled = bDisabled;
+            _mFirewallProfile.UnicastResponsesToMulticastBroadcastDisabled = bDisabled;
 
-            return FW_ERROR_CODE.FW_NOERROR;
+            return FwErrorCode.FwNoerror;
         }
     }
 }

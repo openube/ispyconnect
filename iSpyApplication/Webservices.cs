@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Net;
 using System.Windows.Forms;
-using Moah;
 
 namespace iSpyApplication
 {
@@ -76,25 +75,40 @@ namespace iSpyApplication
             {
                 try
                 {
-                    var fw = new WinXPSP2FireWall();
-                    fw.Initialize();
-
-                    bool bOn = false;
-                    fw.IsWindowsFirewallOn(ref bOn);
-                    if (bOn)
+                    var fw = new FireWall();
+                    var r = fw.Initialize();
+                    if (r == FireWall.FwErrorCode.FwNoerror)
                     {
-                        string strApplication = Application.StartupPath + "\\iSpy.exe";
-                        bool bEnabled = false;
-                        fw.IsAppEnabled(strApplication, ref bEnabled);
-                        if (!bEnabled)
+                        bool bOn;
+                        r = fw.IsWindowsFirewallOn(out bOn);
+                        if (r == FireWall.FwErrorCode.FwNoerror)
                         {
-                            fw.AddApplication(strApplication, "iSpy");
+                            if (bOn)
+                            {
+                                string strApplication = Application.StartupPath + "\\iSpy.exe";
+                                bool bEnabled = false;
+                                r = fw.IsAppEnabled(strApplication, ref bEnabled);
+                                if (r == FireWall.FwErrorCode.FwNoerror)
+                                {
+                                    if (!bEnabled)
+                                    {
+                                        fw.AddApplication(strApplication, "iSpy");
+                                    }
+                                }
+                            }
                         }
+                    }
+                    if (r!= FireWall.FwErrorCode.FwNoerror)
+                    {
+                        throw new Exception(r.ToString());
                     }
                 }
                 catch (Exception ex)
                 {
                     MainForm.LogExceptionToFile(ex);
+                    MessageBox.Show(this,
+                                       "Error from firewall: " + ex.Message +
+                                       ". Please add an exception into the firewall for ispy.exe manually");
                 }
 
                 Next.Enabled = false;
@@ -137,10 +151,8 @@ namespace iSpyApplication
                                     {
                                         result = WsWrapper.TestConnection(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, true);
                                     }
-                                }
-                               
+                                }  
                             }
-                            
                             
                             if (result[3] != "")
                             {

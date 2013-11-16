@@ -124,7 +124,7 @@ namespace iSpyApplication
                 switch (li.ObjectTypeId)
                 {
                     case 1:
-                        VolumeLevel vl = GetMicrophone(li.ObjectId);
+                        VolumeLevel vl = GetVolumeLevel(li.ObjectId);
                         if (vl != null)
                         {
                             vl.Location = new Point(li.LayoutRectangle.X, li.LayoutRectangle.Y);

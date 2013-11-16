@@ -118,24 +118,14 @@ namespace iSpyApplication
                 else
                 {
                     _myListener = new TcpListener(IPAddress.Any, MainForm.Conf.LANPort)
-                                      {ExclusiveAddressUse = false};
+                                        {ExclusiveAddressUse = false};
                 }
                 _myListener.Start(200);
             }
             catch (Exception e)
             {
                 MainForm.LogExceptionToFile(e);
-                if (_myListener != null)
-                {
-                    try
-                    {
-                        _myListener.Stop();
-                    }
-                    catch (SocketException)
-                    {
-                    }
-                    _myListener = null;
-                }
+                StopServer();
                 message = "Could not start local iSpy server - please select a different LAN port in settings. The port specified is in use. See the log file for more information.";
             }
             if (message != "")
@@ -166,53 +156,38 @@ namespace iSpyApplication
 
         public void StopServer()
         {
-            if (_connectedSockets == null)
-                return;
-            ClientConnected.Set();
-            try
+            if (_connectedSockets != null)
             {
-                foreach (var sock in _connectedSockets.Values)
+                ClientConnected.Set();
+                try
                 {
-                    sock.Close();
+                    foreach (var sock in _connectedSockets.Values)
+                    {
+                        sock.Close();
+                    }
+                }
+                catch (SocketException ex)
+                {
+                    //During one socket disconnected we can faced exception
+                    MainForm.LogExceptionToFile(ex);
                 }
             }
-            catch (SocketException ex)
+
+            if (_myListener != null && _myListener.Server!=null)
             {
-                //During one socket disconnected we can faced exception
-                MainForm.LogExceptionToFile(ex);
+                var t = new Thread(DoStopServer);
+                t.Start();
+                t.Join();
+                _myListener = null;
             }
 
             Application.DoEvents();
-            if (_myListener != null)
-            {
-                try
-                {
-                    _myListener.Stop();
-                    _myListener = null;
-                }
-                catch
-                {
-                    _myListener = null;
-                }
-            }
-            Application.DoEvents();
-            if (_th != null)
-            {
-                try
-                {
-                    if (_th.ThreadState == ThreadState.Running)
-                    {
-                        _th.Abort();
-                        _th.Join(3000);
-                    }
-                        
-                }
-                catch
-                {
-                }
-                Application.DoEvents();
-                _th = null;
-            }
+        }
+
+        private void DoStopServer()
+        {
+            if (_myListener!=null && _myListener.Server!=null)
+                _myListener.Server.Close();
         }
 
         /// <summary>

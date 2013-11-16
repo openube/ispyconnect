@@ -1186,6 +1186,8 @@ namespace iSpyApplication
                         {
                             LogMessageToFile("Enable DHCP Reroute in Web Settings to handle this automatically");
                         }
+                        MWS.StopServer();
+                        MWS.StartServer();
                         WsWrapper.ForceSync();
                         break;
                     case "IPv6":
@@ -1547,9 +1549,15 @@ namespace iSpyApplication
 
             if (_storageThread == null || !_storageThread.IsAlive)
             {
-                LogMessageToFile("Running Storage Management");
-                _storageThread = new Thread(DeleteOldFiles) {IsBackground = true};
-                _storageThread.Start();
+                bool r = Conf.Enable_Storage_Management;
+                r = r || Cameras.Any(p => p.settings.storagemanagement.enabled);
+                r = r || Microphones.Any(p => p.settings.storagemanagement.enabled);
+                if (r)
+                {
+                    LogMessageToFile("Running Storage Management");
+                    _storageThread = new Thread(DeleteOldFiles) {IsBackground = true};
+                    _storageThread.Start();
+                }
             }
             else
                 LogMessageToFile("Storage Management is already running");
@@ -2098,6 +2106,17 @@ namespace iSpyApplication
                 LogExceptionToFile(ex);
             }
 
+            if (_storageThread != null && _storageThread.IsAlive)
+            {
+                try
+                {
+                    _storageThread.Join();
+                }
+                catch
+                {
+                    
+                }
+            }
             WriteLogs();
         }
 
@@ -2458,7 +2477,7 @@ namespace iSpyApplication
             }
             foreach (objectsMicrophone om in Microphones)
             {
-                VolumeLevel omc = GetMicrophone(om.id);
+                VolumeLevel omc = GetVolumeLevel(om.id);
                 if (omc != null)
                 {
                     omc.ClearFileList();
@@ -2715,7 +2734,7 @@ namespace iSpyApplication
                 }
                 var ws = new Webservices();
                 ws.ShowDialog(this);
-                if (ws.EmailAddress != "")
+                if (!String.IsNullOrEmpty(ws.EmailAddress))
                     EmailAddress = ws.EmailAddress;
                 if (ws.DialogResult == DialogResult.Yes || ws.DialogResult == DialogResult.No)
                 {
@@ -3200,7 +3219,7 @@ namespace iSpyApplication
             {
                 if (mic.schedule.active)
                 {
-                    VolumeLevel vl = GetMicrophone(mic.id);
+                    VolumeLevel vl = GetVolumeLevel(mic.id);
                     vl.ApplySchedule();
                 }
             }

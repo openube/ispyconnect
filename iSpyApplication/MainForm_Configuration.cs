@@ -378,12 +378,13 @@ namespace iSpyApplication
             {
                 if (_ipv4Addresses != null)
                     return _ipv4Addresses;
-                _ipv4Addresses =
-                    Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(
-                        p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
+
+                var arr = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
+                _ipv4Addresses = arr.Where(IsValidIP).ToArray();
+                
+                if (!_ipv4Addresses.Any()) //none in the system - just use the loopback address
+                    _ipv4Addresses = new [] {System.Net.IPAddress.Parse("127.0.0.1")};
                 return _ipv4Addresses;
-                //return Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(
-                //       p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
             }
         }
 
@@ -456,23 +457,44 @@ namespace iSpyApplication
                         break;
                     }
 
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    if (IsValidIP(ip))
                     {
-
-                        if (!System.Net.IPAddress.IsLoopback(ip))
-                        {
-                            if (detectip == "")
-                                detectip = ip.ToString();
-                        }
+                        detectip = ip.ToString();
+                        break;
                     }
                 }
                 if (_ipv4Address == "")
                     _ipv4Address = detectip;
-                Conf.IPv4Address = _ipv4Address;
+                if (_ipv4Address == "")
+                    _ipv4Address = "127.0.0.1";
 
+                Conf.IPv4Address = _ipv4Address;
                 return _ipv4Address;
             }
             set { _ipv4Address = value; }
+        }
+
+        private static bool IsValidIP(IPAddress ip)
+        {
+            string detectip;
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            {
+                if (!System.Net.IPAddress.IsLoopback(ip))
+                {
+                    var sip = ip.ToString().Split('.');
+                    switch (sip[0])
+                    {
+                        default:
+                            return true;
+                        case "0":
+                        case "127":
+                        case "169":
+
+                            break;
+                    }
+                }
+            }
+            return false;
         }
 
         //IPv6
@@ -1612,19 +1634,6 @@ namespace iSpyApplication
             return null;
         }
 
-        public VolumeLevel GetMicrophone(int microphoneId)
-        {
-            for (int index = 0; index < _pnlCameras.Controls.Count; index++)
-            {
-                Control c = _pnlCameras.Controls[index];
-                if (c.GetType() != typeof(VolumeLevel)) continue;
-                var vw = (VolumeLevel)c;
-                if (vw.Micobject.id != microphoneId) continue;
-                return vw;
-            }
-            return null;
-        }
-
         public FloorPlanControl GetFloorPlan(int floorPlanId)
         {
             for (int index = 0; index < _pnlCameras.Controls.Count; index++)
@@ -1775,7 +1784,7 @@ namespace iSpyApplication
                             }
                             break;
                         case "microphone":
-                            VolumeLevel vl = GetMicrophone(o.id);
+                            VolumeLevel vl = GetVolumeLevel(o.id);
                             if (vl != null)
                             {
                                 vl.Highlighted = false;
@@ -1812,7 +1821,7 @@ namespace iSpyApplication
 
             foreach (objectsMicrophone om in Microphones)
             {
-                VolumeLevel omc = GetMicrophone(om.id);
+                VolumeLevel omc = GetVolumeLevel(om.id);
                 if (omc != null)
                 {
                     omc.SaveFileList();
@@ -2402,7 +2411,7 @@ namespace iSpyApplication
             c.cameras = Cameras.ToArray();
             foreach (objectsMicrophone om in Microphones)
             {
-                VolumeLevel omc = GetMicrophone(om.id);
+                VolumeLevel omc = GetVolumeLevel(om.id);
                 if (omc != null)
                 {
                     om.width = omc.Width;

@@ -51,8 +51,11 @@ namespace iSpyApplication
             _mPlayer.Events.PlayerStopped += EventsPlayerStopped;
 
             _mPlayer.WindowHandle = pnlMovie.Handle;
-            trackBar2.Value = _mPlayer.Volume;
-            RenderResources();
+            
+             if (_mPlayer.Volume>=trackBar2.Minimum && _mPlayer.Volume<=trackBar2.Maximum)
+                trackBar2.Value = _mPlayer.Volume;
+            
+             RenderResources();
              _titleText = titleText;
 
         }
@@ -103,7 +106,7 @@ namespace iSpyApplication
                 FilesFile ff = null;
                 if (fn.EndsWith(".mp3") || fn.EndsWith(".wav"))
                 {
-                    var vl = ((MainForm)Owner).GetMicrophone(ObjectID);
+                    var vl = ((MainForm)Owner).GetVolumeLevel(ObjectID);
                     if (vl != null)
                     {
                         ff = vl.FileList.FirstOrDefault(p => p.Filename.EndsWith(fn));
@@ -200,7 +203,11 @@ namespace iSpyApplication
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
-            _mPlayer.Volume = trackBar2.Value;
+            try
+            {
+                _mPlayer.Volume = trackBar2.Value;
+            }
+            catch{}
         }
 
         private void button4_Click(object sender, EventArgs e)
