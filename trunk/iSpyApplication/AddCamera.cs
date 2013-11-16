@@ -1927,10 +1927,6 @@ namespace iSpyApplication
                 RenderResources();
         }
 
-        private void LinkLabel4LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Login();
-        }
 
         private void DdlTimestampKeyUp(object sender, KeyEventArgs e)
         {
@@ -1971,14 +1967,6 @@ namespace iSpyApplication
             }
         }
 
-        private void LinkLabel5LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            MainForm.OpenUrl( MainForm.Website+"/countrycodes.aspx");
-        }
-
-        private void ChkEmailOnDisconnectCheckedChanged(object sender, EventArgs e)
-        {
-        }
 
         private void ChkFlipYCheckedChanged(object sender, EventArgs e)
         {

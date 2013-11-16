@@ -388,7 +388,7 @@ namespace iSpyApplication.Controls
                                 changeHighlight = false;
                                 break;
                             case "microphone":
-                                VolumeLevel vl = Owner.GetMicrophone(fpoe.id);
+                                VolumeLevel vl = Owner.GetVolumeLevel(fpoe.id);
                                 if (vl != null)
                                 {
                                     //vl.Location = new Point(Location.X + e.X, Location.Y + e.Y);
@@ -423,7 +423,7 @@ namespace iSpyApplication.Controls
                                 cw.Highlighted = true;
                             break;
                         case "microphone":
-                            VolumeLevel vl = Owner.GetMicrophone(fpoe.id);
+                            VolumeLevel vl = Owner.GetVolumeLevel(fpoe.id);
                             if (vl!=null)
                                 vl.Highlighted = true;
 
@@ -614,7 +614,7 @@ namespace iSpyApplication.Controls
                     gLf.DrawImage(_imgplan,0,0);
 
                     bool itemRemoved = false;
-                    double wrat = Convert.ToDouble(ImageWidth)/533d;
+                    double wrat = Convert.ToDouble(ImageWidth) / 533d;
                     double hrat = Convert.ToDouble(ImageHeight) / 400d;
 
                     foreach (objectsFloorplanObjectsEntry fpoe in Fpobject.objects.@object)
@@ -677,7 +677,7 @@ namespace iSpyApplication.Controls
                                 break;
                             case "microphone":
                                 {
-                                    var vw = Owner.GetMicrophone(fpoe.id);
+                                    var vw = Owner.GetVolumeLevel(fpoe.id);
                                     if (vw != null)
                                     {
                                         if (vw.Micobject.settings.active && !vw.AudioSourceErrorState)

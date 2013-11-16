@@ -51,12 +51,16 @@ namespace iSpyApplication.Controls
                 var oc = s.Split('|');
                 var li = new ListItem();
                 var restricted = false;
+
                 if (MainForm.Conf.Subscribed)
                     oc[1] = oc[1].Replace("[SUBSCRIBER]", "");
                 else
                 {
-                    oc[1] = oc[1].Replace("[SUBSCRIBER]", "(Subscribers Only)");
-                    restricted = true;
+                    if (oc[1].IndexOf("[SUBSCRIBER]", StringComparison.Ordinal) != -1)
+                    {
+                        oc[1] = oc[1].Replace("[SUBSCRIBER]", "(Subscribers Only)");
+                        restricted = true;
+                    }
                 }
                 li.Name = oc[1];
                 li.Value = oc[0];
@@ -302,7 +306,10 @@ namespace iSpyApplication.Controls
         private void button1_Click(object sender, EventArgs e)
         {
             if (ddlAction.SelectedIndex < 1)
+            {
+                MessageBox.Show(this, "Select an action to add");
                 return;
+            }
             var oa = (ListItem) ddlAction.SelectedItem;
             
             if (!MainForm.Conf.Subscribed && oa.Restricted)

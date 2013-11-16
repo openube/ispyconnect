@@ -939,7 +939,9 @@
     <Content Include="XML\Translations.xml">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="app.manifest" />
+    <None Include="app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Resources\PTZ_Controller.png" />
     <None Include="Resources\listenoff.png" />
     <None Include="Resources\youtube_icon_sm.png" />

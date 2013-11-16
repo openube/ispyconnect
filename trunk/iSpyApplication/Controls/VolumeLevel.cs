@@ -975,7 +975,7 @@ namespace iSpyApplication.Controls
                     message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
 
 
-                    WsWrapper.SendAlert(Micobject.settings.emailaddress, subject, message);
+                    WsWrapper.SendAlert(MainForm.EmailAddress, subject, message);
 
                     _errorTime = DateTime.MinValue;
                 }
@@ -1067,13 +1067,8 @@ namespace iSpyApplication.Controls
                                     if (_isTrigger ||
                                         (Math.Floor(SoundCount) >= Micobject.detector.soundinterval))
                                     {
-                                        RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
                                         DoAlert();
                                         SoundCount = 0;
-                                        if (Micobject.detector.recordonalert && !Recording)
-                                        {
-                                            StartSaving();
-                                        }
                                     }
                                     _lastAlertCheck = DateTime.Now;
                                 }
@@ -1085,12 +1080,7 @@ namespace iSpyApplication.Controls
                                 if ((DateTime.Now - _soundLastDetected).TotalSeconds >
                                     Micobject.detector.nosoundinterval)
                                 {
-                                    RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
                                     DoAlert();
-                                    if (Micobject.detector.recordonalert && !Recording)
-                                    {
-                                        StartSaving();
-                                    }
                                 }
                                 break;
                         }
@@ -1694,6 +1684,8 @@ namespace iSpyApplication.Controls
             IsEnabled = false;
             IsReconnect = false;
 
+            StopSaving();
+
             ClearAudioBuffer();
 
             Levels = null;
@@ -2184,14 +2176,12 @@ namespace iSpyApplication.Controls
                                 switch (tid[0])
                                 {
                                     case "1":
-                                        VolumeLevel vl =
-                                            ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        if (vl != null)
+                                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                        if (vl != null && vl != this)
                                             vl.MicrophoneAlarm(this, EventArgs.Empty);
                                         break;
                                     case "2":
-                                        CameraWindow cw =
-                                            ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                                        CameraWindow cw = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
                                         if (cw != null)
                                             cw.CameraAlarm(this, EventArgs.Empty);
                                         break;
@@ -2424,11 +2414,18 @@ namespace iSpyApplication.Controls
             if (IsEdit)
                 return;
 
+            RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
+
             Alerted = true;
             UpdateFloorplans(true);
 
             var t = new Thread(AlertThread) { Name = "Alert (" + Micobject.id + ")", IsBackground = false };
             t.Start(msg);
+
+            if (Micobject.detector.recordonalert && !Recording)
+            {
+                StartSaving();
+            }
         }
 
         private void AlertThread(object omsg)

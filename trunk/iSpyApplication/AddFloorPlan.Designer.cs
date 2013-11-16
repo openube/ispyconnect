@@ -139,6 +139,7 @@
             resources.ApplyResources(this.chkOriginalSize, "chkOriginalSize");
             this.chkOriginalSize.Name = "chkOriginalSize";
             this.chkOriginalSize.UseVisualStyleBackColor = true;
+            this.chkOriginalSize.CheckedChanged += new System.EventHandler(this.chkOriginalSize_CheckedChanged);
             // 
             // pnlFloorPlan
             // 
@@ -206,6 +207,7 @@
             this.Controls.Add(this.pnlFloorPlan);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.tableLayoutPanel3);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MinimizeBox = false;
             this.Name = "AddFloorPlan";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddFloorPlan_FormClosing);

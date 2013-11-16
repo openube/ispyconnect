@@ -444,6 +444,11 @@ namespace iSpyApplication
             MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
         }
 
+        private void chkOriginalSize_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
         //private void pnlPlan_MouseDown(object sender, MouseEventArgs e)
         //{
 
