@@ -386,7 +386,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        
+        internal RotateFlipType RotateFlipType = RotateFlipType.RotateNoneFlipNone;
 
         private void VideoNewFrame(object sender, NewFrameEventArgs e)
         {
@@ -418,13 +418,11 @@ namespace iSpyApplication.Controls
                         //resize?
                         bmOrig = ResizeBmOrig(e);
 
-                        if (CW.Camobject.rotate90)
-                            bmOrig.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                        if (CW.Camobject.flipx)
-                            bmOrig.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                        if (CW.Camobject.flipy)
-                            bmOrig.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
+                        if (RotateFlipType != RotateFlipType.RotateNoneFlipNone)
+                        {
+                            bmOrig.RotateFlip(RotateFlipType);                           
+                        }
+                         
                         _width = bmOrig.Width;
                         _height = bmOrig.Height;
 

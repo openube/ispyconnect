@@ -838,6 +838,27 @@ namespace iSpyApplication
                     }
                     if (cam.alerts.trigger == null)
                         cam.alerts.trigger = "";
+
+                    if (String.IsNullOrEmpty(cam.rotateMode))
+                    {
+                        cam.rotateMode = "RotateNoneFlipNone";
+                        if (cam.rotate90)
+                        {
+                            cam.rotateMode = RotateFlipType.Rotate90FlipNone.ToString();
+                        }
+                        if (cam.flipx)
+                        {
+                            cam.rotateMode = RotateFlipType.RotateNoneFlipX.ToString();
+                        }
+                        if (cam.flipy)
+                        {
+                            cam.rotateMode = RotateFlipType.RotateNoneFlipY.ToString();
+                        }
+                        if (cam.flipx && cam.flipy)
+                        {
+                            cam.rotateMode = RotateFlipType.RotateNoneFlipXY.ToString();
+                        }
+                    }
                 }
                 int micid = 0;
                 foreach (objectsMicrophone mic in _microphones)
@@ -2040,6 +2061,7 @@ namespace iSpyApplication
             oc.settings.audioport = 80;
             oc.settings.audiomodel = "None";
             oc.settings.audioip = "";
+            oc.rotateMode = "RotateNoneFlipNone";
 
             var cameraControl = new CameraWindow(oc) { BackColor = Conf.BackColor.ToColor() };
             _pnlCameras.Controls.Add(cameraControl);

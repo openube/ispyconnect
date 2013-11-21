@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
@@ -172,6 +173,7 @@ namespace iSpyApplication
 
         private void AddCameraLoad(object sender, EventArgs e)
         {
+            int j;
             if (CameraControl.Camobject.id == -1)
             {
                 if (!SelectSource())
@@ -223,7 +225,7 @@ namespace iSpyApplication
                 ddlProcessor.Items.Add(LocRm.GetString(dt));
             }
 
-            for (int j = 0; j < _detectortypes.Length; j++)
+            for (j = 0; j < _detectortypes.Length; j++)
             {
                 if ((string) _detectortypes[j] == CameraControl.Camobject.detector.type)
                 {
@@ -231,7 +233,7 @@ namespace iSpyApplication
                     break;
                 }
             }
-            for (int j = 0; j < _processortypes.Length; j++)
+            for (j = 0; j < _processortypes.Length; j++)
             {
                 if ((string) _processortypes[j] == CameraControl.Camobject.detector.postprocessor)
                 {
@@ -257,9 +259,26 @@ namespace iSpyApplication
             rdoNoRecord.Checked = !rdoRecordDetect.Checked && !rdoRecordAlert.Checked;
 
             chkSchedule.Checked = CameraControl.Camobject.schedule.active;
-            chkFlipX.Checked = CameraControl.Camobject.flipx;
-            chkFlipY.Checked = CameraControl.Camobject.flipy;
-            chkRotate.Checked = CameraControl.Camobject.rotate90;
+            //chkFlipX.Checked = CameraControl.Camobject.flipx;
+            //chkFlipY.Checked = CameraControl.Camobject.flipy;
+            //chkRotate90.Checked = CameraControl.Camobject.rotate90;
+
+            var feats = Enum.GetNames(typeof(RotateFlipType));
+
+            int ind = 0;
+            j = 0;
+
+            foreach (var f in feats)
+            {
+                ddlRotateFlip.Items.Add(new ListItem(Regex.Replace(f, "([a-z,0-9])([A-Z])", "$1 $2"),f));
+                if (CameraControl.Camobject.rotateMode == f)
+                    ind = j;
+                j++;
+                
+            }
+            ddlRotateFlip.SelectedIndex = ind;
+            
+
             chkTrack.Checked = CameraControl.Camobject.settings.ptzautotrack;
             chkColourProcessing.Checked = CameraControl.Camobject.detector.colourprocessingenabled;
             numMaxFR.Value = CameraControl.Camobject.settings.maxframerate;
@@ -556,8 +575,8 @@ namespace iSpyApplication
             llblClearAll.Text = LocRm.GetString("ClearAll");
             button2.Text = LocRm.GetString("Add");
             chkActive.Text = LocRm.GetString("CameraActive");
-            chkFlipX.Text = LocRm.GetString("Flipx");
-            chkFlipY.Text = LocRm.GetString("Flipy");
+            //chkFlipX.Text = LocRm.GetString("Flipx");
+            //chkFlipY.Text = LocRm.GetString("Flipy");
             chkFri.Text = LocRm.GetString("Fri");
             chkFTP.Text = LocRm.GetString("FtpEnabled");
             label22.Text = LocRm.GetString("Username");
@@ -694,7 +713,7 @@ namespace iSpyApplication
             toolTip1.SetToolTip(txtCalibrationDelay, LocRm.GetString("ToolTip_DelayAlerts"));
             toolTip1.SetToolTip(lbSchedule, LocRm.GetString("ToolTip_PressDelete"));
             label16.Text = LocRm.GetString("PTZNote");
-            chkRotate.Text = LocRm.GetString("Rotate90");
+            //chkRotate90.Text = LocRm.GetString("Rotate90");
             chkPTZFlipX.Text = LocRm.GetString("Flipx");
             chkPTZFlipY.Text = LocRm.GetString("Flipy");
             chkPTZRotate90.Text = LocRm.GetString("Rotate90");
@@ -1972,15 +1991,15 @@ namespace iSpyApplication
         }
 
 
-        private void ChkFlipYCheckedChanged(object sender, EventArgs e)
-        {
-            CameraControl.Camobject.flipy = chkFlipY.Checked;
-        }
+        //private void ChkFlipYCheckedChanged(object sender, EventArgs e)
+        //{
+        //    CameraControl.Camobject.flipy = chkFlipY.Checked;
+        //}
 
-        private void ChkFlipXCheckedChanged(object sender, EventArgs e)
-        {
-            CameraControl.Camobject.flipx = chkFlipX.Checked;
-        }
+        //private void ChkFlipXCheckedChanged(object sender, EventArgs e)
+        //{
+        //    CameraControl.Camobject.flipx = chkFlipX.Checked;
+        //}
 
         private void BtnUpdateClick(object sender, EventArgs e)
         {
@@ -2198,7 +2217,6 @@ namespace iSpyApplication
                 _name = name;
                 Value = value;
             }
-
             public override string ToString()
             {
                 return _name;
@@ -2206,24 +2224,6 @@ namespace iSpyApplication
         }
 
         #endregion
-
-        private void chkRotate_CheckedChanged(object sender, EventArgs e)
-        {
-            bool changed = CameraControl.Camobject.rotate90 != chkRotate.Checked;
-            CameraControl.Camobject.rotate90 = chkRotate.Checked;
-            if (changed)
-            {
-                CameraControl.NeedSizeUpdate = true;
-                if (CameraControl.Camobject.settings.active)
-                {
-                    chkActive.Enabled = true;
-                    chkActive.Checked = false;
-                    Thread.Sleep(500); //allows unmanaged code to complete shutdown
-                    chkActive.Checked = true;
-                    CameraControl.NeedSizeUpdate = true;
-                }
-            }           
-        }
 
         private void chkPTZFlipX_CheckedChanged(object sender, EventArgs e)
         {
@@ -2750,6 +2750,51 @@ namespace iSpyApplication
         private void actionEditor1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void ddlRotateFlip_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var li = (ListItem) ddlRotateFlip.SelectedItem;
+
+            bool changed = CameraControl.Camobject.rotateMode != li.Value;
+            
+            if (changed)
+            {
+                RotateFlipType rmold,rmnew;
+                Enum.TryParse(li.Value, out rmold);
+                Enum.TryParse(CameraControl.Camobject.rotateMode, out rmnew);
+
+                
+                var bmp1 = new Bitmap(12, 6);
+                bmp1.RotateFlip(rmold);
+                var bmp2 = new Bitmap(12, 6);
+                bmp2.RotateFlip(rmnew);
+
+                var reset = bmp1.Width != bmp2.Width;
+
+                bmp1.Dispose();
+                bmp2.Dispose();
+
+                CameraControl.Camobject.rotateMode = li.Value;
+                
+                if (CameraControl.Camobject.settings.active)
+                {
+                    if (reset)
+                    {
+                        chkActive.Enabled = true;
+                        chkActive.Checked = false;
+                        Thread.Sleep(1000); //allows unmanaged code to complete shutdown
+                        chkActive.Checked = true;
+                        CameraControl.NeedSizeUpdate = true;
+                    }
+                    else
+                    {
+                        if (CameraControl.Camera!=null)
+                            CameraControl.Camera.RotateFlipType = rmnew;
+                    }
+                    
+                }
+            }           
         }
 
     }

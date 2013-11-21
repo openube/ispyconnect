@@ -4534,6 +4534,13 @@ namespace iSpyApplication.Controls
             Camera.PlayingFinished += VideoDeviceVideoFinished;
             Camera.Alarm += CameraAlarm;
 
+            RotateFlipType rft;
+            if (Enum.TryParse(Camobject.rotateMode, out rft))
+            {
+                Camera.RotateFlipType = rft;
+            }
+
+
             SetVideoSourceProperties();
         }
 
