@@ -116,6 +116,8 @@ public partial class objectsCamera {
     private bool flipyField;
     
     private bool rotate90Field;
+
+    private string rotateModeField;
     
     private int xField;
     
@@ -306,6 +308,20 @@ public partial class objectsCamera {
         }
         set {
             this.rotate90Field = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string rotateMode
+    {
+        get
+        {
+            return this.rotateModeField;
+        }
+        set
+        {
+            this.rotateModeField = value;
         }
     }
     
