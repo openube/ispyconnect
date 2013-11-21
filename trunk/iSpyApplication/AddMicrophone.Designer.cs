@@ -50,6 +50,7 @@ namespace iSpyApplication
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.pnlSound = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.rdoMovement = new System.Windows.Forms.RadioButton();
             this.txtSound = new System.Windows.Forms.NumericUpDown();
@@ -63,7 +64,7 @@ namespace iSpyApplication
             this.label13 = new System.Windows.Forms.Label();
             this.actionEditor1 = new iSpyApplication.Controls.ActionEditor();
             this.label95 = new System.Windows.Forms.Label();
-            this.chkNotifyDisconnect = new System.Windows.Forms.CheckBox();
+            this.txtEmailOnDisconnect = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.chkSound = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -436,6 +437,7 @@ namespace iSpyApplication
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 154F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 104F));
+            this.tableLayoutPanel2.Controls.Add(this.label6, 0, 3);
             this.tableLayoutPanel2.Controls.Add(this.label4, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.rdoMovement, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.txtSound, 2, 0);
@@ -447,7 +449,7 @@ namespace iSpyApplication
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel3, 1, 2);
             this.tableLayoutPanel2.Controls.Add(this.actionEditor1, 1, 4);
             this.tableLayoutPanel2.Controls.Add(this.label95, 0, 4);
-            this.tableLayoutPanel2.Controls.Add(this.chkNotifyDisconnect, 1, 3);
+            this.tableLayoutPanel2.Controls.Add(this.txtEmailOnDisconnect, 1, 3);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
@@ -460,6 +462,16 @@ namespace iSpyApplication
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(645, 444);
             this.tableLayoutPanel2.TabIndex = 84;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 101);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(104, 13);
+            this.label6.TabIndex = 96;
+            this.label6.Text = "Email on Disconnect";
             // 
             // label4
             // 
@@ -604,17 +616,15 @@ namespace iSpyApplication
             this.label95.TabIndex = 92;
             this.label95.Text = "Actions";
             // 
-            // chkNotifyDisconnect
+            // txtEmailOnDisconnect
             // 
-            this.chkNotifyDisconnect.AutoSize = true;
-            this.chkNotifyDisconnect.Location = new System.Drawing.Point(131, 99);
-            this.chkNotifyDisconnect.Margin = new System.Windows.Forms.Padding(6);
-            this.chkNotifyDisconnect.Name = "chkNotifyDisconnect";
-            this.chkNotifyDisconnect.Size = new System.Drawing.Size(123, 17);
-            this.chkNotifyDisconnect.TabIndex = 95;
-            this.chkNotifyDisconnect.Text = "Email on Disconnect";
-            this.chkNotifyDisconnect.UseVisualStyleBackColor = true;
-            this.chkNotifyDisconnect.CheckedChanged += new System.EventHandler(this.chkNotifyDisconnect_CheckedChanged);
+            this.tableLayoutPanel2.SetColumnSpan(this.txtEmailOnDisconnect, 2);
+            this.txtEmailOnDisconnect.Location = new System.Drawing.Point(131, 99);
+            this.txtEmailOnDisconnect.Margin = new System.Windows.Forms.Padding(6);
+            this.txtEmailOnDisconnect.Name = "txtEmailOnDisconnect";
+            this.txtEmailOnDisconnect.Size = new System.Drawing.Size(222, 20);
+            this.txtEmailOnDisconnect.TabIndex = 97;
+            this.toolTip1.SetToolTip(this.txtEmailOnDisconnect, "Subscribers Only");
             // 
             // panel2
             // 
@@ -1958,7 +1968,8 @@ namespace iSpyApplication
         private System.Windows.Forms.Button btnRunNow;
         private Controls.ActionEditor actionEditor1;
         private System.Windows.Forms.Label label95;
-        private System.Windows.Forms.CheckBox chkNotifyDisconnect;
         private System.Windows.Forms.LinkLabel linkLabel14;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtEmailOnDisconnect;
     }
 }

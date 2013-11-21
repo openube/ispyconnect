@@ -101,12 +101,8 @@ namespace iSpyApplication
         {
             if (!Enabled)
                 return;
-
-            if (WebsiteLive)
-            {                
-                Wsa.SendContentAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                         emailAddress, subject, message,Guid.NewGuid());
-            }
+       
+            Wsa.SendContentAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message,Guid.NewGuid());
         }
         private static bool Enabled
         {
@@ -118,8 +114,7 @@ namespace iSpyApplication
             if (!Enabled)
                 return;
 
-            Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword,
-                                                emailAddress, subject, message, imageData,Guid.NewGuid());
+            Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, imageData,Guid.NewGuid());
         }
 
         public static string ExternalIPv4(bool refresh)
@@ -263,6 +258,11 @@ namespace iSpyApplication
             {
                 MainForm.LogExceptionToFile(e.Error);
             }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Send Alert: " + e.Result);
+            }
 
         }
 
@@ -272,6 +272,12 @@ namespace iSpyApplication
             {
                 MainForm.LogExceptionToFile(e.Error);
             }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Send Content: " + e.Result);    
+            }
+            
 
         }
 
@@ -280,6 +286,11 @@ namespace iSpyApplication
             if (e.Error != null)
             {
                 MainForm.LogExceptionToFile(e.Error);
+            }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Send Alert With Image: " + e.Result);
             }
 
         }
@@ -290,6 +301,11 @@ namespace iSpyApplication
             {
                 MainForm.LogExceptionToFile(e.Error);
             }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Send SMS: " + e.Result);
+            }
 
         }
 
@@ -298,6 +314,11 @@ namespace iSpyApplication
             if (e.Error != null)
             {
                 MainForm.LogExceptionToFile(e.Error);
+            }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Send Tweet: " + e.Result);
             }
 
         }
@@ -309,15 +330,19 @@ namespace iSpyApplication
                 WebsiteLive = false;
                 MainForm.NeedsSync = true;
                 MainForm.LogExceptionToFile(e.Error);
-            }               
+            }
+            else
+            {
+                if (e.Result != "OK")
+                    MainForm.LogErrorToFile("Sync: " + e.Result);
+            }
         }
 
         public static string Disconnect()
         {
-            if (!MainForm.Conf.ServicesEnabled)
-                return WebservicesDisabledMessage;
             string r = "";
-            if (WebsiteLive)
+
+            if (MainForm.Conf.ServicesEnabled && WebsiteLive && !LoginFailed)
             {
                 int port = MainForm.Conf.ServerPort;
                 if (MainForm.Conf.IPMode == "IPv6")
@@ -334,7 +359,7 @@ namespace iSpyApplication
                 if (WebsiteLive)
                     return r;
             }
-            return LocRm.GetString("iSpyDown");
+            return WebservicesDisabledMessage;
         }
 
         public static string Connect()

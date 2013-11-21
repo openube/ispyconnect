@@ -243,6 +243,8 @@ public partial class configuration {
     private configurationJoystick joystickField;
 
     private bool enableGZipField;
+
+    private int disconnectNotificationDelayField;
     
     public configuration() {
         this.maxRecordingThreadsField = 4;
@@ -281,6 +283,7 @@ public partial class configuration {
         this.alertOnReconnectField = "";
         this.startupModeField = 0;
         this.enableGZipField = true;
+        this.disconnectNotificationDelayField = 60;
     }
     
     /// <remarks/>
@@ -325,14 +328,30 @@ public partial class configuration {
             this.servicesEnabledField = value;
         }
     }
-    
+
     /// <remarks/>
-    public int ServerPort {
-        get {
+    public int ServerPort
+    {
+        get
+        {
             return this.serverPortField;
         }
-        set {
+        set
+        {
             this.serverPortField = value;
+        }
+    } 
+    
+    /// <remarks/>
+    public int DisconnectNotificationDelay
+    {
+        get
+        {
+            return this.disconnectNotificationDelayField;
+        }
+        set
+        {
+            this.disconnectNotificationDelayField = value;
         }
     }
     
@@ -1403,6 +1422,19 @@ public partial class configurationGrid {
     private int rowsField;
     
     private int columnsField;
+
+    private bool fullScreenField;
+
+    private bool alwaysOnTopField;
+
+    private string displayField;
+
+    public configurationGrid()
+    {
+        this.fullScreenField = true;
+        this.alwaysOnTopField = false;
+    }
+    
     
     /// <remarks/>
     [System.Xml.Serialization.XmlElementAttribute("GridItem")]
@@ -1445,6 +1477,51 @@ public partial class configurationGrid {
         }
         set {
             this.columnsField = value;
+        }
+    }
+
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(true)]
+    public bool FullScreen
+    {
+        get
+        {
+            return this.fullScreenField;
+        }
+        set
+        {
+            this.fullScreenField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(false)]
+    public bool AlwaysOnTop
+    {
+        get
+        {
+            return this.alwaysOnTopField;
+        }
+        set
+        {
+            this.alwaysOnTopField = value;
+        }
+    }
+
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string Display
+    {
+        get
+        {
+            return this.displayField;
+        }
+        set
+        {
+            this.displayField = value;
         }
     }
 }

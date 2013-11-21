@@ -119,6 +119,15 @@ namespace iSpyApplication
 
         public const string Website = "http://www.ispyconnect.com";
         public static string Webserver = "http://www.ispyconnect.com";
+        private MediaPanel flowPreview;
+        private Panel panel1;
+        private FlowLayoutPanel flowLayoutPanel1;
+        private LinkLabel llblFilter;
+        private LinkLabel llblSelectAll;
+        private LinkLabel llblDelete;
+        private LinkLabel llblBack;
+        private LinkLabel llblPage;
+        private LinkLabel llblNext;
         public static string WebserverSecure = "https://www.ispyconnect.com";
 
         public static int ButtonWidth
@@ -301,8 +310,6 @@ namespace iSpyApplication
         private LayoutPanel _pnlCameras;
         private Panel _pnlContent;
         private SplitContainer splitContainer1;
-        private LinkLabel llblDelete;
-        private LinkLabel llblSelectAll;
         private ToolStripMenuItem opacityToolStripMenuItem;
         private ToolStripMenuItem opacityToolStripMenuItem1;
         private ToolStripMenuItem opacityToolStripMenuItem2;
@@ -321,8 +328,6 @@ namespace iSpyApplication
         private FlowLayoutPanel flCommands;
         private SplitContainer splitContainer2;
         private ToolTip toolTip1;
-        private FlowLayoutPanel flowLayoutPanel1;
-        private Panel panel1;
         private ToolStripMenuItem iPCameraWithWizardToolStripMenuItem;
         private MenuItem menuItem2;
         private MenuItem menuItem9;
@@ -367,10 +372,6 @@ namespace iSpyApplication
         private static List<LayoutItem> SavedLayout = new List<LayoutItem>();
         private MenuItem menuItem25;
         private MenuItem menuItem31;
-        private MediaPanel flowPreview;
-        private LinkLabel llblBack;
-        private LinkLabel llblNext;
-        private LinkLabel llblPage;
         private ToolStripStatusLabel tsslMediaInfo;
         private FolderBrowserDialog fbdSaveTo = new FolderBrowserDialog()
         {
@@ -1103,19 +1104,6 @@ namespace iSpyApplication
                 {
                     var gv = new GridView(this, ref cg);
                     gv.Show();
-                    switch (Conf.StartupMode)
-                    {
-                        case 0:
-                            //gv.WindowState = new PersistWindowState { Parent = this, RegistryPath = @"Software\ispy\startup" };
-                            break;
-                        case 2:
-                            gv.WindowState = FormWindowState.Maximized;
-                            break;
-                        case 3:
-                            gv.WindowState = FormWindowState.Maximized;
-                            gv.MaxMin();
-                            break;
-                    }
                 }
             }
 
@@ -1643,9 +1631,8 @@ namespace iSpyApplication
                         Thread.Sleep(500);
                     }
                 }
-                if (txt != null)
-                    if (txt.Trim() != "")
-                        ParseCommand(txt);
+                if (!String.IsNullOrEmpty(txt))
+                    ParseCommand(txt.Trim());
             }
             catch (Exception ex)
             {
@@ -1711,11 +1698,20 @@ namespace iSpyApplication
             //parse command into new format
             string[] cfg = command.Split(',');
             string newcommand;
-            if (cfg.Length == 1)
-                newcommand = cfg[0];
-            else
+            switch(cfg.Length)
             {
-                newcommand = cfg[0] + "?ot=" + cfg[1] + "&oid=" + cfg[2];
+                default:
+                    //generic command
+                    newcommand = cfg[0];
+                    break;
+                case 2:
+                    //group command
+                    newcommand = cfg[0] + "?group=" + cfg[1];
+                    break;
+                case 3:
+                    //specific device
+                    newcommand = cfg[0] + "?ot=" + cfg[1] + "&oid=" + cfg[2];
+                    break;
             }
             MWS.ProcessCommandInternal(newcommand);
         }
@@ -3342,12 +3338,16 @@ namespace iSpyApplication
             bool check = false, first = true;
             lock (flowPreview.Controls)
             {
-                foreach (PreviewBox pb in flowPreview.Controls)
+                foreach (Control c in flowPreview.Controls)
                 {
-                    if (first)
-                        check = !pb.Selected;
-                    first = false;
-                    pb.Selected = check;
+                    var pb = c as PreviewBox;
+                    if (pb != null)
+                    {
+                        if (first)
+                            check = !pb.Selected;
+                        first = false;
+                        pb.Selected = check;
+                    }
                 }
                 flowPreview.Invalidate(true);
             }
@@ -4043,12 +4043,13 @@ namespace iSpyApplication
             this.flowPreview = new iSpyApplication.Controls.MediaPanel();
             this.flCommands = new System.Windows.Forms.FlowLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.llblDelete = new System.Windows.Forms.LinkLabel();
-            this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.llblFilter = new System.Windows.Forms.LinkLabel();
+            this.llblSelectAll = new System.Windows.Forms.LinkLabel();
+            this.llblDelete = new System.Windows.Forms.LinkLabel();
             this.llblBack = new System.Windows.Forms.LinkLabel();
             this.llblPage = new System.Windows.Forms.LinkLabel();
             this.llblNext = new System.Windows.Forms.LinkLabel();
@@ -5423,40 +5424,6 @@ namespace iSpyApplication
             this.panel2.Size = new System.Drawing.Size(0, 0);
             this.panel2.TabIndex = 0;
             // 
-            // llblDelete
-            // 
-            this.llblDelete.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblDelete.AutoSize = true;
-            this.llblDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblDelete.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblDelete.LinkColor = System.Drawing.Color.White;
-            this.llblDelete.Location = new System.Drawing.Point(88, 0);
-            this.llblDelete.Name = "llblDelete";
-            this.llblDelete.Size = new System.Drawing.Size(43, 15);
-            this.llblDelete.TabIndex = 1;
-            this.llblDelete.TabStop = true;
-            this.llblDelete.Text = "Delete";
-            this.llblDelete.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblDelete.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblDelete.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDelete_LinkClicked);
-            // 
-            // llblSelectAll
-            // 
-            this.llblSelectAll.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.AutoSize = true;
-            this.llblSelectAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblSelectAll.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblSelectAll.LinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.Location = new System.Drawing.Point(3, 0);
-            this.llblSelectAll.Name = "llblSelectAll";
-            this.llblSelectAll.Size = new System.Drawing.Size(79, 15);
-            this.llblSelectAll.TabIndex = 0;
-            this.llblSelectAll.TabStop = true;
-            this.llblSelectAll.Text = "Select / Clear";
-            this.llblSelectAll.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblSelectAll_LinkClicked);
-            // 
             // splitContainer1
             // 
             this.splitContainer1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
@@ -5504,7 +5471,7 @@ namespace iSpyApplication
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(3);
-            this.panel1.Size = new System.Drawing.Size(214, 21);
+            this.panel1.Size = new System.Drawing.Size(254, 21);
             this.panel1.TabIndex = 20;
             // 
             // flowLayoutPanel1
@@ -5513,14 +5480,67 @@ namespace iSpyApplication
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.llblSelectAll);
             this.flowLayoutPanel1.Controls.Add(this.llblDelete);
+            this.flowLayoutPanel1.Controls.Add(this.llblFilter);
             this.flowLayoutPanel1.Controls.Add(this.llblBack);
             this.flowLayoutPanel1.Controls.Add(this.llblPage);
             this.flowLayoutPanel1.Controls.Add(this.llblNext);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(208, 15);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(248, 15);
             this.flowLayoutPanel1.TabIndex = 2;
+            // 
+            // llblFilter
+            // 
+            this.llblFilter.ActiveLinkColor = System.Drawing.Color.White;
+            this.llblFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblFilter.AutoSize = true;
+            this.llblFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llblFilter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblFilter.LinkColor = System.Drawing.Color.White;
+            this.llblFilter.Location = new System.Drawing.Point(137, 0);
+            this.llblFilter.Name = "llblFilter";
+            this.llblFilter.Size = new System.Drawing.Size(34, 15);
+            this.llblFilter.TabIndex = 5;
+            this.llblFilter.TabStop = true;
+            this.llblFilter.Text = "Filter";
+            this.llblFilter.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.llblFilter.VisitedLinkColor = System.Drawing.Color.White;
+            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblFilter_LinkClicked);
+            // 
+            // llblSelectAll
+            // 
+            this.llblSelectAll.ActiveLinkColor = System.Drawing.Color.White;
+            this.llblSelectAll.AutoSize = true;
+            this.llblSelectAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llblSelectAll.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblSelectAll.LinkColor = System.Drawing.Color.White;
+            this.llblSelectAll.Location = new System.Drawing.Point(3, 0);
+            this.llblSelectAll.Name = "llblSelectAll";
+            this.llblSelectAll.Size = new System.Drawing.Size(79, 15);
+            this.llblSelectAll.TabIndex = 0;
+            this.llblSelectAll.TabStop = true;
+            this.llblSelectAll.Text = "Select / Clear";
+            this.llblSelectAll.VisitedLinkColor = System.Drawing.Color.White;
+            this.llblSelectAll.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblSelectAll_LinkClicked);
+            // 
+            // llblDelete
+            // 
+            this.llblDelete.ActiveLinkColor = System.Drawing.Color.White;
+            this.llblDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblDelete.AutoSize = true;
+            this.llblDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llblDelete.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblDelete.LinkColor = System.Drawing.Color.White;
+            this.llblDelete.Location = new System.Drawing.Point(88, 0);
+            this.llblDelete.Name = "llblDelete";
+            this.llblDelete.Size = new System.Drawing.Size(43, 15);
+            this.llblDelete.TabIndex = 1;
+            this.llblDelete.TabStop = true;
+            this.llblDelete.Text = "Delete";
+            this.llblDelete.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.llblDelete.VisitedLinkColor = System.Drawing.Color.White;
+            this.llblDelete.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDelete_LinkClicked);
             // 
             // llblBack
             // 
@@ -5530,7 +5550,7 @@ namespace iSpyApplication
             this.llblBack.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.llblBack.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.llblBack.LinkColor = System.Drawing.Color.White;
-            this.llblBack.Location = new System.Drawing.Point(137, 0);
+            this.llblBack.Location = new System.Drawing.Point(177, 0);
             this.llblBack.Name = "llblBack";
             this.llblBack.Size = new System.Drawing.Size(21, 15);
             this.llblBack.TabIndex = 2;
@@ -5548,7 +5568,7 @@ namespace iSpyApplication
             this.llblPage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.llblPage.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.llblPage.LinkColor = System.Drawing.Color.White;
-            this.llblPage.Location = new System.Drawing.Point(164, 0);
+            this.llblPage.Location = new System.Drawing.Point(204, 0);
             this.llblPage.Name = "llblPage";
             this.llblPage.Size = new System.Drawing.Size(14, 15);
             this.llblPage.TabIndex = 4;
@@ -5566,7 +5586,7 @@ namespace iSpyApplication
             this.llblNext.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.llblNext.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.llblNext.LinkColor = System.Drawing.Color.White;
-            this.llblNext.Location = new System.Drawing.Point(184, 0);
+            this.llblNext.Location = new System.Drawing.Point(224, 0);
             this.llblNext.Name = "llblNext";
             this.llblNext.Size = new System.Drawing.Size(21, 15);
             this.llblNext.TabIndex = 3;
@@ -5795,6 +5815,9 @@ namespace iSpyApplication
                                                Columns = gvc.Cols,
                                                Rows = gvc.Rows,
                                                name = gvc.GridName,
+                                               FullScreen = gvc.FullScreen,
+                                               AlwaysOnTop = gvc.AlwaysOnTop,
+                                               Display = gvc.Display,
                                                GridItem = new configurationGridGridItem[]{}
                                            };
                 var l = Conf.GridViews.ToList();
@@ -5847,20 +5870,25 @@ namespace iSpyApplication
             foreach(var gv in Conf.GridViews)
             {
                 var mi = new MenuItem(gv.name);
-                var mis = new MenuItem("show");
-                mis.Click += mis_Click;
+                var mis = new MenuItem(LocRm.GetString("Show"));
+                mis.Click += MisClick;
                 mis.Tag = gv.name;
                 mi.MenuItems.Add(mis);
 
-                var mid2 = new MenuItem("delete");
-                mid2.Click += midel_Click;
+                var mie = new MenuItem(LocRm.GetString("Edit"));
+                mie.Click += MieClick;
+                mie.Tag = gv.name;
+                mi.MenuItems.Add(mie);
+
+                var mid2 = new MenuItem(LocRm.GetString("Delete"));
+                mid2.Click += MidelClick;
                 mid2.Tag = gv.name;
                 mi.MenuItems.Add(mid2);
                 menuItem25.MenuItems.Add(0,mi);
             }
         }
 
-        void mis_Click(object sender, EventArgs e)
+        void MisClick(object sender, EventArgs e)
         {
             var mi = (MenuItem) sender;
             var cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Tag.ToString());
@@ -5871,7 +5899,37 @@ namespace iSpyApplication
             }
         }
 
-        void midel_Click(object sender, EventArgs e)
+        void MieClick(object sender, EventArgs e)
+        {
+            var mi = (MenuItem)sender;
+            var cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Tag.ToString());
+            if (cg != null)
+            {
+                var gvc = new GridViewCustom
+                {
+                    Cols = cg.Columns,
+                    Rows = cg.Rows,
+                    GridName = cg.name,
+                    FullScreen = cg.FullScreen,
+                    AlwaysOnTop = cg.AlwaysOnTop,
+                    Display = cg.Display
+                };
+                gvc.ShowDialog(this);
+                if (gvc.DialogResult == DialogResult.OK)
+                {
+                    cg.Columns = gvc.Cols;
+                    cg.Rows = gvc.Rows;
+                    cg.name = gvc.GridName;
+                    cg.FullScreen = gvc.FullScreen;
+                    cg.AlwaysOnTop = gvc.AlwaysOnTop;
+                    cg.Display = gvc.Display;
+                    ListGridViews();
+                }
+                gvc.Dispose();
+            }
+        }
+
+        void MidelClick(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender).Tag;
             var l = Conf.GridViews.ToList();
@@ -5898,6 +5956,22 @@ namespace iSpyApplication
                     cameraControl.Camobject.alerts.pluginconfig = config;
                 }               
             }           
+        }
+
+        private void flowPreview_MouseLeave(object sender, EventArgs e)
+        {
+            tsslMediaInfo.Text = "";
+        }
+
+
+        private void llblFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var f = new Filter();
+            if (f.ShowDialog(this) == DialogResult.OK)
+            {
+                LoadPreviews();
+            }
+            f.Dispose();
         }
     }
 

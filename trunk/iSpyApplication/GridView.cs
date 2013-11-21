@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -6,7 +7,7 @@ namespace iSpyApplication
     public partial class GridView : Form
     {
         private readonly Controls.GridView _gv;
-        private bool _fullscreen;
+        private readonly configurationGrid _layout;
 
         public GridView(MainForm parent, ref configurationGrid layout)
         {
@@ -16,17 +17,29 @@ namespace iSpyApplication
             Controls.Add(_gv);
             _gv.Dock = DockStyle.Fill;
             _gv._parent = parent;
-            
+            _layout = layout;
+            fullScreenToolStripMenuItem.Checked = layout.FullScreen;
+            alwaysOnTopToolStripMenuItem.Checked = layout.AlwaysOnTop;
         }
 
         private void GridView_Load(object sender, EventArgs e)
         {
             Text = _gv.Text;
+
+            var screen = Screen.AllScreens.Where(s => s.DeviceName == _layout.Display).DefaultIfEmpty(Screen.PrimaryScreen).First();
+            StartPosition = FormStartPosition.Manual;
+            Location = screen.Bounds.Location;
+
+            if (fullScreenToolStripMenuItem.Checked)
+                MaxMin();
+
+            if (alwaysOnTopToolStripMenuItem.Checked)
+                OnTop();
         }
 
-        internal void MaxMin()
+        private void MaxMin()
         {
-            if (!_fullscreen)
+            if (fullScreenToolStripMenuItem.Checked)
             {
                 WindowState = FormWindowState.Maximized;
                 FormBorderStyle = FormBorderStyle.None;
@@ -37,13 +50,18 @@ namespace iSpyApplication
                 WindowState = FormWindowState.Maximized;
                 FormBorderStyle = FormBorderStyle.Sizable;
             }
-            _fullscreen = !_fullscreen;
+        }
+
+        private void OnTop()
+        {
+            TopMost = alwaysOnTopToolStripMenuItem.Checked;
         }
 
         private void GridView_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Alt && e.KeyCode==Keys.Enter)
+            if (e.Alt && e.KeyCode == Keys.Enter)
             {
+                fullScreenToolStripMenuItem.Checked = !fullScreenToolStripMenuItem.Checked;
                 MaxMin();
             }
         }
@@ -52,5 +70,16 @@ namespace iSpyApplication
         {
             MaxMin();
         }
+
+        private void alwaysOnTopToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OnTop();
+        }
+
+        private void closeGridViewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
     }
 }

@@ -111,6 +111,7 @@
         <xs:element name="AlertOnDisconnect" type="xs:string" default=""/>
         <xs:element name="AlertOnReconnect" type="xs:string" default=""/>
         <xs:element name="StartupMode" type="xs:int" default="0"/>
+        <xs:element name="DisconnectNotificationDelay" type="xs:int" default="60"/>
         <xs:element name="GridViews">
           <xs:complexType>
             <xs:sequence>
@@ -135,6 +136,9 @@
                   <xs:attribute name="name" type="xs:string" use="required" />
                   <xs:attribute name="Rows" type="xs:int" use="required" />
                   <xs:attribute name="Columns" type="xs:int" use="required" />
+                  <xs:attribute name="FullScreen" type="xs:boolean" default="true"/>
+                  <xs:attribute name="AlwaysOnTop" type="xs:boolean" default="false"/>
+                  <xs:attribute name="Display" type="xs:string" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>

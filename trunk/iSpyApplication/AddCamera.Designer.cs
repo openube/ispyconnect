@@ -86,6 +86,7 @@ namespace iSpyApplication
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.gbZones = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
+            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
             this.label83 = new System.Windows.Forms.Label();
             this.llblClearAll = new System.Windows.Forms.LinkLabel();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
@@ -100,6 +101,7 @@ namespace iSpyApplication
             this.button5 = new System.Windows.Forms.Button();
             this.chkColourProcessing = new System.Windows.Forms.CheckBox();
             this.chkSuppressNoise = new System.Windows.Forms.CheckBox();
+            this.ranger1 = new iSpyApplication.Controls.Ranger();
             this.button4 = new System.Windows.Forms.Button();
             this.label51 = new System.Windows.Forms.Label();
             this.flowLayoutPanel17 = new System.Windows.Forms.FlowLayoutPanel();
@@ -109,6 +111,7 @@ namespace iSpyApplication
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.pnlMovement = new System.Windows.Forms.Panel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
+            this.label6 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.ddlAlertMode = new System.Windows.Forms.ComboBox();
             this.linkLabel3 = new System.Windows.Forms.LinkLabel();
@@ -122,7 +125,8 @@ namespace iSpyApplication
             this.label33 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
             this.label95 = new System.Windows.Forms.Label();
-            this.chkNotifyDisconnect = new System.Windows.Forms.CheckBox();
+            this.actionEditor1 = new iSpyApplication.Controls.ActionEditor();
+            this.txtEmailOnDisconnect = new System.Windows.Forms.TextBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.chkMovement = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -369,9 +373,6 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.AreaControl = new iSpyApplication.Controls.AreaSelector();
-            this.ranger1 = new iSpyApplication.Controls.Ranger();
-            this.actionEditor1 = new iSpyApplication.Controls.ActionEditor();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -1187,6 +1188,22 @@ namespace iSpyApplication
             this.tableLayoutPanel6.Size = new System.Drawing.Size(633, 363);
             this.tableLayoutPanel6.TabIndex = 48;
             // 
+            // AreaControl
+            // 
+            this.AreaControl.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.AreaControl.BackColor = System.Drawing.Color.Black;
+            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.tableLayoutPanel6.SetColumnSpan(this.AreaControl, 2);
+            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.AreaControl.Location = new System.Drawing.Point(106, 0);
+            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
+            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
+            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
+            this.AreaControl.Name = "AreaControl";
+            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
+            this.AreaControl.Size = new System.Drawing.Size(421, 319);
+            this.AreaControl.TabIndex = 48;
+            // 
             // label83
             // 
             this.label83.AutoSize = true;
@@ -1366,6 +1383,19 @@ namespace iSpyApplication
             this.chkSuppressNoise.UseVisualStyleBackColor = true;
             this.chkSuppressNoise.CheckedChanged += new System.EventHandler(this.ChkSuppressNoiseCheckedChanged);
             // 
+            // ranger1
+            // 
+            this.tableLayoutPanel5.SetColumnSpan(this.ranger1, 4);
+            this.ranger1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ranger1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ranger1.Location = new System.Drawing.Point(92, 37);
+            this.ranger1.Margin = new System.Windows.Forms.Padding(4);
+            this.ranger1.Name = "ranger1";
+            this.ranger1.Size = new System.Drawing.Size(537, 73);
+            this.ranger1.TabIndex = 61;
+            this.ranger1.ValueMax = 100D;
+            this.ranger1.ValueMin = 0D;
+            // 
             // button4
             // 
             this.button4.AutoSize = true;
@@ -1476,6 +1506,7 @@ namespace iSpyApplication
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel7.Controls.Add(this.label6, 0, 3);
             this.tableLayoutPanel7.Controls.Add(this.label4, 0, 0);
             this.tableLayoutPanel7.Controls.Add(this.ddlAlertMode, 1, 0);
             this.tableLayoutPanel7.Controls.Add(this.linkLabel3, 3, 0);
@@ -1485,7 +1516,7 @@ namespace iSpyApplication
             this.tableLayoutPanel7.Controls.Add(this.label15, 0, 2);
             this.tableLayoutPanel7.Controls.Add(this.label95, 0, 4);
             this.tableLayoutPanel7.Controls.Add(this.actionEditor1, 1, 4);
-            this.tableLayoutPanel7.Controls.Add(this.chkNotifyDisconnect, 1, 3);
+            this.tableLayoutPanel7.Controls.Add(this.txtEmailOnDisconnect, 1, 3);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
@@ -1495,8 +1526,19 @@ namespace iSpyApplication
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel7.Size = new System.Drawing.Size(645, 453);
             this.tableLayoutPanel7.TabIndex = 82;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 101);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(104, 13);
+            this.label6.TabIndex = 95;
+            this.label6.Text = "Email on Disconnect";
             // 
             // label4
             // 
@@ -1649,17 +1691,24 @@ namespace iSpyApplication
             this.label95.TabIndex = 91;
             this.label95.Text = "Actions";
             // 
-            // chkNotifyDisconnect
+            // actionEditor1
             // 
-            this.chkNotifyDisconnect.AutoSize = true;
-            this.chkNotifyDisconnect.Location = new System.Drawing.Point(122, 99);
-            this.chkNotifyDisconnect.Margin = new System.Windows.Forms.Padding(6);
-            this.chkNotifyDisconnect.Name = "chkNotifyDisconnect";
-            this.chkNotifyDisconnect.Size = new System.Drawing.Size(123, 17);
-            this.chkNotifyDisconnect.TabIndex = 94;
-            this.chkNotifyDisconnect.Text = "Email on Disconnect";
-            this.chkNotifyDisconnect.UseVisualStyleBackColor = true;
-            this.chkNotifyDisconnect.CheckedChanged += new System.EventHandler(this.chkNotifyDisconnect_CheckedChanged);
+            this.tableLayoutPanel7.SetColumnSpan(this.actionEditor1, 3);
+            this.actionEditor1.Location = new System.Drawing.Point(120, 128);
+            this.actionEditor1.Margin = new System.Windows.Forms.Padding(4);
+            this.actionEditor1.Name = "actionEditor1";
+            this.actionEditor1.Size = new System.Drawing.Size(485, 286);
+            this.actionEditor1.TabIndex = 92;
+            this.actionEditor1.Load += new System.EventHandler(this.actionEditor1_Load);
+            // 
+            // txtEmailOnDisconnect
+            // 
+            this.txtEmailOnDisconnect.Location = new System.Drawing.Point(122, 99);
+            this.txtEmailOnDisconnect.Margin = new System.Windows.Forms.Padding(6);
+            this.txtEmailOnDisconnect.Name = "txtEmailOnDisconnect";
+            this.txtEmailOnDisconnect.Size = new System.Drawing.Size(266, 20);
+            this.txtEmailOnDisconnect.TabIndex = 96;
+            this.toolTip1.SetToolTip(this.txtEmailOnDisconnect, "Subscribers Only");
             // 
             // panel4
             // 
@@ -4846,45 +4895,6 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Size = new System.Drawing.Size(437, 41);
             this.flowLayoutPanel3.TabIndex = 48;
             // 
-            // AreaControl
-            // 
-            this.AreaControl.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.AreaControl.BackColor = System.Drawing.Color.Black;
-            this.AreaControl.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.tableLayoutPanel6.SetColumnSpan(this.AreaControl, 2);
-            this.AreaControl.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.AreaControl.Location = new System.Drawing.Point(106, 0);
-            this.AreaControl.Margin = new System.Windows.Forms.Padding(0);
-            this.AreaControl.MinimumSize = new System.Drawing.Size(100, 100);
-            this.AreaControl.MotionZones = new objectsCameraDetectorZone[0];
-            this.AreaControl.Name = "AreaControl";
-            this.AreaControl.Padding = new System.Windows.Forms.Padding(0, 0, 3, 3);
-            this.AreaControl.Size = new System.Drawing.Size(421, 319);
-            this.AreaControl.TabIndex = 48;
-            // 
-            // ranger1
-            // 
-            this.tableLayoutPanel5.SetColumnSpan(this.ranger1, 4);
-            this.ranger1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.ranger1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ranger1.Location = new System.Drawing.Point(92, 37);
-            this.ranger1.Margin = new System.Windows.Forms.Padding(4);
-            this.ranger1.Name = "ranger1";
-            this.ranger1.Size = new System.Drawing.Size(537, 73);
-            this.ranger1.TabIndex = 61;
-            this.ranger1.ValueMax = 100D;
-            this.ranger1.ValueMin = 0D;
-            // 
-            // actionEditor1
-            // 
-            this.tableLayoutPanel7.SetColumnSpan(this.actionEditor1, 3);
-            this.actionEditor1.Location = new System.Drawing.Point(120, 128);
-            this.actionEditor1.Margin = new System.Windows.Forms.Padding(4);
-            this.actionEditor1.Name = "actionEditor1";
-            this.actionEditor1.Size = new System.Drawing.Size(485, 286);
-            this.actionEditor1.TabIndex = 92;
-            this.actionEditor1.Load += new System.EventHandler(this.actionEditor1_Load);
-            // 
             // AddCamera
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -5410,7 +5420,8 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label95;
         private System.Windows.Forms.NumericUpDown txtMinimumInterval;
         private ActionEditor actionEditor1;
-        private System.Windows.Forms.CheckBox chkNotifyDisconnect;
         private System.Windows.Forms.Label lblAccessGroups;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtEmailOnDisconnect;
     }
 }

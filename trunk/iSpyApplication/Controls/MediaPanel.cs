@@ -10,12 +10,15 @@ namespace iSpyApplication.Controls
         public bool Loading = false;
         public Point SelectStart = Point.Empty;
         public Point SelectEnd = Point.Empty;
+        
 
         public MediaPanel()
         {
             InitializeComponent();
             KeyDown += MediaPanel_KeyDown;
-            DoubleBuffered = true;
+            SetStyle(ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
         }
 
         void MediaPanel_KeyDown(object sender, KeyEventArgs e)
@@ -24,6 +27,22 @@ namespace iSpyApplication.Controls
             {
                 var topLevelControl = (MainForm) TopLevelControl;
                 if (topLevelControl != null) topLevelControl.DeleteSelectedMedia();
+            }
+        }
+
+        protected override void OnScroll(ScrollEventArgs se)
+        {
+            Invalidate();
+            base.OnScroll(se);
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000; // WS_CLIPCHILDREN
+                return cp;
             }
         }
 
@@ -66,15 +85,19 @@ namespace iSpyApplication.Controls
             if (Math.Sqrt(Math.Pow(SelectStart.X-SelectEnd.X,2)+Math.Pow(SelectStart.Y-SelectEnd.Y,2))>5)
             {
                 var r = NormRect(SelectStart, SelectEnd);
-                foreach(PreviewBox pb in Controls)
+                foreach(Control c in Controls)
                 {
-                    if (pb.Location.X < r.X+r.Width && pb.Location.X+pb.Width > r.X &&
-                        pb.Location.Y < r.Y+r.Height && pb.Location.Y+pb.Height > r.Y)
+                    var pb = c as PreviewBox;
+                    if (pb != null)
                     {
-                        pb.Selected = true;
-                        pb.Invalidate();
+                        if (pb.Location.X < r.X + r.Width && pb.Location.X + pb.Width > r.X &&
+                            pb.Location.Y < r.Y + r.Height && pb.Location.Y + pb.Height > r.Y)
+                        {
+                            pb.Selected = true;
+                            pb.Invalidate();
+                        }
                     }
-    
+
                 }
 
             }

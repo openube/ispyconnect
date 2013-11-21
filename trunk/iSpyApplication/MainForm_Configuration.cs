@@ -729,6 +729,14 @@ namespace iSpyApplication
                     if (cam.settings.audioport <= 0)
                         cam.settings.audioport = 80;
 
+                    if (String.IsNullOrEmpty(cam.settings.emailondisconnect))
+                    {
+                        if (cam.settings.notifyondisconnect)
+                        {
+                            cam.settings.emailondisconnect = cam.settings.emailaddress;
+                        }
+                    }
+
                     if (cam.recorder.quality == 0)
                         cam.recorder.quality = 8;
                     if (cam.recorder.timelapseframerate == 0)
@@ -902,6 +910,14 @@ namespace iSpyApplication
                         }
                     }
 
+                    if (String.IsNullOrEmpty(mic.settings.emailondisconnect))
+                    {
+                        if (mic.settings.notifyondisconnect)
+                        {
+                            mic.settings.emailondisconnect = mic.settings.emailaddress;
+                        }
+                    }
+
                     if (mic.x < 0)
                         mic.x = 0;
                     if (mic.y < 0)
@@ -948,6 +964,9 @@ namespace iSpyApplication
                 InitRemoteCommands();
                 _floorplans = new List<objectsFloorplan>();
             }
+            Filter.CheckedCameraIDs = new List<int>();
+            Filter.CheckedMicIDs = new List<int>();
+            Filter.Filtered = false;
         }
 
         internal static int NextCameraId
