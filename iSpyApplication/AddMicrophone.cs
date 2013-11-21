@@ -202,7 +202,8 @@ namespace iSpyApplication
             actionEditor1.Init(VolumeLevel.Micobject.alertevents);
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
 
-            chkNotifyDisconnect.Checked = VolumeLevel.Micobject.settings.notifyondisconnect;
+            txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
+            txtEmailOnDisconnect.Text = VolumeLevel.Micobject.settings.emailondisconnect;
 
             _loaded = true;
 
@@ -287,6 +288,7 @@ namespace iSpyApplication
 
             LocRm.SetString(label23,"Listen");
             LocRm.SetString(label22, "TriggerRecording");
+            LocRm.SetString(label6, "EmailOnDisconnect");
 
             HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
@@ -415,7 +417,7 @@ namespace iSpyApplication
 
                 VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
                 VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
-                VolumeLevel.Micobject.settings.notifyondisconnect = chkNotifyDisconnect.Checked;
+                VolumeLevel.Micobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
 
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
@@ -593,6 +595,7 @@ namespace iSpyApplication
         private void Login()
         {
             ((MainForm) Owner).Connect(MainForm.Website+"/subscribe.aspx", false);
+             txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
 
 
@@ -801,18 +804,5 @@ namespace iSpyApplication
         {
             MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
         }
-
-        private void chkNotifyDisconnect_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkNotifyDisconnect.Checked && _loaded)
-            {
-                if (!MainForm.Conf.Subscribed)
-                {
-                    Login();
-                    chkNotifyDisconnect.Checked = false;
-                }
-            }
-        }
-
     }
 }

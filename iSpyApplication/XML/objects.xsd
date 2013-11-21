@@ -52,6 +52,7 @@
                                                     <xs:element name="usehttp10" type="xs:boolean" />
                                                     <xs:element name="active" type="xs:boolean" />
                                                     <xs:element name="notifyondisconnect" type="xs:boolean" />
+                                                    <xs:element name="emailondisconnect" type="xs:string"/>
                                                     <xs:element name="frameinterval" type="xs:int"/>
                                                     <xs:element name="framerate" type="xs:int"/>
                                                     <xs:element name="smsnumber" type="xs:string"/>
@@ -392,6 +393,7 @@
                                                     <xs:element name="deletewav" type="xs:boolean"/>
                                                     <xs:element name="decompress" type="xs:boolean"/>
                                                     <xs:element name="notifyondisconnect" type="xs:boolean" />
+                                                    <xs:element name="emailondisconnect" type="xs:string"/>
                                                     <xs:element name="vlcargs" type="xs:string"/>
                                                     <xs:element name="reconnectinterval" type="xs:int"/>
                                                     <xs:element name="accessgroups" type="xs:string" default=""/>

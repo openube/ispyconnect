@@ -450,6 +450,8 @@ public partial class objectsCameraSettings {
     private bool activeField;
     
     private bool notifyondisconnectField;
+
+    private string emailondisconnectField;
     
     private int frameintervalField;
     
@@ -660,7 +662,21 @@ public partial class objectsCameraSettings {
             this.passwordField = value;
         }
     }
+
+    /// <remarks/>
+    public string emailondisconnect
+    {
+        get
+        {
+            return this.emailondisconnectField;
+        }
+        set
+        {
+            this.emailondisconnectField = value;
+        }
+    }
     
+
     /// <remarks/>
     public string useragent {
         get {
@@ -3141,6 +3157,8 @@ public partial class objectsMicrophoneSettings {
     private bool decompressField;
     
     private bool notifyondisconnectField;
+
+    private string emailondisconnectField;
     
     private string vlcargsField;
     
@@ -3160,6 +3178,19 @@ public partial class objectsMicrophoneSettings {
         this.accessgroupsField = "";
         this.timeoutField = 8000;
         this.analyzedurationField = 2000;
+    }
+
+    /// <remarks/>
+    public string emailondisconnect
+    {
+        get
+        {
+            return this.emailondisconnectField;
+        }
+        set
+        {
+            this.emailondisconnectField = value;
+        }
     }
     
     /// <remarks/>

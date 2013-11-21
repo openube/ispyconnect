@@ -145,6 +145,7 @@ namespace iSpyApplication
             MainForm.Conf.AlertOnReconnect = txtAlertOnReconnect.Text;
             MainForm.Conf.StartupMode = ddlStartupMode.SelectedIndex;
             MainForm.Conf.EnableGZip = chkGZip.Checked;
+            MainForm.Conf.DisconnectNotificationDelay = (int)numDisconnectNotification.Value;
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             
@@ -483,7 +484,7 @@ namespace iSpyApplication
             jaxis3.GetInput += jaxis_GetInput;
 
             chkGZip.Checked = MainForm.Conf.EnableGZip;
-
+            numDisconnectNotification.Value = MainForm.Conf.DisconnectNotificationDelay;
             _loaded = true;
         }
 

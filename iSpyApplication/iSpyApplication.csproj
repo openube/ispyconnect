@@ -169,9 +169,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Imaging, Version=2.2.5.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL">
+    <Reference Include="AForge.Imaging, Version=2.5.3.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\AForge\Release\AForge.Imaging.dll</HintPath>
+      <HintPath>DLLS\AForge.Imaging.dll</HintPath>
     </Reference>
     <Reference Include="AForge.Imaging.Formats, Version=2.2.3.0, Culture=neutral, PublicKeyToken=8065ed5a639199a0, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -329,10 +329,22 @@
     <Compile Include="Controls\AlertEventRow.Designer.cs">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Filter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\Filter.Designer.cs">
+      <DependentUpon>Filter.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\FlowLayoutPanelTransparent.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\GraphicsHelper.cs" />
+    <Compile Include="GridViewCustom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridViewCustom.Designer.cs">
+      <DependentUpon>GridViewCustom.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\jaxis.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -359,6 +371,12 @@
     </Compile>
     <Compile Include="Controls\VideoPlayback.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GridView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridView.Designer.cs">
+      <DependentUpon>GridView.cs</DependentUpon>
     </Compile>
     <Compile Include="MicrophoneSourceAdvanced.cs">
       <SubType>Form</SubType>
@@ -475,23 +493,11 @@
       <DependentUpon>downloader.cs</DependentUpon>
     </Compile>
     <Compile Include="FileOperations.cs" />
-    <Compile Include="GridView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GridView.Designer.cs">
-      <DependentUpon>GridView.cs</DependentUpon>
-    </Compile>
     <Compile Include="GridViewCamera.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GridViewCamera.Designer.cs">
       <DependentUpon>GridViewCamera.cs</DependentUpon>
-    </Compile>
-    <Compile Include="GridViewCustom.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="GridViewCustom.Designer.cs">
-      <DependentUpon>GridViewCustom.cs</DependentUpon>
     </Compile>
     <Compile Include="Kinect\DepthLine.cs" />
     <Compile Include="Kinect\EditDepthLine.cs">
@@ -977,6 +983,9 @@
     <EmbeddedResource Include="Controls\AlertEventRow.resx">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\Filter.resx">
+      <DependentUpon>Filter.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\jaxis.resx">
       <DependentUpon>jaxis.cs</DependentUpon>
     </EmbeddedResource>
@@ -991,6 +1000,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\VideoPlayback.resx">
       <DependentUpon>VideoPlayback.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridView.resx">
+      <DependentUpon>GridView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewCustom.resx">
+      <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MicrophoneSourceAdvanced.resx">
       <DependentUpon>MicrophoneSourceAdvanced.cs</DependentUpon>
@@ -1041,14 +1056,8 @@
     <EmbeddedResource Include="downloader.resx">
       <DependentUpon>downloader.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridView.resx">
-      <DependentUpon>GridView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="GridViewCamera.resx">
       <DependentUpon>GridViewCamera.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GridViewCustom.resx">
-      <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Kinect\EditDepthLine.resx">
       <DependentUpon>EditDepthLine.cs</DependentUpon>

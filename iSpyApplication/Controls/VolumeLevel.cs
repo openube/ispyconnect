@@ -962,20 +962,26 @@ namespace iSpyApplication.Controls
 
         private void CheckDisconnect()
         {
-            if (Micobject.settings.notifyondisconnect && _errorTime != DateTime.MinValue)
+            if (!String.IsNullOrEmpty(Micobject.settings.emailondisconnect) && _errorTime != DateTime.MinValue)
             {
                 int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
-                if (sec > 30 && sec < 35)
+                if (sec > MainForm.Conf.DisconnectNotificationDelay)
                 {
                     string subject =
                         LocRm.GetString("MicrophoneNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
                                                                                          Micobject.name);
                     string message = LocRm.GetString("MicrophoneNotifyDisconnectMailBody");
                     message = message.Replace("[NAME]", Micobject.name);
-                    message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
+
+                    decimal offset = 0;
+                    var oc = CameraControl;
+                    if (oc != null && oc.Camobject != null)
+                        offset = oc.Camobject.settings.timestampoffset;
+
+                    message = message.Replace("[TIME]", DateTime.Now.AddHours(Convert.ToDouble(offset)).ToLongTimeString());
 
 
-                    WsWrapper.SendAlert(MainForm.EmailAddress, subject, message);
+                    WsWrapper.SendAlert(Micobject.settings.emailondisconnect, subject, message);
 
                     _errorTime = DateTime.MinValue;
                 }
@@ -2195,12 +2201,20 @@ namespace iSpyApplication.Controls
                             string message = LocRm.GetString("MicrophoneAlertMailBody");
                             message = message.Replace("[OBJECTNAME]", Micobject.name);
 
+                            decimal offset = 0;
+                            var oc = CameraControl;
+                            if (oc != null && oc.Camobject!=null)
+                                offset = oc.Camobject.settings.timestampoffset;
+
                             string body = "";
                             switch (Micobject.alerts.mode)
                             {
                                 case "sound":
                                     body = LocRm.GetString("MicrophoneAlertBodySound").Replace("[TIME]",
-                                                                                                DateTime.Now.ToLongTimeString());
+                                                                                               DateTime.Now.AddHours(
+                                                                                                   Convert.ToDouble(
+                                                                                                       offset)).
+                                                                                                   ToLongTimeString());
 
                                     if (Recording)
                                     {
@@ -2216,7 +2230,7 @@ namespace iSpyApplication.Controls
 
                                     body =
                                         LocRm.GetString("MicrophoneAlertBodyNoSound").Replace("[TIME]",
-                                                                                              DateTime.Now.ToLongTimeString()).
+                                                                                              DateTime.Now.AddHours(Convert.ToDouble(offset)).ToLongTimeString()).
                                             Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
                                     break;
                             }

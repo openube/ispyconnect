@@ -14,7 +14,8 @@ namespace iSpyApplication
         private void Features_Load(object sender, EventArgs e)
         {
             var i = 1;
-            foreach (var f in Enum.GetValues(typeof(Enums.Features)))
+            var feats = Enum.GetValues(typeof (Enums.Features));
+            foreach (var f in feats)
             {
                 var cb = new CheckBox {Text = f.ToString(), Tag = f, AutoSize = true};
                 if ((Convert.ToInt32(f) & MainForm.Conf.FeatureSet) == i)

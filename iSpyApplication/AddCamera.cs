@@ -445,7 +445,9 @@ namespace iSpyApplication
             actionEditor1.Init(CameraControl.Camobject.alertevents);
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
 
-            chkNotifyDisconnect.Checked = CameraControl.Camobject.settings.notifyondisconnect;
+            txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
+            txtEmailOnDisconnect.Text = CameraControl.Camobject.settings.emailondisconnect;
+            //chkNotifyDisconnect.Checked = CameraControl.Camobject.settings.notifyondisconnect;
 
             _loaded = true;
         }
@@ -723,6 +725,7 @@ namespace iSpyApplication
             linkLabel3.Text = LocRm.GetString("Plugins");
             chkTrack.Text = LocRm.GetString("TrackObjects");
             linkLabel10.Text = LocRm.GetString("Reload");
+            label6.Text = LocRm.GetString("EmailOnDisconnect");
 
             LocRm.SetString(label3,"TriggerRange");
             LocRm.SetString(groupBox8, "Talk");
@@ -1041,6 +1044,8 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
                 CameraControl.Camobject.settings.storagemanagement.maxage = (int) numMaxAge.Value;
                 CameraControl.Camobject.settings.storagemanagement.maxsize = (int) numMaxFolderSize.Value;
+
+                CameraControl.Camobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
                 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -1151,8 +1156,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.audiousername = txtTalkUsername.Text;
                 CameraControl.Camobject.settings.audiopassword = txtTalkPassword.Text;
                 CameraControl.Camobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
-                CameraControl.Camobject.settings.notifyondisconnect = chkNotifyDisconnect.Checked;
-
+                
                 CameraControl.SetVideoSize();
 
 
@@ -1627,7 +1631,7 @@ namespace iSpyApplication
         private void Login()
         {
             ((MainForm) Owner).Connect(MainForm.Website+"/subscribe.aspx", false);
-            gpbSubscriber2.Enabled = MainForm.Conf.Subscribed;
+            gpbSubscriber2.Enabled = txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
 
 
@@ -2499,6 +2503,7 @@ namespace iSpyApplication
 
         private void ddlProfile_SelectedIndexChanged(object sender, EventArgs e)
         {
+            numMaxFRRecording.Enabled = ddlProfile.SelectedIndex < 3;
         }
 
         private void btnAdvanced_Click(object sender, EventArgs e)
@@ -2745,18 +2750,6 @@ namespace iSpyApplication
         private void actionEditor1_Load(object sender, EventArgs e)
         {
 
-        }
-
-        private void chkNotifyDisconnect_CheckedChanged(object sender, EventArgs e)
-        {
-            if (chkNotifyDisconnect.Checked && _loaded)
-            {
-                if (!MainForm.Conf.Subscribed)
-                {
-                    Login();
-                    chkNotifyDisconnect.Checked = false;
-                }
-            }
         }
 
     }

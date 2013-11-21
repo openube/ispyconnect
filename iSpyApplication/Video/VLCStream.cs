@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Forms;
 using AForge.Video;
 using Declarations;
 using Declarations.Events;
@@ -195,9 +196,12 @@ namespace iSpyApplication.Video
                 {
                     _mFactory = new MediaPlayerFactory();
 
+                    
                     _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                     _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                     _mPlayer.Events.TimeChanged += EventsTimeChanged;
+                    
+                    
 
                     bool file = false;
                     try
@@ -311,13 +315,16 @@ namespace iSpyApplication.Video
             q = q || (_lastframetimestamp > DateTime.MinValue && (DateTime.Now - _lastframetimestamp).TotalMilliseconds > TimeOut);
 
             if (q)
-            {               
-                _starting = false;
-                if (_mPlayer != null)
+            {
+                if (_mPlayer != null && !_stoprequested)
                 {
-                    _mPlayer.Stop();
+                    if (_mPlayer.IsPlaying)
+                    {
+                        _starting = false;
+                        _mPlayer.Stop();
+                    }
                 }
-               
+                
             }
         }
 
@@ -511,6 +518,7 @@ namespace iSpyApplication.Video
             {
                 if (_mPlayer.IsPlaying)
                 {
+                    _starting = false;
                     _stoprequested = true;
                     _mPlayer.Stop();
                 }
@@ -537,30 +545,30 @@ namespace iSpyApplication.Video
 
             lock (_lock)
             {
-                if (_mPlayer != null)
-                {
-
-                    _mPlayer.Dispose();
-                    _mPlayer = null;
-                }
-                if (_mFactory != null)
-                {
-                    _mFactory.Dispose();
-                    _mFactory = null;
-
-                }
-                if (_mFactory != null)
-                {
-                    _mFactory.Dispose();
-                    _mFactory = null;
-
-                }
                 if (_mMedia != null)
                 {
+                    _mMedia.Events.DurationChanged -= EventsDurationChanged;
+                    _mMedia.Events.StateChanged -= EventsStateChanged;
                     _mMedia.Dispose();
                     _mMedia = null;
-
                 }
+
+                if (_mPlayer != null)
+                {
+                    _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
+                    _mPlayer.Events.TimeChanged -= EventsTimeChanged;
+                //    _mPlayer.Dispose();
+                //    _mPlayer = null;
+                    //^^^ causing major issues :(
+                }
+
+                if (_mFactory != null)
+                {
+                    _mFactory.Dispose();
+                    _mFactory = null;
+
+                }          
+                
 
                 if (_waveProvider != null && _waveProvider.BufferedBytes>0)
                 {

@@ -304,10 +304,13 @@ namespace iSpyApplication.Audio.streams
 
             if (q)
             {
-                _starting = false;
-                if (_mPlayer != null)
+                if (_mPlayer != null && !_stoprequested)
                 {
-                    _mPlayer.Stop();
+                    if (_mPlayer.IsPlaying)
+                    {
+                        _starting = false;
+                        _mPlayer.Stop();
+                    }
                 }
 
             }
@@ -491,6 +494,7 @@ namespace iSpyApplication.Audio.streams
             {
                 if (_mPlayer.IsPlaying)
                 {
+                    _starting = false;
                     _stoprequested = true;
                     _mPlayer.Stop();
                 }
@@ -518,30 +522,30 @@ namespace iSpyApplication.Audio.streams
 
             lock (_lock)
             {
-                if (_mPlayer != null)
-                {
-
-                    _mPlayer.Dispose();
-                    _mPlayer = null;
-                }
-                if (_mFactory != null)
-                {
-                    _mFactory.Dispose();
-                    _mFactory = null;
-
-                }
-                if (_mFactory != null)
-                {
-                    _mFactory.Dispose();
-                    _mFactory = null;
-
-                }
                 if (_mMedia != null)
                 {
+                    _mMedia.Events.DurationChanged -= EventsDurationChanged;
+                    _mMedia.Events.StateChanged -= EventsStateChanged;
                     _mMedia.Dispose();
                     _mMedia = null;
-
                 }
+
+                if (_mPlayer != null)
+                {
+                    _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
+                    _mPlayer.Events.TimeChanged -= EventsTimeChanged;
+                    //    _mPlayer.Dispose();
+                    //    _mPlayer = null;
+                    //^^^ causing major issues :(
+                }
+
+                if (_mFactory != null)
+                {
+                    _mFactory.Dispose();
+                    _mFactory = null;
+
+                }          
+                
 
                 if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
                 {

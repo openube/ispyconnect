@@ -376,7 +376,7 @@ namespace iSpyApplication.Controls
             get
             {
                 var ret = CW.Camobject.settings.maxframerate;
-                if (CW.Recording)
+                if (CW.Recording && CW.Camobject.recorder.profile < 3) //use variable rate for mp4 only
                     ret = CW.Camobject.settings.maxframeraterecord;
 
 

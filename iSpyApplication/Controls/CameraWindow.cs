@@ -262,15 +262,10 @@ namespace iSpyApplication.Controls
                     default:
                         return AudioCodec.AAC;
                     case 3:
-                        return AudioCodec.MP3;
                     case 4:
-                        return AudioCodec.MP3;
                     case 5:
-                        return AudioCodec.MP3;
                     case 6:
-                        return AudioCodec.MP3;
                     case 7:
-                        return AudioCodec.MP3;
                     case 8:
                         return AudioCodec.MP3;
                 }
@@ -1636,18 +1631,18 @@ namespace iSpyApplication.Controls
 
         private void CheckDisconnect()
         {
-            if (Camobject.settings.notifyondisconnect && _errorTime != DateTime.MinValue)
+            if (!String.IsNullOrEmpty(Camobject.settings.emailondisconnect) && _errorTime != DateTime.MinValue)
             {
                 int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
-                if (sec > 30 && sec < 35)
+                if (sec > MainForm.Conf.DisconnectNotificationDelay)
                 {
                     //camera has been down for 30 seconds - send notification
                     string subject = LocRm.GetString("CameraNotifyDisconnectMailSubject").Replace("[OBJECTNAME]", Camobject.name);
                     string message = LocRm.GetString("CameraNotifyDisconnectMailBody");
                     message = message.Replace("[NAME]", Camobject.name);
-                    message = message.Replace("[TIME]", DateTime.Now.ToLongTimeString());
+                    message = message.Replace("[TIME]", DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).ToLongTimeString());
 
-                    WsWrapper.SendAlert(MainForm.EmailAddress, subject, message);
+                    WsWrapper.SendContent(Camobject.settings.emailondisconnect, subject, message);
 
                     _errorTime = DateTime.MinValue;
                 }
@@ -3420,7 +3415,7 @@ namespace iSpyApplication.Controls
 
                                     body =
                                         LocRm.GetString("CameraAlertBodyNoMovement").Replace("[TIME]",
-                                                                                             DateTime.Now.
+                                                                                             DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).
                                                                                                  ToLongTimeString()).
                                             Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace
                                             ("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
@@ -3428,7 +3423,7 @@ namespace iSpyApplication.Controls
                                     break;
                                 default:
                                     body = LocRm.GetString("CameraAlertBodyMovement").Replace("[TIME]",
-                                                                                              DateTime.Now.
+                                                                                              DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset)).
                                                                                                   ToLongTimeString());
 
                                     if (Recording)
