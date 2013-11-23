@@ -733,7 +733,6 @@ namespace iSpyApplication
                         return;
                     }
                     VideoSourceString = url;
-                    FriendlyName = VideoSourceString;
                     CameraControl.Camobject.settings.vlcargs = txtVLCArgs.Text.Trim();
                     break;
                 case 6:

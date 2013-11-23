@@ -310,7 +310,7 @@ namespace iSpyServer
                                 continue;
                             }
 
-                            int iStartPos = sBuffer.IndexOf("HTTP", 1);
+                            int iStartPos = sBuffer.IndexOf("HTTP", 1, StringComparison.Ordinal);
 
                             sHttpVersion = sBuffer.Substring(iStartPos, 8);
                             
@@ -319,7 +319,7 @@ namespace iSpyServer
                             int w = -1, h = -1;
 
                             string qs = sBuffer.Substring(4);
-                            qs = qs.Substring(0, qs.IndexOf(" ")).Trim('/').Trim('?');
+                            qs = qs.Substring(0, qs.IndexOf(" ", StringComparison.Ordinal)).Trim('/').Trim('?');
                             string[] nvs = qs.Split('&');
 
                             foreach (string s in nvs)
@@ -395,9 +395,9 @@ namespace iSpyServer
                                     }
                                     else
                                     {
-                                        string _resp = "iSpy server is running";
-                                        SendHeader(sHttpVersion, "", _resp.Length, " 200 OK", 0, ref mySocket);
-                                        SendToBrowser(_resp, ref mySocket);
+                                        const string resp = "iSpy server is running";
+                                        SendHeader(sHttpVersion, "", resp.Length, " 200 OK", 0, ref mySocket);
+                                        SendToBrowser(resp, ref mySocket);
                                     }
                                 }
                             }
