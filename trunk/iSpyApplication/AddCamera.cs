@@ -2761,8 +2761,8 @@ namespace iSpyApplication
             if (changed)
             {
                 RotateFlipType rmold,rmnew;
-                Enum.TryParse(li.Value, out rmold);
-                Enum.TryParse(CameraControl.Camobject.rotateMode, out rmnew);
+                Enum.TryParse(CameraControl.Camobject.rotateMode, out rmold);
+                Enum.TryParse(li.Value, out rmnew);
 
                 
                 var bmp1 = new Bitmap(12, 6);
