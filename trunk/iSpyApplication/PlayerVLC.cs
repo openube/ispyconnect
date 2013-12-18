@@ -10,6 +10,8 @@ using Declarations.Events;
 using Declarations.Media;
 using Declarations.Players;
 using Implementation;
+using iSpyApplication.Controls;
+using System.Collections.Generic;
 
 namespace iSpyApplication
 {
@@ -18,10 +20,11 @@ namespace iSpyApplication
         readonly IMediaPlayerFactory _mFactory;
         readonly IDiskPlayer _mPlayer;
         IMedia _mMedia;
-        private string _titleText;
+        private readonly string _titleText;
 
         private bool _needsSize = true;
         public int ObjectID = -1;
+        public MainForm MF;
 
         private readonly FolderBrowserDialog _fbdSaveTo = new FolderBrowserDialog()
         {
@@ -31,15 +34,13 @@ namespace iSpyApplication
 
         private void RenderResources()
         {
-            btnPlayPause.Text = LocRm.GetString("Pause");
-            btnStop.Text = LocRm.GetString("StopPlayer");
             openFolderToolStripMenuItem.Text = LocRm.GetString("OpenLocalFolder");
             saveAsToolStripMenuItem.Text = LocRm.GetString("SaveAs");
         }
 
-         public PlayerVLC(string titleText)
-        {
-            
+         public PlayerVLC(string titleText, MainForm mf)
+         {
+            MF = mf;
             InitializeComponent();
 
             _mFactory = new MediaPlayerFactory(true);
@@ -183,10 +184,16 @@ namespace iSpyApplication
             switch (e.NewState)
             {
                 case MediaState.Playing:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("Pause"));
+                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("||"));
+                    break;
+                case MediaState.Ended:
+                    if (chkRepeatAll.Checked)
+                        Go(1);
+
+                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString(">"));
                     break;
                 default:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("Play"));
+                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString(">"));
                     break;
             }
         }
@@ -284,6 +291,44 @@ namespace iSpyApplication
         {
             string argument = @"/select, " + _filename;
             Process.Start("explorer.exe", argument);
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            Go(1);
+
+        }
+
+        private void Go(int n)
+        {
+            int j = 0;
+            lock (MF.flowPreview.Controls)
+            {
+                var lb = (from Control c in MF.flowPreview.Controls select c as PreviewBox into pb where pb != null && pb.Selected select pb).ToList();
+
+                for (int i = 0; i < lb.Count; i++)
+                {
+                    var pb = lb[i];
+                    if (pb.FileName == _filename)
+                    {
+                        j = i + n;
+                        if (lb.Count <= j)
+                            j = 0;
+                        if (j < 0)
+                            j = lb.Count - 1;
+                        break;
+                    }
+                }
+                if (j > -1 && j<lb.Count)
+                {
+                    UISync.Execute(() => lb[j].PlayMedia(3));
+                }
+            }
+        }
+
+        private void btnPrevious_Click(object sender, EventArgs e)
+        {
+            Go(-1);
         }
     }
 }

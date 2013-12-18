@@ -37,17 +37,19 @@ namespace iSpyApplication
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
             this.label1 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.vNav = new iSpyApplication.Controls.VideoNavigator();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.tbSpeed = new System.Windows.Forms.TrackBar();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
             this.btnPlayPause = new System.Windows.Forms.Button();
-            this.btnStop = new System.Windows.Forms.Button();
+            this.btnPrevious = new System.Windows.Forms.Button();
+            this.btnNext = new System.Windows.Forms.Button();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.vNav = new iSpyApplication.Controls.VideoNavigator();
+            this.chkRepeatAll = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -105,13 +107,27 @@ namespace iSpyApplication
             this.tableLayoutPanel1.Size = new System.Drawing.Size(594, 87);
             this.tableLayoutPanel1.TabIndex = 26;
             // 
+            // vNav
+            // 
+            this.vNav.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.vNav.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.vNav.Location = new System.Drawing.Point(0, 0);
+            this.vNav.Margin = new System.Windows.Forms.Padding(0);
+            this.vNav.Name = "vNav";
+            this.vNav.Padding = new System.Windows.Forms.Padding(0, 0, 5, 5);
+            this.vNav.Size = new System.Drawing.Size(594, 50);
+            this.vNav.TabIndex = 22;
+            this.vNav.Value = 0;
+            // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.tbSpeed);
             this.flowLayoutPanel1.Controls.Add(this.trackBar2);
             this.flowLayoutPanel1.Controls.Add(this.lblTime);
             this.flowLayoutPanel1.Controls.Add(this.btnPlayPause);
-            this.flowLayoutPanel1.Controls.Add(this.btnStop);
+            this.flowLayoutPanel1.Controls.Add(this.btnPrevious);
+            this.flowLayoutPanel1.Controls.Add(this.btnNext);
+            this.flowLayoutPanel1.Controls.Add(this.chkRepeatAll);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 53);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -148,23 +164,35 @@ namespace iSpyApplication
             this.btnPlayPause.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnPlayPause.Location = new System.Drawing.Point(244, 3);
             this.btnPlayPause.Name = "btnPlayPause";
-            this.btnPlayPause.Size = new System.Drawing.Size(47, 23);
+            this.btnPlayPause.Size = new System.Drawing.Size(21, 23);
             this.btnPlayPause.TabIndex = 15;
-            this.btnPlayPause.Text = "Pause";
+            this.btnPlayPause.Text = "||";
             this.btnPlayPause.UseVisualStyleBackColor = true;
             this.btnPlayPause.Click += new System.EventHandler(this.button2_Click);
             // 
-            // btnStop
+            // btnPrevious
             // 
-            this.btnStop.AutoSize = true;
-            this.btnStop.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnStop.Location = new System.Drawing.Point(297, 3);
-            this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(39, 23);
-            this.btnStop.TabIndex = 17;
-            this.btnStop.Text = "Stop";
-            this.btnStop.UseVisualStyleBackColor = true;
-            this.btnStop.Click += new System.EventHandler(this.button4_Click);
+            this.btnPrevious.AutoSize = true;
+            this.btnPrevious.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnPrevious.Location = new System.Drawing.Point(271, 3);
+            this.btnPrevious.Name = "btnPrevious";
+            this.btnPrevious.Size = new System.Drawing.Size(28, 23);
+            this.btnPrevious.TabIndex = 23;
+            this.btnPrevious.Text = "< |";
+            this.btnPrevious.UseVisualStyleBackColor = true;
+            this.btnPrevious.Click += new System.EventHandler(this.btnPrevious_Click);
+            // 
+            // btnNext
+            // 
+            this.btnNext.AutoSize = true;
+            this.btnNext.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnNext.Location = new System.Drawing.Point(305, 3);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(28, 23);
+            this.btnNext.TabIndex = 24;
+            this.btnNext.Text = "| >";
+            this.btnNext.UseVisualStyleBackColor = true;
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
             // 
             // menuStrip1
             // 
@@ -199,17 +227,18 @@ namespace iSpyApplication
             this.openFolderToolStripMenuItem.Text = "&Open Location";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
             // 
-            // vNav
+            // chkRepeatAll
             // 
-            this.vNav.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.vNav.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.vNav.Location = new System.Drawing.Point(0, 0);
-            this.vNav.Margin = new System.Windows.Forms.Padding(0);
-            this.vNav.Name = "vNav";
-            this.vNav.Padding = new System.Windows.Forms.Padding(0, 0, 5, 5);
-            this.vNav.Size = new System.Drawing.Size(594, 50);
-            this.vNav.TabIndex = 22;
-            this.vNav.Value = 0;
+            this.chkRepeatAll.AutoSize = true;
+            this.chkRepeatAll.Checked = true;
+            this.chkRepeatAll.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRepeatAll.Location = new System.Drawing.Point(339, 6);
+            this.chkRepeatAll.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            this.chkRepeatAll.Name = "chkRepeatAll";
+            this.chkRepeatAll.Size = new System.Drawing.Size(69, 17);
+            this.chkRepeatAll.TabIndex = 25;
+            this.chkRepeatAll.Text = "repeat all";
+            this.chkRepeatAll.UseVisualStyleBackColor = true;
             // 
             // PlayerVLC
             // 
@@ -252,12 +281,14 @@ namespace iSpyApplication
         private System.Windows.Forms.ToolTip toolTip1;
         private VideoNavigator vNav;
         private System.Windows.Forms.Button btnPlayPause;
-        private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.TrackBar trackBar2;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openFolderToolStripMenuItem;
+        private System.Windows.Forms.Button btnPrevious;
+        private System.Windows.Forms.Button btnNext;
+        private System.Windows.Forms.CheckBox chkRepeatAll;
 
     }
 }
