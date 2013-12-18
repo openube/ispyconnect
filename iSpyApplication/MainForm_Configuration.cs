@@ -1143,11 +1143,15 @@ namespace iSpyApplication
                 {
                     _masterfilelist.Clear();
                 }
-                foreach(PreviewBox pb in flowPreview.Controls)
+                foreach(Control c in flowPreview.Controls)
                 {
-                    pb.MouseDown -= PbMouseDown;
-                    pb.MouseEnter -= PbMouseEnter;
-                    pb.Dispose();
+                    var pb = c as PreviewBox;
+                    if (pb != null)
+                    {
+                        pb.MouseDown -= PbMouseDown;
+                        pb.MouseEnter -= PbMouseEnter;
+                        pb.Dispose();
+                    }
                 }
                 flowPreview.Controls.Clear();
             }
@@ -2396,14 +2400,17 @@ namespace iSpyApplication
 
         void PbMouseDown(object sender, MouseEventArgs e)
         {
-            var ctrl = (PreviewBox)sender;
-            ctrl.Focus();
-            switch (e.Button)
+            var ctrl = sender as PreviewBox;
+            if (ctrl != null)
             {
-                case MouseButtons.Right:
-                    ContextTarget = ctrl;
-                    ctxtPlayer.Show(ctrl, new Point(e.X, e.Y));
-                    break;
+                ctrl.Focus();
+                switch (e.Button)
+                {
+                    case MouseButtons.Right:
+                        ContextTarget = ctrl;
+                        ctxtPlayer.Show(ctrl, new Point(e.X, e.Y));
+                        break;
+                }
             }
         }
 
@@ -2411,10 +2418,8 @@ namespace iSpyApplication
         {
             for (int index = 0; index < _pnlCameras.Controls.Count; index++)
             {
-                Control c = _pnlCameras.Controls[index];
-                if (c.GetType() != typeof(CameraWindow)) continue;
-                var cw = (CameraWindow)c;
-                if (cw.Camobject.id == cameraId)
+                var cw = _pnlCameras.Controls[index] as CameraWindow;
+                if (cw!=null && cw.Camobject.id == cameraId)
                     return cw;
             }
             return null;
@@ -2424,11 +2429,9 @@ namespace iSpyApplication
         {
             for (int index = 0; index < _pnlCameras.Controls.Count; index++)
             {
-                Control c = _pnlCameras.Controls[index];
-                if (c.GetType() != typeof(VolumeLevel)) continue;
-                var vw = (VolumeLevel)c;
-                if (vw.Micobject.id == microphoneId)
-                    return vw;
+                var vl = _pnlCameras.Controls[index] as VolumeLevel;
+                if (vl != null && vl.Micobject.id == microphoneId)
+                    return vl;
             }
             return null;
         }
@@ -3036,7 +3039,7 @@ namespace iSpyApplication
                 if (WindowState == FormWindowState.Minimized)
                 {
                     Show();
-                    WindowState = FormWindowState.Normal;
+                    WindowState = _previousWindowState;
                 }
                 return;
             }

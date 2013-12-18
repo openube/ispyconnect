@@ -35,17 +35,9 @@ namespace iSpyApplication
     /// </summary>
     public partial class MainForm : Form
     {
-        private static bool _needsSync;
-        private static DateTime _syncLastRequested = DateTime.MinValue;
-        public static bool NeedsSync
-        {
-            get { return _needsSync;}
-            set { 
-                _needsSync = value;
-                if (value)
-                    _syncLastRequested = DateTime.Now;
-            }
-        }
+        private FormWindowState _previousWindowState = FormWindowState.Normal;
+        public static bool NeedsSync;
+        
 
         private DateTime _needsMediaRefresh = DateTime.MinValue;
         public DateTime NeedsMediaRefresh
@@ -119,7 +111,7 @@ namespace iSpyApplication
 
         public const string Website = "http://www.ispyconnect.com";
         public static string Webserver = "http://www.ispyconnect.com";
-        private MediaPanel flowPreview;
+        internal MediaPanel flowPreview;
         private Panel panel1;
         private FlowLayoutPanel flowLayoutPanel1;
         private LinkLabel llblFilter;
@@ -615,13 +607,14 @@ namespace iSpyApplication
             //{
                 if (PlayerVLC == null)
                 {
-                    PlayerVLC = new PlayerVLC(displayName);
+                    PlayerVLC = new PlayerVLC(displayName, this);
                     PlayerVLC.Show(this);
                     PlayerVLC.Closed += PlayerClosed;
+                    PlayerVLC.Activate();
+                    PlayerVLC.BringToFront();
+                    PlayerVLC.Owner = this;
                 }
-                PlayerVLC.Owner = this;
-                PlayerVLC.Activate();
-                PlayerVLC.BringToFront();
+                
                 PlayerVLC.ObjectID = objectId;
                 PlayerVLC.Play(filename, displayName);
             //}
@@ -1933,6 +1926,7 @@ namespace iSpyApplication
             }
             else
             {
+                _previousWindowState = WindowState;
                 if (Conf.AutoLayout)
                     LayoutObjects(0, 0);
                 if (!IsOnScreen(this))
@@ -3471,7 +3465,7 @@ namespace iSpyApplication
 
         private void flowPreview_MouseEnter(object sender, EventArgs e)
         {
-            flowPreview.Focus();
+            //flowPreview.Focus();
         }
 
         private void flowPreview_Click(object sender, EventArgs e)
@@ -3480,7 +3474,7 @@ namespace iSpyApplication
 
         private void flCommands_MouseEnter(object sender, EventArgs e)
         {
-            flCommands.Focus();
+            //flCommands.Focus();
         }
 
         public void PTZToolUpdate(CameraWindow cw)
@@ -4047,9 +4041,9 @@ namespace iSpyApplication
             this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.llblFilter = new System.Windows.Forms.LinkLabel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
             this.llblDelete = new System.Windows.Forms.LinkLabel();
+            this.llblFilter = new System.Windows.Forms.LinkLabel();
             this.llblBack = new System.Windows.Forms.LinkLabel();
             this.llblPage = new System.Windows.Forms.LinkLabel();
             this.llblNext = new System.Windows.Forms.LinkLabel();
@@ -5490,24 +5484,6 @@ namespace iSpyApplication
             this.flowLayoutPanel1.Size = new System.Drawing.Size(248, 15);
             this.flowLayoutPanel1.TabIndex = 2;
             // 
-            // llblFilter
-            // 
-            this.llblFilter.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblFilter.AutoSize = true;
-            this.llblFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblFilter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblFilter.LinkColor = System.Drawing.Color.White;
-            this.llblFilter.Location = new System.Drawing.Point(137, 0);
-            this.llblFilter.Name = "llblFilter";
-            this.llblFilter.Size = new System.Drawing.Size(34, 15);
-            this.llblFilter.TabIndex = 5;
-            this.llblFilter.TabStop = true;
-            this.llblFilter.Text = "Filter";
-            this.llblFilter.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblFilter.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblFilter_LinkClicked);
-            // 
             // llblSelectAll
             // 
             this.llblSelectAll.ActiveLinkColor = System.Drawing.Color.White;
@@ -5541,6 +5517,24 @@ namespace iSpyApplication
             this.llblDelete.TextAlign = System.Drawing.ContentAlignment.TopRight;
             this.llblDelete.VisitedLinkColor = System.Drawing.Color.White;
             this.llblDelete.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDelete_LinkClicked);
+            // 
+            // llblFilter
+            // 
+            this.llblFilter.ActiveLinkColor = System.Drawing.Color.White;
+            this.llblFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblFilter.AutoSize = true;
+            this.llblFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.llblFilter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.llblFilter.LinkColor = System.Drawing.Color.White;
+            this.llblFilter.Location = new System.Drawing.Point(137, 0);
+            this.llblFilter.Name = "llblFilter";
+            this.llblFilter.Size = new System.Drawing.Size(34, 15);
+            this.llblFilter.TabIndex = 5;
+            this.llblFilter.TabStop = true;
+            this.llblFilter.Text = "Filter";
+            this.llblFilter.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.llblFilter.VisitedLinkColor = System.Drawing.Color.White;
+            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblFilter_LinkClicked);
             // 
             // llblBack
             // 

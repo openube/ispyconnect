@@ -557,9 +557,9 @@ namespace iSpyApplication
                     {
                         if (c.Focused)
                         {
-                            if (c is CameraWindow)
+                            var cw = c as CameraWindow;
+                            if (cw != null)
                             {
-                                CameraWindow cw = (CameraWindow)c;
                                 if (cw.Camobject.settings.active)
                                 {
                                     Maximise(cw);
@@ -567,9 +567,9 @@ namespace iSpyApplication
                                 else
                                     cw.Enable();
                             }
-                            if (c is VolumeLevel)
+                            var vw = c as VolumeLevel;
+                            if (vw != null)
                             {
-                                VolumeLevel vw = (VolumeLevel)c;
                                 if (vw.Micobject.settings.active)
                                 {
                                     Maximise(vw);
