@@ -16,10 +16,11 @@ namespace iSpyApplication
         private objectsFloorplanObjectsEntry _movingObject;
         private objectsFloorplanObjectsEntry _fovingObject;
         private objectsFloorplanObjectsEntry _radialObject;
+
+        public MainForm MainClass;
         
         private Image _floorPlanImage;
         private PictureBox _pnlPlan;
-        public new MainForm Owner;
 
         public AddFloorPlan()
         {

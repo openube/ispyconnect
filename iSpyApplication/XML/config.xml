@@ -59,6 +59,9 @@
   <IPv6Address />
   <DHCPReroute>true</DHCPReroute>
   <MediaDirectory>NotSet</MediaDirectory>
+  <MediaDirectories>
+    <Directory>NotSet</Directory>
+  </MediaDirectories>
   <FFMPEG_SingleProcess>true</FFMPEG_SingleProcess>
   <Loopback>false</Loopback>
   <ServerReceiveTimeout>1500</ServerReceiveTimeout>

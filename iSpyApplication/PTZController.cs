@@ -19,7 +19,7 @@ namespace iSpyApplication
 {
     public class PTZController
     {
-        public static string[] PelcoCommands = new[]
+        public static string[] PelcoCommands =
                                              {
                                                  "Focus Near", "Focus Far", "Open Iris", "Close Iris", "Switch On",
                                                  "Switch Off", "Clear Screen", "Flip", "Pattern Stop", "Pattern Run",
@@ -106,11 +106,6 @@ namespace iSpyApplication
                 _ptzSettings = value;
                 _ptzNull = _ptzSettings == null;
             }
-        }
-
-        internal bool DigitalZoom
-        {
-            get { return (PTZSettings == null || String.IsNullOrEmpty(PTZSettings.Commands.ZoomIn)); }
         }
 
         internal bool DigitalPTZ
@@ -332,6 +327,41 @@ namespace iSpyApplication
             SendPTZCommand(command,false);
         }
 
+        internal bool DigitalZoom
+        {
+            get
+            {
+                if (_cameraControl.Camera == null)
+                    return false;
+
+                switch (_cameraControl.Camobject.ptz)
+                {
+                    case -1: //digital only
+                        return true;
+                    case -2:
+                    case -3:
+                    case -4:
+                    case -5:
+                        return false;
+                    default:
+                    {
+                        PTZSettings2Camera ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
+                        bool d = (ptz == null || ptz.Commands == null);
+
+                        if (!d)
+                        {
+                           
+                            if (String.IsNullOrEmpty(ptz.Commands.ZoomIn))
+                                d = true;
+                            if (String.IsNullOrEmpty(ptz.Commands.ZoomOut))
+                                d = true;
+                        }
+                        return d;
+                    }
+                }
+            }
+        }
+
         public void SendPTZCommand(Enums.PtzCommand command, bool wait)
         {
             if (_cameraControl.Camera == null)
@@ -343,6 +373,7 @@ namespace iSpyApplication
                 case -1://digital only
                     break;
                 case -2://IAM
+                    _cameraControl.Calibrating = true;
                     switch (command)
                     {
                         case Enums.PtzCommand.Left:
@@ -375,6 +406,7 @@ namespace iSpyApplication
                     }
                     return;
                 case -3://PELCO-P
+                    _cameraControl.Calibrating = true;
                     switch (command)
                     {
                         case Enums.PtzCommand.Left:
@@ -407,6 +439,7 @@ namespace iSpyApplication
                     }
                     return;
                 case -4://PELCO-D
+                    _cameraControl.Calibrating = true;
                     switch (command)
                     {
                         case Enums.PtzCommand.Left:
@@ -437,10 +470,9 @@ namespace iSpyApplication
                             ProcessPelco(command, false);
                             break;
                     }
-
-                    
                     return;
                 case -5://ONVIF
+                    _cameraControl.Calibrating = true;
                     switch (command)
                     {
                         case Enums.PtzCommand.Left:
@@ -471,7 +503,6 @@ namespace iSpyApplication
                             ProcessOnvif(command);
                             break;
                     }
-                    
                     return;
                 default: //IP CAMERA
                     ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
@@ -496,6 +527,7 @@ namespace iSpyApplication
 
             if (!d)
             {
+                _cameraControl.Calibrating = true;
                 switch (command)
                 {
                     case Enums.PtzCommand.Left:
@@ -542,7 +574,9 @@ namespace iSpyApplication
                 if (r != Rectangle.Empty)
                 {
                     if (command == Enums.PtzCommand.ZoomOut || command == Enums.PtzCommand.ZoomIn)
-                        _cameraControl.Camera.ZPoint = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2);
+                    {
+                        _cameraControl.Camera.ZPoint = new Point(r.Left + r.Width/2, r.Top + r.Height/2);
+                    }
                     double angle = 0;
                     bool isangle = true;
                     switch (command)
@@ -576,10 +610,12 @@ namespace iSpyApplication
                             _cameraControl.Camera.ZFactor += 0.2f;
                             break;
                         case Enums.PtzCommand.ZoomOut:
-                            isangle = false;
-                            _cameraControl.Camera.ZFactor -= 0.2f;
-                            if (_cameraControl.Camera.ZFactor < 1)
-                                _cameraControl.Camera.ZFactor = 1;
+                            isangle = false;                        
+                            var f = _cameraControl.Camera.ZFactor;
+                            f -= 0.2f;
+                            if (f < 1)
+                                f = 1;
+                            _cameraControl.Camera.ZFactor = f;
                             break;
                         case Enums.PtzCommand.Center:
                             isangle = false;
@@ -1520,6 +1556,15 @@ namespace iSpyApplication
                         }
                     }
                 }
+            }
+
+            if (!String.IsNullOrEmpty(ptz.AppendAuth))
+            {
+                if (url.IndexOf("?", StringComparison.Ordinal) == -1)
+                    url += "?" + ptz.AppendAuth;
+                else
+                    url += "&" + ptz.AppendAuth;
+
             }
 
             url = url.Replace("[USERNAME]", Uri.EscapeDataString(un));

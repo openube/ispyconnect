@@ -168,6 +168,7 @@ internal static class Program
             
             WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
             
             var ffmpegSetup = new Init();
             ffmpegSetup.Initialise();
@@ -176,7 +177,6 @@ internal static class Program
             
             
             var mf = new MainForm(silentstartup, command);
-            //iSpy.Video.FFMPEG.Init();
             Application.Run(mf);
             WriterMutex.Close();
             ffmpegSetup.DeInitialise();
@@ -185,7 +185,6 @@ internal static class Program
             {
                 NativeCalls.SetThreadExecutionState(_previousExecutionState);
             }
-            //WriterMutex.Dispose();
             
         }
         catch (Exception ex)
@@ -207,6 +206,39 @@ internal static class Program
                 {
 
                 }
+            }
+        }
+    }
+
+    static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {        
+        try
+        {
+            var ex = (Exception)e.ExceptionObject;
+           
+            if (MainForm.Conf.Enable_Error_Reporting && _reportedExceptionCount == 0)
+            {
+                if (_er == null)
+                {
+                    _er = new ErrorReporting { UnhandledException = ex };
+                    _er.ShowDialog();
+                    _er.Dispose();
+                    _er = null;
+                    _reportedExceptionCount++;
+                }
+            }
+           
+            MainForm.LogExceptionToFile(ex);
+        }
+        catch (Exception ex2)
+        {
+            try
+            {
+                MainForm.LogExceptionToFile(ex2);
+            }
+            catch
+            {
+
             }
         }
     }

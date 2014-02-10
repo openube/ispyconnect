@@ -16,7 +16,7 @@ namespace iSpyApplication
             _gv.KeyDown += GridView_KeyDown;
             Controls.Add(_gv);
             _gv.Dock = DockStyle.Fill;
-            _gv._parent = parent;
+            _gv.MainClass = parent;
             _layout = layout;
             fullScreenToolStripMenuItem.Checked = layout.FullScreen;
             alwaysOnTopToolStripMenuItem.Checked = layout.AlwaysOnTop;
@@ -57,6 +57,10 @@ namespace iSpyApplication
             TopMost = alwaysOnTopToolStripMenuItem.Checked;
         }
 
+        private void Edit()
+        {
+            _gv.MainClass.EditGridView(_layout.name,this);
+        }
         private void GridView_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Alt && e.KeyCode == Keys.Enter)
@@ -79,6 +83,12 @@ namespace iSpyApplication
         private void closeGridViewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Edit();
+            _gv.Init();
         }
 
     }

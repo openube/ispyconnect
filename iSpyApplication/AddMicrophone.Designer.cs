@@ -128,15 +128,18 @@ namespace iSpyApplication
             this.ddlCopyFrom = new System.Windows.Forms.ComboBox();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel23 = new System.Windows.Forms.TableLayoutPanel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label11 = new System.Windows.Forms.Label();
+            this.ddlMediaDirectory = new System.Windows.Forms.ComboBox();
             this.tblStorage = new System.Windows.Forms.TableLayoutPanel();
             this.label85 = new System.Windows.Forms.Label();
             this.numMaxAge = new System.Windows.Forms.NumericUpDown();
             this.label94 = new System.Windows.Forms.Label();
             this.numMaxFolderSize = new System.Windows.Forms.NumericUpDown();
             this.btnRunNow = new System.Windows.Forms.Button();
-            this.chkStorageManagement = new System.Windows.Forms.CheckBox();
             this.label74 = new System.Windows.Forms.Label();
             this.txtDirectory = new System.Windows.Forms.TextBox();
+            this.chkStorageManagement = new System.Windows.Forms.CheckBox();
             this.btnNext = new System.Windows.Forms.Button();
             this.btnBack = new System.Windows.Forms.Button();
             this.btnFinish = new System.Windows.Forms.Button();
@@ -1548,20 +1551,57 @@ namespace iSpyApplication
             this.tableLayoutPanel23.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 100F));
             this.tableLayoutPanel23.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel23.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel23.Controls.Add(this.tblStorage, 1, 3);
-            this.tableLayoutPanel23.Controls.Add(this.chkStorageManagement, 0, 1);
-            this.tableLayoutPanel23.Controls.Add(this.label74, 0, 0);
-            this.tableLayoutPanel23.Controls.Add(this.txtDirectory, 1, 0);
+            this.tableLayoutPanel23.Controls.Add(this.button1, 2, 0);
+            this.tableLayoutPanel23.Controls.Add(this.label11, 0, 0);
+            this.tableLayoutPanel23.Controls.Add(this.ddlMediaDirectory, 1, 0);
+            this.tableLayoutPanel23.Controls.Add(this.tblStorage, 1, 5);
+            this.tableLayoutPanel23.Controls.Add(this.label74, 0, 1);
+            this.tableLayoutPanel23.Controls.Add(this.txtDirectory, 1, 1);
+            this.tableLayoutPanel23.Controls.Add(this.chkStorageManagement, 1, 4);
             this.tableLayoutPanel23.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel23.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel23.Name = "tableLayoutPanel23";
-            this.tableLayoutPanel23.RowCount = 4;
+            this.tableLayoutPanel23.RowCount = 6;
             this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel23.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel23.Size = new System.Drawing.Size(657, 236);
             this.tableLayoutPanel23.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(395, 6);
+            this.button1.Margin = new System.Windows.Forms.Padding(6);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(33, 23);
+            this.button1.TabIndex = 81;
+            this.button1.Text = "...";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(6, 8);
+            this.label11.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(80, 13);
+            this.label11.TabIndex = 82;
+            this.label11.Text = "Media Location";
+            // 
+            // ddlMediaDirectory
+            // 
+            this.ddlMediaDirectory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlMediaDirectory.FormattingEnabled = true;
+            this.ddlMediaDirectory.Location = new System.Drawing.Point(106, 6);
+            this.ddlMediaDirectory.Margin = new System.Windows.Forms.Padding(6);
+            this.ddlMediaDirectory.Name = "ddlMediaDirectory";
+            this.ddlMediaDirectory.Size = new System.Drawing.Size(277, 21);
+            this.ddlMediaDirectory.TabIndex = 80;
             // 
             // tblStorage
             // 
@@ -1574,14 +1614,14 @@ namespace iSpyApplication
             this.tblStorage.Controls.Add(this.label94, 0, 1);
             this.tblStorage.Controls.Add(this.numMaxFolderSize, 1, 0);
             this.tblStorage.Controls.Add(this.btnRunNow, 1, 2);
-            this.tblStorage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tblStorage.Location = new System.Drawing.Point(103, 64);
+            this.tblStorage.Location = new System.Drawing.Point(100, 96);
+            this.tblStorage.Margin = new System.Windows.Forms.Padding(0);
             this.tblStorage.Name = "tblStorage";
             this.tblStorage.RowCount = 3;
             this.tblStorage.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tblStorage.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tblStorage.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tblStorage.Size = new System.Drawing.Size(551, 169);
+            this.tblStorage.Size = new System.Drawing.Size(551, 136);
             this.tblStorage.TabIndex = 1;
             // 
             // label85
@@ -1648,23 +1688,10 @@ namespace iSpyApplication
             this.btnRunNow.UseVisualStyleBackColor = true;
             this.btnRunNow.Click += new System.EventHandler(this.btnRunNow_Click);
             // 
-            // chkStorageManagement
-            // 
-            this.chkStorageManagement.AutoSize = true;
-            this.tableLayoutPanel23.SetColumnSpan(this.chkStorageManagement, 3);
-            this.chkStorageManagement.Location = new System.Drawing.Point(6, 38);
-            this.chkStorageManagement.Margin = new System.Windows.Forms.Padding(6);
-            this.chkStorageManagement.Name = "chkStorageManagement";
-            this.chkStorageManagement.Size = new System.Drawing.Size(164, 17);
-            this.chkStorageManagement.TabIndex = 0;
-            this.chkStorageManagement.Text = "Enable Storage Management";
-            this.chkStorageManagement.UseVisualStyleBackColor = true;
-            this.chkStorageManagement.CheckedChanged += new System.EventHandler(this.chkStorageManagement_CheckedChanged);
-            // 
             // label74
             // 
             this.label74.AutoSize = true;
-            this.label74.Location = new System.Drawing.Point(6, 8);
+            this.label74.Location = new System.Drawing.Point(6, 43);
             this.label74.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label74.Name = "label74";
             this.label74.Size = new System.Drawing.Size(49, 13);
@@ -1673,13 +1700,26 @@ namespace iSpyApplication
             // 
             // txtDirectory
             // 
-            this.txtDirectory.Location = new System.Drawing.Point(106, 6);
+            this.txtDirectory.Location = new System.Drawing.Point(106, 41);
             this.txtDirectory.Margin = new System.Windows.Forms.Padding(6);
             this.txtDirectory.MaxLength = 50;
             this.txtDirectory.Name = "txtDirectory";
-            this.txtDirectory.Size = new System.Drawing.Size(131, 20);
+            this.txtDirectory.Size = new System.Drawing.Size(164, 20);
             this.txtDirectory.TabIndex = 80;
             this.toolTip1.SetToolTip(this.txtDirectory, "Give your camera a descriptive name, eg Office Cam");
+            // 
+            // chkStorageManagement
+            // 
+            this.chkStorageManagement.AutoSize = true;
+            this.tableLayoutPanel23.SetColumnSpan(this.chkStorageManagement, 2);
+            this.chkStorageManagement.Location = new System.Drawing.Point(106, 73);
+            this.chkStorageManagement.Margin = new System.Windows.Forms.Padding(6);
+            this.chkStorageManagement.Name = "chkStorageManagement";
+            this.chkStorageManagement.Size = new System.Drawing.Size(164, 17);
+            this.chkStorageManagement.TabIndex = 0;
+            this.chkStorageManagement.Text = "Enable Storage Management";
+            this.chkStorageManagement.UseVisualStyleBackColor = true;
+            this.chkStorageManagement.CheckedChanged += new System.EventHandler(this.chkStorageManagement_CheckedChanged);
             // 
             // btnNext
             // 
@@ -1971,5 +2011,8 @@ namespace iSpyApplication
         private System.Windows.Forms.LinkLabel linkLabel14;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txtEmailOnDisconnect;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox ddlMediaDirectory;
+        private System.Windows.Forms.Button button1;
     }
 }

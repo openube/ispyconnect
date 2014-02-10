@@ -137,7 +137,7 @@ namespace iSpyApplication.Audio.streams
                 if (_thread != null)
                 {
                     // check thread status
-                    if (!_thread.Join(0))
+                    if (!_thread.Join(TimeSpan.Zero))
                         return true;
 
                     // the thread is not running, free resources
@@ -292,7 +292,7 @@ namespace iSpyApplication.Audio.streams
                 // wait for thread stop
                 _stopEvent.Set();
                 _thread.Join(MainForm.ThreadKillDelay);
-                if (_thread != null && _thread.IsAlive)
+                if (_thread != null && !_thread.Join(TimeSpan.Zero))
                     _thread.Abort();
                 Free();
 

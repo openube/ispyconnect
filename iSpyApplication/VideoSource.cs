@@ -903,7 +903,7 @@ namespace iSpyApplication
         private void Button3Click(object sender, EventArgs e)
         {
             ofd.Filter = "Video Files|*.*";
-            ofd.InitialDirectory = MainForm.Conf.MediaDirectory;
+            ofd.InitialDirectory = Program.AppPath;
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 cmbFile.Text = ofd.FileName;
@@ -1561,7 +1561,7 @@ namespace iSpyApplication
         private void button6_Click(object sender, EventArgs e)
         {
             ofd.Filter = "Video Files|*.*";
-            ofd.InitialDirectory = MainForm.Conf.MediaDirectory;
+            ofd.InitialDirectory = Program.AppPath;
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 cmbVLCURL.Text = ofd.FileName;

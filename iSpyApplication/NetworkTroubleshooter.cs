@@ -125,7 +125,7 @@ namespace iSpyApplication
             UISync.Execute(() => rtbOutput.Text += NL);
             UISync.Execute(() => rtbOutput.Text += "Checking WebServer... ");
             Application.DoEvents();
-            if (!loadurl(MainForm.Webserver + "/webservices/ispysecure.asmx", out res))
+            if (!loadurl(MainForm.Webserver + "/webservices/ispyapi.asmx", out res))
             {
                 UISync.Execute(() => rtbOutput.Text += "Webservices not responding.");
             }

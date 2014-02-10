@@ -15,13 +15,13 @@ namespace iSpyApplication.Controls
         public MediaPanel()
         {
             InitializeComponent();
-            KeyDown += MediaPanel_KeyDown;
+            KeyDown += MediaPanelKeyDown;
             SetStyle(ControlStyles.UserPaint, true);
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
         }
 
-        void MediaPanel_KeyDown(object sender, KeyEventArgs e)
+        void MediaPanelKeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode==Keys.Delete)
             {

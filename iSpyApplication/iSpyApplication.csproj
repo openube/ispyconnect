@@ -184,10 +184,6 @@
     <Reference Include="AForge.Video">
       <HintPath>DLLS\AForge.Video.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Video.DirectShow, Version=2.6.2.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLS\AForge.Video.DirectShow.dll</HintPath>
-    </Reference>
     <Reference Include="AForge.Video.Ximea, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5cdcd64958730f99, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
@@ -333,6 +329,26 @@
     <Compile Include="Controls\AlertEventRow.Designer.cs">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\DirectoryEventRow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DirectoryEventRow.Designer.cs">
+      <DependentUpon>DirectoryEventRow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FishEyeCorrect.cs" />
+    <Compile Include="Controls\FolderSelectDialog.cs" />
+    <Compile Include="Controls\MediaDirectoryConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\MediaDirectoryConfig.Designer.cs">
+      <DependentUpon>MediaDirectoryConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MediaDirectoryEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MediaDirectoryEditor.Designer.cs">
+      <DependentUpon>MediaDirectoryEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Filter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -343,6 +359,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\GraphicsHelper.cs" />
+    <Compile Include="Controls\Reflector.cs" />
     <Compile Include="GridViewCustom.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -381,6 +398,12 @@
     </Compile>
     <Compile Include="GridView.Designer.cs">
       <DependentUpon>GridView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridViewModeConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridViewModeConfig.Designer.cs">
+      <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="MicrophoneSourceAdvanced.cs">
       <SubType>Form</SubType>
@@ -933,7 +956,7 @@
     <Content Include="sounds\police.wav" />
     <Content Include="sounds\pop.wav" />
     <Content Include="sounds\wiggle.wav" />
-    <None Include="Web References\iSpyWS\ispysecure.disco" />
+    <None Include="Web References\iSpyWS\ispyapi.disco" />
     <Content Include="WebServerRoot\notfound.jpg" />
     <Content Include="XML\config.xml">
       <SubType>Designer</SubType>
@@ -987,6 +1010,15 @@
     <EmbeddedResource Include="Controls\AlertEventRow.resx">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\DirectoryEventRow.resx">
+      <DependentUpon>DirectoryEventRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MediaDirectoryConfig.resx">
+      <DependentUpon>MediaDirectoryConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MediaDirectoryEditor.resx">
+      <DependentUpon>MediaDirectoryEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\Filter.resx">
       <DependentUpon>Filter.cs</DependentUpon>
     </EmbeddedResource>
@@ -1010,6 +1042,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GridViewCustom.resx">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridViewModeConfig.resx">
+      <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MicrophoneSourceAdvanced.resx">
       <DependentUpon>MicrophoneSourceAdvanced.cs</DependentUpon>
@@ -1166,7 +1201,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="nothing.png" />
-    <None Include="Web References\iSpyWS\ispysecure.wsdl" />
+    <None Include="Web References\iSpyWS\ispyapi.wsdl" />
     <None Include="Web References\Reporting\reporting.disco">
       <SubType>Designer</SubType>
     </None>
@@ -1264,10 +1299,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="https://www.ispyconnect.com/webservices/ispysecure.asmx">
+    <WebReferenceUrl Include="https://www.ispyconnect.com/webservices/ispyapi.asmx">
       <UrlBehavior>Static</UrlBehavior>
       <RelPath>Web References\iSpyWS\</RelPath>
-      <UpdateFromURL>https://www.ispyconnect.com/webservices/ispysecure.asmx</UpdateFromURL>
+      <UpdateFromURL>https://www.ispyconnect.com/webservices/ispyapi.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1344,6 +1379,15 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+    <COMReference Include="NETWORKLIST">
+      <Guid>{DCB00D01-570F-4A9B-8D69-199FDBA5723B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
@@ -1351,7 +1395,7 @@
       <Name>Video.DirectShow</Name>
     </ProjectReference>
     <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
-      <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
+      <Project>{ff31dd24-127d-4eb1-929c-f5738147e886}</Project>
       <Name>Video.FFMPEG</Name>
     </ProjectReference>
   </ItemGroup>

@@ -116,7 +116,7 @@ public partial class objectsCamera {
     private bool flipyField;
     
     private bool rotate90Field;
-
+    
     private string rotateModeField;
     
     private int xField;
@@ -139,6 +139,7 @@ public partial class objectsCamera {
     
     public objectsCamera() {
         this.rotate90Field = false;
+        this.rotateModeField = "";
         this.ptzentryindexField = 0;
         this.newrecordingcountField = 0;
     }
@@ -310,17 +311,15 @@ public partial class objectsCamera {
             this.rotate90Field = value;
         }
     }
-
+    
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
-    public string rotateMode
-    {
-        get
-        {
+    [System.ComponentModel.DefaultValueAttribute("")]
+    public string rotateMode {
+        get {
             return this.rotateModeField;
         }
-        set
-        {
+        set {
             this.rotateModeField = value;
         }
     }
@@ -466,7 +465,7 @@ public partial class objectsCameraSettings {
     private bool activeField;
     
     private bool notifyondisconnectField;
-
+    
     private string emailondisconnectField;
     
     private int frameintervalField;
@@ -565,6 +564,8 @@ public partial class objectsCameraSettings {
     
     private string procAmpConfigField;
     
+    private int directoryIndexField;
+    
     private objectsCameraSettingsYoutube youtubeField;
     
     private objectsCameraSettingsStoragemanagement storagemanagementField;
@@ -580,6 +581,14 @@ public partial class objectsCameraSettings {
     private bool calibrateonreconnectField;
     
     private bool ignoreaudioField;
+    
+    private bool fishEyeCorrectField;
+    
+    private int fishEyeLimitField;
+    
+    private double fishEyeScaleField;
+    
+    private int fishEyeFocalLengthPXField;
     
     public objectsCameraSettings() {
         this.timestampfontsizeField = 10;
@@ -615,8 +624,13 @@ public partial class objectsCameraSettings {
         this.nobufferField = false;
         this.rtspmodeField = 0;
         this.procAmpConfigField = "";
+        this.directoryIndexField = 0;
         this.calibrateonreconnectField = true;
         this.ignoreaudioField = false;
+        this.fishEyeCorrectField = false;
+        this.fishEyeLimitField = 1500;
+        this.fishEyeScaleField = 0.9D;
+        this.fishEyeFocalLengthPXField = 700;
     }
     
     /// <remarks/>
@@ -678,21 +692,7 @@ public partial class objectsCameraSettings {
             this.passwordField = value;
         }
     }
-
-    /// <remarks/>
-    public string emailondisconnect
-    {
-        get
-        {
-            return this.emailondisconnectField;
-        }
-        set
-        {
-            this.emailondisconnectField = value;
-        }
-    }
     
-
     /// <remarks/>
     public string useragent {
         get {
@@ -790,6 +790,16 @@ public partial class objectsCameraSettings {
         }
         set {
             this.notifyondisconnectField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string emailondisconnect {
+        get {
+            return this.emailondisconnectField;
+        }
+        set {
+            this.emailondisconnectField = value;
         }
     }
     
@@ -1274,6 +1284,16 @@ public partial class objectsCameraSettings {
     }
     
     /// <remarks/>
+    public int directoryIndex {
+        get {
+            return this.directoryIndexField;
+        }
+        set {
+            this.directoryIndexField = value;
+        }
+    }
+    
+    /// <remarks/>
     public objectsCameraSettingsYoutube youtube {
         get {
             return this.youtubeField;
@@ -1358,6 +1378,54 @@ public partial class objectsCameraSettings {
         }
         set {
             this.ignoreaudioField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(false)]
+    public bool FishEyeCorrect {
+        get {
+            return this.fishEyeCorrectField;
+        }
+        set {
+            this.fishEyeCorrectField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(1500)]
+    public int FishEyeLimit {
+        get {
+            return this.fishEyeLimitField;
+        }
+        set {
+            this.fishEyeLimitField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0.9D)]
+    public double FishEyeScale {
+        get {
+            return this.fishEyeScaleField;
+        }
+        set {
+            this.fishEyeScaleField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(700)]
+    public int FishEyeFocalLengthPX {
+        get {
+            return this.fishEyeFocalLengthPXField;
+        }
+        set {
+            this.fishEyeFocalLengthPXField = value;
         }
     }
 }
@@ -1754,6 +1822,8 @@ public partial class objectsCameraDetector {
     
     private bool colourprocessingenabledField;
     
+    private int autooffField;
+    
     public objectsCameraDetector() {
         this.nomovementintervalnewField = -1D;
         this.movementintervalnewField = -1D;
@@ -1762,6 +1832,7 @@ public partial class objectsCameraDetector {
         this.highlightField = false;
         this.colourprocessingField = "";
         this.colourprocessingenabledField = false;
+        this.autooffField = 0;
     }
     
     /// <remarks/>
@@ -1999,6 +2070,18 @@ public partial class objectsCameraDetector {
         }
         set {
             this.colourprocessingenabledField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int autooff {
+        get {
+            return this.autooffField;
+        }
+        set {
+            this.autooffField = value;
         }
     }
 }
@@ -3173,7 +3256,7 @@ public partial class objectsMicrophoneSettings {
     private bool decompressField;
     
     private bool notifyondisconnectField;
-
+    
     private string emailondisconnectField;
     
     private string vlcargsField;
@@ -3188,25 +3271,15 @@ public partial class objectsMicrophoneSettings {
     
     private objectsMicrophoneSettingsStoragemanagement storagemanagementField;
     
+    private int directoryIndexField;
+    
     public objectsMicrophoneSettings() {
         this.volumeField = 50;
         this.gainField = ((float)(1F));
         this.accessgroupsField = "";
         this.timeoutField = 8000;
         this.analyzedurationField = 2000;
-    }
-
-    /// <remarks/>
-    public string emailondisconnect
-    {
-        get
-        {
-            return this.emailondisconnectField;
-        }
-        set
-        {
-            this.emailondisconnectField = value;
-        }
+        this.directoryIndexField = 0;
     }
     
     /// <remarks/>
@@ -3410,6 +3483,16 @@ public partial class objectsMicrophoneSettings {
     }
     
     /// <remarks/>
+    public string emailondisconnect {
+        get {
+            return this.emailondisconnectField;
+        }
+        set {
+            this.emailondisconnectField = value;
+        }
+    }
+    
+    /// <remarks/>
     public string vlcargs {
         get {
             return this.vlcargsField;
@@ -3466,6 +3549,16 @@ public partial class objectsMicrophoneSettings {
         }
         set {
             this.storagemanagementField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int directoryIndex {
+        get {
+            return this.directoryIndexField;
+        }
+        set {
+            this.directoryIndexField = value;
         }
     }
 }

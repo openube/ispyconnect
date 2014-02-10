@@ -303,7 +303,11 @@ namespace iSpyApplication.Controls
             base.OnResize(eventargs);
             if (Width < MinimumSize.Width) Width = MinimumSize.Width;
             if (Height < MinimumSize.Height) Height = MinimumSize.Height;
+            _minimised = Size.Equals(MinimumSize);
+
         }
+
+        private bool _minimised;
 
         protected override void OnMouseLeave(EventArgs e)
         {
@@ -496,16 +500,14 @@ namespace iSpyApplication.Controls
 
                 if (_imgview != null)
                 {
-                    lock (_lockobject)
-                    {
+                    if (!_minimised)
                         gPlan.DrawImage(_imgview, rc.X + 1, rc.Y + 1, rc.Width - 2, rc.Height - 26);
 
-                        gPlan.CompositingMode = CompositingMode.SourceOver;
-                        gPlan.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                        gPlan.DrawString(LocRm.GetString("FloorPlan") + ": " + Fpobject.name, _drawFont,
-                                    _drawBrush,
-                                    new PointF(5, textpos));
-                    }
+                    gPlan.CompositingMode = CompositingMode.SourceOver;
+                    gPlan.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                    gPlan.DrawString(LocRm.GetString("FloorPlan") + ": " + Fpobject.name, _drawFont,
+                                _drawBrush,
+                                new PointF(5, textpos));
                 }
             }
             catch (Exception ex)
@@ -718,10 +720,6 @@ namespace iSpyApplication.Controls
                 NeedsRefresh = false;
                 IsAlert = alert;
             }
-        }
-
-        private static void FloorPlanResize(object sender, EventArgs e)
-        {
         }
 
         #region Nested type: ThreadSafeCommand

@@ -182,80 +182,91 @@ namespace iSpyApplication.Video
         /// 
         public void Start()
         {
-            if (!VlcHelper.VlcInstalled)
-                return;
-            if (_stoprequested)
-                return;
-            if (!IsRunning && !_starting)
+            lock (_lock)
             {
-                _starting = true;
-                if (string.IsNullOrEmpty(_source))
-                    throw new ArgumentException("Video source is not specified.");
+                if (!VlcHelper.VlcInstalled)
+                    return;
+                if (_stoprequested)
+                    return;
 
-                lock (_lock)
+                if (!IsRunning && !_starting)
                 {
-                    _mFactory = new MediaPlayerFactory();
+                    _starting = true;
+                    if (string.IsNullOrEmpty(_source))
+                        throw new ArgumentException("Video source is not specified.");
 
-                    
-                    _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
-                    _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
-                    _mPlayer.Events.TimeChanged += EventsTimeChanged;
-                    
-                    
-
-                    bool file = false;
-                    try
+                    lock (_lock)
                     {
-                        if (File.Exists(_source))
+                        _mFactory = new MediaPlayerFactory();
+
+
+                        _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
+                        _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
+                        _mPlayer.Events.TimeChanged += EventsTimeChanged;
+
+
+
+                        bool file = false;
+                        try
                         {
-                            file = true;
+                            if (File.Exists(_source))
+                            {
+                                file = true;
+                            }
                         }
-                    }
-                    catch
-                    {
-                        
-                    }
-                    if (file)
-                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
-                    else
-                        _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+                        catch
+                        {
 
-                    _mMedia.Events.DurationChanged += EventsDurationChanged;
-                    _mMedia.Events.StateChanged += EventsStateChanged;
-                    _mPlayer.Open(_mMedia);
+                        }
+                        if (file)
+                            _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
+                        else
+                            _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
 
-                    _needsSetup = true;
-                    var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
-                    _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
-                    var ac = new AudioCallbacks {SoundCallback = SoundCallback};
-                    _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
+                        _mMedia.Events.DurationChanged += EventsDurationChanged;
+                        _mMedia.Events.StateChanged += EventsStateChanged;
+                        //_mMedia.Events.ParsedChanged += Events_ParsedChanged;
+                        _mPlayer.Open(_mMedia);
 
-                    _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
-                    _mPlayer.CustomRenderer.SetCallback(FrameCallback);
+                        _needsSetup = true;
+                        var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
+                        _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
+                        var ac = new AudioCallbacks {SoundCallback = SoundCallback};
+                        _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
 
-                    _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
-                    _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
+                        _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
+                        _mPlayer.CustomRenderer.SetCallback(FrameCallback);
 
-                    _mMedia.Parse(true);
-                    _framesReceived = 0;
-                    Duration = Time = 0;
-                    _timestamp = _lastframetimestamp = DateTime.MinValue;
-                    _mPlayer.Play();
+                        _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
+                        _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
 
-                    //check if file source (isseekable in _mPlayer is not reliable)
-                    Seekable = false;
-                    try
-                    {
-                        var p = Path.GetFullPath(_mMedia.Input);
-                        Seekable = !String.IsNullOrEmpty(p);
-                    }
-                    catch (Exception)
-                    {
+                        _mMedia.Parse(true);
+
+                        _framesReceived = 0;
+                        Duration = Time = 0;
+                        _timestamp = _lastframetimestamp = DateTime.MinValue;
+                        _mPlayer.Play();
+
+                        //check if file source (isseekable in _mPlayer is not reliable)
                         Seekable = false;
+                        try
+                        {
+                            var p = Path.GetFullPath(_mMedia.Input);
+                            Seekable = !String.IsNullOrEmpty(p);
+                        }
+                        catch (Exception)
+                        {
+                            Seekable = false;
+                        }
                     }
                 }
             }
         }
+
+        //void Events_ParsedChanged(object sender, MediaParseChange e)
+        //{
+        //    Console.WriteLine(e.Parsed);
+        //}
 
         void Handler(Exception ex)
         {
@@ -265,39 +276,41 @@ namespace iSpyApplication.Video
 
         void EventsStateChanged(object sender, MediaStateChange e)
         {
-
-            switch (e.NewState)
+            lock (_lock)
             {
-                case MediaState.Ended:
-                case MediaState.Stopped:
-                case MediaState.Error:
-                    if (_isrunning || _starting)
-                    {
-                        DisposePlayer();
-                        Duration = Time = 0;
-
-                        _starting = false;
-                        _isrunning = false;
-                        Thread.Sleep(500); //lets buffered frames stop before raising finished event
-                        //if file source then dont reconnect
-                        if (!Seekable && !_stoprequested)
+                switch (e.NewState)
+                {
+                    case MediaState.Ended:
+                    case MediaState.Stopped:
+                    case MediaState.Error:
+                        if (_isrunning || _starting)
                         {
-                            if (PlayingFinished != null)
-                                PlayingFinished(sender, ReasonToFinishPlaying.DeviceLost);
-                            if (AudioFinished != null)
-                                AudioFinished(sender, ReasonToFinishPlaying.DeviceLost);
+                            DisposePlayer();
+                            Duration = Time = 0;
 
+                            _starting = false;
+                            _isrunning = false;
+                            Thread.Sleep(1000); //lets buffered frames stop before raising finished event
+                            //if file source then dont reconnect
+                            if (!Seekable && !_stoprequested)
+                            {
+                                if (PlayingFinished != null)
+                                    PlayingFinished(sender, ReasonToFinishPlaying.DeviceLost);
+                                if (AudioFinished != null)
+                                    AudioFinished(sender, ReasonToFinishPlaying.DeviceLost);
+
+                            }
+                            else
+                            {
+                                if (PlayingFinished != null)
+                                    PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                                if (AudioFinished != null)
+                                    AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
+                            }
                         }
-                        else
-                        {
-                            if (PlayingFinished != null)
-                                PlayingFinished(sender, ReasonToFinishPlaying.StoppedByUser);
-                            if (AudioFinished != null)
-                                AudioFinished(sender, ReasonToFinishPlaying.StoppedByUser);
-                        }
-                    }
-                    _stoprequested = false;
-                    break;
+                        _stoprequested = false;
+                        break;
+                }
             }
         }
 
@@ -316,17 +329,40 @@ namespace iSpyApplication.Video
 
             if (q)
             {
+                lock (_lock)
+                {
+                    if (_mPlayer != null && !_stoprequested)
+                    {
+                        if (_mPlayer.IsPlaying)
+                        {
+                            _starting = false;
+                            _mPlayer.Stop();
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Stop video source.
+        /// </summary>
+        /// 
+        public void Stop()
+        {
+            lock (_lock)
+            {
                 if (_mPlayer != null && !_stoprequested)
                 {
                     if (_mPlayer.IsPlaying)
                     {
                         _starting = false;
+                        _stoprequested = true;
                         _mPlayer.Stop();
                     }
                 }
-                
             }
         }
+
 
         public bool Seekable;
 
@@ -508,22 +544,7 @@ namespace iSpyApplication.Video
             Stop();
         }
 
-        /// <summary>
-        /// Stop video source.
-        /// </summary>
-        /// 
-        public void Stop()
-        {
-            if (_mPlayer != null && !_stoprequested)
-            {
-                if (_mPlayer.IsPlaying)
-                {
-                    _starting = false;
-                    _stoprequested = true;
-                    _mPlayer.Stop();
-                }
-            }
-        }
+        
 
         #endregion
 
@@ -557,8 +578,8 @@ namespace iSpyApplication.Video
                 {
                     _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
                     _mPlayer.Events.TimeChanged -= EventsTimeChanged;
-                //    _mPlayer.Dispose();
-                //    _mPlayer = null;
+                    //_mPlayer.Dispose();
+                    //_mPlayer = null;
                     //^^^ causing major issues :(
                 }
 

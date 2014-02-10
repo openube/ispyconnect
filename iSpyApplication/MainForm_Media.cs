@@ -158,6 +158,32 @@ namespace iSpyApplication
             }
         }
 
+        internal static string GetMediaDirectory(int ot, int oid)
+        {
+            int i = 0;
+            switch(ot)
+            {
+                case 1:
+                    {
+                        var o = Microphones.FirstOrDefault(p => p.id == oid);
+                        if (o != null)
+                            i = o.settings.directoryIndex;
+                    }
+                    break;
+                case 2:
+                    {
+                        var o = Cameras.FirstOrDefault(p => p.id == oid);
+                        if (o != null)
+                            i = o.settings.directoryIndex;
+                    }
+                    break;
+            }
+            var o2 = Conf.MediaDirectories.FirstOrDefault(p=>p.ID==i);
+            if (o2!=null)
+                return o2.Entry;
+            return Conf.MediaDirectories[0].Entry;
+        }
+
         private void RenderList(List<FilePreview> l, int pageCount )
         {
             
@@ -171,7 +197,7 @@ namespace iSpyApplication
                 var pb = flowPreview.Controls[i] as PreviewBox;
                 if (pb != null)
                 {
-                    if (l.Count(p => p.CreatedDateTicks == pb.CreatedDate.Ticks) == 0)
+                    if (NeedsMediaRebuild || l.Count(p => p.CreatedDateTicks == pb.CreatedDate.Ticks) == 0)
                     {
                         flowPreview.Controls.Remove(pb);
                         pb.MouseDown -= PbMouseDown;
@@ -215,13 +241,14 @@ namespace iSpyApplication
                 if (pb == null)
                 {
                     FilePreview fp1 = fp;
+                    var dir = GetMediaDirectory(fp1.ObjectTypeId, fp1.ObjectId);
                     switch (fp1.ObjectTypeId)
                     {
                         case 1:
                             var v = Microphones.SingleOrDefault(p => p.id == fp1.ObjectId);
                             if (v != null)
                             {
-                                var filename = Conf.MediaDirectory + "audio\\" + v.directory + "\\" + fp.Filename;
+                                var filename = dir + "audio\\" + v.directory + "\\" + fp.Filename;
                                 pb = AddPreviewControl(Resources.audio, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), v.name);
                             }
                             break;
@@ -229,8 +256,8 @@ namespace iSpyApplication
                             var c = Cameras.SingleOrDefault(p => p.id == fp1.ObjectId);
                             if (c != null)
                             {
-                                var filename = Conf.MediaDirectory + "video\\" + c.directory + "\\" + fp.Filename;
-                                var thumb = Conf.MediaDirectory + "video\\" + c.directory + "\\thumbs\\" +
+                                var filename = dir + "video\\" + c.directory + "\\" + fp.Filename;
+                                var thumb = dir + "video\\" + c.directory + "\\thumbs\\" +
                                             fp.Filename.Substring(0,
                                                                   fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
                                             ".jpg";
@@ -249,6 +276,7 @@ namespace iSpyApplication
             }
 
             flowPreview.ResumeLayout(true);
+            NeedsMediaRebuild = false;
         }
 
         public void RemovePreviewByFileName(string fn)

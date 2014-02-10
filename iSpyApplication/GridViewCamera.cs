@@ -34,6 +34,10 @@ namespace iSpyApplication
             {
                 lbCameras.Items.Add(new GridItem(c.name, c.id, 2));
             }
+            foreach (var c in MainForm.Microphones)
+            {
+                lbCameras.Items.Add(new GridItem(c.name, c.id, 1));
+            }
             foreach (var c in MainForm.FloorPlans)
             {
                 lbCameras.Items.Add(new GridItem(c.name, c.id, 3));
@@ -71,7 +75,7 @@ namespace iSpyApplication
         }
     }
 
-    public struct GridItem
+    public class GridItem
     {
         private readonly string _name;
         internal readonly int ObjectID;
