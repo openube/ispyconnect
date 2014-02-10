@@ -24,6 +24,13 @@ namespace iSpyApplication
             txtCookies.Text = Camobject.settings.cookies;
             chkCalibrate.Checked = Camobject.settings.calibrateonreconnect;
             txtHeaders.Text = Camobject.settings.headers;
+
+            tlpFishEye.Enabled = chkFishEyeActive.Checked = Camobject.settings.FishEyeCorrect;
+            
+            numFocalLength.Value = Camobject.settings.FishEyeFocalLengthPX;
+            numLimit.Value = Camobject.settings.FishEyeLimit;
+            numScale.Value = Convert.ToDecimal(Camobject.settings.FishEyeScale);
+            
             
             numTimeout.Value = Camobject.settings.timeout;
         }
@@ -80,6 +87,27 @@ namespace iSpyApplication
         private void chkNoResize_CheckedChanged(object sender, EventArgs e)
         {
             txtResizeHeight.Enabled = txtResizeWidth.Enabled = !chkNoResize.Checked;        
+        }
+
+        private void chkFishEyeActive_CheckedChanged(object sender, EventArgs e)
+        {
+            Camobject.settings.FishEyeCorrect = chkFishEyeActive.Checked;
+            tlpFishEye.Enabled = Camobject.settings.FishEyeCorrect;
+        }
+
+        private void numFocalLength_ValueChanged(object sender, EventArgs e)
+        {
+            Camobject.settings.FishEyeFocalLengthPX = (int)numFocalLength.Value;
+        }
+
+        private void numLimit_ValueChanged(object sender, EventArgs e)
+        {
+            Camobject.settings.FishEyeLimit = (int)numLimit.Value;
+        }
+
+        private void numScale_ValueChanged(object sender, EventArgs e)
+        {
+            Camobject.settings.FishEyeScale = Convert.ToDouble(numScale.Value);
         }
     }
 }

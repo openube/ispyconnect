@@ -573,7 +573,7 @@ namespace iSpyApplication
 
         private void ScanCamera(string make)
         {
-            if (_urlscanner != null && _urlscanner.IsAlive)
+            if (_urlscanner != null && !_urlscanner.Join(TimeSpan.Zero))
             {
                 QuitScanner();
             }
@@ -588,12 +588,12 @@ namespace iSpyApplication
             if (_urlscanner != null)
             {
                 var i = 0;
-                while (_urlscanner.IsAlive && i < 10)
+                while (!_urlscanner.Join(TimeSpan.Zero) && i < 10)
                 {
                     Thread.Sleep(200);
                     i++;
                 }
-                if (_urlscanner.IsAlive)
+                if (!_urlscanner.Join(TimeSpan.Zero))
                     _urlscanner.Abort();
                 _urlscanner = null;
             }
@@ -1314,7 +1314,7 @@ namespace iSpyApplication
 
         private void CheckAndFilterResults()
         {
-            if (_urlscanner != null && _urlscanner.IsAlive)
+            if (_urlscanner != null && !_urlscanner.Join(TimeSpan.Zero))
             {
                 QuitScanner();
             }

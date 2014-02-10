@@ -36,6 +36,7 @@ namespace iSpyApplication.Controls
         private int _processFrameCount;
         private DateTime _motionlastdetected = DateTime.MinValue;
         private DateTime _nextFrameTarget = DateTime.MinValue;
+        private readonly FishEyeCorrect _feCorrect = new FishEyeCorrect();
 
         // alarm level
         private double _alarmLevel = 0.0005;
@@ -175,6 +176,12 @@ namespace iSpyApplication.Controls
 
                                     if (o.GetProperty("CameraName") != null)
                                         o.GetProperty("CameraName").SetValue(_plugin, CW.Camobject.name, null);
+
+                                    var l = o.GetMethod("LogExternal");
+                                    if (l != null)
+                                    {
+                                        l.Invoke(_plugin, new object[] { "Plugin Initialised" });
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
@@ -415,8 +422,10 @@ namespace iSpyApplication.Controls
                 {
                     if (e.Frame != null)
                     {
-                        //resize?
                         bmOrig = ResizeBmOrig(e);
+
+                        if (CW.Camobject.settings.FishEyeCorrect)
+                            bmOrig = _feCorrect.Correct(bmOrig, CW.Camobject.settings.FishEyeFocalLengthPX,CW.Camobject.settings.FishEyeLimit, CW.Camobject.settings.FishEyeScale);                       
 
                         if (RotateFlipType != RotateFlipType.RotateNoneFlipNone)
                         {
@@ -504,6 +513,27 @@ namespace iSpyApplication.Controls
                 }
             }
             
+        }
+
+        [HandleProcessCorruptedStateExceptions]
+        private UnmanagedImage ZoomImage(UnmanagedImage lfu)
+        {
+            if (ZFactor > 1)
+            {
+                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+                var f2 = new Crop(ViewRectangle);
+                try
+                {
+                    lfu = f2.Apply(lfu);
+                    lfu = f1.Apply(lfu);
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+            }
+
+            return lfu;
         }
 
         private void AddTimestamp(Bitmap bmp)
@@ -632,7 +662,7 @@ namespace iSpyApplication.Controls
                     {
                         if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
                         {
-                            TriggerDetect();
+                            TriggerDetect(this);
                         }
                     }
                     else
@@ -643,11 +673,12 @@ namespace iSpyApplication.Controls
                 MotionDetected = false;
         }
 
-        internal void TriggerDetect()
+        internal void TriggerDetect(object sender)
         {
             MotionDetected = true;
             _motionlastdetected = DateTime.Now;
-            Alarm(this, new EventArgs());
+            if (Alarm!=null)
+                Alarm(sender, new EventArgs());
         }
 
         internal void TriggerPlugin()
@@ -655,23 +686,7 @@ namespace iSpyApplication.Controls
             _pluginTrigger = true;
         }
 
-        [HandleProcessCorruptedStateExceptions] 
-        private UnmanagedImage ZoomImage(UnmanagedImage lfu)
-        {
-            var f1 =  new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-            var f2 = new Crop(ViewRectangle);
-            try
-            {
-                lfu = f2.Apply(lfu);
-                lfu = f1.Apply(lfu);
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
-            }
-
-            return lfu;
-        }
+        
 
         private Bitmap ResizeBmOrig(NewFrameEventArgs e)
         {
@@ -768,7 +783,7 @@ namespace iSpyApplication.Controls
                 }
                
                 var pluginAlert = (String) o.GetField("Alert").GetValue(Plugin);
-                if (pluginAlert != "")
+                if (pluginAlert != "" && Alarm!=null)
                     Alarm(pluginAlert, EventArgs.Empty);
                 
                 if (o.GetMethod("ResetAlert") != null)

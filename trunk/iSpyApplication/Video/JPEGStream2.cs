@@ -367,7 +367,7 @@ namespace iSpyApplication.Video
 				// wait for thread stop
                 _stopEvent.Set();
                 _thread.Join(MainForm.ThreadKillDelay);
-                if (_thread != null && _thread.IsAlive)
+                if (_thread != null && !_thread.Join(TimeSpan.Zero))
                     _thread.Abort();
 				Free( );
 			}

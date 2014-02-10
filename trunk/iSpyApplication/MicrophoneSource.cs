@@ -335,7 +335,7 @@ namespace iSpyApplication
         private void button3_Click(object sender, EventArgs e)
         {
             ofd.Filter = "Audio Files|*.*";
-            ofd.InitialDirectory = MainForm.Conf.MediaDirectory;
+            ofd.InitialDirectory = Program.AppPath;
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 cmbVLCURL.Text = ofd.FileName;
@@ -345,7 +345,7 @@ namespace iSpyApplication
         private void button4_Click(object sender, EventArgs e)
         {
             ofd.Filter = "Audio Files|*.*";
-            ofd.InitialDirectory = MainForm.Conf.MediaDirectory;
+            ofd.InitialDirectory = Program.AppPath;
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 cmbFFMPEGURL.Text = ofd.FileName;

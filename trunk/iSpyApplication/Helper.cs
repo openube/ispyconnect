@@ -97,12 +97,13 @@ namespace iSpyApplication
 
         }
 
-        public static void DeleteAllContent(int objectTypeId, string directoryName)
+        public static void DeleteAllContent(int objectTypeId, int objectid, string directoryName)
         {
+            var dir = MainForm.GetMediaDirectory(objectTypeId, objectid);
             if (objectTypeId == 1)
             {
                 var lFi = new List<FileInfo>();
-                var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "audio\\" +
+                var dirinfo = new DirectoryInfo(dir + "audio\\" +
                                               directoryName + "\\");
 
                 lFi.AddRange(dirinfo.GetFiles());
@@ -124,7 +125,7 @@ namespace iSpyApplication
             if (objectTypeId == 2)
             {
                 var lFi = new List<FileInfo>();
-                var dirinfo = new DirectoryInfo(MainForm.Conf.MediaDirectory + "video\\" +
+                var dirinfo = new DirectoryInfo(dir + "video\\" +
                                               directoryName + "\\");
 
                 lFi.AddRange(dirinfo.GetFiles());
@@ -141,7 +142,7 @@ namespace iSpyApplication
                         MainForm.LogExceptionToFile(ex);
                     }
                 }
-                System.Array.ForEach(Directory.GetFiles(MainForm.Conf.MediaDirectory + "video\\" +
+                System.Array.ForEach(Directory.GetFiles(dir + "video\\" +
                                               directoryName + "\\thumbs\\"), delegate(string path)
                                               {
                                                   try

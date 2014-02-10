@@ -15,17 +15,25 @@ namespace iSpyApplication.Controls
     {
         #region Private
 
-        internal MainForm _parent;
+        internal MainForm MainClass;
 
         private const int Itempadding = 5;
-        private const int MaxItems = 36;
-        private readonly List<GridViewConfig> _controls;
+        private int _maxItems = 36;
+        private List<GridViewConfig> _controls;
         private int _itemwidth;
         private int _itemheight;
         private readonly Timer _tmrRefresh;
         public configurationGrid Cg;
 
+        private int _cols = 1, _rows = 1;
+        private GridViewConfig _maximised;
+
+        private readonly object _objlock = new object();
+
+        private int _overControlIndex = -1;
+
         private readonly Pen _pline = new Pen(Color.Gray, 2);
+        private readonly Pen _vline = new Pen(Color.Green, 2);
         private readonly Pen _pAlert = new Pen(Color.Red, 2);
         private readonly SolidBrush _bOverlay = new SolidBrush(Color.FromArgb(100, Color.Black));
 
@@ -44,38 +52,180 @@ namespace iSpyApplication.Controls
             BorderStyle = BorderStyle.None;
             BackColor = MainForm.Conf.BackColor.ToColor();
 
-            _controls = new List<GridViewConfig>(MaxItems);
-            for (int i = 0; i < MaxItems; i++)
-                _controls.Add(null);
-
+            Init();
+            
             
 
-            Text = cg.name;
+            _tmrRefresh = new Timer(1000d/cg.Framerate);
+            _tmrRefresh.Elapsed += TmrRefreshElapsed;
+            _tmrRefresh.Start();
 
-            if (cg.GridItem == null)
-                cg.GridItem = new configurationGridGridItem[]{};
 
-            foreach (var o in cg.GridItem)
+        }
+
+        public void Init()
+        {
+            _cols = Cg.Columns;
+            _rows = Cg.Rows;
+            
+            _maxItems = _cols*_rows;
+            if (Cg.ModeIndex > 0)
+                _maxItems = 36;
+
+            if (_controls!=null)
+                _controls.Clear();
+            _controls = new List<GridViewConfig>(_maxItems);
+            
+            for (int i = 0; i < _maxItems; i++)
+                _controls.Add(null);           
+            Text = Cg.name;
+
+            switch (Cg.ModeIndex)
+            {
+                case 0:
+                    AddItems();
+                    break;
+                case 1:
+                case 2:
+                    var tmrUpdateList = new Timer(1000);
+                    tmrUpdateList.Elapsed += TmrUpdateLayoutElapsed;
+                    tmrUpdateList.Start();
+                    break;
+            }
+        }
+
+        void AddItems()
+        {
+            if (Cg.GridItem == null)
+                Cg.GridItem = new configurationGridGridItem[] { };
+
+            foreach (var o in Cg.GridItem)
             {
                 if (o.Item != null)
                 {
-                    var li = new List<GridItem>();
-                    foreach (var c in o.Item)
+                    if (o.GridIndex < _controls.Count)
                     {
-                        li.Add(new GridItem("",c.ObjectID,c.TypeID));
-                    }
-                    if (li.Count == 0)
-                        _controls[o.GridIndex] = null;
-                    else
-                    {
-                        _controls[o.GridIndex] = new GridViewConfig(li, o.CycleDelay);
+                        var li = new List<GridItem>();
+                        foreach (var c in o.Item)
+                        {
+                            li.Add(new GridItem("", c.ObjectID, c.TypeID));
+                        }
+
+                        if (li.Count == 0)
+                            _controls[o.GridIndex] = null;
+                        else
+                        {
+                            _controls[o.GridIndex] = new GridViewConfig(li, o.CycleDelay);
+                        }
                     }
                 }
             }
+        }
 
-            _tmrRefresh = new Timer(200);
-            _tmrRefresh.Elapsed += TmrRefreshElapsed;
-            _tmrRefresh.Start();
+        void TmrUpdateLayoutElapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            lock(_objlock)
+            {
+                int i = 0;
+                int del = 10;
+                if (!String.IsNullOrEmpty(Cg.ModeConfig))
+                    del = Convert.ToInt32(Cg.ModeConfig.Split(',')[0]);
+
+                for(int k=0;k<_controls.Count;k++)
+                {
+                    var c = _controls[k];
+                    if (c != null)
+                    {
+                        if (!c.Hold)
+                            _controls[k] = null;
+                    }
+                }
+
+                foreach(var cam in MainForm.Cameras)
+                {
+                    var ctrl = MainClass.GetCameraWindow(cam.id);
+
+                    bool add = (Cg.ModeIndex == 1 && ctrl.LastMovementDetected > DateTime.Now.AddSeconds(0 - del)) || (Cg.ModeIndex == 2 && ctrl.LastAlerted > DateTime.Now.AddSeconds(0 - del));
+
+                    if (add)
+                    {
+                        for (int k = 0; k < _controls.Count; k++)
+                        {
+                            var c = _controls[k];
+                            if (c != null && c.ObjectIDs.Any(o => o.ObjectID == cam.id && o.TypeID == 2))
+                            {
+                                add = false;
+                            }
+                        }
+                        if (add)
+                        {
+                            _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", cam.id, 2)}, 1000);
+                            i++;
+                            if (i == _maxItems)
+                                break;
+                        }
+                    }
+                }
+                if (i < _maxItems)
+                {
+                    foreach (var mic in MainForm.Microphones)
+                    {
+                        var ctrl = MainClass.GetVolumeLevel(mic.id);
+                        //only want to display mics without associated camera controls
+                        if (ctrl.CameraControl == null)
+                        {
+
+                            bool add = (Cg.ModeIndex == 1 && ctrl.SoundLastDetected > DateTime.Now.AddSeconds(0 - del)) ||
+                                       (Cg.ModeIndex == 2 && ctrl.LastAlerted > DateTime.Now.AddSeconds(0 - del));
+                            if (add)
+                            {
+                                for (int k = 0; k < _controls.Count; k++)
+                                {
+                                    var c = _controls[k];
+                                    if (c!=null && c.ObjectIDs.Any(o => o.ObjectID == mic.id && o.TypeID == 1))
+                                    {
+                                        add = false;
+                                    }
+                                }
+                                if (add)
+                                {
+                                    _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", mic.id, 1)},
+                                        1000);
+                                    i++;
+                                    if (i == _maxItems)
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (i == 0 && !String.IsNullOrEmpty(Cg.ModeConfig))
+                {
+                    //add default camera
+                    string[] cfg = Cg.ModeConfig.Split(',');
+                    if (cfg.Length > 1)
+                    {
+                        if (cfg[1] != "")
+                        {
+                            _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", Convert.ToInt32(cfg[1]), 2)}, 1000);
+                            i++;
+                        }
+                    }
+
+                }
+                
+                if (i == 0)
+                {
+                    _cols = 1;
+                    _rows = 1;
+                }
+                else
+                {
+                    _cols = (int) Math.Sqrt(i);
+                    _rows = (int) Math.Ceiling(i/(float) _cols);
+                }
+            }
 
         }
 
@@ -101,30 +251,56 @@ namespace iSpyApplication.Controls
             _pAlert.Dispose();
             _pline.Dispose();
             _bOverlay.Dispose();
+            _vline.Dispose();
            
             base.Dispose(disposing);
         }
 
         protected override void OnPaint(PaintEventArgs pe)
         {
+            if (Cg.ModeIndex != 0)
+            {
+                lock (_objlock)
+                {
+                    DoPaint(pe);
+                }
+            }
+            else
+            {
+                DoPaint(pe);
+            }
+
+            base.OnPaint(pe);
+        }
+
+        private void DoPaint(PaintEventArgs pe)
+        {
             Graphics gGrid = pe.Graphics;
-            
             
             try
             {
+                int cols = _cols;
+                int rows = _rows;
+
+                if (_maximised != null)
+                {
+                    cols = 1;
+                    rows = 1;
+
+                }
                 Rectangle rc = ClientRectangle;
-                _itemwidth = (rc.Width - Cg.Columns * Itempadding) / Cg.Columns;
-                _itemheight = (rc.Height - Cg.Rows * Itempadding) / Cg.Rows;
+                _itemwidth = (rc.Width - cols * Itempadding) / cols;
+                _itemheight = (rc.Height - rows * Itempadding) / rows;
 
                 //draw lines
-                for (var i = 0; i < Cg.Columns; i++)
+                for (var i = 0; i < cols; i++)
                 {
-                    var x = (i*(_itemwidth + Itempadding) - Itempadding/2);
+                    var x = (i * (_itemwidth + Itempadding) - Itempadding / 2);
                     gGrid.DrawLine(_pline, x, 0, x, rc.Height);
                 }
-                for (var i = 0; i < Cg.Rows; i++)
+                for (var i = 0; i < rows; i++)
                 {
-                    var y = (i*(_itemheight + Itempadding) - Itempadding/2);
+                    var y = (i * (_itemheight + Itempadding) - Itempadding / 2);
 
                     gGrid.DrawLine(_pline, 0, y, rc.Width, y);
                 }
@@ -132,63 +308,183 @@ namespace iSpyApplication.Controls
                 var ind = 0;
                 var j = 0;
                 var k = 0;
-                for (var i = 0; i < Cg.Columns * Cg.Rows; i++)
+                for (var i = 0; i < cols * rows; i++)
                 {
                     var x = j * (_itemwidth + Itempadding);
                     var y = k * (_itemheight + Itempadding);
-
+                    var r = new Rectangle(x, y, _itemwidth, _itemheight);
                     var gvc = _controls[ind];
+                    if (_maximised!=null)
+                        gvc = _maximised;
+                   
+                    int oy = r.Y + r.Height - 38;
+
                     if (gvc == null || gvc.ObjectIDs.Count == 0)
                     {
-                        int txtOffline = Convert.ToInt32(gGrid.MeasureString(LocRm.GetString("AddObjects"),
-                                                                             MainForm.Iconfont).Width);
-                        gGrid.DrawString(LocRm.GetString("AddObjects"), MainForm.Iconfont, MainForm.OverlayBrush,
-                                         x + _itemwidth / 2 - (txtOffline / 2),
-                                         y + _itemheight / 2);
+                        switch (Cg.ModeIndex)
+                        {
+                            case 0:
+                            {
+                                if (_overControlIndex == ind)
+                                {
+                                    gGrid.FillRectangle(_bOverlay, r.X, oy + 18, r.Width, 20);
+                                }
+                                string m = LocRm.GetString("AddObjects");
+                                int txtOffline = Convert.ToInt32(gGrid.MeasureString(m,
+                                                                                     MainForm.Iconfont).Width);
+
+                                gGrid.DrawString(m, MainForm.Iconfont, MainForm.OverlayBrush,
+                                                 x + _itemwidth / 2 - (txtOffline / 2),
+                                                 y + _itemheight / 2);
+                            }
+                                break;
+                            case 1:
+                                {
+                                    const string m = "No Current Motion/Sound";
+                                    int txtOffline = Convert.ToInt32(gGrid.MeasureString(m,
+                                                                                         MainForm.Iconfont).Width);
+
+                                    gGrid.DrawString(m, MainForm.Iconfont, MainForm.OverlayBrush,
+                                                     x + _itemwidth / 2 - (txtOffline / 2),
+                                                     y + _itemheight / 2);
+                                }
+                                break;
+                            case 2:
+                            {
+                                const string m = "No Current Alerts";
+                                int txtOffline = Convert.ToInt32(gGrid.MeasureString(m,
+                                                                                     MainForm.Iconfont).Width);
+
+                                gGrid.DrawString(m, MainForm.Iconfont, MainForm.OverlayBrush,
+                                                 x + _itemwidth / 2 - (txtOffline / 2),
+                                                 y + _itemheight / 2);
+                            }
+                                break;
+                        }
                     }
                     else
                     {
-                        
-                        if ((DateTime.Now -gvc.LastCycle).TotalSeconds>gvc.Delay)
+                        if ((DateTime.Now - gvc.LastCycle).TotalSeconds > gvc.Delay)
                         {
-                            gvc.CurrentIndex++; 
-                            gvc.LastCycle = DateTime.Now;
+                            if (!gvc.Hold)
+                            {
+                                gvc.CurrentIndex++;
+                                gvc.LastCycle = DateTime.Now;
+                            }
                         }
                         if (gvc.CurrentIndex >= gvc.ObjectIDs.Count)
                         {
                             gvc.CurrentIndex = 0;
                         }
                         var obj = gvc.ObjectIDs[gvc.CurrentIndex];
+                        
+                        var rFeed = r;
                         switch (obj.TypeID)
                         {
-                            case 2:
-                                var cw = _parent.GetCameraWindow(obj.ObjectID);
-                                if (cw != null)
+                            case 1:
+                                var vl = MainClass.GetVolumeLevel(obj.ObjectID);
+                                if (vl != null)
                                 {
-                                    if (cw.Camera != null && !cw.LastFrameNull)
+                                    if (vl.Micobject.settings.active && vl.Levels != null && !vl.AudioSourceErrorState)
                                     {
-                                        gGrid.DrawImage(cw.LastFrame, x, y, _itemwidth, _itemheight);
-                                        if (cw.Alerted)
+                                        var lgb = new SolidBrush(MainForm.VolumeLevelColor);
+                                        int bh = (rFeed.Height) / vl.Micobject.settings.channels - (vl.Micobject.settings.channels - 1) * 2;
+                                        if (bh <= 2)
+                                            bh = 2;
+                                        for (int m = 0; m < vl.Micobject.settings.channels; m++)
                                         {
-                                            gGrid.DrawRectangle(_pAlert, x - 1, y - 1, _itemwidth + 2, _itemheight + 2);
+                                            float f = 0f;
+                                            if (m < vl.Levels.Length)
+                                                f = vl.Levels[m];
+                                            int drawW = Convert.ToInt32(Convert.ToDouble(rFeed.Width-1.0) * f);
+                                            if (drawW < 1)
+                                                drawW = 1;
+
+                                            gGrid.FillRectangle(lgb, rFeed.X + 2, rFeed.Y + 2 + m * bh + (m * 2), drawW - 4, bh);
+
+                                        }
+                                        var mx = rFeed.X+ (float)((Convert.ToDouble(rFeed.Width) / 100.00) * Convert.ToDouble(vl.Micobject.detector.sensitivity));
+                                        gGrid.DrawLine(_vline, mx, rFeed.Y+1, mx, rFeed.Y + rFeed.Height-2);
+
+                                        if (vl.Recording)
+                                        {
+                                            gGrid.FillEllipse(MainForm.RecordBrush, new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                         }
                                     }
                                     else
                                     {
-                                        int txtOffline = Convert.ToInt32(gGrid.MeasureString(LocRm.GetString("Offline"),
-                                                                             MainForm.Iconfont).Width);
-                                        gGrid.DrawString(LocRm.GetString("Offline"), MainForm.Iconfont, MainForm.OverlayBrush,
-                                                         x + _itemwidth / 2 - (txtOffline/2),
-                                                         y + _itemheight/2);
+                                        string m = LocRm.GetString("Offline");
+                                        if (vl.Micobject.settings.active)
+                                            m = "Connecting...";
+
+                                        int txtOffline =
+                                            Convert.ToInt32(gGrid.MeasureString(m,
+                                                                                MainForm.Iconfont).Width);
+                                        gGrid.DrawString(m, MainForm.Iconfont,
+                                                         MainForm.OverlayBrush,
+                                                         x + _itemwidth / 2 - (txtOffline / 2),
+                                                         y + _itemheight / 2);
+                                    }
+                                    if (vl.Micobject != null)
+                                    {
+
+                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
+                                        gGrid.DrawString(vl.Micobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
+                                                         r.X + 5,
+                                                         r.Y + r.Height - 16);
+                                    }
+                                }
+                                else
+                                {
+                                    gvc.ObjectIDs.Remove(gvc.ObjectIDs[gvc.CurrentIndex]);
+                                }
+                                break;
+                            case 2:
+                                var cw = MainClass.GetCameraWindow(obj.ObjectID);
+                                if (cw != null)
+                                {                                    
+                                    if (cw.Camera != null && !cw.LastFrameNull)
+                                    {
+                                        var bmp = cw.LastFrame;
+                                        if (bmp != null)
+                                        {
+                                            if (!Cg.Fill)
+                                            {
+                                                rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
+                                            }
+                                            gGrid.DrawImage(bmp, rFeed);
+                                        }
+                                        if (cw.Alerted)
+                                        {
+                                            gGrid.DrawRectangle(_pAlert, rFeed);
+                                        }
+                                        if (cw.Recording)
+                                            gGrid.FillEllipse(MainForm.RecordBrush, new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
+                                    }
+                                    else
+                                    {
+                                        string m = LocRm.GetString("Offline");
+                                        if (cw.Camobject.settings.active)
+                                            m = "Connecting...";
+                                        
+                                        int txtOffline =
+                                            Convert.ToInt32(gGrid.MeasureString(m,
+                                                                                MainForm.Iconfont).Width);
+                                        gGrid.DrawString(m, MainForm.Iconfont,
+                                                         MainForm.OverlayBrush,
+                                                         x + _itemwidth / 2 - (txtOffline / 2),
+                                                         y + _itemheight / 2);
                                     }
                                     if (cw.Camobject != null)
                                     {
-                                        gGrid.FillRectangle(_bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        
+                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
                                         gGrid.DrawString(cw.Camobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
-                                                         x + 5,
-                                                         y + _itemheight - 16);
-                                    }
+                                                         r.X + 5,
+                                                         r.Y + r.Height - 16);
 
+                                        
+                                    }
                                 }
                                 else
                                 {
@@ -196,16 +492,21 @@ namespace iSpyApplication.Controls
                                 }
                                 break;
                             case 3:
-                                var fp = _parent.GetFloorPlan(obj.ObjectID);
+                                var fp = MainClass.GetFloorPlan(obj.ObjectID);
                                 if (fp != null)
                                 {
-                                    if (fp.Fpobject != null && fp.ImgPlan!=null)
+                                    if (fp.Fpobject != null && fp.ImgPlan != null)
                                     {
-                                        gGrid.DrawImage(fp.ImgView, x, y, _itemwidth, _itemheight);
-                                        gGrid.FillRectangle(_bOverlay, x, y + _itemheight - 20, _itemwidth, 20);
+                                        var bmp = fp.ImgView;
+                                        if (!Cg.Fill)
+                                        {
+                                            rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
+                                        }
+                                        gGrid.DrawImage(bmp, rFeed);
+                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
                                         gGrid.DrawString(fp.Fpobject.name, MainForm.Drawfont, MainForm.OverlayBrush,
-                                                         x + 5,
-                                                         y + _itemheight - 16);
+                                                         r.X + 5,
+                                                         r.Y + r.Height - 16);
                                     }
 
                                 }
@@ -216,21 +517,181 @@ namespace iSpyApplication.Controls
                                 break;
                         }
                     }
-                    ind ++;
+
+                    
+                    if (_overControlIndex == ind)
+                    {
+                            
+
+                        if (gvc != null && gvc.ObjectIDs.Count != 0)
+                        {
+                                
+
+                            gGrid.FillRectangle(_bOverlay, r.X, oy, r.Width, 18);
+                            if (Cg.ModeIndex==0)
+                                gGrid.DrawString("Add", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2, oy + 2);
+
+                            gGrid.DrawString("Hold", MainForm.Drawfont, gvc.Hold?MainForm.IconBrushActive:MainForm.OverlayBrush, r.X + 30, oy + 2);
+
+                            if (Cg.ModeIndex == 0)
+                                gGrid.DrawString("Next", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 60, oy + 2);
+
+                            switch (gvc.ObjectIDs[gvc.CurrentIndex].TypeID)
+                            {
+                                case 1:
+                                    var vl = MainClass.GetVolumeLevel(gvc.ObjectIDs[gvc.CurrentIndex].ObjectID);
+                                    if (vl != null)
+                                    {
+                                        gGrid.FillRectangle(_bOverlay, r.X, oy - 18, r.Width, 18);
+                                        if (vl.Micobject.settings.active)
+                                        {
+                                            gGrid.DrawString("Listen", MainForm.Drawfont, vl.Listening ? MainForm.IconBrushActive : MainForm.OverlayBrush, r.X + 90, oy + 2);
+
+                                            gGrid.DrawString("Off", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2,
+                                                oy - 18);
+
+                                            gGrid.DrawString("Edit", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 30,
+                                                oy - 18);
+                                            gGrid.DrawString("Rec", MainForm.Drawfont, vl.Recording ? MainForm.IconBrushActive : MainForm.OverlayBrush, r.X + 60,
+                                                oy - 18);
+                                        }
+                                        else
+                                        {
+                                            gGrid.DrawString("On", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2,
+                                                oy - 18);
+                                        }
+                                    }
+                                    break;
+                                case 2:
+                                    var cw = MainClass.GetCameraWindow(gvc.ObjectIDs[gvc.CurrentIndex].ObjectID);
+                                    if (cw != null)
+                                    {
+                                        gGrid.FillRectangle(_bOverlay, r.X, oy - 18, r.Width, 18);
+                                        if (cw.Camobject.settings.active)
+                                        {
+                                            gGrid.DrawString("Talk", MainForm.Drawfont, cw.Talking ? MainForm.IconBrushActive : MainForm.OverlayBrush, r.X + 90, oy + 2);
+                                            if (cw.VolumeControl!=null)
+                                                gGrid.DrawString("Listen", MainForm.Drawfont, cw.Listening ? MainForm.IconBrushActive : MainForm.OverlayBrush, r.X + 120, oy + 2);
+
+                                            gGrid.DrawString("Off", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2,
+                                                oy - 18);
+
+                                            gGrid.DrawString("Edit", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 30,
+                                                oy - 18);
+                                            gGrid.DrawString("Rec", MainForm.Drawfont, cw.Recording ? MainForm.IconBrushActive : MainForm.OverlayBrush, r.X + 60,
+                                                oy - 18);
+                                            gGrid.DrawString("Photo", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 90,
+                                                oy - 18);
+                                        }
+                                        else
+                                        {
+                                            gGrid.DrawString("On", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2,
+                                                oy - 18);
+                                        }
+
+                                        
+                                    }
+                                    break;
+                                case 3:
+                                    var fp = MainClass.GetFloorPlan(gvc.ObjectIDs[gvc.CurrentIndex].ObjectID);
+                                    if (fp != null)
+                                    {
+                                        gGrid.FillRectangle(_bOverlay, r.X, oy - 18, r.Width, 18);
+                                        gGrid.DrawString("Edit", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2,
+                                                oy - 18);
+                                    }
+                                    break;
+                            }
+                                
+                        }
+                        else
+                        {
+                            if (Cg.ModeIndex == 0)
+                            {
+                                gGrid.FillRectangle(_bOverlay, r.X, oy, r.Width, 18);
+                                gGrid.DrawString("Add", MainForm.Drawfont, MainForm.OverlayBrush, r.X + 2, oy + 2);
+                            }
+                        }
+                    }
+
+
+                    ind++;
                     j++;
-                    if (j==Cg.Columns)
+                    if (j == cols)
                     {
                         j = 0;
                         k++;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
             }
+        }
 
-            base.OnPaint(pe);
+        private Rectangle GetArea(int x, int y, int contW, int contH, int imageW, int imageH)
+        {
+            if (Height > 0 && Width > 0)
+            {
+                double arw = Convert.ToDouble(contW) / Convert.ToDouble(imageW);
+                double arh = Convert.ToDouble(contH) / Convert.ToDouble(imageH);
+                int w;
+                int h;
+                if (arh <= arw)
+                {
+                    w = Convert.ToInt32(((Convert.ToDouble(contW) * arh) / arw));
+                    h = contH;
+                }
+                else
+                {
+                    w = contW;
+                    h = Convert.ToInt32((Convert.ToDouble(contH) * arw) / arh);
+                }
+                int x2 = x+((contW - w) / 2);
+                int y2 = y+((contH - h) / 2);
+                return new Rectangle(x2, y2, w, h);
+            }
+            return Rectangle.Empty;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            var row = -1;
+            var col = -1;
+            var x = e.Location.X;
+            var y = e.Location.Y;
+
+            for (var i = 1; i <= _cols; i++)
+            {
+                if (i * (_itemwidth + Itempadding) - Itempadding / 2 > x)
+                {
+                    col = i - 1;
+                    break;
+                }
+            }
+            for (var i = 1; i <= _rows; i++)
+            {
+                if (i * (_itemheight + Itempadding) - Itempadding / 2 > y)
+                {
+                    row = i - 1;
+                    break;
+                }
+            }
+
+            if (row != -1 && col != -1)
+            {
+                var io = row*_cols + col;
+                _overControlIndex = io;
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _overControlIndex = -1;
         }
 
         protected override void OnMouseDown(MouseEventArgs e)
@@ -244,69 +705,321 @@ namespace iSpyApplication.Controls
                 var col = -1;
                 var x = e.Location.X;
                 var y = e.Location.Y;
+                int io = 0;
 
-                for (var i = 1; i <= Cg.Columns; i++)
+                GridViewConfig cgv = null;
+                if (_maximised != null)
                 {
-                    if (i * (_itemwidth + Itempadding) - Itempadding / 2 > x)
+                    cgv = _maximised;
+                    row = 0;
+                    col = 0;
+                    int j = 0;
+                    foreach (var obj in _controls)
                     {
-                        col = i - 1;
-                        break;
+                        if (obj!=null && obj.Equals(cgv))
+                        {
+                            io = j;
+                            break;
+                        }
+                        j++;
                     }
                 }
-                for (var i = 1; i <= Cg.Rows; i++)
+                else
                 {
-                    if (i * (_itemheight + Itempadding) - Itempadding / 2 > y)
+
+                    for (var i = 1; i <= _cols; i++)
                     {
-                        row = i - 1;
-                        break;
+                        if (i*(_itemwidth + Itempadding) - Itempadding/2 > x)
+                        {
+                            col = i - 1;
+                            break;
+                        }
                     }
+                    for (var i = 1; i <= _rows; i++)
+                    {
+                        if (i*(_itemheight + Itempadding) - Itempadding/2 > y)
+                        {
+                            row = i - 1;
+                            break;
+                        }
+                    }
+
+                    if (row != -1 && col != -1)
+                    {
+                        cgv = _controls[row*_cols + col];
+                        io = row*_cols + col;
+                    }
+
                 }
 
-                if (row != -1 && col != -1)
+                int rx = col * (_itemwidth + Itempadding);
+                int ry = row * (_itemheight + Itempadding);
+                int ox = x - rx;
+
+                if ((ry+_itemheight) - y < 38)
                 {
-                    var io = row * Cg.Columns + col;
-                    var cgv = _controls[io];
-                    var gvc = new GridViewCamera();
-                    if (cgv!=null)
+                        
+                    if (ox < 30)
                     {
-                        gvc.Delay = cgv.Delay;
-                        gvc.SelectedIDs = cgv.ObjectIDs;
+                        //E
+                        if (Cg.ModeIndex == 0)
+                            List(cgv,io);
                     }
                     else
                     {
-                        gvc.SelectedIDs = new List<GridItem>();
-                    }
-                    if (gvc.ShowDialog(this)==DialogResult.OK)
-                    {
-                        cgv = gvc.SelectedIDs.Count>0 ? new GridViewConfig(gvc.SelectedIDs,gvc.Delay) : null;
-
-                        if (Cg != null)
+                        if (cgv != null)
                         {
-                            var gi = Cg.GridItem.FirstOrDefault(p => p.GridIndex == io);
-                            if (gi == null)
+                            if (ox < 60)
                             {
-                                gi = new configurationGridGridItem {CycleDelay = gvc.Delay, GridIndex = io};
-                                var lgi = Cg.GridItem.ToList();
-                                lgi.Add(gi);
-                                Cg.GridItem = lgi.ToArray();
+                                //Pause
+                                cgv.Hold = !cgv.Hold;
                             }
-
-                            gi.CycleDelay = gvc.Delay;
-
-                            var l = new List<configurationGridGridItemItem>();
-                            foreach (var i in gvc.SelectedIDs)
+                            else
                             {
-                                l.Add(new configurationGridGridItemItem {ObjectID = i.ObjectID, TypeID = i.TypeID});
-                            }
+                                if (ox < 90)
+                                {
+                                    //Next
+                                    if (Cg.ModeIndex == 0)
+                                    {
+                                        int i = cgv.CurrentIndex + 1;
+                                        if (i > cgv.ObjectIDs.Count)
+                                            i = 0;
+                                        cgv.CurrentIndex = i;
+                                        cgv.LastCycle = DateTime.Now;
+                                    }
+                                }
+                                else
+                                {
 
-                            gi.Item = l.ToArray();
+                                    var gv = cgv.ObjectIDs[cgv.CurrentIndex];
+
+                                    switch (gv.TypeID)
+                                    {
+                                        case 1:
+                                            var vl = MainClass.GetVolumeLevel(gv.ObjectID);
+                                            if (vl != null)
+                                            {  
+                                                if (ox < 120)
+                                                {
+                                                    //listen
+                                                    cgv.Hold = true;
+                                                    vl.Listening = !vl.Listening;
+                                                }
+                                            }
+                                            break;
+                                        case 2:
+                                            var cw = MainClass.GetCameraWindow(gv.ObjectID);
+                                            if (cw != null)
+                                            {
+
+                                                if (ox < 120)
+                                                {
+                                                    //talk
+                                                    cgv.Hold = true;
+                                                    cw.Talk(this);
+                                                }
+                                                else
+                                                {
+                                                    if (ox < 150)
+                                                    {
+                                                        //listen
+                                                        cgv.Hold = true;
+                                                        cw.Listen();
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
                         }
-                        _controls[io] = cgv;
-                        Invalidate();
                     }
+                }
+                else
+                {
+                    if ((ry + _itemheight) - y < 56 && cgv!=null)
+                    {
+                        var gv = cgv.ObjectIDs[cgv.CurrentIndex];
+
+                        switch (gv.TypeID)
+                        {
+                            case 1:
+                                var vl = MainClass.GetVolumeLevel(gv.ObjectID);
+                                if (vl != null)
+                                {
+                                    if (ox < 30)
+                                    {
+                                        if (!vl.Micobject.settings.active)
+                                            vl.Enable();
+                                        else
+                                            vl.Disable();
+                                    }
+                                    else
+                                    {
+                                        if (vl.IsEnabled)
+                                        {
+                                            if (ox < 60)
+                                            {
+                                                MainClass.EditMicrophone(vl.Micobject, this);
+                                            }
+                                            else
+                                            {
+                                                if (ox < 90)
+                                                {
+                                                    //Rec
+                                                    vl.RecordSwitch(!vl.Recording);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case 2:
+                                var cw = MainClass.GetCameraWindow(gv.ObjectID);
+                                if (cw != null)
+                                {
+                                    if (ox < 30)
+                                    {
+                                        if (!cw.Camobject.settings.active)
+                                            cw.Enable();
+                                        else
+                                            cw.Disable();
+                                    }
+                                    else
+                                    {
+                                        if (cw.IsEnabled)
+                                        {
+                                            if (ox < 60)
+                                            {
+                                                MainClass.EditCamera(cw.Camobject,this);
+                                            }
+                                            else
+                                            {
+                                                if (ox < 90)
+                                                {
+                                                    //Rec
+                                                    cw.RecordSwitch(!cw.Recording);
+                                                }
+                                                else
+                                                {
+                                                    if (ox < 150)
+                                                    {
+                                                        string fn = cw.SaveFrame();
+                                                        if (fn != "")
+                                                            MainForm.OpenUrl(fn);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case 3:
+                                var fp = MainClass.GetFloorPlan(gv.ObjectID);
+                                if (fp != null)
+                                {
+                                    if (ox < 30)
+                                    {
+                                         MainClass.EditFloorplan(fp.Fpobject, this);
+                                    }
+                                }
+                                break;
+                        }
+                        
+                            
+                    }
+                }
+                    
+            }
+
+        }
+
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            if (_maximised!=null)
+            {
+                _maximised = null;
+                return;
+            }
+
+            var row = -1;
+            var col = -1;
+            var x = e.Location.X;
+            var y = e.Location.Y;
+
+            for (var i = 1; i <= _cols; i++)
+            {
+                if (i * (_itemwidth + Itempadding) - Itempadding / 2 > x)
+                {
+                    col = i - 1;
+                    break;
+                }
+            }
+            for (var i = 1; i <= _rows; i++)
+            {
+                if (i * (_itemheight + Itempadding) - Itempadding / 2 > y)
+                {
+                    row = i - 1;
+                    break;
                 }
             }
 
+            if (row != -1 && col != -1)
+            {
+                var io = row * _cols + col;
+                int ry = row * (_itemheight + Itempadding);
+                
+                if ((ry + _itemheight) - y > 38)
+                {
+                    //only maximise if clicking above buttons
+                    if (_controls[io].CurrentIndex > -1)
+                        _maximised = _controls[io];
+                }
+
+                
+            }
+        }
+        
+        private void List(GridViewConfig cgv, int io)
+        {
+            var gvc = new GridViewCamera();
+            if (cgv != null)
+            {
+                gvc.Delay = cgv.Delay;
+                gvc.SelectedIDs = cgv.ObjectIDs;
+            }
+            else
+            {
+                gvc.SelectedIDs = new List<GridItem>();
+            }
+            if (gvc.ShowDialog(this) == DialogResult.OK)
+            {
+                cgv = gvc.SelectedIDs.Count > 0 ? new GridViewConfig(gvc.SelectedIDs, gvc.Delay) : null;
+
+                if (Cg != null)
+                {
+                    var gi = Cg.GridItem.FirstOrDefault(p => p.GridIndex == io);
+                    if (gi == null)
+                    {
+                        gi = new configurationGridGridItem { CycleDelay = gvc.Delay, GridIndex = io };
+                        var lgi = Cg.GridItem.ToList();
+                        lgi.Add(gi);
+                        Cg.GridItem = lgi.ToArray();
+                    }
+
+                    gi.CycleDelay = gvc.Delay;
+
+                    var l = new List<configurationGridGridItemItem>();
+                    foreach (var i in gvc.SelectedIDs)
+                    {
+                        l.Add(new configurationGridGridItemItem { ObjectID = i.ObjectID, TypeID = i.TypeID });
+                    }
+
+                    gi.Item = l.ToArray();
+                }
+                _controls[io] = cgv;
+                Invalidate();
+            }
         }
 
         #region Windows Form Designer generated code
@@ -333,11 +1046,13 @@ namespace iSpyApplication.Controls
             public readonly List<GridItem> ObjectIDs;
             public DateTime LastCycle;
             public int CurrentIndex;
+            public bool Hold;
             public GridViewConfig(List<GridItem> objectIDs, int delay)
             {
                 ObjectIDs = objectIDs;
                 Delay = delay;
                 LastCycle = DateTime.Now;
+                Hold = false;
             }
         }
    }

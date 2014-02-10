@@ -83,6 +83,27 @@ namespace iSpyApplication.Controls
                         t = "Trigger Alert on " + n;
                     }
                     break;
+                case "SOO":
+                    {
+                        string[] op = param1.Split(',');
+                        string n = "[removed]";
+                        int id = Convert.ToInt32(op[1]);
+                        switch (op[0])
+                        {
+                            case "1":
+                                var om = MainForm.Microphones.FirstOrDefault(p => p.id == id);
+                                if (om != null)
+                                    n = om.name;
+                                break;
+                            case "2":
+                                var oc = MainForm.Cameras.FirstOrDefault(p => p.id == id);
+                                if (oc != null)
+                                    n = oc.name;
+                                break;
+                        }
+                        t = "Switch on " + n;
+                    }
+                    break;
                 case "E":
                     t = "Send Email: " + param1;
                     if (param2!="" && Convert.ToBoolean(param2))

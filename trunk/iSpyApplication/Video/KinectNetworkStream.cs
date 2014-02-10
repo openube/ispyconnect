@@ -312,7 +312,7 @@ namespace iSpyApplication.Video
                 if (_thread != null)
                 {
                     // check thread status
-                    if (!_thread.Join(0))
+                    if (!_thread.Join(TimeSpan.Zero))
                         return true;
 
                     // the thread is not running, so free resources
@@ -406,7 +406,7 @@ namespace iSpyApplication.Video
                 // wait for thread stop
                 _stopEvent.Set();
                 _thread.Join(MainForm.ThreadKillDelay);
-                if (_thread != null && _thread.IsAlive)
+                if (_thread != null && !_thread.Join(TimeSpan.Zero))
                     _thread.Abort();
                 Free();
 
@@ -574,15 +574,23 @@ namespace iSpyApplication.Video
                                 {
                                     case "image/jpeg":
                                         Bitmap bitmap;
-                                        using (var ms = new MemoryStream(buffer, br+4, endPacket-br-8))
+                                        try
                                         {
-                                            bitmap = (Bitmap) Image.FromStream(ms);
-                                            // notify client
-                                            NewFrame(this, new NewFrameEventArgs(bitmap));
-                                            // release the image
-                                            bitmap.Dispose();
+                                            using (var ms = new MemoryStream(buffer, br + 4, endPacket - br - 8))
+                                            {
+                                                bitmap = (Bitmap) Image.FromStream(ms);
+                                                // notify client
+                                                NewFrame(this, new NewFrameEventArgs(bitmap));
+                                                // release the image
+                                                bitmap.Dispose();
+                                            }
                                         }
-                                       
+                                        catch (Exception ex)
+                                        {
+                                            //sometimes corrupted packets come through...
+                                            MainForm.LogExceptionToFile(ex);
+                                        }
+
 
                                         break;
                                     case "audio/raw":

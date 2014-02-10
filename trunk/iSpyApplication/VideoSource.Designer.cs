@@ -314,7 +314,7 @@ namespace iSpyApplication
             this.button3.AutoSize = true;
             this.button3.Location = new System.Drawing.Point(439, 3);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(30, 27);
+            this.button3.Size = new System.Drawing.Size(26, 23);
             this.button3.TabIndex = 17;
             this.button3.Text = "...";
             this.button3.UseVisualStyleBackColor = true;
@@ -732,7 +732,7 @@ namespace iSpyApplication
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(713, 246);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(713, 242);
             this.tableLayoutPanel3.TabIndex = 25;
             // 
             // label4
@@ -740,7 +740,7 @@ namespace iSpyApplication
             this.label4.AutoSize = true;
             this.tableLayoutPanel3.SetColumnSpan(this.label4, 3);
             this.label4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label4.Location = new System.Drawing.Point(118, 33);
+            this.label4.Location = new System.Drawing.Point(118, 29);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(592, 104);
             this.label4.TabIndex = 25;
@@ -750,7 +750,7 @@ namespace iSpyApplication
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 145);
+            this.label7.Location = new System.Drawing.Point(3, 141);
             this.label7.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(109, 13);
@@ -759,7 +759,7 @@ namespace iSpyApplication
             // 
             // numAnalyseDuration
             // 
-            this.numAnalyseDuration.Location = new System.Drawing.Point(118, 140);
+            this.numAnalyseDuration.Location = new System.Drawing.Point(118, 136);
             this.numAnalyseDuration.Maximum = new decimal(new int[] {
             8000,
             0,
@@ -782,7 +782,7 @@ namespace iSpyApplication
             // chkNoBuffer
             // 
             this.chkNoBuffer.AutoSize = true;
-            this.chkNoBuffer.Location = new System.Drawing.Point(121, 169);
+            this.chkNoBuffer.Location = new System.Drawing.Point(121, 165);
             this.chkNoBuffer.Margin = new System.Windows.Forms.Padding(6);
             this.chkNoBuffer.Name = "chkNoBuffer";
             this.chkNoBuffer.Size = new System.Drawing.Size(71, 17);
@@ -793,7 +793,7 @@ namespace iSpyApplication
             // 
             // btnTest
             // 
-            this.btnTest.Location = new System.Drawing.Point(117, 221);
+            this.btnTest.Location = new System.Drawing.Point(117, 217);
             this.btnTest.Margin = new System.Windows.Forms.Padding(2);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(75, 23);
@@ -805,7 +805,7 @@ namespace iSpyApplication
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 200);
+            this.label8.Location = new System.Drawing.Point(3, 196);
             this.label8.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(66, 13);
@@ -822,7 +822,7 @@ namespace iSpyApplication
             "UDP",
             "UDP Multicast",
             "HTTP Tunneling"});
-            this.ddlRTSP.Location = new System.Drawing.Point(118, 195);
+            this.ddlRTSP.Location = new System.Drawing.Point(118, 191);
             this.ddlRTSP.Name = "ddlRTSP";
             this.ddlRTSP.Size = new System.Drawing.Size(112, 21);
             this.ddlRTSP.TabIndex = 93;
@@ -988,7 +988,7 @@ namespace iSpyApplication
             this.button6.AutoSize = true;
             this.button6.Location = new System.Drawing.Point(306, 3);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(30, 27);
+            this.button6.Size = new System.Drawing.Size(30, 23);
             this.button6.TabIndex = 60;
             this.button6.Text = "...";
             this.button6.UseVisualStyleBackColor = true;

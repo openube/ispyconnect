@@ -32,43 +32,12 @@ namespace iSpyApplication
         private string[] _sticks;
         private static readonly object Jslock = new object();
         private bool _loaded;
+        public MainForm MainClass;
 
         public Settings()
         {
             InitializeComponent();
             RenderResources();
-        }
-
-        private void SetStorageOptions()
-        {
-            MainForm.Conf.Enable_Storage_Management = chkStorage.Checked;
-            MainForm.Conf.StopSavingOnStorageLimit = chkStopRecording.Checked;
-            MainForm.Conf.MaxMediaFolderSizeMB = Convert.ToInt32(txtMaxMediaSize.Value);
-            MainForm.Conf.DeleteFilesOlderThanDays = Convert.ToInt32(txtDaysDelete.Value);
-
-            if (!MainForm.Conf.StopSavingOnStorageLimit)
-                MainForm.StopRecordingFlag = false;
-
-            string dir = txtMediaDirectory.Text.Trim();
-            if (!dir.EndsWith("\\"))
-                dir += "\\";
-
-
-            if (MainForm.Conf.MediaDirectory != dir)
-            {
-                MainForm.Conf.MediaDirectory = dir;
-                Directory.CreateDirectory(dir + "audio");
-                Directory.CreateDirectory(dir + "video");
-                foreach (objectsCamera cam in MainForm.Cameras)
-                {
-                    Directory.CreateDirectory(dir + "video\\" + cam.directory);
-                    Directory.CreateDirectory(dir + "video\\" + cam.directory + "\\thumbs");
-                }
-                foreach (objectsMicrophone mic in MainForm.Microphones)
-                {
-                    Directory.CreateDirectory(dir + "audio\\" + mic.directory);
-                }
-            }
         }
 
         private void Button1Click(object sender, EventArgs e)
@@ -84,11 +53,15 @@ namespace iSpyApplication
             }
             string err = "";
 
-            if (!Directory.Exists(txtMediaDirectory.Text))
+            foreach (var s in mediaDirectoryEditor1.Directories)
             {
-                err += LocRm.GetString("Validate_MediaDirectory") + "\n";
+                if (!Directory.Exists(s.Entry))
+                {
+                    err += LocRm.GetString("Validate_MediaDirectory") + " ("+s.Entry+")\n";
+                    break;
+                }
             }
-
+            
             if (err != "")
             {
                 MessageBox.Show(err, LocRm.GetString("Error"));
@@ -146,6 +119,9 @@ namespace iSpyApplication
             MainForm.Conf.StartupMode = ddlStartupMode.SelectedIndex;
             MainForm.Conf.EnableGZip = chkGZip.Checked;
             MainForm.Conf.DisconnectNotificationDelay = (int)numDisconnectNotification.Value;
+            var l = mediaDirectoryEditor1.Directories.ToList();
+            MainForm.Conf.MediaDirectories = l.ToArray();
+
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             
@@ -204,7 +180,7 @@ namespace iSpyApplication
                 }
             }
 
-            SetStorageOptions();
+            //SetStorageOptions();
 
             MainForm.ReloadColors();
 
@@ -231,6 +207,7 @@ namespace iSpyApplication
                 MainForm.Conf.Joystick.Next = jbutton6.ID;
                 MainForm.Conf.Joystick.Previous = jbutton7.ID;
                 MainForm.Conf.Joystick.Stop = jbutton8.ID;
+                MainForm.Conf.Joystick.MaxMin = jbutton9.ID;
             }
             else
                 MainForm.Conf.Joystick.id = "";
@@ -251,6 +228,8 @@ namespace iSpyApplication
             jbutton5.Reset();
             jbutton6.Reset();
             jbutton7.Reset();
+            jbutton8.Reset();
+            jbutton9.Reset();
 
             if (sender!=null)
                 _curButton = (jbutton) sender;
@@ -287,7 +266,7 @@ namespace iSpyApplication
             tcTabs.SelectedIndex = InitialTab;
             chkErrorReporting.Checked = MainForm.Conf.Enable_Error_Reporting;
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
-            chkPasswordProtect.Checked = MainForm.Conf.Enable_Password_Protect;
+            
             chkShowGettingStarted.Checked = MainForm.Conf.Enabled_ShowGettingStarted;
 
             if (MainForm.Conf.Password_Protect_Password != "")
@@ -296,7 +275,9 @@ namespace iSpyApplication
             }
             _rkApp = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", false);
             chkStartup.Checked = (_rkApp != null && _rkApp.GetValue("iSpy") != null);
-            txtMediaDirectory.Text = MainForm.Conf.MediaDirectory;
+
+            mediaDirectoryEditor1.Init(MainForm.Conf.MediaDirectories);
+            
 
             btnDetectColor.BackColor = MainForm.Conf.ActivityColor.ToColor();
             btnNoDetectColor.BackColor = MainForm.Conf.NoActivityColor.ToColor();
@@ -307,8 +288,6 @@ namespace iSpyApplication
             btnColorBack.BackColor = MainForm.Conf.BackColor.ToColor();
             btnBorderHighlight.BackColor = MainForm.Conf.BorderHighlightColor.ToColor();
             btnBorderDefault.BackColor = MainForm.Conf.BorderDefaultColor.ToColor();
-            txtDaysDelete.Text = MainForm.Conf.DeleteFilesOlderThanDays.ToString(CultureInfo.InvariantCulture);
-            txtMaxMediaSize.Value = MainForm.Conf.MaxMediaFolderSizeMB;
             chkAutoSchedule.Checked = MainForm.Conf.AutoSchedule;
             numMaxCPU.Value = MainForm.Conf.CPUMax;
             numMaxRecordingThreads.Value = MainForm.Conf.MaxRecordingThreads;
@@ -318,7 +297,6 @@ namespace iSpyApplication
             chkMinimise.Checked = MainForm.Conf.MinimiseOnClose;
             chkSpeechRecognition.Checked = MainForm.Conf.SpeechRecognition;
             chkMinimiseToTray.Checked = MainForm.Conf.TrayOnMinimise;
-            btnRunNow.Enabled = !((MainForm) Owner).StorageThreadRunning; 
 
             if (chkMonitor.Checked && !MainForm.Conf.Monitor)
             {
@@ -329,7 +307,7 @@ namespace iSpyApplication
             tbOpacity.Value = MainForm.Conf.Opacity;
             SetColors();
 
-            gbStorage.Enabled = chkStorage.Checked = MainForm.Conf.Enable_Storage_Management;
+            
 
             txtYouTubePassword.Text = MainForm.Conf.YouTubePassword;
             txtYouTubeUsername.Text = MainForm.Conf.YouTubeUsername;
@@ -394,7 +372,6 @@ namespace iSpyApplication
             {
                 
             }
-            chkStopRecording.Checked = MainForm.Conf.StopSavingOnStorageLimit;
             chkBigButtons.Checked = MainForm.Conf.BigButtons;
 
             selind = -1;
@@ -469,6 +446,7 @@ namespace iSpyApplication
             jbutton6.ID = MainForm.Conf.Joystick.Next;
             jbutton7.ID = MainForm.Conf.Joystick.Previous;
             jbutton8.ID = MainForm.Conf.Joystick.Stop;
+            jbutton9.ID = MainForm.Conf.Joystick.MaxMin;
 
             jbutton1.GetInput += jbutton_GetInput;
             jbutton2.GetInput += jbutton_GetInput;
@@ -478,6 +456,7 @@ namespace iSpyApplication
             jbutton6.GetInput += jbutton_GetInput;
             jbutton7.GetInput += jbutton_GetInput;
             jbutton8.GetInput += jbutton_GetInput;
+            jbutton9.GetInput += jbutton_GetInput;
 
             jaxis1.GetInput += jaxis_GetInput;
             jaxis2.GetInput += jaxis_GetInput;
@@ -485,13 +464,15 @@ namespace iSpyApplication
 
             chkGZip.Checked = MainForm.Conf.EnableGZip;
             numDisconnectNotification.Value = MainForm.Conf.DisconnectNotificationDelay;
+            mediaDirectoryEditor1.Enabled = Helper.HasFeature(Enums.Features.Storage);
+            //important leave here:
+            chkPasswordProtect.Checked = MainForm.Conf.Enable_Password_Protect;
             _loaded = true;
         }
 
         private void RenderResources()
         {
             Text = LocRm.GetString("settings");
-            btnBrowseVideo.Text = LocRm.GetString("chars_3014702301470230147");
             btnColorArea.Text = LocRm.GetString("AreaHighlight");
             btnColorBack.Text = LocRm.GetString("ObjectBack");
             btnColorMain.Text = LocRm.GetString("MainPanel");
@@ -508,13 +489,9 @@ namespace iSpyApplication
             chkPasswordProtect.Text = LocRm.GetString("PasswordProtectWhenMinimi");
             chkShowGettingStarted.Text = LocRm.GetString("ShowGettingStarted");
             chkStartup.Text = LocRm.GetString("RunOnStartupthisUserOnly");
-            chkStorage.Text = LocRm.GetString("EnableStorageManagementwa");
-            chkAutoSchedule.Text = LocRm.GetString("AutoApplySchedule");
-            gbStorage.Text = LocRm.GetString("StorageManagement");
             label1.Text = LocRm.GetString("Password");
-            label10.Text = LocRm.GetString("MaxMediaFolderSize");
-            label11.Text = LocRm.GetString("WhenOver70FullDeleteFiles");
-            label12.Text = LocRm.GetString("DaysOld0ForNoDeletions");
+            chkAutoSchedule.Text = LocRm.GetString("AutoApplySchedule");
+            
             label14.Text = LocRm.GetString("IspyServerName");
             label16.Text = LocRm.GetString("ispyOpacitymayNotW");
             label2.Text = LocRm.GetString("ServerReceiveTimeout");
@@ -526,7 +503,7 @@ namespace iSpyApplication
             label6.Text = LocRm.GetString("YoutubePassword");
             label7.Text = LocRm.GetString("ms");
             label8.Text = LocRm.GetString("MjpegReceiveTimeout");
-            label9.Text = LocRm.GetString("Mb");
+            
             label18.Text = LocRm.GetString("MaxRecordingThreads");
             label13.Text = LocRm.GetString("PlaybackMode");
             tabPage1.Text = LocRm.GetString("Colors");
@@ -546,7 +523,7 @@ namespace iSpyApplication
             label23.Text = LocRm.GetString("JPEGQuality");
             llblHelp.Text = LocRm.GetString("help");
             label17.Text = LocRm.GetString("IPAccessExplainer");
-            chkStopRecording.Text = LocRm.GetString("StopRecordingOnLimit");
+            
             label24.Text = LocRm.GetString("MediaPanelItems");
 
             LocRm.SetString(lblMicrophone, "Microphone");
@@ -557,7 +534,6 @@ namespace iSpyApplication
             LocRm.SetString(label15, "MaxCPUTarget");
             LocRm.SetString(label22, "MaxRedrawRate");
             LocRm.SetString(btnBorderDefault, "BorderDefault");
-            LocRm.SetString(btnRunNow, "RunNow");
             LocRm.SetString(label25,"YouCanUseRegularExpressions");
             LocRm.SetString(tabPage5,"Talk");
             LocRm.SetString(tabPage8, "Joystick");
@@ -616,32 +592,7 @@ namespace iSpyApplication
 
         private void BtnBrowseVideoClick(object sender, EventArgs e)
         {
-            if (Directory.Exists(txtMediaDirectory.Text))
-                fbdSaveLocation.SelectedPath = txtMediaDirectory.Text;
-            fbdSaveLocation.ShowDialog(this);
-            if (fbdSaveLocation.SelectedPath != "")
-            {
-                bool success = false;
-                try
-                {
-                    string path = fbdSaveLocation.SelectedPath;
-                    if (!path.EndsWith("\\"))
-                        path += "\\";
-                    Directory.CreateDirectory(path + "video");
-                    Directory.CreateDirectory(path + "audio");
-                    success = true;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                if (success)
-                {
-                    txtMediaDirectory.Text = fbdSaveLocation.SelectedPath;
-                    if (!txtMediaDirectory.Text.EndsWith(@"\"))
-                        txtMediaDirectory.Text += @"\";
-                }
-            }
+            
         }
 
         private void Button3Click(object sender, EventArgs e)
@@ -693,7 +644,7 @@ namespace iSpyApplication
                 btnColorMain.BackColor = cdColorChooser.Color;
                 MainForm.Conf.MainColor = btnColorMain.BackColor.ToRGBString();
                 SetColors();
-                ((MainForm) Owner).SetBackground();
+                MainClass.SetBackground();
             }
         }
 
@@ -719,17 +670,20 @@ namespace iSpyApplication
 
         private void chkPasswordProtect_CheckedChanged(object sender, EventArgs e)
         {
+            if (chkPasswordProtect.Checked)
+            {
+                ddlStartupMode.SelectedIndex = 1;
+                ddlStartupMode.Enabled = false;
+            }
+            else
+            {
+                ddlStartupMode.Enabled = true;
+            }
         }
 
         private void TbOpacityScroll(object sender, EventArgs e)
         {
-            (Owner).Opacity = Convert.ToDouble(tbOpacity.Value)/100;
-        }
-
-
-        private void ChkStorageCheckedChanged(object sender, EventArgs e)
-        {
-            gbStorage.Enabled = chkStorage.Checked;
+            MainClass.Opacity = Convert.ToDouble(tbOpacity.Value) / 100;
         }
 
         private void chkErrorReporting_CheckedChanged(object sender, EventArgs e)
@@ -873,13 +827,6 @@ namespace iSpyApplication
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            SetStorageOptions();
-            ((MainForm) Owner).RunStorageManagement();
-            btnRunNow.Enabled = !((MainForm)Owner).StorageThreadRunning; 
-        }
-
         private void button4_Click(object sender, EventArgs e)
         {
             cdColorChooser.Color = btnBorderDefault.BackColor;
@@ -1012,7 +959,6 @@ namespace iSpyApplication
                 }
 
             }
-            btnRunNow.Enabled = !((MainForm)Owner).StorageThreadRunning; 
         }
 
         private void btnCenterAxes_Click(object sender, EventArgs e)
@@ -1041,7 +987,7 @@ namespace iSpyApplication
             f.ShowDialog(this);
             f.Dispose();
             lblFeatureSet.Text = MainForm.Conf.FeatureSet.ToString(CultureInfo.InvariantCulture);
-            ((MainForm)Owner).RenderResources();
+            MainClass.RenderResources();
         }
 
         private void chkCheckForUpdates_CheckedChanged(object sender, EventArgs e)

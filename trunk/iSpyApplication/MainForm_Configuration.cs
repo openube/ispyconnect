@@ -9,12 +9,14 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using AForge.Video.DirectShow;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
+using onvif20_ptz;
 
 namespace iSpyApplication
 {
@@ -30,7 +32,9 @@ namespace iSpyApplication
         private static Color _activityColor = Color.Empty;
         private static Color _noActivityColor = Color.Empty;
 
-        private static readonly IPAddress[] Ipv6EmptyList = new IPAddress[] { };
+        private static readonly object Iolock = new object();
+
+        private static readonly IPAddress[] Ipv6EmptyList = { };
 
         public static void ReloadColors()
         {
@@ -159,24 +163,24 @@ namespace iSpyApplication
                     return _conf;
                 var s = new XmlSerializer(typeof(configuration));
                 bool loaded = false;
-
-                using (var fs = new FileStream(Program.AppDataPath + @"XML\config.xml", FileMode.Open))
+                lock (Iolock)
                 {
-                    try
+                    using (var fs = new FileStream(Program.AppDataPath + @"XML\config.xml", FileMode.Open))
                     {
-                        using (TextReader reader = new StreamReader(fs))
+                        try
                         {
-                            fs.Position = 0;
-                            _conf = (configuration) s.Deserialize(reader);
-                            reader.Close();
-                            loaded = true;
+                            using (TextReader reader = new StreamReader(fs))
+                            {
+                                fs.Position = 0;
+                                _conf = (configuration) s.Deserialize(reader);
+                                loaded = true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogExceptionToFile(ex);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogExceptionToFile(ex);
-                    }
-                    fs.Close();
                 }
 
                 if (!loaded)
@@ -437,46 +441,64 @@ namespace iSpyApplication
         }
 
         private static string _ipv4Address = "";
-
+        private static object _iplock = new object();
         public static string AddressIPv4
         {
             get
             {
-                if (_ipv4Address != "")
-                    return _ipv4Address;
-
-                string detectip = "";
-                foreach (IPAddress ip in AddressListIPv4)
+                lock (_iplock)
                 {
-                    if (detectip == "")
-                        detectip = ip.ToString();
-
-                    if (Conf.IPv4Address == ip.ToString())
+                    if (_ipv4Address != "")
+                        return _ipv4Address;
+                
+                    string detectip = "";
+                    foreach (IPAddress ip in AddressListIPv4)
                     {
-                        _ipv4Address = ip.ToString();
-                        break;
+                        if (detectip == "")
+                            detectip = ip.ToString();
+
+                        if (Conf.IPv4Address == ip.ToString())
+                        {
+                            _ipv4Address = ip.ToString();
+                            break;
+                        }
+
+                        if (IsValidIP(ip))
+                        {
+                            detectip = ip.ToString();
+                            break;
+                        }
+                    }
+                    if (_ipv4Address == "")
+                        _ipv4Address = detectip;
+                    if (_ipv4Address == "")
+                    {
+                        LogErrorToFile(
+                            "Unable to find a suitable IP address, check your network connection. Using the local loopback address.");
+                        _ipv4Address = "127.0.0.1";
+                    }
+                    if (Conf.IPv4Address != _ipv4Address)
+                    {
+                        if (!String.IsNullOrWhiteSpace(Conf.IPv4Address))
+                        {
+                            LogErrorToFile("Your previous IP address has changed. Consider setting up your PC with a static IP address.");
+                        }
                     }
 
-                    if (IsValidIP(ip))
-                    {
-                        detectip = ip.ToString();
-                        break;
-                    }
+                    Conf.IPv4Address = _ipv4Address;
+                    return _ipv4Address;
                 }
-                if (_ipv4Address == "")
-                    _ipv4Address = detectip;
-                if (_ipv4Address == "")
-                    _ipv4Address = "127.0.0.1";
-
-                Conf.IPv4Address = _ipv4Address;
-                return _ipv4Address;
             }
-            set { _ipv4Address = value; }
+            set {
+                lock (_iplock)
+                {
+                    _ipv4Address = value;
+                }
+            }
         }
 
         private static bool IsValidIP(IPAddress ip)
         {
-            string detectip;
             if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
                 if (!System.Net.IPAddress.IsLoopback(ip))
@@ -504,35 +526,43 @@ namespace iSpyApplication
         {
             get
             {
-                if (_ipv6Address != "")
-                    return _ipv6Address;
-
-                string detectip = "";
-                foreach (IPAddress ip in AddressListIPv6)
+                lock (_iplock)
                 {
-                    if (detectip == "")
-                        detectip = ip.ToString();
+                    if (_ipv6Address != "")
+                        return _ipv6Address;
 
-                    if (Conf.IPv6Address == ip.ToString())
+                    string detectip = "";
+                    foreach (IPAddress ip in AddressListIPv6)
                     {
-                        _ipv6Address = ip.ToString();
-                        break;
+                        if (detectip == "")
+                            detectip = ip.ToString();
+
+                        if (Conf.IPv6Address == ip.ToString())
+                        {
+                            _ipv6Address = ip.ToString();
+                            break;
+                        }
+
+                        if (ip.IsIPv6Teredo)
+                        {
+                            detectip = ip.ToString();
+                        }
                     }
 
-                    if (ip.IsIPv6Teredo)
-                    {
-                        detectip = ip.ToString();
-                    }
+                    if (_ipv6Address == "")
+                        _ipv6Address = detectip;
+                    Conf.IPv6Address = _ipv6Address;
+
+                    return _ipv6Address;
                 }
 
-                if (_ipv6Address == "")
-                    _ipv6Address = detectip;
-                Conf.IPv6Address = _ipv6Address;
-
-                return _ipv6Address;
-
             }
-            set { _ipv6Address = value; }
+            set {
+                lock (_iplock)
+                {
+                    _ipv6Address = value;
+                }
+            }
         }
 
         public static string IPAddress
@@ -568,16 +598,17 @@ namespace iSpyApplication
             try
             {
                 objects c;
-                using (var fs = new FileStream(path, FileMode.Open))
+                lock (Iolock)
                 {
-                    var s = new XmlSerializer(typeof(objects));
-                    using (TextReader reader = new StreamReader(fs))
+                    using (var fs = new FileStream(path, FileMode.Open))
                     {
-                        fs.Position = 0;
-                        c = (objects) s.Deserialize(reader);    
-                        reader.Close();
+                        var s = new XmlSerializer(typeof (objects));
+                        using (TextReader reader = new StreamReader(fs))
+                        {
+                            fs.Position = 0;
+                            c = (objects) s.Deserialize(reader);
+                        }
                     }
-                    fs.Close();
                 }
 
                 _cameras = c.cameras != null ? c.cameras.ToList() : new List<objectsCamera>();
@@ -611,7 +642,7 @@ namespace iSpyApplication
                     if (cam.id >= camid)
                         camid = cam.id + 1;
 
-                    path2 = Conf.MediaDirectory + "video\\" + cam.directory + "\\";
+                    path2 = GetMediaDirectory(2,cam.id) + "video\\" + cam.directory + "\\";
                     if (cam.settings.sourceindex == 5 && !bVlc)
                     {
                         bAlertVlc = true;
@@ -729,6 +760,9 @@ namespace iSpyApplication
                     if (cam.settings.audioport <= 0)
                         cam.settings.audioport = 80;
 
+                    if (Conf.MediaDirectories.FirstOrDefault(p => p.ID == cam.settings.directoryIndex) == null)
+                        cam.settings.directoryIndex = Conf.MediaDirectories.First().ID;
+
                     if (String.IsNullOrEmpty(cam.settings.emailondisconnect))
                     {
                         if (cam.settings.notifyondisconnect)
@@ -813,7 +847,7 @@ namespace iSpyApplication
                     }
 
 
-                    path2 = Conf.MediaDirectory + "video\\" + cam.directory + "\\thumbs\\";
+                    path2 = GetMediaDirectory(2,cam.id) + "video\\" + cam.directory + "\\thumbs\\";
                     if (!Directory.Exists(path2))
                     {
                          try
@@ -825,7 +859,7 @@ namespace iSpyApplication
                         }
                     }
 
-                    path2 = Conf.MediaDirectory + "video\\" + cam.directory + "\\grabs\\";
+                    path2 = GetMediaDirectory(2,cam.id) + "video\\" + cam.directory + "\\grabs\\";
                     if (!Directory.Exists(path2))
                     {
                         try
@@ -868,7 +902,7 @@ namespace iSpyApplication
                     if (mic.directory == null)
                         throw new Exception("err_old_config");
                     mic.newrecordingcount = 0;
-                    path2 = Conf.MediaDirectory + "audio\\" + mic.directory + "\\";
+                    path2 = GetMediaDirectory(1,mic.id) + "audio\\" + mic.directory + "\\";
                     if (!Directory.Exists(path2))
                         Directory.CreateDirectory(path2);
 
@@ -885,6 +919,9 @@ namespace iSpyApplication
 
                         };
                     }
+
+                    if (Conf.MediaDirectories.FirstOrDefault(p => p.ID == mic.settings.directoryIndex) == null)
+                        mic.settings.directoryIndex = Conf.MediaDirectories.First().ID;
 
                     bool migrate = false;
                     if (mic.alertevents == null)
@@ -1139,9 +1176,9 @@ namespace iSpyApplication
                         }
                     }
                 }
-                lock (_masterfilelist)
+                lock (Masterfilelist)
                 {
-                    _masterfilelist.Clear();
+                    Masterfilelist.Clear();
                 }
                 foreach(Control c in flowPreview.Controls)
                 {
@@ -1255,7 +1292,7 @@ namespace iSpyApplication
                         var cw = GetCameraWindow(camobj.id);
                         if (cw != null)
                         {
-                            var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "video\\" + camobj.directory);
+                            var dirinfo = new DirectoryInfo(GetMediaDirectory(2,camobj.id) + "video\\" + camobj.directory);
 
                             var lFi = new List<FileInfo>();
                             lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
@@ -1327,7 +1364,7 @@ namespace iSpyApplication
                         var vl = GetVolumeLevel(micobj.id);
                         if (vl != null)
                         {
-                            var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "audio\\" + micobj.directory);
+                            var dirinfo = new DirectoryInfo(GetMediaDirectory(1,micobj.id) + "audio\\" + micobj.directory);
 
                             var lFi = new List<FileInfo>();
                             lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
@@ -1395,94 +1432,100 @@ namespace iSpyApplication
                 UISync.Execute(RefreshControls);
             }
 
-            if (Conf.Enable_Storage_Management)
+            //run storage management on each directory
+            foreach (var d in Conf.MediaDirectories)
             {
-                if (Conf.DeleteFilesOlderThanDays <= 0)
-                    return;
-
-                DateTime dtref = DateTime.Now.AddDays(0 - Conf.DeleteFilesOlderThanDays);
-
-                //don't bother if oldest file isn't past cut-off
-                if (_oldestFile > dtref)
-                    return;
-
-                var lFi = new List<FileInfo>();
-                try
+                if (d.Enable_Storage_Management)
                 {
-                    var dirinfo = new DirectoryInfo(Conf.MediaDirectory + "video\\");
-                    lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
-                    
-                    dirinfo = new DirectoryInfo(Conf.MediaDirectory + "audio\\");
-                    lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
-                    
-                }
-                catch (Exception ex)
-                {
-                    LogExceptionToFile(ex);
-                    return;
-                }
+                    if (d.DeleteFilesOlderThanDays <= 0)
+                        return;
 
-                lFi = lFi.FindAll(f => f.Extension != ".xml");
-                lFi = lFi.OrderBy(f => f.CreationTime).ToList();
+                    DateTime dtref = DateTime.Now.AddDays(0 - d.DeleteFilesOlderThanDays);
 
-                var size = lFi.Sum(p => p.Length);
-                var targetSize = (Conf.MaxMediaFolderSizeMB*0.7)*1048576d;
+                    //don't bother if oldest file isn't past cut-off
+                    if (_oldestFile > dtref)
+                        return;
 
-                if (size < targetSize)
-                {
-                    return;
-                }
-
-                
-
-                var lCan = lFi.Where(p => p.CreationTime < dtref).OrderBy(p => p.CreationTime).ToList();
-
-                for (int i = 0; i < lCan.Count; i++)
-                {
-                    var fi = lCan[i];
-                    if (size > targetSize)
+                    var lFi = new List<FileInfo>();
+                    try
                     {
-                        if (FileOperations.Delete(fi.FullName))
+                        var dirinfo = new DirectoryInfo(d.Entry + "video\\");
+                        lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+
+                        dirinfo = new DirectoryInfo(d.Entry + "audio\\");
+                        lFi.AddRange(dirinfo.GetFiles("*.*", SearchOption.AllDirectories));
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LogExceptionToFile(ex);
+                        return;
+                    }
+
+                    lFi = lFi.FindAll(f => f.Extension != ".xml");
+                    lFi = lFi.OrderBy(f => f.CreationTime).ToList();
+
+                    var size = lFi.Sum(p => p.Length);
+                    var targetSize = (d.MaxMediaFolderSizeMB*0.7)*1048576d;
+
+                    if (size < targetSize)
+                    {
+                        return;
+                    }
+
+
+
+                    var lCan = lFi.Where(p => p.CreationTime < dtref).OrderBy(p => p.CreationTime).ToList();
+
+                    for (int i = 0; i < lCan.Count; i++)
+                    {
+                        var fi = lCan[i];
+                        if (size > targetSize)
                         {
-                            size -= fi.Length;
-                            fileschanged = true;
-                            lCan.Remove(fi);
-                            i--;
-                            lock (_masterfilelist)
+                            if (FileOperations.Delete(fi.FullName))
                             {
-                                _masterfilelist.RemoveAll(p => p.Filename.EndsWith(fi.Name));
-                            }
-                            if (size < targetSize)
-                            {
-                                break;
+                                size -= fi.Length;
+                                fileschanged = true;
+                                lCan.Remove(fi);
+                                i--;
+                                lock (Masterfilelist)
+                                {
+                                    Masterfilelist.RemoveAll(p => p.Filename.EndsWith(fi.Name));
+                                }
+                                if (size < targetSize)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                if (lCan.Count > 0)
-                    _oldestFile = lCan.First().CreationTime;
-                else
-                {
-                    var o = lFi.FirstOrDefault(p => p.CreationTime > dtref);
-                    if (o != null)
-                        _oldestFile = o.CreationTime;
+                    if (lCan.Count > 0)
+                        _oldestFile = lCan.First().CreationTime;
+                    else
+                    {
+                        var o = lFi.FirstOrDefault(p => p.CreationTime > dtref);
+                        if (o != null)
+                            _oldestFile = o.CreationTime;
 
-                }
+                    }
 
-                if (fileschanged)
-                {
-                    UISync.Execute(RefreshControls);
-                    LogMessageToFile(LocRm.GetString("MediaStorageLimit").Replace("[AMOUNT]",
-                                                                                  Conf.MaxMediaFolderSizeMB.ToString(
-                                                                                      CultureInfo.InvariantCulture)));
-                }
+                    if (fileschanged)
+                    {
+                        UISync.Execute(RefreshControls);
+                        LogMessageToFile(LocRm.GetString("MediaStorageLimit").Replace("[AMOUNT]",
+                                                                                      d.MaxMediaFolderSizeMB.ToString
+                                                                                          (
+                                                                                              CultureInfo.
+                                                                                                  InvariantCulture)));
+                    }
 
-                if ((size/1048576) > Conf.MaxMediaFolderSizeMB && !StopRecordingFlag && Conf.StopSavingOnStorageLimit)
-                {
-                    StopRecordingFlag = true;
+                    if ((size/1048576) > d.MaxMediaFolderSizeMB && !d.StopSavingFlag && d.StopSavingOnStorageLimit)
+                    {
+                        d.StopSavingFlag = true;
+                    }
+                    else
+                        d.StopSavingFlag = false;
                 }
-                else
-                    StopRecordingFlag = false;
             }
 
         }
@@ -1500,15 +1543,15 @@ namespace iSpyApplication
 
         void VolumeControlFileListUpdated(object sender)
         {
-            lock (_masterfilelist)
+            lock (Masterfilelist)
             {
                 var vl = sender as VolumeLevel;
                 if (vl != null)
                 {
-                    _masterfilelist.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
+                    Masterfilelist.RemoveAll(p => p.ObjectId == vl.Micobject.id && p.ObjectTypeId == 1);
                     foreach (var ff in vl.FileList)
                     {
-                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
+                        Masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
                                                            ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
                     }
                     if (!vl.LoadedFiles)
@@ -1568,7 +1611,7 @@ namespace iSpyApplication
 
             try
             {
-                string path = Conf.MediaDirectory + "audio\\" + mic.directory + "\\";
+                string path = GetMediaDirectory(1,mic.id) + "audio\\" + mic.directory + "\\";
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
             }            
@@ -1591,7 +1634,7 @@ namespace iSpyApplication
             fpControl.Tag = GetControlIndex();
         }
 
-        internal void EditCamera(objectsCamera cr)
+        internal void EditCamera(objectsCamera cr, IWin32Window owner = null)
         {
             int cameraId = Convert.ToInt32(cr.id);
             CameraWindow cw = null;
@@ -1610,13 +1653,13 @@ namespace iSpyApplication
 
             if (cw == null) return;
             TopMost = false;
-            var ac = new AddCamera { CameraControl = cw };
-            ac.ShowDialog(this);
+            var ac = new AddCamera { CameraControl = cw, MainClass = this };
+            ac.ShowDialog(owner ?? this);
             ac.Dispose();
             TopMost = Conf.AlwaysOnTop;
         }
 
-        internal void EditMicrophone(objectsMicrophone om)
+        internal void EditMicrophone(objectsMicrophone om, IWin32Window owner = null)
         {
             VolumeLevel vlf = null;
 
@@ -1635,14 +1678,14 @@ namespace iSpyApplication
             if (vlf != null)
             {
                 TopMost = false;
-                var am = new AddMicrophone { VolumeLevel = vlf };
-                am.ShowDialog(this);
+                var am = new AddMicrophone { VolumeLevel = vlf, MainClass = this };
+                am.ShowDialog(owner ?? this);
                 am.Dispose();
                 TopMost = Conf.AlwaysOnTop;
             }
         }
 
-        internal void EditFloorplan(objectsFloorplan ofp)
+        internal void EditFloorplan(objectsFloorplan ofp, IWin32Window owner = null)
         {
             FloorPlanControl fpc = null;
 
@@ -1658,14 +1701,14 @@ namespace iSpyApplication
 
             if (fpc != null)
             {
-                var afp = new AddFloorPlan { Fpc = fpc, Owner = this };
-                afp.ShowDialog(this);
+                var afp = new AddFloorPlan { Fpc = fpc, MainClass = this};
+                afp.ShowDialog(owner ?? this);
                 afp.Dispose();
                 fpc.Invalidate();
             }
         }
 
-        public CameraWindow GetCamera(int cameraId)
+        private CameraWindow GetCamera(int cameraId)
         {
             for (int index = 0; index < _pnlCameras.Controls.Count; index++)
             {
@@ -1728,9 +1771,9 @@ namespace iSpyApplication
                 var oc = Cameras.FirstOrDefault(p => p.id == control.Camobject.id);
                 if (oc != null)
                 {
-                    lock (_masterfilelist)
+                    lock (Masterfilelist)
                     {
-                        _masterfilelist.RemoveAll(p => p.ObjectId == oc.id && p.ObjectTypeId == 2);
+                        Masterfilelist.RemoveAll(p => p.ObjectId == oc.id && p.ObjectTypeId == 2);
                     }
                     Cameras.Remove(oc);
                 }
@@ -1784,9 +1827,9 @@ namespace iSpyApplication
                 var om = Microphones.SingleOrDefault(p => p.id == control.Micobject.id);
                 if (om != null)
                 {
-                    lock (_masterfilelist)
+                    lock (Masterfilelist)
                     {
-                        _masterfilelist.RemoveAll(p => p.ObjectId == om.id && p.ObjectTypeId == 1);
+                        Masterfilelist.RemoveAll(p => p.ObjectId == om.id && p.ObjectTypeId == 1);
                     }
                     for (var index = 0; index < Cameras.Count(p => p.settings.micpair == om.id); index++)
                     {
@@ -1854,23 +1897,28 @@ namespace iSpyApplication
 
         public void SaveFileData()
         {
-            foreach (objectsCamera oc in Cameras)
+            try
             {
-                CameraWindow occ = GetCameraWindow(oc.id);
-                if (occ != null)
+                foreach (objectsCamera oc in Cameras)
                 {
-                    occ.SaveFileList();
+                    CameraWindow occ = GetCameraWindow(oc.id);
+                    if (occ != null)
+                    {
+                        occ.SaveFileList();
+                    }
                 }
-            }
 
-            foreach (objectsMicrophone om in Microphones)
-            {
-                VolumeLevel omc = GetVolumeLevel(om.id);
-                if (omc != null)
+                foreach (objectsMicrophone om in Microphones)
                 {
-                    omc.SaveFileList();
+                    VolumeLevel omc = GetVolumeLevel(om.id);
+                    if (omc != null)
+                    {
+                        omc.SaveFileList();
+                    }
                 }
             }
+            catch (Exception ex)
+            {LogExceptionToFile(ex);}
         }
 
         private void RefreshControls()
@@ -1882,22 +1930,11 @@ namespace iSpyApplication
         {
             CameraWindow cw = NewCameraWindow(videoSourceIndex);
             TopMost = false;
-            var ac = new AddCamera { CameraControl = cw, StartWizard = startWizard, IsNew = true };
+            var ac = new AddCamera { CameraControl = cw, StartWizard = startWizard, IsNew = true, MainClass = this };
             ac.ShowDialog(this);
             if (ac.DialogResult == DialogResult.OK)
             {
                 UnlockLayout();
-                string path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\";
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-                path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\thumbs\\";
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
-                path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\grabs\\";
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-
                 SetNewStartPosition();
                 if (cw.VolumeControl != null && !cw.VolumeControl.IsEnabled)
                     cw.VolumeControl.Enable();
@@ -2030,6 +2067,7 @@ namespace iSpyApplication
             oc.settings.desktopresizeheight = 480;
             oc.settings.desktopresizewidth = 640;
             oc.settings.resize = false;
+            oc.settings.directoryIndex = Conf.MediaDirectories.First().ID;
 
             if (VlcHelper.VlcInstalled)
                 oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
@@ -2040,7 +2078,7 @@ namespace iSpyApplication
             oc.detector.keepobjectedges = false;
             oc.detector.processeveryframe = 1;
             oc.detector.nomovementintervalnew = oc.detector.nomovementinterval = 30;
-            oc.detector.movementintervalnew = oc.detector.movementinterval = 1;
+            oc.detector.movementintervalnew = oc.detector.movementinterval = 0;
 
             oc.detector.calibrationdelay = 15;
             oc.detector.color = ColorTranslator.ToHtml(Conf.TrackingColor.ToColor());
@@ -2087,7 +2125,7 @@ namespace iSpyApplication
         {
             VolumeLevel vl = NewVolumeLevel(audioSourceIndex);
             TopMost = false;
-            var am = new AddMicrophone { VolumeLevel = vl };
+            var am = new AddMicrophone { VolumeLevel = vl, IsNew = true, MainClass = this};
             am.ShowDialog(this);
 
             int micid = -1;
@@ -2097,9 +2135,6 @@ namespace iSpyApplication
                 UnlockLayout();
                 micid = am.VolumeLevel.Micobject.id = NextMicrophoneId;
                 Microphones.Add(vl.Micobject);
-                string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
                 SetNewStartPosition();
                 NeedsSync = true;
             }
@@ -2157,6 +2192,7 @@ namespace iSpyApplication
             om.settings.emailaddress = EmailAddress;
             om.settings.active = false;
             om.settings.notifyondisconnect = false;
+            om.settings.directoryIndex = Conf.MediaDirectories.First().ID;
             if (VlcHelper.VlcInstalled)
                 om.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
             else
@@ -2256,7 +2292,7 @@ namespace iSpyApplication
             fpc.BringToFront();
             fpc.Tag = GetControlIndex();
 
-            var afp = new AddFloorPlan { Fpc = fpc, Owner = this };
+            var afp = new AddFloorPlan { Fpc = fpc, Owner = this, MainClass = this};
             afp.ShowDialog(this);
             if (afp.DialogResult == DialogResult.OK)
             {
@@ -2289,15 +2325,15 @@ namespace iSpyApplication
 
         void CameraControlFileListUpdated(object sender)
         {
-            lock (_masterfilelist)
+            lock (Masterfilelist)
             {
                 var cw = sender as CameraWindow;
                 if (cw != null)
                 {
-                    _masterfilelist.RemoveAll(p => p.ObjectId == cw.Camobject.id && p.ObjectTypeId == 2);
+                    Masterfilelist.RemoveAll(p => p.ObjectId == cw.Camobject.id && p.ObjectTypeId == 2);
                     foreach (var ff in cw.FileList)
                     {
-                        _masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
+                        Masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
                                                            ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm));
                     }
                     if (!cw.LoadedFiles)
@@ -2478,45 +2514,56 @@ namespace iSpyApplication
             }
             c.floorplans = FloorPlans.ToArray();
             c.remotecommands = RemoteCommands.ToArray();
-
-            var s = new XmlSerializer(typeof(objects));
-            using (var fs = new FileStream(fileName, FileMode.Create))
+            lock (Iolock)
             {
-                using (TextWriter writer = new StreamWriter(fs))
+                var s = new XmlSerializer(typeof (objects));
+                var sb = new StringBuilder();
+                using (var writer = new StringWriter(sb))
                 {
-                    fs.Position = 0;
-                    s.Serialize(writer, c);
-                    
-                    writer.Close();
+                    try
+                    {
+                        s.Serialize(writer, c);
+                        File.WriteAllText(fileName, sb.ToString(), Encoding.UTF8);
+                    }
+                    catch (Exception e)
+                    {
+                        LogExceptionToFile(e);
+                    }
                 }
-                fs.Close();
             }
         }
 
         private static void SaveConfig()
         {
-
-            string fileName = Program.AppDataPath + @"XML\config.xml";
-            //save configuration
-            var s = new XmlSerializer(typeof(configuration));
-            using (var fs = new FileStream(fileName, FileMode.Create))
+            lock (Iolock)
             {
-                using (var writer = new StreamWriter(fs))
+                string fileName = Program.AppDataPath + @"XML\config.xml";
+                //save configuration
+
+                var s = new XmlSerializer(typeof (configuration));
+                var sb = new StringBuilder();
+                using (var writer = new StringWriter(sb))
                 {
-                    fs.Position = 0;
-                    s.Serialize(writer, Conf);
-                    writer.Close();
+                    try
+                    {
+                        s.Serialize(writer, Conf);
+                        File.WriteAllText(fileName, sb.ToString(), Encoding.UTF8);
+                    }
+                    catch (Exception e)
+                    {
+                        LogExceptionToFile(e);
+                    }
                 }
-                fs.Close();
             }
         }
 
         private void LoadObjectList(string fileName)
         {
-
             if (_cameras != null && (_cameras.Count > 0 || _microphones.Count > 0 || _floorplans.Count > 0))
             {
-                switch(MessageBox.Show(this,"Save your current objects first?",LocRm.GetString("Confirm"),MessageBoxButtons.YesNoCancel))
+                switch (
+                    MessageBox.Show(this, "Save your current objects first?", LocRm.GetString("Confirm"),
+                                    MessageBoxButtons.YesNoCancel))
                 {
                     case DialogResult.Yes:
                         SaveObjectList();
@@ -2581,19 +2628,21 @@ namespace iSpyApplication
             cw.Camobject.settings.desktopresizeheight = height;
             cw.Camobject.settings.resize = false;
             cw.Camobject.name = name;
+            cw.Camobject.settings.directoryIndex = Conf.MediaDirectories.First().ID;
 
             cw.Camobject.settings.videosourcestring = url;
 
             cw.Camobject.id = NextCameraId;
             Cameras.Add(cw.Camobject);
-            string path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\";
+            var dir = GetMediaDirectory(2, cw.Camobject.id);
+            string path = dir + "video\\" + cw.Camobject.directory + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\thumbs\\";
+            path = dir + "video\\" + cw.Camobject.directory + "\\thumbs\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
-            path = Conf.MediaDirectory + "video\\" + cw.Camobject.directory + "\\grabs\\";
+            path = dir + "video\\" + cw.Camobject.directory + "\\grabs\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
@@ -2613,7 +2662,7 @@ namespace iSpyApplication
 
             vl.Micobject.id = NextMicrophoneId;
             Microphones.Add(vl.Micobject);
-            string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
+            string path = GetMediaDirectory(1,vl.Micobject.id) + "audio\\" + vl.Micobject.directory + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
@@ -2631,7 +2680,7 @@ namespace iSpyApplication
             vl.Micobject.settings.sourcename = cameraid.ToString(CultureInfo.InvariantCulture);
             vl.Micobject.id = NextMicrophoneId;
             Microphones.Add(vl.Micobject);
-            string path = Conf.MediaDirectory + "audio\\" + vl.Micobject.directory + "\\";
+            string path = GetMediaDirectory(1,vl.Micobject.id) + "audio\\" + vl.Micobject.directory + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
 
@@ -2793,10 +2842,39 @@ namespace iSpyApplication
             cameraControl.PTZNavigate = false;
             if (cameraControl.PTZ != null)
             {
-                cameraControl.Calibrating = true;
-                cameraControl.PTZ.SendPTZCommand(e.Delta > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut, true);
-                if (cameraControl.PTZ.IsContinuous)
-                    cameraControl.PTZ.SendPTZCommand(Enums.PtzCommand.Stop);
+                
+
+                if (!cameraControl.PTZ.DigitalZoom)
+                {
+                    cameraControl.Calibrating = true;
+                    cameraControl.PTZ.SendPTZCommand(e.Delta > 0 ? Enums.PtzCommand.ZoomIn : Enums.PtzCommand.ZoomOut,
+                        true);
+                    if (cameraControl.PTZ.IsContinuous)
+                        cameraControl.PTZ.SendPTZCommand(Enums.PtzCommand.Stop);
+                }
+                else
+                {
+                    Rectangle r = cameraControl.Camera.ViewRectangle;
+                    //map location to point in the view rectangle
+                    var ox =
+                        Convert.ToInt32((Convert.ToDouble(e.Location.X)/Convert.ToDouble(cameraControl.Width))*
+                                        Convert.ToDouble(r.Width));
+                    var oy =
+                        Convert.ToInt32((Convert.ToDouble(e.Location.Y)/Convert.ToDouble(cameraControl.Height))*
+                                        Convert.ToDouble(r.Height));
+
+                    cameraControl.Camera.ZPoint = new Point(r.Left + ox, r.Top + oy);
+                    var f = cameraControl.Camera.ZFactor;
+                    if (e.Delta > 0)
+                    {
+                        f+= 0.2f;
+                    }
+                    else
+                        f-= 0.2f;
+                    if (f < 1)
+                        f = 1;
+                    cameraControl.Camera.ZFactor = f;
+                }
                 ((HandledMouseEventArgs) e).Handled = true;
                 
             }
@@ -2996,18 +3074,19 @@ namespace iSpyApplication
             cameraControl.BringToFront();
             cameraControl.Tag = GetControlIndex();
 
-            string path = Conf.MediaDirectory + "video\\" + cam.directory + "\\";
+            var dir = GetMediaDirectory(2, cam.id);
+            string path =dir + "video\\" + cam.directory + "\\";
             try
             {
                 if (!Directory.Exists(path))
                     Directory.CreateDirectory(path);
-                path = Conf.MediaDirectory + "video\\" + cam.directory + "\\thumbs\\";
+                path = dir + "video\\" + cam.directory + "\\thumbs\\";
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
                     //move existing thumbs into directory
                     var lfi =
-                        Directory.GetFiles(Conf.MediaDirectory + "video\\" + cam.directory + "\\", "*.jpg").ToList();
+                        Directory.GetFiles(dir + "video\\" + cam.directory + "\\", "*.jpg").ToList();
                     foreach (string file in lfi)
                     {
                         string destfile = file;
@@ -3016,7 +3095,7 @@ namespace iSpyApplication
                         File.Move(file, destfile);
                     }
                 }
-                path = Conf.MediaDirectory + "video\\" + cam.directory + "\\grabs\\";
+                path = dir + "video\\" + cam.directory + "\\grabs\\";
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);
@@ -3024,7 +3103,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                MainForm.LogExceptionToFile(ex);
+                LogExceptionToFile(ex);
             }
 
             cameraControl.GetFiles();

@@ -49,7 +49,7 @@ namespace iSpyApplication
             var us = new UserState(objectId, filename, emailOnComplete, message, @public);
             UploadFiles.Enqueue(us);
 
-            if (_uploader == null || !_uploader.IsAlive)
+            if (_uploader == null || _uploader.Join(TimeSpan.Zero))
             {
                 _uploader = new Thread(Upload) { Name = "YouTube Uploader", IsBackground = false, Priority = ThreadPriority.Normal };
                 _uploader.Start();
@@ -204,7 +204,7 @@ namespace iSpyApplication
             {
                 get
                 {
-                    return MainForm.Conf.MediaDirectory + "video\\" + CameraData.directory + "\\" +
+                    return MainForm.GetMediaDirectory(2,_objectid) + "video\\" + CameraData.directory + "\\" +
                            Filename;
                 }
             }

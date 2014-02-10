@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Mail;
-using System.Text;
 using System.Drawing;
+using System.Threading;
 
 namespace iSpyApplication
 {
@@ -26,7 +26,6 @@ namespace iSpyApplication
             message.Dispose();
             return !f;
         }
-
 
         public static Color ToColor(this string colorRGB)
         {

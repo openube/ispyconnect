@@ -6,12 +6,16 @@ namespace iSpyApplication
 {
     public partial class GridViewCustom : Form
     {
-        public int Cols;
-        public int Rows;
+        public int Cols = 1;
+        public int Rows = 1;
         public string GridName;
-        public bool FullScreen;
-        public bool AlwaysOnTop;
+        public bool FullScreen = false;
+        public bool AlwaysOnTop = false;
         public string Display;
+        public int Framerate = 5;
+        public int Mode = 0;
+        public bool Fill = true;
+        public string ModeConfig = "";
 
         public GridViewCustom()
         {
@@ -33,6 +37,9 @@ namespace iSpyApplication
             FullScreen = chkFullScreen.Checked;
             AlwaysOnTop = chkAlwaysOnTop.Checked;
             Display = cmbDisplay.Text;
+            Framerate = (int)numFramerate.Value;
+            Mode = ddlMode.SelectedIndex;
+            Fill = chkFill.Checked;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -49,6 +56,9 @@ namespace iSpyApplication
             chkFullScreen.Checked = FullScreen;
             chkAlwaysOnTop.Checked = AlwaysOnTop;
             cmbDisplay.Text = Display;
+            numFramerate.Value = Framerate;
+            ddlMode.SelectedIndex = Mode;
+            chkFill.Checked = Fill;
 
             if (!String.IsNullOrEmpty(txtName.Text))
                 return;
@@ -73,8 +83,23 @@ namespace iSpyApplication
         {
             LocRm.SetString(this,"CustomiseGrid");
             LocRm.SetString(label3, "Name");
-            LocRm.SetString(label1, "Columns");
+            LocRm.SetString(label1, "Mode");
+            LocRm.SetString(label6, "Columns");
             LocRm.SetString(label2, "Rows");
+        }
+
+        private void ddlMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            numCols.Enabled = numRows.Enabled = ddlMode.SelectedIndex == 0;
+            btnConfigure.Enabled = ddlMode.SelectedIndex > 0;
+        }
+
+        private void btnConfigure_Click(object sender, EventArgs e)
+        {
+            var gvmc = new GridViewModeConfig { ModeConfig = ModeConfig };
+            gvmc.ShowDialog(this);
+            ModeConfig = gvmc.ModeConfig;
+            gvmc.Dispose();
         }
     }
 }

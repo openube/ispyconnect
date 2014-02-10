@@ -57,7 +57,7 @@
         <xs:element name="IPv4Address" type="xs:string" />
         <xs:element name="IPv6Address" type="xs:string" />
         <xs:element name="DHCPReroute" type="xs:boolean" />
-        <xs:element name="MediaDirectory" type="xs:string" />
+        <xs:element name="MediaDirectory" type="xs:string" default="NotSet" />
         <xs:element name="FFMPEG_SingleProcess" type="xs:boolean" />
         <xs:element name="Loopback" type="xs:boolean" />
         <xs:element name="ServerReceiveTimeout" type="xs:int" />
@@ -134,11 +134,15 @@
                     </xs:element>
                   </xs:sequence>
                   <xs:attribute name="name" type="xs:string" use="required" />
-                  <xs:attribute name="Rows" type="xs:int" use="required" />
-                  <xs:attribute name="Columns" type="xs:int" use="required" />
+                  <xs:attribute name="Rows" type="xs:int" default="1" />
+                  <xs:attribute name="Columns" type="xs:int" default="1" />
                   <xs:attribute name="FullScreen" type="xs:boolean" default="true"/>
                   <xs:attribute name="AlwaysOnTop" type="xs:boolean" default="false"/>
+                  <xs:attribute name="Framerate" type="xs:int" default="5"/>
                   <xs:attribute name="Display" type="xs:string" />
+                  <xs:attribute name="ModeIndex" type="xs:int" default="0" />
+                  <xs:attribute name="ModeConfig" type="xs:string" default="" />
+                  <xs:attribute name="Fill" type="xs:boolean" default="true" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -164,6 +168,24 @@
             <xs:attribute name="Stop" type="xs:int" default="0" />
             <xs:attribute name="Next" type="xs:int" default="0" />
             <xs:attribute name="Previous" type="xs:int" default="0" />
+            <xs:attribute name="MaxMin" type="xs:int" default="0" />
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="MediaDirectories">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element maxOccurs="unbounded" name="Directory">
+                <xs:complexType>
+                  <xs:attribute name="Entry" type="xs:string" default="NotSet" />
+                  <xs:attribute name="Enable_Storage_Management" type="xs:boolean" default="false" />
+                  <xs:attribute name="StopSavingOnStorageLimit" type="xs:boolean" default="false"/>
+                  <xs:attribute name="StopSavingFlag" type="xs:boolean" default="false"/>
+                  <xs:attribute name="MaxMediaFolderSizeMB" type="xs:int" default="200" />
+                  <xs:attribute name="DeleteFilesOlderThanDays" type="xs:int" default="0"/>
+                  <xs:attribute name="ID" type="xs:int" default="0"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
           </xs:complexType>
         </xs:element>
       </xs:sequence>

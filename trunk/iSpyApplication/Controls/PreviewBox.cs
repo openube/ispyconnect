@@ -157,15 +157,6 @@ namespace iSpyApplication.Controls
         }
         public void PlayMedia(int mode)
         {
-            //0=website,1=ispy,2=default player
-            //if (mode < 0)
-            //    MainForm.Conf.PlaybackMode = 0; //ffmpeg
-            //if (!VlcHelper.VlcInstalled && mode == 3)
-            //{
-            //    MessageBox.Show(this, "VLC player is not installed (" + VlcHelper.VMin + " or greater required). Using the web player instead. Install VLC (" + Program.Platform + ") and then see settings to enable ispy local playback.");
-            //    MainForm.Conf.PlaybackMode = mode = 0;
-            //}
-
             if (mode < 0)
                 MainForm.Conf.PlaybackMode = 0;
             if (!VlcHelper.VlcInstalled && mode == 1)
@@ -174,9 +165,7 @@ namespace iSpyApplication.Controls
                 MainForm.Conf.PlaybackMode = mode = 0;
             }
 
-
-            //play video          
-            
+           
             string movie = FileName;
             int j = mode;
             if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))

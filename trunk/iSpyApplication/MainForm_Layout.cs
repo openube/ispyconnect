@@ -207,21 +207,16 @@ namespace iSpyApplication
                 BeginInvoke(new MaximiseDelegate(Maximise), obj, minimiseIfMaximised);
                 return;
             }
-            if (obj is CameraWindow)
+            var window = obj as CameraWindow;
+            if (window != null)
             {
 
-                var cameraControl = ((CameraWindow)obj);
+                var cameraControl = window;
                 cameraControl.BringToFront();
 
 
                 try
                 {
-                    //
-                    // by Marco@BlueOceanLtd.asia / 1. May 2012
-                    //
-                    // maximise camera by keep it's aspect ratio and center to the main window
-                    // cameraControl.RestoreRect is set to Empty if not maximised and can be checked if camera is maximised or normal view
-                    // 
                     if (cameraControl.RestoreRect.IsEmpty)
                     {
                         var s = "320x240";
@@ -254,12 +249,9 @@ namespace iSpyApplication
                     else
                     {
                         if (minimiseIfMaximised)
-                            Minimize(obj, false);
+                            Minimize(window, false);
                         cameraControl.RestoreRect = Rectangle.Empty;
                     }
-                    //
-                    // end
-                    //
                 }
                 catch(Exception ex)
                 {
@@ -267,9 +259,10 @@ namespace iSpyApplication
                 }
             }
 
-            if (obj is VolumeLevel)
+            var level = obj as VolumeLevel;
+            if (level != null)
             {
-                var vf = ((VolumeLevel)obj);
+                var vf = level;
                 vf.BringToFront();
                 if (vf.Paired)
                 {
@@ -282,11 +275,31 @@ namespace iSpyApplication
                     else
                         Maximise(cw);
                 }
+                else
+                {
+                    if (vf.RestoreRect.IsEmpty)
+                    {
+                        vf.RestoreRect = new Rectangle(vf.Location.X, vf.Location.Y,
+                                                                  vf.Width, vf.Height);
+                        vf.Location = new Point(0, 0);
+                        vf.Width = _pnlCameras.Width;
+                        vf.Height = _pnlCameras.Height;
+
+                    }
+                    else
+                    {
+
+                        if (minimiseIfMaximised)
+                            Minimize(vf, false);
+                        vf.RestoreRect = Rectangle.Empty;
+                    }                    
+                }
             }
 
-            if (obj is FloorPlanControl)
+            var control = obj as FloorPlanControl;
+            if (control != null)
             {
-                var fp = ((FloorPlanControl)obj);
+                var fp = control;
                 fp.BringToFront();
 
                 if (fp.RestoreRect.IsEmpty)
@@ -311,8 +324,91 @@ namespace iSpyApplication
                 else
                 {
                     if (minimiseIfMaximised)
-                        Minimize(obj, false);
+                        Minimize(control, false);
                     fp.RestoreRect = Rectangle.Empty;
+                }
+            }
+        }
+
+        private void Minimize(object obj, bool tocontents)
+        {
+            if (obj == null)
+                return;
+            var window = obj as CameraWindow;
+            if (window != null)
+            {
+                var cw = window;
+                Rectangle r = cw.RestoreRect;
+                if (r != Rectangle.Empty && !tocontents)
+                {
+                    cw.Location = r.Location;
+                    cw.Height = r.Height;
+                    cw.Width = r.Width;
+                }
+                else
+                {
+                    if (cw.Camera != null)
+                    {
+                        Bitmap bmp = cw.LastFrame;
+                        if (bmp != null)
+                        {
+                            cw.Width = bmp.Width + 2;
+                            cw.Height = bmp.Height + 26;
+                            bmp.Dispose();
+                        }
+                    }
+                    else
+                    {
+                        cw.Width = 322;
+                        cw.Height = 266;
+                    }
+                }
+                cw.Invalidate();
+            }
+
+            var level = obj as VolumeLevel;
+            if (level != null)
+            {
+                var cw = level;
+                Rectangle r = cw.RestoreRect;
+                if (r != Rectangle.Empty && !tocontents)
+                {
+                    cw.Location = r.Location;
+                    cw.Height = r.Height;
+                    cw.Width = r.Width;
+                }
+                else
+                {
+                    cw.Width = 160;
+                    cw.Height = 40;
+                }
+                cw.Invalidate();
+            }
+
+            var control = obj as FloorPlanControl;
+            if (control != null)
+            {
+                var fp = control;
+                Rectangle r = fp.RestoreRect;
+                if (r != Rectangle.Empty && !tocontents)
+                {
+                    fp.Location = r.Location;
+                    fp.Height = r.Height;
+                    fp.Width = r.Width;
+                    fp.Invalidate();
+                }
+                else
+                {
+                    if (fp.ImgPlan != null)
+                    {
+                        fp.Width = fp.ImgPlan.Width + 2;
+                        fp.Height = fp.ImgPlan.Height + 26;
+                    }
+                    else
+                    {
+                        fp.Width = 322;
+                        fp.Height = 266;
+                    }
                 }
             }
         }

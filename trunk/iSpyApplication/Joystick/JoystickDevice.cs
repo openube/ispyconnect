@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Windows.Forms;
 using SharpDX.DirectInput;
 
 namespace iSpyApplication.Joystick
@@ -44,9 +45,11 @@ namespace iSpyApplication.Joystick
             try
             {
                 var dinput = new DirectInput();
-
-                ret = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).Select(
-                        device => device.InstanceName + "|" + device.InstanceGuid.ToString()).ToArray();
+                var r = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
+                if (r != null)
+                {
+                    ret = r.Select(device => device.InstanceName + "|" + device.InstanceGuid.ToString()).ToArray();
+                }                
             }
             catch (Exception ex)
             {

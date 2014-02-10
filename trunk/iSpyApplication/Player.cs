@@ -22,10 +22,9 @@ namespace iSpyApplication
 
         public int ObjectID = -1;
 
-        private readonly FolderBrowserDialog _fbdSaveTo = new FolderBrowserDialog()
+        private readonly FolderSelectDialog _fbdSaveTo = new FolderSelectDialog()
         {
-            ShowNewFolderButton = true,
-            Description = "Select a folder to copy the file to"
+            Title = "Select a folder to copy the file to"
         };
 
         private void RenderResources()
@@ -246,9 +245,9 @@ namespace iSpyApplication
             {
                 var fi = new FileInfo(_filename);
 
-                if (_fbdSaveTo.ShowDialog(this) == DialogResult.OK)
+                if (_fbdSaveTo.ShowDialog(Handle))
                 {
-                    File.Copy(_filename, _fbdSaveTo.SelectedPath + @"\" + fi.Name);
+                    File.Copy(_filename, _fbdSaveTo.FileName + @"\" + fi.Name);
                 }
             }
             catch (Exception ex)

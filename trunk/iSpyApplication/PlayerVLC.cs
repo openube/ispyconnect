@@ -11,7 +11,6 @@ using Declarations.Media;
 using Declarations.Players;
 using Implementation;
 using iSpyApplication.Controls;
-using System.Collections.Generic;
 
 namespace iSpyApplication
 {
@@ -26,10 +25,9 @@ namespace iSpyApplication
         public int ObjectID = -1;
         public MainForm MF;
 
-        private readonly FolderBrowserDialog _fbdSaveTo = new FolderBrowserDialog()
+        private readonly FolderSelectDialog _fbdSaveTo = new FolderSelectDialog
         {
-            ShowNewFolderButton = true,
-            Description = "Select a folder to copy the file to"
+            Title = "Select a folder to copy the file to"
         };
 
         private void RenderResources()
@@ -58,8 +56,9 @@ namespace iSpyApplication
             
              RenderResources();
              _titleText = titleText;
+             chkRepeatAll.Checked = MainForm.VLCRepeatAll;
 
-        }
+         }
 
         private void Player_Load(object sender, EventArgs e)
         {
@@ -83,6 +82,7 @@ namespace iSpyApplication
         }
 
         private string _filename = "";
+        private object _lock = new object();
 
         private delegate void PlayDelegate(string filename, string titleText);
         public void Play(string filename, string titleText)
@@ -91,17 +91,35 @@ namespace iSpyApplication
                 Invoke(new PlayDelegate(Play), filename, titleText);
             else
             {
+                if (!File.Exists(filename))
+                {
+                    MessageBox.Show(this, "File could not be found:\n" + filename);
+                    return;
+                }
                 _needsSize = _filename != filename;
                 _filename = filename;
-                _mMedia = _mFactory.CreateMedia<IMediaFromFile>(filename);
-                _mMedia.Events.DurationChanged += EventsDurationChanged;
-                _mMedia.Events.StateChanged += EventsStateChanged;
-                _mMedia.Events.ParsedChanged += Events_ParsedChanged;
-                _mPlayer.Open(_mMedia);
-                _mMedia.Parse(true);
+                lock (_lock)
+                {
+                    _mMedia = _mFactory.CreateMedia<IMediaFromFile>(filename);
+                    _mMedia.Events.DurationChanged += EventsDurationChanged;
+                    _mMedia.Events.StateChanged += EventsStateChanged;
+                    _mMedia.Events.ParsedChanged += Events_ParsedChanged;
+                    try
+                    {
+                        _mPlayer.Open(_mMedia);
 
-                _mPlayer.Play();
-                
+                        _mMedia.Parse(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                        MessageBox.Show(this, "Could not open this file:\n" + filename);
+                        return;
+                    }
+
+                    _mPlayer.Play();
+                }
+
                 string[] parts = filename.Split('\\');
                 string fn = parts[parts.Length - 1];
                 FilesFile ff = null;
@@ -255,12 +273,33 @@ namespace iSpyApplication
 
         private void Player_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try {_mPlayer.Stop();} catch
+            lock (_lock)
             {
+                if (_mPlayer != null)
+                {
+                    
+                    try
+                    {
+                        _mPlayer.Stop();
+                    }
+                    catch
+                    {
+                    }
+                }
+                try
+                {
+                    if (_mFactory != null)
+                        _mFactory.Dispose();
+                    if (_mMedia != null)
+                        _mMedia.Dispose();
+                    if (_mPlayer != null)
+                        _mPlayer.Dispose();
+                }
+                catch
+                {
+                    
+                }
             }
-            _mFactory.Dispose();
-            _mMedia.Dispose();
-            _mPlayer.Dispose();
             if (vNav!=null)
                 vNav.ReleaseGraph();
         }
@@ -276,9 +315,9 @@ namespace iSpyApplication
             {
                 var fi = new FileInfo(_filename);
 
-                if (_fbdSaveTo.ShowDialog(this) == DialogResult.OK)
+                if (_fbdSaveTo.ShowDialog(Handle))
                 {
-                    File.Copy(_filename, _fbdSaveTo.SelectedPath + @"\" + fi.Name);
+                    File.Copy(_filename, _fbdSaveTo.FileName + @"\" + fi.Name);
                 }
             }
             catch (Exception ex)
@@ -313,7 +352,10 @@ namespace iSpyApplication
                     {
                         j = i + n;
                         if (lb.Count <= j)
-                            j = 0;
+                        {
+                            //stop at the last movie
+                            return;
+                        }
                         if (j < 0)
                             j = lb.Count - 1;
                         break;
@@ -329,6 +371,11 @@ namespace iSpyApplication
         private void btnPrevious_Click(object sender, EventArgs e)
         {
             Go(-1);
+        }
+
+        private void chkRepeatAll_CheckedChanged(object sender, EventArgs e)
+        {
+            MainForm.VLCRepeatAll = chkRepeatAll.Checked;
         }
     }
 }

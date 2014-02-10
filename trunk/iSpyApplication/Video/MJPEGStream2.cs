@@ -279,7 +279,7 @@ namespace iSpyApplication.Video
                 if (_thread != null)
                 {
                     // check thread status
-                    if (!_thread.Join(0))
+                    if (!_thread.Join(TimeSpan.Zero))
                         return true;
 
                     // the thread is not running, so free resources
@@ -398,7 +398,7 @@ namespace iSpyApplication.Video
                 // wait for thread stop
                 _stopEvent.Set();
                 _thread.Join(MainForm.ThreadKillDelay);
-                if (_thread != null && _thread.IsAlive)
+                if (_thread != null && !_thread.Join(TimeSpan.Zero))
                     _thread.Abort();
                 Free();
             }
@@ -539,7 +539,7 @@ namespace iSpyApplication.Video
                                     //hack for panasonic cameras that redirect on reboot in privacy mode - POST a command to disable privacy
                                     if (DisablePrivacy(request))
                                     {
-                                        _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(3);
+                                        _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(4);
                                         _needsPrivacyEnabled = true;
                                     }
 
@@ -773,39 +773,45 @@ namespace iSpyApplication.Video
                 PlayingFinished(this, res);
             }
         }
-
+        
         private bool DisablePrivacy(HttpWebRequest request)
         {
+            
             string uri = request.RequestUri.AbsoluteUri;
             uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
-
-            var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=0");
-            request2.Method = "GET";
-            request2.ContentType = "application/x-www-form-urlencoded";
-
-
             var res = false;
-            try
+
+            for (int i = 0; i < 5; i++)
             {
-                var resp = (HttpWebResponse)request2.GetResponse();
-                if (resp.StatusCode == HttpStatusCode.OK)
+                var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=0");
+                request2.Method = "GET";
+                request2.ContentType = "application/x-www-form-urlencoded";
+                request2.Timeout = 4000;
+                try
                 {
-                    var str = resp.GetResponseStream();
-                    if (str != null)
+                    var resp = (HttpWebResponse) request2.GetResponse();
+                    if (resp.StatusCode == HttpStatusCode.OK)
                     {
-                        var r = new StreamReader(str, true);
-                        var t = r.ReadToEnd().Trim();
-                        if (t == "Return:0")
+                        var str = resp.GetResponseStream();
+                        if (str != null)
                         {
-                            res = true;
+                            var r = new StreamReader(str, true);
+                            var t = r.ReadToEnd().Trim();
+                            if (t == "Return:0")
+                            {
+                                res = true;
+                                break;
+                            }
                         }
                     }
+                    resp.Close();
+                    
                 }
-                resp.Close();
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                Thread.Sleep(2000);
             }
 
             return res;
@@ -815,34 +821,38 @@ namespace iSpyApplication.Video
         {
             string uri = request.RequestUri.AbsoluteUri;
             uri = uri.Substring(0, uri.IndexOf(request.RequestUri.AbsolutePath, StringComparison.Ordinal));
-
-            var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=1");
-            request2.Method = "GET";
-            request2.ContentType = "application/x-www-form-urlencoded";
-
-
             var res = false;
-            try
+
+            for (int i = 0; i < 5; i++)
             {
-                var resp = (HttpWebResponse)request2.GetResponse();
-                if (resp.StatusCode==HttpStatusCode.OK)
+                var request2 = GenerateRequest(uri + "/Set?Func=Powerdown&Kind=1&Data=1");
+                request2.Method = "GET";
+                request2.ContentType = "application/x-www-form-urlencoded";
+
+                try
                 {
-                    var str = resp.GetResponseStream();
-                    if (str!=null)
+                    var resp = (HttpWebResponse) request2.GetResponse();
+                    if (resp.StatusCode == HttpStatusCode.OK)
                     {
-                        var r = new StreamReader(str, true);
-                        var t = r.ReadToEnd().Trim();
-                        if (t=="Return:0")
+                        var str = resp.GetResponseStream();
+                        if (str != null)
                         {
-                            res = true;
+                            var r = new StreamReader(str, true);
+                            var t = r.ReadToEnd().Trim();
+                            if (t == "Return:0")
+                            {
+                                res = true;
+                                break;
+                            }
                         }
                     }
+                    resp.Close();
                 }
-                resp.Close();
-            }
-            catch (Exception ex)
-            {
-                MainForm.LogExceptionToFile(ex);
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                Thread.Sleep(2000);
             }
 
             return res;

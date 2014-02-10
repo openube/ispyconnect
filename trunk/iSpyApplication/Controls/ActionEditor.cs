@@ -19,6 +19,7 @@ namespace iSpyApplication.Controls
                 "SW|Show Window",
                 "B|Beep",
                 "M|Maximise",
+                "SOO|Switch Object On...",
                 "TA|Trigger Alert On...",
                 "E|Send Email [SUBSCRIBER]",
                 "SMS|Send SMS [SUBSCRIBER]",
@@ -83,8 +84,8 @@ namespace iSpyApplication.Controls
             
             if (Aec != null)
             {
-                if (Aec.entries.Length*AlertEventRow.Height>=flpActions.Height)
-                w = flpActions.Width - vertScrollWidth-2;
+                if (Aec.entries.Length * AlertEventRow.Height >= flpActions.Height)
+                    w = flpActions.Width - vertScrollWidth - 2;
                 foreach (var e in Aec.entries)
                 {
                     var c = new AlertEventRow(e) {Width = w};
@@ -92,7 +93,7 @@ namespace iSpyApplication.Controls
                     c.AlertEntryEdit += CAlertEntryEdit;
                     c.MouseOver += CMouseOver;
                     flpActions.Controls.Add(c);
-                    flpActions.SetFlowBreak(c,true);
+                    flpActions.SetFlowBreak(c, true);
                 }
             }
             if (Aem != null)
@@ -110,7 +111,7 @@ namespace iSpyApplication.Controls
                     flpActions.SetFlowBreak(c, true);
                 }
             }
-            
+
             flpActions.PerformLayout();
             flpActions.HorizontalScroll.Visible = flpActions.HorizontalScroll.Enabled = false;
             
@@ -118,7 +119,7 @@ namespace iSpyApplication.Controls
 
         void CMouseOver(object sender, EventArgs e)
         {
-            foreach(var c in flpActions.Controls)
+            foreach (var c in flpActions.Controls)
             {
                 var o = (AlertEventRow) c;
                 if (o!=sender)
@@ -240,6 +241,7 @@ namespace iSpyApplication.Controls
                     config = new [] {"","","",""};
                     break;
                 case "TA":
+                case "SOO":
                     config = GetParamConfig(GetName(t), out cancel, "Object|Object", param1Val);
                     break;
                 case "E":

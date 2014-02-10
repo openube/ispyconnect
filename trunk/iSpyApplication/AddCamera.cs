@@ -24,11 +24,11 @@ namespace iSpyApplication
 {
     public partial class AddCamera : Form
     {
-        private readonly string[] _alertmodes = new[] {"movement", "nomovement", "objectcount"};
+        private readonly string[] _alertmodes = {"movement", "nomovement", "objectcount"};
 
-        private readonly object[] _detectortypes = new object[] { "Two Frames", "Custom Frame", "Background Modelling", "Two Frames (Color)", "Custom Frame (Color)", "Background Modelling (Color)", "None" };
+        private readonly object[] _detectortypes = { "Two Frames", "Custom Frame", "Background Modelling", "Two Frames (Color)", "Custom Frame (Color)", "Background Modelling (Color)", "None" };
 
-        private readonly object[] _processortypes = new object[] {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
+        private readonly object[] _processortypes = {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
         public CameraWindow CameraControl;
         public bool StartWizard;
@@ -36,6 +36,7 @@ namespace iSpyApplication
         private HSLFilteringForm _filterForm;
         private bool _loaded;
         private ConfigureTripWires _ctw;
+        public MainForm MainClass;
 
 
         public AddCamera()
@@ -259,9 +260,6 @@ namespace iSpyApplication
             rdoNoRecord.Checked = !rdoRecordDetect.Checked && !rdoRecordAlert.Checked;
 
             chkSchedule.Checked = CameraControl.Camobject.schedule.active;
-            //chkFlipX.Checked = CameraControl.Camobject.flipx;
-            //chkFlipY.Checked = CameraControl.Camobject.flipy;
-            //chkRotate90.Checked = CameraControl.Camobject.rotate90;
 
             var feats = Enum.GetNames(typeof(RotateFlipType));
 
@@ -468,7 +466,23 @@ namespace iSpyApplication
             txtEmailOnDisconnect.Text = CameraControl.Camobject.settings.emailondisconnect;
             //chkNotifyDisconnect.Checked = CameraControl.Camobject.settings.notifyondisconnect;
 
+            numAutoOff.Value = CameraControl.Camobject.detector.autooff;
+            LoadMediaDirectories();
+
             _loaded = true;
+        }
+
+        private void LoadMediaDirectories()
+        {
+            ddlMediaDirectory.Items.Clear();
+            foreach (var s in MainForm.Conf.MediaDirectories)
+            {
+                ddlMediaDirectory.Items.Add(new ListItem(s.Entry, s.ID.ToString(CultureInfo.InvariantCulture)));
+                if (s.ID == CameraControl.Camobject.settings.directoryIndex)
+                    ddlMediaDirectory.SelectedItem = ddlMediaDirectory.Items[ddlMediaDirectory.Items.Count - 1];
+            }
+            if (ddlMediaDirectory.SelectedIndex == -1)
+                ddlMediaDirectory.SelectedIndex = 0;
         }
 
         void ActionEditor1LoginRequested(object sender, EventArgs e)
@@ -557,7 +571,7 @@ namespace iSpyApplication
             var s = CameraControl.Camobject.ptzschedule.entries.ToList().OrderBy(p => p.time).ToList();
             foreach (var ptzs in s)
             {
-                lbPTZSchedule.Items.Add(ptzs.time.ToString("hh:mm:ss tt")+" " + ptzs.command);
+                lbPTZSchedule.Items.Add(ptzs.time.ToString("HH:mm:ss tt")+" " + ptzs.command);
             }
         }
 
@@ -1064,34 +1078,74 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.storagemanagement.maxage = (int) numMaxAge.Value;
                 CameraControl.Camobject.settings.storagemanagement.maxsize = (int) numMaxFolderSize.Value;
 
+                CameraControl.Camobject.detector.autooff = (int)numAutoOff.Value;
+                
+
                 CameraControl.Camobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
                 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
 
-                if (CameraControl.Camobject.directory != txtDirectory.Text)
+                var md = (ListItem)ddlMediaDirectory.SelectedItem;
+                var newind = Convert.ToInt32(md.Value);
+
+                bool needsFileRefresh = (CameraControl.Camobject.directory != txtDirectory.Text ||
+                                         CameraControl.Camobject.settings.directoryIndex != newind);
+
+                CameraControl.Camobject.settings.directoryIndex = newind;
+
+
+
+                if (CameraControl.Camobject.directory != txtDirectory.Text || IsNew)
                 {
-                    string path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\";
+                    var dir = MainForm.GetMediaDirectory(2, CameraControl.Camobject.id);
+                    string path = dir + "video\\" + txtDirectory.Text + "\\";
                     try
                     {
                         if (!Directory.Exists(path))
-                            Directory.CreateDirectory(path);
+                        {
+                            if (IsNew)
+                                Directory.CreateDirectory(path);
+                            else
+                                Directory.Move(dir + "video\\" + CameraControl.Camobject.directory, path);
+                        }
+                        else
+                        {
+                            switch (
+                                MessageBox.Show(this,
+                                    "Directory " + txtDirectory.Text + " already exists. Delete existing contents?",
+                                    "Confirm", MessageBoxButtons.YesNoCancel))
+                            {
+                                case DialogResult.Yes:
+                                    Directory.Delete(path,true);
+                                    Directory.Move(dir + "video\\" + CameraControl.Camobject.directory, path);
+                                    break;
+                                case DialogResult.Cancel:
+                                    tcCamera.SelectedIndex = 0;
+                                    return;
+                                case DialogResult.No:
+                                    break;
+                            }
+                        }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        MessageBox.Show(this,"Directory is invalid please specify a unique string instead eg: " + MainForm.RandomString(5));
+                        MessageBox.Show(this,"Directory is invalid please specify a unique string instead eg: " + MainForm.RandomString(5)+Environment.NewLine+ex.Message);
                         tcCamera.SelectedIndex = 0;
                         return;
                     }
-                    path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\thumbs\\";
-
-                    if (!Directory.Exists(path))
+                    if (!Directory.Exists(path + "thumbs\\"))
                     {
-                        Directory.CreateDirectory(path);
+                        Directory.CreateDirectory(path + "thumbs\\");
+                    }
+                    if (!Directory.Exists(path + "grabs\\"))
+                    {
+                        Directory.CreateDirectory(path + "grabs\\");
                     }
                 }
 
                 CameraControl.Camobject.directory = txtDirectory.Text;
+                
 
                 CameraControl.Camobject.schedule.active = chkSchedule.Checked;
                 CameraControl.Camobject.settings.active = chkActive.Checked;
@@ -1178,6 +1232,8 @@ namespace iSpyApplication
                 
                 CameraControl.SetVideoSize();
 
+                
+
 
                 if (CameraControl != null && CameraControl.Camera != null && CameraControl.Camera.VideoSource != null)
                 {
@@ -1217,6 +1273,12 @@ namespace iSpyApplication
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
                 IsNew = false;
+                if (needsFileRefresh)
+                {
+                    CameraControl.GenerateFileList();
+                    MainForm.NeedsMediaRebuild = true;
+                    MainForm.NeedsMediaRefresh = DateTime.Now;
+                }
                 Close();
             }
         }
@@ -1283,7 +1345,7 @@ namespace iSpyApplication
                     return;
                 }
                 if (CameraControl.VolumeControl!=null)
-                    ((MainForm)Owner).RemoveMicrophone(CameraControl.VolumeControl, false);
+                    MainClass.RemoveMicrophone(CameraControl.VolumeControl, false);
                     
             }
             if (CameraControl.Camera != null)
@@ -1649,7 +1711,7 @@ namespace iSpyApplication
 
         private void Login()
         {
-            ((MainForm) Owner).Connect(MainForm.Website+"/subscribe.aspx", false);
+            MainClass.Connect(MainForm.Website + "/subscribe.aspx", false);
             gpbSubscriber2.Enabled = txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
 
@@ -1898,30 +1960,6 @@ namespace iSpyApplication
         {
         }
 
-        //private void ChkUploadYouTubeCheckedChanged(object sender, EventArgs e)
-        //{
-        //    if (chkUploadYouTube.Checked)
-        //    {
-        //        if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
-        //        {
-        //            if (
-        //                MessageBox.Show(LocRm.GetString("Validate_Camera_YouTubeDetails"), LocRm.GetString("Confirm"),
-        //                                MessageBoxButtons.OKCancel) == DialogResult.OK)
-        //            {
-        //                string lang = MainForm.Conf.Language;
-        //                ((MainForm) Owner).ShowSettings(3);
-        //                if (lang != MainForm.Conf.Language)
-        //                    RenderResources();
-        //            }
-        //        }
-        //    }
-
-        //    if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
-        //    {
-        //        chkUploadYouTube.Checked = false;
-        //    }
-        //}
-
         private void LinkLabel6LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var d = new downloader
@@ -1945,7 +1983,7 @@ namespace iSpyApplication
         private void LinkLabel7LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string lang = MainForm.Conf.Language;
-            ((MainForm) Owner).ShowSettings(3);
+            MainClass.ShowSettings(3,this);
             if (lang != MainForm.Conf.Language)
                 RenderResources();
         }
@@ -2480,10 +2518,11 @@ namespace iSpyApplication
 
         private void linkLabel11_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            string path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\";
+            var dir = MainForm.GetMediaDirectory(2, CameraControl.Camobject.id);
+            string path = dir + "video\\" + txtDirectory.Text + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
-            path = MainForm.Conf.MediaDirectory + "video\\" + txtDirectory.Text + "\\grabs\\";
+            path = dir + "video\\" + txtDirectory.Text + "\\grabs\\";
 
             if (!Directory.Exists(path))
             {
@@ -2582,7 +2621,7 @@ namespace iSpyApplication
         private void linkLabel13_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string lang = MainForm.Conf.Language;
-            ((MainForm)Owner).ShowSettings(6);
+            MainClass.ShowSettings(6,this);
             if (lang != MainForm.Conf.Language)
                 RenderResources();
         }
@@ -2646,7 +2685,7 @@ namespace iSpyApplication
             {
                 if (CameraControl.VolumeControl!=null)
                 {
-                   ((MainForm)Owner).RemoveMicrophone(CameraControl.VolumeControl, false);
+                    MainClass.RemoveMicrophone(CameraControl.VolumeControl, false);
                 }
             }
         }
@@ -2739,7 +2778,7 @@ namespace iSpyApplication
             CameraControl.Camobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
             CameraControl.Camobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
 
-            ((MainForm)Owner).RunStorageManagement();
+            MainClass.RunStorageManagement();
         }
 
         private void rdoMotion_CheckedChanged(object sender, EventArgs e)
@@ -2795,6 +2834,19 @@ namespace iSpyApplication
                     
                 }
             }           
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MainClass.ShowSettings(2, this);
+            LoadMediaDirectories();
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            var vsa = new VideoSourceAdvanced { Camobject = CameraControl.Camobject };
+            vsa.ShowDialog(this);
+            vsa.Dispose();
         }
 
     }

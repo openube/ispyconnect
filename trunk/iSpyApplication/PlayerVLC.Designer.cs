@@ -44,12 +44,12 @@ namespace iSpyApplication
             this.btnPlayPause = new System.Windows.Forms.Button();
             this.btnPrevious = new System.Windows.Forms.Button();
             this.btnNext = new System.Windows.Forms.Button();
+            this.chkRepeatAll = new System.Windows.Forms.CheckBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkRepeatAll = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -194,6 +194,20 @@ namespace iSpyApplication
             this.btnNext.UseVisualStyleBackColor = true;
             this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
             // 
+            // chkRepeatAll
+            // 
+            this.chkRepeatAll.AutoSize = true;
+            this.chkRepeatAll.Checked = true;
+            this.chkRepeatAll.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkRepeatAll.Location = new System.Drawing.Point(339, 6);
+            this.chkRepeatAll.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            this.chkRepeatAll.Name = "chkRepeatAll";
+            this.chkRepeatAll.Size = new System.Drawing.Size(69, 17);
+            this.chkRepeatAll.TabIndex = 25;
+            this.chkRepeatAll.Text = "repeat all";
+            this.chkRepeatAll.UseVisualStyleBackColor = true;
+            this.chkRepeatAll.CheckedChanged += new System.EventHandler(this.chkRepeatAll_CheckedChanged);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -226,19 +240,6 @@ namespace iSpyApplication
             this.openFolderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openFolderToolStripMenuItem.Text = "&Open Location";
             this.openFolderToolStripMenuItem.Click += new System.EventHandler(this.openFolderToolStripMenuItem_Click);
-            // 
-            // chkRepeatAll
-            // 
-            this.chkRepeatAll.AutoSize = true;
-            this.chkRepeatAll.Checked = true;
-            this.chkRepeatAll.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRepeatAll.Location = new System.Drawing.Point(339, 6);
-            this.chkRepeatAll.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
-            this.chkRepeatAll.Name = "chkRepeatAll";
-            this.chkRepeatAll.Size = new System.Drawing.Size(69, 17);
-            this.chkRepeatAll.TabIndex = 25;
-            this.chkRepeatAll.Text = "repeat all";
-            this.chkRepeatAll.UseVisualStyleBackColor = true;
             // 
             // PlayerVLC
             // 

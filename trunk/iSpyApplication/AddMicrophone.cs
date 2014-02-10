@@ -14,6 +14,8 @@ namespace iSpyApplication
     {
         public VolumeLevel VolumeLevel;
         private bool _loaded;
+        public bool IsNew;
+        public MainForm MainClass;
 
         public AddMicrophone()
         {
@@ -132,15 +134,6 @@ namespace iSpyApplication
             numMaxAge.Value = VolumeLevel.Micobject.settings.storagemanagement.maxage;
             numMaxFolderSize.Value = VolumeLevel.Micobject.settings.storagemanagement.maxsize;
 
-            //try
-            //{
-            //    tbGain.Value = Convert.ToInt32(VolumeLevel.Micobject.settings.gain*100f);
-            //}
-            //catch (Exception ex)
-            //{
-            //    tbGain.Value = 100;
-            //}
-
             ddlCopyFrom.Items.Clear();
             ddlCopyFrom.Items.Add(new ListItem(LocRm.GetString("CopyFrom"), "-1"));
             foreach (objectsMicrophone c in MainForm.Microphones)
@@ -204,6 +197,8 @@ namespace iSpyApplication
 
             txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
             txtEmailOnDisconnect.Text = VolumeLevel.Micobject.settings.emailondisconnect;
+
+            LoadMediaDirectories();
 
             _loaded = true;
 
@@ -405,12 +400,56 @@ namespace iSpyApplication
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
 
-                if (VolumeLevel.Micobject.directory != txtDirectory.Text)
+                var md = (ListItem)ddlMediaDirectory.SelectedItem;
+                var newind = Convert.ToInt32(md.Value);
+
+                bool needsFileRefresh = (VolumeLevel.Micobject.directory != txtDirectory.Text ||
+                                         VolumeLevel.Micobject.settings.directoryIndex != newind);
+
+                VolumeLevel.Micobject.settings.directoryIndex = newind;
+
+                if (VolumeLevel.Micobject.directory != txtDirectory.Text || IsNew)
                 {
-                    string path = MainForm.Conf.MediaDirectory + "audio\\" + txtDirectory.Text + "\\";
-                    if (!Directory.Exists(path))
-                        Directory.CreateDirectory(path);
+                    var dir = MainForm.GetMediaDirectory(2, VolumeLevel.Micobject.id);
+                    string path = dir + "audio\\" + txtDirectory.Text + "\\";
+                    try
+                    {
+
+                        if (!Directory.Exists(path))
+                        {
+                            if (IsNew)
+                                Directory.CreateDirectory(path);
+                            else
+                                Directory.Move(dir + "audio\\" + VolumeLevel.Micobject.directory, path);
+                        }
+                        else
+                        {
+                            switch (MessageBox.Show(this, "Directory " + txtDirectory.Text + " already exists. Delete existing contents?", "Confirm", MessageBoxButtons.YesNoCancel))
+                            {
+                                case DialogResult.Yes:
+                                    Directory.Delete(path, true);
+                                    Directory.Move(dir + "audio\\" + VolumeLevel.Micobject.directory, path);
+                                    break;
+                                case DialogResult.Cancel:
+                                    tcMicrophone.SelectedIndex = 0;
+                                    return;
+                                case DialogResult.No:
+                                    break;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this, "Directory is invalid please specify a unique string instead eg: " + MainForm.RandomString(5) + Environment.NewLine + ex.Message);
+                        tcMicrophone.SelectedIndex = 0;
+                        return;
+                    }
                 }
+
+                
+                VolumeLevel.Micobject.directory = txtDirectory.Text;
+                
+
 
                 VolumeLevel.Micobject.directory = txtDirectory.Text;
                 VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
@@ -419,8 +458,16 @@ namespace iSpyApplication
                 VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
                 VolumeLevel.Micobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
 
+
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
+
+                if (needsFileRefresh)
+                {
+                    VolumeLevel.GenerateFileList();
+                    MainForm.NeedsMediaRebuild = true;
+                    MainForm.NeedsMediaRefresh = DateTime.Now;
+                }
                 Close();
             }
         }
@@ -594,7 +641,7 @@ namespace iSpyApplication
 
         private void Login()
         {
-            ((MainForm) Owner).Connect(MainForm.Website+"/subscribe.aspx", false);
+            MainClass.Connect(MainForm.Website + "/subscribe.aspx", false);
              txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
 
@@ -797,12 +844,31 @@ namespace iSpyApplication
             VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
             VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
 
-            ((MainForm)Owner).RunStorageManagement();
+            MainClass.RunStorageManagement();
         }
 
         private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MainClass.ShowSettings(2, this);
+            LoadMediaDirectories();
+        }
+
+        private void LoadMediaDirectories()
+        {
+            ddlMediaDirectory.Items.Clear();
+            foreach (var s in MainForm.Conf.MediaDirectories)
+            {
+                ddlMediaDirectory.Items.Add(new ListItem(s.Entry, s.ID.ToString(CultureInfo.InvariantCulture)));
+                if (s.ID == VolumeLevel.Micobject.settings.directoryIndex)
+                    ddlMediaDirectory.SelectedItem = ddlMediaDirectory.Items[ddlMediaDirectory.Items.Count - 1];
+            }
+            if (ddlMediaDirectory.SelectedIndex == -1)
+                ddlMediaDirectory.SelectedIndex = 0;
         }
     }
 }

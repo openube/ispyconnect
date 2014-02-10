@@ -11,14 +11,15 @@ namespace iSpyApplication.Controls
         /// </summary>
         private void InitializeComponent()
         {
+            ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             this.SuspendLayout();
             // 
-            // VolumeLevelFinal
+            // FloorPlanControl
             // 
             this.BackColor = System.Drawing.Color.Black;
-            this.MinimumSize = new System.Drawing.Size(200, 40);
+            this.MinimumSize = new System.Drawing.Size(120, 50);
             this.Size = new System.Drawing.Size(200, 40);
-            this.Resize += new System.EventHandler(FloorPlanResize);
+            ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
             this.ResumeLayout(false);
 
         }

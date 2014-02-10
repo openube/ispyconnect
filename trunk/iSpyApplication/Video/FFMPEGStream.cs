@@ -128,9 +128,8 @@ namespace iSpyApplication.Video
                 return frames;
             }
         }
+        private readonly object _threadLock = new object();
 
-
-        private volatile bool _isrunning;
         /// <summary>
         /// State of the video source.
         /// </summary>
@@ -141,7 +140,18 @@ namespace iSpyApplication.Video
         {
              get
             {
-                return _isrunning;
+                return ThreadAlive;
+            }
+        }
+
+        private bool ThreadAlive
+        {
+            get
+            {
+                lock (_threadLock)
+                {
+                    return _thread != null && !_thread.Join(TimeSpan.Zero);
+                }
             }
         }
 
@@ -160,15 +170,18 @@ namespace iSpyApplication.Video
         {
              if (IsRunning) return;
 
-             Debug.WriteLine("Starting "+_source);
+             //Debug.WriteLine("Starting "+_source);
             _framesReceived = 0;
 
             // create events
             _stopEvent = new ManualResetEvent(false);
 
             // create and start new thread
-            _thread = new Thread(FfmpegListener) { Name = "ffmpeg " + _source };
-            _thread.Start();
+            lock (_threadLock)
+            {
+                _thread = new Thread(FfmpegListener) {Name = "ffmpeg " + _source};
+                _thread.Start();
+            }
 
             Seekable = IsFileSource;
             _initialSeek = -1;
@@ -331,7 +344,6 @@ namespace iSpyApplication.Video
 
         private void FfmpegListener()
         {
-            _isrunning = true;
             _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
             _vfr = null;
             bool open = false;
@@ -516,9 +528,6 @@ namespace iSpyApplication.Video
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
             
-            
-
-            _isrunning = false;
         }
 
         private DateTime _lastFrame = DateTime.MinValue;
@@ -564,9 +573,10 @@ namespace iSpyApplication.Video
                     break;
                 case 2:
                     _lastFrame = DateTime.Now;
-                    var bmp = frame as Bitmap;
-                    if (bmp != null)
+                    
+                    if (frame != null)
                     {
+                        var bmp = frame as Bitmap;
                         if (dtAnalyse == DateTime.MinValue)
                         {
                             dtAnalyse = DateTime.Now.AddSeconds(analyseInterval);
@@ -778,22 +788,19 @@ namespace iSpyApplication.Video
         {
             if (IsRunning && !_stopping)
             {
-                _stopping = true;
+                _stopping = true;               
+                _stopEvent.Set();
 
-                if (_thread != null && _thread.IsAlive)
+                while (IsRunning)
                 {
-                    _stopEvent.Set();
-
-                    while (_thread != null && _thread.IsAlive)
+                    try
                     {
-                        try
-                        {
-                            _thread.Join(50);
-                        }
-                        catch { }
-                        Application.DoEvents();
+                        _thread.Join(50);
                     }
-                }            
+                    catch { }
+                    Application.DoEvents();
+                }
+                            
                 
                 Listening = false;
 

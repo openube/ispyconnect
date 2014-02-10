@@ -180,11 +180,14 @@ namespace iSpyApplication.Audio.streams
                 throw new ArgumentException("Audio source is not specified.");
 
             _stopEvent = new ManualResetEvent(false);
-            _thread = new Thread(FfmpegListener)
+            lock (_threadLock)
             {
-                Name = "FFMPEG Audio Receiver (" + _source + ")"
-            };
-            _thread.Start();
+                _thread = new Thread(FfmpegListener)
+                          {
+                              Name = "FFMPEG Audio Receiver (" + _source + ")"
+                          };
+                _thread.Start();
+            }
             //_stopped = false;
 
                         
@@ -390,6 +393,7 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
+        private readonly object _threadLock = new object();
         private bool _stopping;
         /// <summary>
         /// Stop audio source.
@@ -403,11 +407,12 @@ namespace iSpyApplication.Audio.streams
             if (IsRunning && !_stopping)
             {
                 _stopping = true;
-                if (_thread != null && _thread.IsAlive)
+
+                if (ThreadAlive)
                 {
                     _stopEvent.Set();
 
-                    while (_thread != null && _thread.IsAlive)
+                    while (ThreadAlive)
                     {
                         try
                         {
@@ -422,6 +427,17 @@ namespace iSpyApplication.Audio.streams
 
                 _thread = null;
                 _stopping = false;
+            }
+        }
+
+        private bool ThreadAlive
+        {
+            get
+            {
+                lock (_threadLock)
+                {
+                    return _thread != null && !_thread.Join(TimeSpan.Zero);
+                }
             }
         }
 
