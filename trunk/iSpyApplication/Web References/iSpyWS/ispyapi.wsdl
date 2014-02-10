@@ -49,6 +49,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="computerName" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="bIPv4" type="s:boolean" />
             <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="affiliateID" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -56,29 +57,6 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="ConnectResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Connect2">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
-            <s:element minOccurs="0" maxOccurs="1" name="identifier" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="tryLoopBack" type="s:boolean" />
-            <s:element minOccurs="0" maxOccurs="1" name="version" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="computerName" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="bIPv4" type="s:boolean" />
-            <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="affiliateID" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Connect2Response">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="Connect2Result" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -124,56 +102,6 @@
       <s:element name="PingAlive">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="bIPv4" type="s:boolean" />
-            <s:element minOccurs="0" maxOccurs="1" name="ipAddress" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAliveResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="PingAliveResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAlive2">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAlive2Response">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="PingAlive2Result" type="tns:ArrayOfString" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAlive3">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
-            <s:element minOccurs="1" maxOccurs="1" name="ipv4" type="s:boolean" />
-            <s:element minOccurs="0" maxOccurs="1" name="ipexternal" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAlive3Response">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="PingAlive3Result" type="tns:ArrayOfString" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="PingAlive4">
-        <s:complexType>
-          <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
             <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
@@ -183,10 +111,10 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="PingAlive4Response">
+      <s:element name="PingAliveResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="PingAlive4Result" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="PingAliveResult" type="tns:ArrayOfString" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -299,43 +227,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="SendFrameGrab">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="emailAddress" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="subject" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="body" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="imageData" type="s:base64Binary" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SendFrameGrabResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SendFrameGrabResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SendMMS">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="smsNumber" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="imageData" type="s:base64Binary" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SendMMSResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SendMMSResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="SendTweet">
         <s:complexType>
           <s:sequence>
@@ -386,12 +277,6 @@
   <wsdl:message name="ConnectSoapOut">
     <wsdl:part name="parameters" element="tns:ConnectResponse" />
   </wsdl:message>
-  <wsdl:message name="Connect2SoapIn">
-    <wsdl:part name="parameters" element="tns:Connect2" />
-  </wsdl:message>
-  <wsdl:message name="Connect2SoapOut">
-    <wsdl:part name="parameters" element="tns:Connect2Response" />
-  </wsdl:message>
   <wsdl:message name="AuthoriseSoapIn">
     <wsdl:part name="parameters" element="tns:Authorise" />
   </wsdl:message>
@@ -415,24 +300,6 @@
   </wsdl:message>
   <wsdl:message name="PingAliveSoapOut">
     <wsdl:part name="parameters" element="tns:PingAliveResponse" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive2SoapIn">
-    <wsdl:part name="parameters" element="tns:PingAlive2" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive2SoapOut">
-    <wsdl:part name="parameters" element="tns:PingAlive2Response" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive3SoapIn">
-    <wsdl:part name="parameters" element="tns:PingAlive3" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive3SoapOut">
-    <wsdl:part name="parameters" element="tns:PingAlive3Response" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive4SoapIn">
-    <wsdl:part name="parameters" element="tns:PingAlive4" />
-  </wsdl:message>
-  <wsdl:message name="PingAlive4SoapOut">
-    <wsdl:part name="parameters" element="tns:PingAlive4Response" />
   </wsdl:message>
   <wsdl:message name="DisconnectSoapIn">
     <wsdl:part name="parameters" element="tns:Disconnect" />
@@ -470,18 +337,6 @@
   <wsdl:message name="SendSMSSoapOut">
     <wsdl:part name="parameters" element="tns:SendSMSResponse" />
   </wsdl:message>
-  <wsdl:message name="SendFrameGrabSoapIn">
-    <wsdl:part name="parameters" element="tns:SendFrameGrab" />
-  </wsdl:message>
-  <wsdl:message name="SendFrameGrabSoapOut">
-    <wsdl:part name="parameters" element="tns:SendFrameGrabResponse" />
-  </wsdl:message>
-  <wsdl:message name="SendMMSSoapIn">
-    <wsdl:part name="parameters" element="tns:SendMMS" />
-  </wsdl:message>
-  <wsdl:message name="SendMMSSoapOut">
-    <wsdl:part name="parameters" element="tns:SendMMSResponse" />
-  </wsdl:message>
   <wsdl:message name="SendTweetSoapIn">
     <wsdl:part name="parameters" element="tns:SendTweet" />
   </wsdl:message>
@@ -494,7 +349,7 @@
   <wsdl:message name="ProductLatestVersionGetSoapOut">
     <wsdl:part name="parameters" element="tns:ProductLatestVersionGetResponse" />
   </wsdl:message>
-  <wsdl:portType name="iSpySecureSoap">
+  <wsdl:portType name="iSpyAPISoap">
     <wsdl:operation name="TestConnection">
       <wsdl:input message="tns:TestConnectionSoapIn" />
       <wsdl:output message="tns:TestConnectionSoapOut" />
@@ -506,10 +361,6 @@
     <wsdl:operation name="Connect">
       <wsdl:input message="tns:ConnectSoapIn" />
       <wsdl:output message="tns:ConnectSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="Connect2">
-      <wsdl:input message="tns:Connect2SoapIn" />
-      <wsdl:output message="tns:Connect2SoapOut" />
     </wsdl:operation>
     <wsdl:operation name="Authorise">
       <wsdl:input message="tns:AuthoriseSoapIn" />
@@ -526,18 +377,6 @@
     <wsdl:operation name="PingAlive">
       <wsdl:input message="tns:PingAliveSoapIn" />
       <wsdl:output message="tns:PingAliveSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive2">
-      <wsdl:input message="tns:PingAlive2SoapIn" />
-      <wsdl:output message="tns:PingAlive2SoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive3">
-      <wsdl:input message="tns:PingAlive3SoapIn" />
-      <wsdl:output message="tns:PingAlive3SoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive4">
-      <wsdl:input message="tns:PingAlive4SoapIn" />
-      <wsdl:output message="tns:PingAlive4SoapOut" />
     </wsdl:operation>
     <wsdl:operation name="Disconnect">
       <wsdl:input message="tns:DisconnectSoapIn" />
@@ -563,14 +402,6 @@
       <wsdl:input message="tns:SendSMSSoapIn" />
       <wsdl:output message="tns:SendSMSSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="SendFrameGrab">
-      <wsdl:input message="tns:SendFrameGrabSoapIn" />
-      <wsdl:output message="tns:SendFrameGrabSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SendMMS">
-      <wsdl:input message="tns:SendMMSSoapIn" />
-      <wsdl:output message="tns:SendMMSSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="SendTweet">
       <wsdl:input message="tns:SendTweetSoapIn" />
       <wsdl:output message="tns:SendTweetSoapOut" />
@@ -580,7 +411,7 @@
       <wsdl:output message="tns:ProductLatestVersionGetSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
-  <wsdl:binding name="iSpySecureSoap" type="tns:iSpySecureSoap">
+  <wsdl:binding name="iSpyAPISoap" type="tns:iSpyAPISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="TestConnection">
       <soap:operation soapAction="http://ispyconnect.com/TestConnection" style="document" />
@@ -602,15 +433,6 @@
     </wsdl:operation>
     <wsdl:operation name="Connect">
       <soap:operation soapAction="http://ispyconnect.com/Connect" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="Connect2">
-      <soap:operation soapAction="http://ispyconnect.com/Connect2" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -647,33 +469,6 @@
     </wsdl:operation>
     <wsdl:operation name="PingAlive">
       <soap:operation soapAction="http://ispyconnect.com/PingAlive" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive2">
-      <soap:operation soapAction="http://ispyconnect.com/PingAlive2" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive3">
-      <soap:operation soapAction="http://ispyconnect.com/PingAlive3" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive4">
-      <soap:operation soapAction="http://ispyconnect.com/PingAlive4" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -735,24 +530,6 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SendFrameGrab">
-      <soap:operation soapAction="http://ispyconnect.com/SendFrameGrab" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendMMS">
-      <soap:operation soapAction="http://ispyconnect.com/SendMMS" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="SendTweet">
       <soap:operation soapAction="http://ispyconnect.com/SendTweet" style="document" />
       <wsdl:input>
@@ -772,7 +549,7 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
-  <wsdl:binding name="iSpySecureSoap12" type="tns:iSpySecureSoap">
+  <wsdl:binding name="iSpyAPISoap12" type="tns:iSpyAPISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="TestConnection">
       <soap12:operation soapAction="http://ispyconnect.com/TestConnection" style="document" />
@@ -794,15 +571,6 @@
     </wsdl:operation>
     <wsdl:operation name="Connect">
       <soap12:operation soapAction="http://ispyconnect.com/Connect" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="Connect2">
-      <soap12:operation soapAction="http://ispyconnect.com/Connect2" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -839,33 +607,6 @@
     </wsdl:operation>
     <wsdl:operation name="PingAlive">
       <soap12:operation soapAction="http://ispyconnect.com/PingAlive" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive2">
-      <soap12:operation soapAction="http://ispyconnect.com/PingAlive2" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive3">
-      <soap12:operation soapAction="http://ispyconnect.com/PingAlive3" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="PingAlive4">
-      <soap12:operation soapAction="http://ispyconnect.com/PingAlive4" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -927,24 +668,6 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="SendFrameGrab">
-      <soap12:operation soapAction="http://ispyconnect.com/SendFrameGrab" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendMMS">
-      <soap12:operation soapAction="http://ispyconnect.com/SendMMS" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="SendTweet">
       <soap12:operation soapAction="http://ispyconnect.com/SendTweet" style="document" />
       <wsdl:input>
@@ -964,12 +687,12 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
-  <wsdl:service name="iSpySecure">
-    <wsdl:port name="iSpySecureSoap" binding="tns:iSpySecureSoap">
-      <soap:address location="https://www.ispyconnect.com/webservices/ispysecure.asmx" />
+  <wsdl:service name="iSpyAPI">
+    <wsdl:port name="iSpyAPISoap" binding="tns:iSpyAPISoap">
+      <soap:address location="https://www.ispyconnect.com/webservices/ispyapi.asmx" />
     </wsdl:port>
-    <wsdl:port name="iSpySecureSoap12" binding="tns:iSpySecureSoap12">
-      <soap12:address location="https://www.ispyconnect.com/webservices/ispysecure.asmx" />
+    <wsdl:port name="iSpyAPISoap12" binding="tns:iSpyAPISoap12">
+      <soap12:address location="https://www.ispyconnect.com/webservices/ispyapi.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
