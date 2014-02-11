@@ -81,6 +81,7 @@ namespace iSpyApplication
             this.flowLayoutPanel16 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAdvanced = new System.Windows.Forms.Button();
             this.btnCrossbar = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.gbZones = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -378,7 +379,6 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.button9 = new System.Windows.Forms.Button();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -1107,6 +1107,7 @@ namespace iSpyApplication
             // 
             // btnAdvanced
             // 
+            this.btnAdvanced.AutoSize = true;
             this.btnAdvanced.Location = new System.Drawing.Point(44, 6);
             this.btnAdvanced.Margin = new System.Windows.Forms.Padding(6);
             this.btnAdvanced.Name = "btnAdvanced";
@@ -1118,6 +1119,7 @@ namespace iSpyApplication
             // 
             // btnCrossbar
             // 
+            this.btnCrossbar.AutoSize = true;
             this.btnCrossbar.Location = new System.Drawing.Point(131, 6);
             this.btnCrossbar.Margin = new System.Windows.Forms.Padding(6);
             this.btnCrossbar.Name = "btnCrossbar";
@@ -1126,6 +1128,18 @@ namespace iSpyApplication
             this.btnCrossbar.Text = "Inputs";
             this.btnCrossbar.UseVisualStyleBackColor = true;
             this.btnCrossbar.Click += new System.EventHandler(this.btnCrossbar_Click);
+            // 
+            // button9
+            // 
+            this.button9.AutoSize = true;
+            this.button9.Location = new System.Drawing.Point(218, 6);
+            this.button9.Margin = new System.Windows.Forms.Padding(6);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(75, 23);
+            this.button9.TabIndex = 21;
+            this.button9.Text = "Options";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // tabPage3
             // 
@@ -4960,17 +4974,6 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Size = new System.Drawing.Size(437, 41);
             this.flowLayoutPanel3.TabIndex = 48;
-            // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(218, 6);
-            this.button9.Margin = new System.Windows.Forms.Padding(6);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(75, 23);
-            this.button9.TabIndex = 21;
-            this.button9.Text = "Options";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // AddCamera
             // 

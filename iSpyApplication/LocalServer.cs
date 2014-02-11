@@ -1827,8 +1827,10 @@ namespace iSpyApplication
                         FloorPlanControl fpc = _parent.GetFloorPlan(ofp.id);
                         if (fpc != null && fpc.ImgPlan != null)
                         {
-                            temp += ofp.id + "," + fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + "," +
-                                    fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + "," +
+                            var lat = fpc.LastAlertTimestamp;
+                            var lrt = fpc.LastRefreshTimestamp;
+                            temp += ofp.id + "," + lat.ToString(CultureInfo.InvariantCulture) + "," +
+                                    lrt.ToString(CultureInfo.InvariantCulture) + "," +
                                     fpc.LastOid + "," + fpc.LastOtid + "|";
                         }
                     }
@@ -1843,9 +1845,11 @@ namespace iSpyApplication
                             FloorPlanControl fpc = _parent.GetFloorPlan(ofp.id);
                             if (fpc != null && fpc.ImgPlan != null)
                             {
+                                var lat = fpc.LastAlertTimestamp;
+                                var lrt = fpc.LastRefreshTimestamp;
                                 cfg += "{oid:" + ofp.id + ",alertTimestamp:" +
-                                       fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) +
-                                       ",refreshTimestamp:" + fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) +
+                                       lat.ToString(CultureInfo.InvariantCulture) +
+                                       ",refreshTimestamp:" + lrt.ToString(CultureInfo.InvariantCulture) +
                                        ",last_oid:" + fpc.LastOid +
                                        ",last_otid:" + fpc.LastOtid + "},";
                             }
@@ -1884,10 +1888,13 @@ namespace iSpyApplication
                             FloorPlanControl fpc = _parent.GetFloorPlan(ofp.id);
                             if (fpc != null && fpc.ImgPlan != null)
                             {
+                                var lat = fpc.LastAlertTimestamp;
+                                var lrt = fpc.LastRefreshTimestamp;
+
                                 cfg += "{oid: " + ofp.id + ", name: \"" +
                                        ofp.name.Replace("\"", "") + "\", refreshTimestamp: " +
-                                       fpc.LastRefreshTimestamp.ToString(CultureInfo.InvariantCulture) + ", alertTimestamp: " +
-                                       fpc.LastAlertTimestamp.ToString(CultureInfo.InvariantCulture) + ", width:" +
+                                       lrt.ToString(CultureInfo.InvariantCulture) + ", alertTimestamp: " +
+                                       lat.ToString(CultureInfo.InvariantCulture) + ", width:" +
                                        fpc.ImageWidth + ", height:" + fpc.ImageHeight + ", groups:\"" +
                                        ofp.accessgroups.Replace("\n", " ").Replace("\"", "") + "\",areas:[";
 
@@ -2552,22 +2559,26 @@ namespace iSpyApplication
                                 VolumeLevel vl = _parent.GetVolumeLevel(oid);
                                 if (vl != null)
                                 {
+                                    var ie = vl.IsEnabled;
+                                    var fr = vl.ForcedRecording;
                                     cfg = "ot: 1, oid:" + oid + ", port: " + MainForm.Conf.ServerPort + ", online: " +
-                                          vl.IsEnabled.ToString().ToLower() + ",recording: " +
-                                          vl.ForcedRecording.ToString().ToLower() + ", width:320, height:40";
+                                          ie.ToString().ToLower() + ",recording: " +
+                                          fr.ToString().ToLower() + ", width:320, height:40";
                                 }
                                 break;
                             case 2:
                                 CameraWindow cw = _parent.GetCameraWindow(oid);
                                 if (cw != null)
                                 {
+                                    var fr = cw.ForcedRecording;
+                                    var en = cw.IsEnabled;
                                     string[] res = cw.Camobject.resolution.Split('x');
                                     string micpairid = "-1";
                                     if (cw.VolumeControl != null)
                                         micpairid = cw.VolumeControl.Micobject.id.ToString(CultureInfo.InvariantCulture);
                                     cfg = "ot: 2, oid:" + oid + ", micpairid: " + micpairid + ", port: " +
-                                          MainForm.Conf.ServerPort + ",online: " + cw.IsEnabled.ToString().ToLower() +
-                                          ",recording: " + cw.ForcedRecording.ToString().ToLower() + ", width:" + res[0] +
+                                          MainForm.Conf.ServerPort + ",online: " + en.ToString().ToLower() +
+                                          ",recording: " + fr.ToString().ToLower() + ", width:" + res[0] +
                                           ", height:" + res[1] + ", talk:" +
                                           (cw.Camobject.settings.audiomodel != "None").ToString().ToLower();
                                 }

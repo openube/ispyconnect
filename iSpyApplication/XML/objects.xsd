@@ -208,8 +208,8 @@
                                                 <xs:attribute name="movementintervalnew" type="xs:double" default="-1" />
                                                 <xs:attribute name="calibrationdelay" type="xs:int" use="required" />
                                                 <xs:attribute name="sensitivity" type="xs:double" use="required" />
-                                                <xs:attribute name="maxsensitivity" type="xs:double" use="required"/>
-                                                <xs:attribute name="minsensitivity" type="xs:double" use="required"/>
+                                                <xs:attribute name="maxsensitivity" type="xs:double" default="100"/>
+                                                <xs:attribute name="minsensitivity" type="xs:double" default="20"/>
                                                 <xs:attribute name="color" type="xs:string" use="required" />
                                                 <xs:attribute name="keepobjectedges" type="xs:boolean" use="required" />
                                                 <xs:attribute name="recordondetect" type="xs:boolean" use="required" />

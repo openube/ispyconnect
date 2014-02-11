@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Timers;
@@ -124,13 +125,14 @@ namespace iSpyApplication
         private readonly IConnectionPoint _mIcp;
         private readonly object _threadLock = new object();
 
-        private readonly FolderSelectDialog fbdSaveTo = new FolderSelectDialog
+        private readonly FolderSelectDialog _fbdSaveTo = new FolderSelectDialog
                                                         {
                                                             Title = "Select a folder to copy the file to"
                                                         };
 
+
         public object ContextTarget;
-        internal Player Player;
+        //internal Player Player;
         internal PlayerVLC PlayerVLC;
         public McRemoteControlManager.RemoteControlDevice RemoteManager;
         public bool SilentStartup;
@@ -661,7 +663,7 @@ namespace iSpyApplication
             return "0" + i;
         }
 
-        private void AddPlugin(FileInfo dll)
+        private static void AddPlugin(FileInfo dll)
         {
             try
             {
@@ -979,20 +981,7 @@ namespace iSpyApplication
             //GC.KeepAlive(_houseKeepingTimer);
 
             //load plugins
-            var plugindir = new DirectoryInfo(Program.AppPath + "Plugins");
-            LogMessageToFile("Checking Plugins...");
-            foreach (FileInfo dll in plugindir.GetFiles("*.dll"))
-            {
-                AddPlugin(dll);
-            }
-            foreach (DirectoryInfo d in plugindir.GetDirectories())
-            {
-                LogMessageToFile(d.Name);
-                foreach (FileInfo dll in d.GetFiles("*.dll"))
-                {
-                    AddPlugin(dll);
-                }
-            }
+            LoadPlugins();
 
             resetLayoutToolStripMenuItem1.Enabled = mnuResetLayout.Enabled = false; //reset layout
 
@@ -1220,7 +1209,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
-                //LogExceptionToFile(ex);
+                LogExceptionToFile(ex);
                 _cputotalCounter = null;
             }
 
@@ -1239,6 +1228,25 @@ namespace iSpyApplication
 
             _updateTimer.Start();
             _houseKeepingTimer.Start();
+        }
+
+        public static void LoadPlugins()
+        {
+            Plugins = new List<string>();
+            var plugindir = new DirectoryInfo(Program.AppPath + "Plugins");
+            LogMessageToFile("Checking Plugins...");
+            foreach (FileInfo dll in plugindir.GetFiles("*.dll"))
+            {
+                AddPlugin(dll);
+            }
+            foreach (DirectoryInfo d in plugindir.GetDirectories())
+            {
+                LogMessageToFile(d.Name);
+                foreach (FileInfo dll in d.GetFiles("*.dll"))
+                {
+                    AddPlugin(dll);
+                }
+            }
         }
 
         private static void NetworkChangeNetworkAddressChanged(object sender, EventArgs e)
@@ -2088,19 +2096,25 @@ namespace iSpyApplication
             ShowIfUnlocked();
         }
 
+        private CheckPassword _cp;
+
         public void ShowIfUnlocked()
         {
             if (Visible == false || WindowState == FormWindowState.Minimized)
             {
                 if (Conf.Enable_Password_Protect)
                 {
-                    using (var cp = new CheckPassword())
+                    if (_cp == null)
                     {
-                        cp.ShowDialog(this);
-                        if (cp.DialogResult == DialogResult.OK)
+                        using (_cp = new CheckPassword())
                         {
-                            ShowForm(-1);
+                            _cp.ShowDialog(this);
+                            if (_cp.DialogResult == DialogResult.OK)
+                            {
+                                ShowForm(-1);
+                            }
                         }
+                        _cp = null;
                     }
                 }
                 else
@@ -2470,38 +2484,23 @@ namespace iSpyApplication
             if (WindowState == FormWindowState.Minimized)
             {
                 Show();
-                WindowState = FormWindowState.Normal;
+                WindowState = _previousWindowState;
             }
             if (opacity > -1)
                 Opacity = opacity;
-            TopMost = true;
-            TopMost = false; //need to force a switch to move above other forms
+
+            //Process currentProcess = Process.GetCurrentProcess();
+            //IntPtr hWnd = currentProcess.MainWindowHandle;
+            //if (hWnd != IntPtr.Zero)
+            //{
+            //    SetForegroundWindow(hWnd);
+            //}
             TopMost = Conf.AlwaysOnTop;
-            BringToFront();
-            Focus();
         }
 
         private void UnlockToolstripMenuItemClick(object sender, EventArgs e)
         {
-            ShowUnlock();
-        }
-
-        private void ShowUnlock()
-        {
-            var cp = new CheckPassword();
-            cp.ShowDialog(this);
-            if (cp.DialogResult == DialogResult.OK)
-            {
-                Activate();
-                Visible = true;
-                if (WindowState == FormWindowState.Minimized)
-                {
-                    Show();
-                    WindowState = FormWindowState.Normal;
-                }
-                Focus();
-            }
-            cp.Dispose();
+            ShowIfUnlocked();
         }
 
         private void NotifyIcon1Click(object sender, EventArgs e)
@@ -3860,7 +3859,7 @@ namespace iSpyApplication
 
         private void _talkSource_AudioFinished(object sender, ReasonToFinishPlaying reason)
         {
-            LogMessageToFile("Talk Finished: " + reason);
+            //LogMessageToFile("Talk Finished: " + reason);
         }
 
         private void TalkTargetTalkStopped(object sender, EventArgs e)
@@ -3954,9 +3953,9 @@ namespace iSpyApplication
                 var pb = ((PreviewBox) ContextTarget);
                 var fi = new FileInfo(pb.FileName);
 
-                if (fbdSaveTo.ShowDialog(Handle))
+                if (_fbdSaveTo.ShowDialog(Handle))
                 {
-                    File.Copy(pb.FileName, fbdSaveTo.FileName + @"\" + fi.Name);
+                    File.Copy(pb.FileName, _fbdSaveTo.FileName + @"\" + fi.Name);
                 }
             }
             catch (Exception ex)

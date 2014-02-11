@@ -2299,26 +2299,26 @@ namespace iSpyApplication.Controls
         }
 
 
-        [HandleProcessCorruptedStateExceptions]
-        private Bitmap ZoomImage(Bitmap lfu)
-        {
-            if (Camera.ZFactor > 1)
-            {
-                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-                var f2 = new Crop(Camera.ViewRectangle);
-                try
-                {
-                    lfu = f2.Apply(lfu);
-                    lfu = f1.Apply(lfu);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                }
-            }
+        //[HandleProcessCorruptedStateExceptions]
+        //private Bitmap ZoomImage(Bitmap lfu)
+        //{
+        //    if (Camera.ZFactor > 1)
+        //    {
+        //        var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+        //        var f2 = new Crop(Camera.ViewRectangle);
+        //        try
+        //        {
+        //            lfu = f2.Apply(lfu);
+        //            lfu = f1.Apply(lfu);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            MainForm.LogExceptionToFile(ex);
+        //        }
+        //    }
 
-            return lfu;
-        }
+        //    return lfu;
+        //}
 
         protected override void OnPaint(PaintEventArgs pe)
         {
@@ -3381,6 +3381,7 @@ namespace iSpyApplication.Controls
                                     }
                                     catch (Exception ex)
                                     {
+                                        MainForm.LogExceptionToFile(ex);
                                         if (wresp != null)
                                         {
                                             wresp.Close();
@@ -4413,6 +4414,9 @@ namespace iSpyApplication.Controls
                 {
                     vl = ((MainForm)TopLevelControl).AddCameraMicrophone(Camobject.id, Camobject.name + " mic");
                     Camobject.settings.micpair = vl.Micobject.id;
+                    vl.Micobject.alerts.active = false;
+                    vl.Micobject.detector.recordonalert = false;
+                    vl.Micobject.detector.recordondetect = false;
                 }
 
                 var m = vl.Micobject;
@@ -4430,9 +4434,7 @@ namespace iSpyApplication.Controls
 
                     m.settings.buffer = Camobject.recorder.bufferseconds;
                     m.settings.bits = 16;
-                    m.alerts.active = false;
-                    m.detector.recordonalert = false;
-                    m.detector.recordondetect = false;
+                    
                 }
 
                 vl.Enable();
@@ -4557,9 +4559,9 @@ namespace iSpyApplication.Controls
                                 m.settings.typeindex = 4;
                                 m.settings.buffer = Camobject.recorder.bufferseconds;
                                 m.settings.bits = 16;
-                                m.alerts.active = false;
-                                m.detector.recordonalert = false;
-                                m.detector.recordondetect = false;
+                                //m.alerts.active = false;
+                                //m.detector.recordonalert = false;
+                                //m.detector.recordondetect = false;
                             }
 
                             vl.Disable();

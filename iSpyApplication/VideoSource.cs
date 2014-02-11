@@ -1522,7 +1522,8 @@ namespace iSpyApplication
             var screenArea = new ScreenArea(screen,area);
                           
             screenArea.ShowDialog();
-            CameraControl.Camobject.settings.desktoparea = screenArea.Area.Left + "," + screenArea.Area.Top + "," + screenArea.Area.Width + "," + screenArea.Area.Height;
+            var a = screenArea.Area;
+            CameraControl.Camobject.settings.desktoparea = a.Left + "," + a.Top + "," + a.Width + "," + a.Height;
             screenArea.Dispose();
         }
 

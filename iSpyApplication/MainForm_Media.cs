@@ -197,7 +197,8 @@ namespace iSpyApplication
                 var pb = flowPreview.Controls[i] as PreviewBox;
                 if (pb != null)
                 {
-                    if (NeedsMediaRebuild || l.Count(p => p.CreatedDateTicks == pb.CreatedDate.Ticks) == 0)
+                    var cd = pb.CreatedDate;
+                    if (NeedsMediaRebuild || l.Count(p => p.CreatedDateTicks == cd.Ticks) == 0)
                     {
                         flowPreview.Controls.Remove(pb);
                         pb.MouseDown -= PbMouseDown;
@@ -236,8 +237,8 @@ namespace iSpyApplication
                     flowPreview.Controls.SetChildIndex(lb, ci);
                     ci++;
                 }
-
-                var pb = currentList.FirstOrDefault(p => p.CreatedDate.Ticks == fp.CreatedDateTicks);
+                var cdt = new DateTime(fp.CreatedDateTicks);
+                var pb = currentList.FirstOrDefault(p => p.CreatedDate == cdt);
                 if (pb == null)
                 {
                     FilePreview fp1 = fp;

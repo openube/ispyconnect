@@ -642,7 +642,7 @@ namespace iSpyApplication.Controls
         [HandleProcessCorruptedStateExceptions] 
         private void ApplyMotionDetector(UnmanagedImage lfu)
         {
-            if (Alarm != null)
+            if (Alarm != null && lfu!=null)
             {
                 _processFrameCount++;
                 if (_processFrameCount >= CW.Camobject.detector.processeveryframe || CW.Calibrating)

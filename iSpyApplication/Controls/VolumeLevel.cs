@@ -1899,7 +1899,7 @@ namespace iSpyApplication.Controls
             _recordingTime = 0;
             ReconnectCount = 0;
             Listening = false;
-            SoundLastDetected = DateTime.Now;
+            SoundLastDetected = _lastAlertCheck = DateTime.Now;
             UpdateFloorplans(false);
             Micobject.settings.active = true;
 

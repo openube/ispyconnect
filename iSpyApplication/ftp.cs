@@ -86,6 +86,7 @@ namespace iSpyApplication
                     }
                     catch (Exception ex)
                     {
+                        MainForm.LogExceptionToFile(ex);
                         //ignore
                     }
 

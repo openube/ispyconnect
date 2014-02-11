@@ -113,6 +113,7 @@ namespace iSpyApplication
             }
             catch (Exception ex)
             {
+                MainForm.LogExceptionToFile(ex);
                 MessageBox.Show(
                     LocRm.GetString("Validate_Camera_PTZIPOnly"), LocRm.GetString("Error"));
             }
