@@ -34,7 +34,7 @@ namespace iSpyApplication.Video
         public SampleChannel SampleChannel;
 
         public BufferedWaveProvider WaveOutProvider { get; set; }
-        public VolumeWaveProvider16 VolumeProvider { get; set; }
+        public VolumeWaveProvider16New VolumeProvider { get; set; }
         #endregion
         
 

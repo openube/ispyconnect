@@ -1827,6 +1827,8 @@ public partial class objectsCameraDetector {
     public objectsCameraDetector() {
         this.nomovementintervalnewField = -1D;
         this.movementintervalnewField = -1D;
+        this.maxsensitivityField = 100D;
+        this.minsensitivityField = 20D;
         this.minwidthField = 20;
         this.minheightField = 20;
         this.highlightField = false;
@@ -1938,6 +1940,7 @@ public partial class objectsCameraDetector {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(100D)]
     public double maxsensitivity {
         get {
             return this.maxsensitivityField;
@@ -1949,6 +1952,7 @@ public partial class objectsCameraDetector {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(20D)]
     public double minsensitivity {
         get {
             return this.minsensitivityField;

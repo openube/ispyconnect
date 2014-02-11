@@ -16,7 +16,6 @@ using AForge.Video.DirectShow;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
-using onvif20_ptz;
 
 namespace iSpyApplication
 {
@@ -819,6 +818,11 @@ namespace iSpyApplication
                         cam.detector.maxsensitivity = 100;
                         //fix for old setting conversion
                         cam.detector.minsensitivity = 100 - cam.detector.sensitivity;
+
+                        if (Math.Abs(cam.detector.minsensitivity - 100) < double.Epsilon)
+                        {
+                            cam.detector.minsensitivity = 20;
+                        }
                     }
 
                     if (!Directory.Exists(path2))
@@ -829,6 +833,7 @@ namespace iSpyApplication
                         }
                         catch(IOException e)
                         {
+                            LogExceptionToFile(e);
                         }
                     }
 
@@ -1740,6 +1745,19 @@ namespace iSpyApplication
                 MessageBox.Show(LocRm.GetString("AreYouSure"), LocRm.GetString("Confirm"), MessageBoxButtons.OKCancel,
                                 MessageBoxIcon.Warning) == DialogResult.Cancel)
                 return;
+
+            var dr = DialogResult.No;
+            if (confirm)
+            {
+                dr = MessageBox.Show("Delete all associated media?", LocRm.GetString("Confirm"),
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+            }
+            if (dr == DialogResult.Cancel)
+                return;
+
+            string folder = cameraControl.Dir.Entry + "video\\" + cameraControl.Camobject.directory + "\\";
+
             cameraControl.ShuttingDown = true;
             cameraControl.MouseDown -= CameraControlMouseDown;
             cameraControl.MouseUp -= CameraControlMouseUp;
@@ -1753,6 +1771,7 @@ namespace iSpyApplication
             cameraControl.Disable();
             cameraControl.SaveFileList();
 
+
             if (cameraControl.VolumeControl!=null)
                 RemoveMicrophone(cameraControl.VolumeControl,false);
 
@@ -1760,6 +1779,18 @@ namespace iSpyApplication
                 Invoke(new CameraCommandDelegate(RemoveCameraPanel), cameraControl);
             else
                 RemoveCameraPanel(cameraControl);
+
+            if (dr == DialogResult.Yes)
+            {
+                try
+                {
+                    Directory.Delete(folder, true);
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex);
+                }
+            }
         }
 
         private void RemoveCameraPanel(CameraWindow cameraControl)
@@ -1798,6 +1829,19 @@ namespace iSpyApplication
                 MessageBox.Show(LocRm.GetString("AreYouSure"), LocRm.GetString("Confirm"), MessageBoxButtons.OKCancel,
                                 MessageBoxIcon.Warning) == DialogResult.Cancel)
                 return;
+            
+            var dr = DialogResult.No;
+            if (confirm)
+            {
+                dr = MessageBox.Show("Delete all associated media?", LocRm.GetString("Confirm"),
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+            }
+            if (dr == DialogResult.Cancel)
+                return;
+
+            string folder = volumeControl.Dir.Entry + "audio\\" + volumeControl.Micobject.directory + "\\";
+
             volumeControl.ShuttingDown = true;
             volumeControl.MouseDown -= VolumeControlMouseDown;
             volumeControl.MouseUp -= VolumeControlMouseUp;
@@ -1815,6 +1859,18 @@ namespace iSpyApplication
                 Invoke(new MicrophoneCommandDelegate(RemoveMicrophonePanel), volumeControl);
             else
                 RemoveMicrophonePanel(volumeControl);
+
+            if (dr == DialogResult.Yes)
+            {
+                try
+                {
+                    Directory.Delete(folder, true);
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex);
+                }
+            }
         }
 
         private void RemoveMicrophonePanel(VolumeLevel volumeControl)
@@ -3108,18 +3164,12 @@ namespace iSpyApplication
 
             cameraControl.GetFiles();
         }
-
+        
         private void DoInvoke(string methodName)
         {
             if (methodName == "show")
             {
-                Activate();
-                Visible = true;
-                if (WindowState == FormWindowState.Minimized)
-                {
-                    Show();
-                    WindowState = _previousWindowState;
-                }
+                ShowIfUnlocked();
                 return;
             }
             if (methodName.StartsWith("bringtofrontcam"))

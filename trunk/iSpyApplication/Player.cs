@@ -196,7 +196,7 @@ namespace iSpyApplication
                 {
                     _mStream.Listening = true;
                     _mStream.WaveOutProvider.BufferLength = _mStream.WaveOutProvider.WaveFormat.AverageBytesPerSecond*2;
-                    _mStream.VolumeProvider = new VolumeWaveProvider16(_mStream.WaveOutProvider);
+                    _mStream.VolumeProvider = new VolumeWaveProvider16New(_mStream.WaveOutProvider);
                     WaveOut = new DirectSoundOut(100);
                     WaveOut.Init(_mStream.VolumeProvider);
                     WaveOut.Play();

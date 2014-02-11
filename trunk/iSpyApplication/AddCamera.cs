@@ -775,6 +775,7 @@ namespace iSpyApplication
             LocRm.SetString(label93, "CounterMax");
             LocRm.SetString(label90, "TriggerRecording");
             LocRm.SetString(chkIgnoreAudio, "IgnoreAudio");
+            LocRm.SetString(button9,"Options");
 
 
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Motion_Detection));
@@ -2636,8 +2637,9 @@ namespace iSpyApplication
                 var cr = new ConfigureRepeat {Interval = 60, Until = si.time};
                 if (cr.ShowDialog(this)== DialogResult.OK)
                 {
+                    var dtUntil = cr.Until;
                     var dtCurrent = si.time.AddSeconds(cr.Interval);
-                    while (dtCurrent.TimeOfDay < cr.Until.TimeOfDay)
+                    while (dtCurrent.TimeOfDay < dtUntil.TimeOfDay)
                     {
                         s.Add(new objectsCameraPtzscheduleEntry { command = si.command, time = dtCurrent });
                         dtCurrent = dtCurrent.AddSeconds(cr.Interval);

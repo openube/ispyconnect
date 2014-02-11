@@ -19,7 +19,7 @@ namespace iSpyApplication
 {
     public partial class Settings : Form
     {
-        public static readonly string[] StartupModes = new[]
+        public static readonly string[] StartupModes = 
             {
                 "Normal","Minimised","Maximised","FullScreen"
             };  
@@ -465,9 +465,21 @@ namespace iSpyApplication
             chkGZip.Checked = MainForm.Conf.EnableGZip;
             numDisconnectNotification.Value = MainForm.Conf.DisconnectNotificationDelay;
             mediaDirectoryEditor1.Enabled = Helper.HasFeature(Enums.Features.Storage);
+            HideTab(tabPage11, Helper.HasFeature(Enums.Features.Plugins));
+
             //important leave here:
             chkPasswordProtect.Checked = MainForm.Conf.Enable_Password_Protect;
+            if (Helper.HasFeature(Enums.Features.Plugins))
+                ListPlugins();
             _loaded = true;
+        }
+
+        private void HideTab(TabPage t, bool show)
+        {
+            if (!show)
+            {
+                tcTabs.TabPages.Remove(t);
+            }
         }
 
         private void RenderResources()
@@ -1070,6 +1082,29 @@ namespace iSpyApplication
             if (_loaded && chkEnableIPv6.Checked)
             {
                 MessageBox.Show(this, "IPv6 support can cause problems on some systems. Please disable IPv6 if you experience issues.", "Warning");
+            }
+        }
+
+        private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.OpenUrl(MainForm.Website + "/plugins.aspx");
+        }
+
+        private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            MainForm.LoadPlugins();
+            ListPlugins();
+        }
+
+        private void ListPlugins()
+        {
+            lbPlugins.Items.Clear();
+            
+            foreach (String plugin in MainForm.Plugins)
+            {
+                string name = plugin.Substring(plugin.LastIndexOf("\\", StringComparison.Ordinal) + 1);
+                name = name.Substring(0, name.LastIndexOf(".", StringComparison.Ordinal));
+                lbPlugins.Items.Add(name);
             }
         }
     }

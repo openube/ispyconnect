@@ -269,6 +269,13 @@ namespace iSpyApplication.Controls
                 }
                 catch {}
             }
+            else
+            {
+                if (TypeName == "Sound")
+                {
+                    initpath = Program.ExecutableDirectory + "Sounds";
+                }
+            }
             ofdDetect.Filter = "Files|" + o.Tag;
             ofdDetect.InitialDirectory = initpath;
             ofdDetect.ShowDialog(this);

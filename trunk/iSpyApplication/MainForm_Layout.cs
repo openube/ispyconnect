@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
+using NAudio.CoreAudioApi;
 using PictureBox = AForge.Controls.PictureBox;
 
 namespace iSpyApplication
@@ -217,7 +218,8 @@ namespace iSpyApplication
 
                 try
                 {
-                    if (cameraControl.RestoreRect.IsEmpty)
+                    var r = cameraControl.RestoreRect;
+                    if (r.IsEmpty)
                     {
                         var s = "320x240";
                         if (!String.IsNullOrEmpty(cameraControl.Camobject.resolution))
@@ -277,7 +279,8 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    if (vf.RestoreRect.IsEmpty)
+                    var r = vf.RestoreRect;
+                    if (r.IsEmpty)
                     {
                         vf.RestoreRect = new Rectangle(vf.Location.X, vf.Location.Y,
                                                                   vf.Width, vf.Height);
@@ -301,8 +304,8 @@ namespace iSpyApplication
             {
                 var fp = control;
                 fp.BringToFront();
-
-                if (fp.RestoreRect.IsEmpty)
+                var r = fp.RestoreRect;
+                if (r.IsEmpty)
                 {
                     fp.RestoreRect = new Rectangle(fp.Location.X, fp.Location.Y,
                                                               fp.Width, fp.Height);
