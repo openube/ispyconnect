@@ -616,6 +616,8 @@ namespace iSpyApplication
 
             CameraLogin = txtLogin.Text;
             CameraPassword = txtPassword.Text;
+
+
             FriendlyName = "Camera " + MainForm.Cameras.Count;
             string url;
             switch (SourceIndex)
@@ -861,6 +863,15 @@ namespace iSpyApplication
                     break;
             }
 
+            string t = FriendlyName;
+            int i = 1;
+            while (MainForm.Cameras.FirstOrDefault(p => p.name == t) != null)
+            {
+                t = FriendlyName + " (" + i + ")";
+                i++;
+            }
+
+            FriendlyName = t;
             
 
             if (String.IsNullOrEmpty(VideoSourceString))

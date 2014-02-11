@@ -370,7 +370,7 @@ namespace iSpyServer
                         VideoCapabilities caps =
                             videoCapabilitiesDictionary[(string) videoResolutionsCombo.SelectedItem];
                         captureSize = caps.FrameSize;
-                        FrameRate = caps.FrameRate;
+                        FrameRate = caps.AverageFrameRate;
                         captureSize = new Size(captureSize.Width, captureSize.Height);
                     }
 
@@ -503,7 +503,7 @@ namespace iSpyServer
                 foreach (VideoCapabilities capabilty in videoCapabilities)
                 {
                     string item = string.Format(
-                        "{0} x {1} ({2} fps)", capabilty.FrameSize.Width, capabilty.FrameSize.Height, capabilty.FrameRate);
+                        "{0} x {1} ({2} fps)", capabilty.FrameSize.Width, capabilty.FrameSize.Height, capabilty.AverageFrameRate);
 
                     if (!videoResolutionsCombo.Items.Contains(item))
                     {

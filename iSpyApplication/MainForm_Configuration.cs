@@ -2029,13 +2029,26 @@ namespace iSpyApplication
                              ptz = -1,
                              x = Convert.ToInt32(Random.NextDouble()*100),
                              y = Convert.ToInt32(Random.NextDouble()*100),
-                             name = LocRm.GetString("Camera") + " " + NextCameraId,
                              ptzschedule = new objectsCameraPtzschedule
                                                {
                                                    active = false,
                                                    entries = new objectsCameraPtzscheduleEntry[] {}
                                                }
                          };
+
+            string friendlyName = LocRm.GetString("Camera") + " " + NextCameraId;
+
+            string t = friendlyName;
+            int i = 1;
+            while (Cameras.FirstOrDefault(p => p.name == t) != null)
+            {
+                t = friendlyName + " (" + i + ")";
+                i++;
+            }
+
+            oc.name = t;
+
+
             oc.flipx = oc.flipy = false;
             oc.width = 320;
             oc.height = 240;
@@ -2231,9 +2244,20 @@ namespace iSpyApplication
                 width = 160,
                 height = 40,
                 description = "",
-                newrecordingcount = 0,
-                name = LocRm.GetString("Microphone") + " " + NextMicrophoneId
+                newrecordingcount = 0
             };
+
+            string friendlyName = LocRm.GetString("Microphone") + " " + NextMicrophoneId;
+
+            string t = friendlyName;
+            int i = 1;
+            while (Microphones.FirstOrDefault(p => p.name == t) != null)
+            {
+                t = friendlyName + " (" + i + ")";
+                i++;
+            }
+
+            om.name = t;
 
             om.settings.typeindex = audioSourceIndex;
             om.settings.deletewav = true;
