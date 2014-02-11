@@ -17,8 +17,6 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Video.DirectShow.Internals;
@@ -44,13 +42,13 @@ namespace iSpyApplication.Controls
         private DateTime _lastRedraw = DateTime.MinValue;
         private double _recordingTime;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
-        private double autoofftimer = 0;
+        private double _autoofftimer;
 
         private double _timeLapse;
         private double _timeLapseFrames;
         private double _timeLapseTotal;
         private double _timeLapseFrameCount;
-        private double _secondCount;
+        private double _secondCountNew;
         private Point _mouseLoc;
         private List<FrameAction> _videoBuffer = new List<FrameAction>();
         private QueueWithEvents<FrameAction> _writerBuffer;
@@ -1188,6 +1186,7 @@ namespace iSpyApplication.Controls
             base.Dispose(disposing);
         }
 
+        private double _tickThrottle;
         public void Tick()
         {
             //reset custom border color
@@ -1203,7 +1202,7 @@ namespace iSpyApplication.Controls
                 //time since last tick
                 var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
                 _lastRun = DateTime.Now.Ticks;
-                _secondCount += ts.TotalMilliseconds / 1000.0;
+                _secondCountNew = ts.TotalMilliseconds / 1000.0;
 
                 if (Camobject.schedule.active)
                 {
@@ -1220,10 +1219,10 @@ namespace iSpyApplication.Controls
                         _suspendPTZSchedule = false;
                         _dtPTZLastCheck = DateTime.Now;
                     }
-                    autoofftimer += ts.TotalMilliseconds / 1000.0;
+                    _autoofftimer += ts.TotalMilliseconds / 1000.0;
                     if (Camobject.detector.autooff > 0)
                     {
-                        if (autoofftimer > Camobject.detector.autooff)
+                        if (_autoofftimer > Camobject.detector.autooff)
                         {
                             Disable();
                             goto skip;
@@ -1233,7 +1232,7 @@ namespace iSpyApplication.Controls
 
                 if (FlashCounter > 5)
                 {
-                    autoofftimer = 0;
+                    _autoofftimer = 0;
                     if (Camobject.ftp.mode == 0)
                     {
                         if (Camobject.ftp.enabled && Camobject.ftp.ready)
@@ -1248,8 +1247,15 @@ namespace iSpyApplication.Controls
                     }
 
                     InactiveRecord = 0;
-                    if (Camobject.alerts.mode != "nomovement" && VolumeControl != null)
-                        VolumeControl.InactiveRecord = 0;
+                    if (Camobject.alerts.mode != "nomovement" &&
+                        (Camobject.detector.recordondetect || Camobject.detector.recordonalert))
+                    {
+                        var vc = VolumeControl;
+                        if (vc!=null)
+                        {
+                            vc.InactiveRecord = 0;
+                        }
+                    }
                 }
 
                 if (FlashCounter == 1)
@@ -1265,15 +1271,15 @@ namespace iSpyApplication.Controls
 
                 bool reset = true;
 
-                if (Camobject.alerts.active && Camobject.settings.active)
+                if (Camobject.settings.active)
                 {
                     reset = FlashBackground();
                 }
                 if (reset)
                     BackgroundColor = MainForm.BackgroundColor;
 
-               
-                if (_secondCount > 1 && Camobject.settings.active) //every second
+                _tickThrottle += _secondCountNew;
+                if (_tickThrottle > 1 && Camobject.settings.active) //every second
                 {
 
                     DoPTZTracking();
@@ -1283,16 +1289,16 @@ namespace iSpyApplication.Controls
 
                     if (Calibrating)
                     {
-                        DoCalibrate();
+                        DoCalibrate(_tickThrottle);
                     }
-                    
-                    CheckReconnectInterval();
+
+                    CheckReconnectInterval(_tickThrottle);
 
                     CheckDisconnect();
 
                     if (Recording && !MovementDetected && !ForcedRecording)
                     {
-                        InactiveRecord += _secondCount;
+                        InactiveRecord += _tickThrottle;
                     }
                         
                     if (Camobject.ptzschedule.active && !_suspendPTZSchedule)
@@ -1307,19 +1313,19 @@ namespace iSpyApplication.Controls
 
                         CheckRecord();
 
-                        CheckTimeLapse();
+                        CheckTimeLapse(_tickThrottle);
                     }
-                    
+                    _tickThrottle = 0;
+
                 }
 
                 if (!Calibrating)
                 {
-                    CheckAlert();
+                    CheckAlert(_secondCountNew);
                 }
 
             skip:
-                if (_secondCount > 1)
-                    _secondCount = 0;
+                ;
             }
             catch (Exception ex)
             {
@@ -1410,15 +1416,15 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void CheckTimeLapse()
+        private void CheckTimeLapse(double since)
         {
             if (Camobject.recorder.timelapseenabled)
             {
                 bool err = false;
                 if (Camobject.recorder.timelapse > 0)
                 {
-                    _timeLapseTotal += _secondCount;
-                    _timeLapse += _secondCount;
+                    _timeLapseTotal += since;
+                    _timeLapse += since;
 
                     if (_timeLapse >= Camobject.recorder.timelapse)
                     {
@@ -1461,7 +1467,7 @@ namespace iSpyApplication.Controls
                 {
                     if (Camobject.recorder.timelapseframes > 0 && Camera != null)
                     {
-                        _timeLapseFrames += _secondCount;
+                        _timeLapseFrames += since;
                         if (_timeLapseFrames >= Camobject.recorder.timelapseframes)
                         {
                             Image frame = LastFrame;
@@ -1487,13 +1493,13 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void CheckAlert()
+        private void CheckAlert(double since)
         {
             if (Camobject.settings.active && Camera != null && !LastFrameNull)
             {
                 if (Alerted)
                 {
-                    _intervalCount += _secondCount;
+                    _intervalCount += since;
                     if (_intervalCount > Camobject.alerts.minimuminterval)
                     {
                         Alerted = false;
@@ -1512,7 +1518,7 @@ namespace iSpyApplication.Controls
                             case "movement":
                                 if (LastMovementDetected > _lastAlertCheck)
                                 {
-                                    MovementCount += _secondCount;
+                                    MovementCount += since;
                                     if (_isTrigger ||
                                         (MovementCount > Camobject.detector.movementintervalnew))
                                     {
@@ -1754,14 +1760,14 @@ namespace iSpyApplication.Controls
         }
 
 
-        private void CheckReconnectInterval()
+        private void CheckReconnectInterval(double since)
         {
             if (Camera != null && Camera.VideoSource != null && Camobject.settings.active && !IsClone && !IsReconnect)
             {
                 if (Camobject.settings.reconnectinterval > 0)
                 {
 
-                    ReconnectCount += _secondCount;
+                    ReconnectCount += since;
                     if (ReconnectCount > Camobject.settings.reconnectinterval)
                     {
                         IsReconnect = true;
@@ -1812,7 +1818,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void DoCalibrate()
+        private void DoCalibrate(double since)
         {
             if (Camera != null && !LastFrameNull)
             {
@@ -1853,7 +1859,7 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                CalibrateCount += _secondCount;
+                CalibrateCount += since;
                 if (CalibrateCount > _calibrateTarget)
                 {
                     Calibrating = false;
@@ -3885,7 +3891,7 @@ namespace iSpyApplication.Controls
             UpdateFloorplans(false);
             MainForm.NeedsSync = true;
             _errorTime = _reconnectTime = DateTime.MinValue;
-            autoofftimer = 0;
+            _autoofftimer = 0;
 
             ClearVideoBuffer();
             ClearWriterBuffer();
@@ -4343,7 +4349,7 @@ namespace iSpyApplication.Controls
             _dtPTZLastCheck = DateTime.Now;
             LastMovementDetected = DateTime.Now;
             _firstFrame = true;
-            autoofftimer = 0;
+            _autoofftimer = 0;
 
             if (_videoBuffer != null)
             {

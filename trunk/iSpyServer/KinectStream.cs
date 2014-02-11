@@ -3,11 +3,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using AForge.Video;
 using Microsoft.Kinect;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+
 
 namespace iSpyServer
 {
@@ -17,23 +15,17 @@ namespace iSpyServer
         private readonly Pen _trackedBonePen = new Pen(Brushes.Green, 6);
         private readonly Brush _trackedJointBrush = new SolidBrush(Color.FromArgb(255, 68, 192, 68));
         private readonly Brush _inferredJointBrush = Brushes.Yellow;
+        private CoordinateMapper _mapper;
         private Skeleton[] _skeletons = new Skeleton[0];
         private const int JointThickness = 3;
         private KinectSensor _sensor;
         private readonly bool _skeleton;
-        private readonly bool _bound;
         private DateTime _lastFrameTimeStamp = DateTime.Now;
-
-        private const double MaxInterval = 1000d/15;
-        
+        private const double MaxInterval = 1000d/15;        
         private long _bytesReceived;
         private int _framesReceived;
         private string _uniqueKinectId;
-        ////Depth Stuff
-        //private short[] depthPixels;
-        //private byte[] colorPixels;
-        //private readonly bool _depth;
-
+ 
         
         public KinectStream()
         {
@@ -105,6 +97,7 @@ namespace iSpyServer
                 if (potentialSensor.Status == KinectStatus.Connected && _uniqueKinectId == potentialSensor.UniqueKinectId)
                 {
                     _sensor = potentialSensor;
+                    _mapper = new CoordinateMapper(_sensor);
                     break;
                 }
             }
@@ -367,7 +360,7 @@ namespace iSpyServer
         {
             // Convert point to depth space.  
             // We are not using depth directly, but we do want the points in our 640x480 output resolution.
-            DepthImagePoint depthPoint = _sensor.MapSkeletonPointToDepth(skelpoint,DepthImageFormat.Resolution640x480Fps30);
+            DepthImagePoint depthPoint = _mapper.MapSkeletonPointToDepthPoint(skelpoint, DepthImageFormat.Resolution640x480Fps30);
             return new Point(depthPoint.X, depthPoint.Y);
         }
 

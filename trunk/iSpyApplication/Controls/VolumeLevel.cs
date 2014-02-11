@@ -35,7 +35,7 @@ namespace iSpyApplication.Controls
         public event EventHandler AudioDeviceEnabled;
         private double _intervalCount;
         private long _lastRun = DateTime.Now.Ticks;
-        private double _secondCount;
+        private double _secondCountNew;
         private double _recordingTime;
         private Point _mouseLoc;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
@@ -809,12 +809,13 @@ namespace iSpyApplication.Controls
             }
         }
 
+        private double _tickThrottle;
         public void Tick()
         {
             //time since last tick
             var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
             _lastRun = DateTime.Now.Ticks;
-            _secondCount += ts.Milliseconds/1000.0;
+            _secondCountNew = ts.Milliseconds / 1000.0;
 
             if (Micobject.schedule.active)
             {
@@ -831,8 +832,12 @@ namespace iSpyApplication.Controls
             if (FlashCounter > 5)
             {
                 InactiveRecord = 0;
-                if (Micobject.alerts.mode != "nosound" && CameraControl != null)
-                    CameraControl.InactiveRecord = 0;
+                if (Micobject.alerts.mode != "nosound" && (Micobject.detector.recordondetect || Micobject.detector.recordonalert))
+                {
+                    var cc = CameraControl;
+                    if (cc != null)
+                        cc.InactiveRecord = 0;
+                }
             }
 
             if (FlashCounter == 1)
@@ -848,25 +853,28 @@ namespace iSpyApplication.Controls
 
             bool reset = true;
 
-            if (Micobject.alerts.active && Micobject.settings.active)
+            if (Micobject.settings.active)
             {
                 reset = FlashBackground();
             }
             if (reset)
                 BackgroundColor = MainForm.BackgroundColor;
 
-            if (_secondCount > 1 && Micobject.settings.active) //every second
+            _tickThrottle += _secondCountNew;
+
+            if (_tickThrottle > 1 && Micobject.settings.active) //every second
             {
                 if (CheckReconnect()) goto skip;
 
-                CheckReconnectInterval();
+                CheckReconnectInterval(_tickThrottle);
 
                 CheckDisconnect();
 
                 if (Recording && !SoundDetected && !ForcedRecording)
                 {
-                    InactiveRecord += _secondCount;
+                    InactiveRecord += _tickThrottle;
                 }
+                
 
                 if (_levels!=null)
                 {
@@ -874,13 +882,13 @@ namespace iSpyApplication.Controls
 
                     CheckRecord();
                 }
+                _tickThrottle = 0;
             }
 
-            CheckAlert();
+
+            CheckAlert(_secondCountNew);
 
             skip:
-            if (_secondCount > 1)
-                _secondCount = 0;
 
             if (_requestRefresh)
             {
@@ -936,13 +944,13 @@ namespace iSpyApplication.Controls
             return reset;
         }
 
-        private void CheckReconnectInterval()
+        private void CheckReconnectInterval(double since)
         {
             if (Micobject.settings.active && AudioSource != null && !IsClone && !IsReconnect && !(AudioSource is IVideoSource))
             {
                 if (Micobject.settings.reconnectinterval > 0)
                 {
-                    ReconnectCount += _secondCount;
+                    ReconnectCount += since;
                     if (ReconnectCount > Micobject.settings.reconnectinterval)
                     {
                         IsReconnect = true;
@@ -1057,13 +1065,13 @@ namespace iSpyApplication.Controls
             return false;
         }
 
-        private void CheckAlert()
+        private void CheckAlert(double since)
         {
             if (Micobject.settings.active && AudioSource != null)
             {
                 if (Alerted)
                 {
-                    _intervalCount += _secondCount;
+                    _intervalCount += since;
                     if (_intervalCount > Micobject.alerts.minimuminterval)
                     {
                         Alerted = false;
@@ -1082,9 +1090,10 @@ namespace iSpyApplication.Controls
 
                                 if (SoundLastDetected > _lastAlertCheck)
                                 {
-                                    SoundCount += _secondCount;
+                                    SoundCount += since;
+                                    Debug.WriteLine(SoundCount);
                                     if (_isTrigger ||
-                                        (Math.Floor(SoundCount) >= Micobject.detector.soundinterval))
+                                        (SoundCount >= Micobject.detector.soundinterval))
                                     {
                                         DoAlert();
                                         SoundCount = 0;
