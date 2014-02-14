@@ -32,6 +32,7 @@ namespace iSpyApplication
                 _wsa.SendAlertWithImageCompleted += WsaSendAlertWithImageCompleted;
                 _wsa.SendSMSCompleted += WsaSendSMSCompleted;
                 _wsa.SendTweetCompleted += WsaSendTweetCompleted;
+                _wsa.DisconnectCompleted += WsaDisconnectCompleted;
                 
                 return _wsa;
             }
@@ -222,8 +223,25 @@ namespace iSpyApplication
                 WebsiteLive = false;
                 MainForm.LogExceptionToFile(ex);
             }
+        }
 
-           
+        public static void Disconnect()
+        {
+            if (MainForm.Conf.ServicesEnabled && WebsiteLive && !LoginFailed)
+            {
+                int port = MainForm.Conf.ServerPort;
+                if (MainForm.Conf.IPMode == "IPv6")
+                    port = MainForm.Conf.LANPort;
+                try
+                {
+                    Wsa.DisconnectAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, Guid.NewGuid());
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                    WebsiteLive = false;
+                }
+            }
         }
 
         static void WsaPingAliveCompleted(object sender, PingAliveCompletedEventArgs e)
@@ -288,6 +306,12 @@ namespace iSpyApplication
 
         }
 
+        static void WsaDisconnectCompleted(object sender, DisconnectCompletedEventArgs e)
+        {
+            var m = e.Result;
+
+        }
+
         static void WsaSendAlertWithImageCompleted(object sender, SendAlertWithImageCompletedEventArgs e)
         {
             if (e.Error != null)
@@ -345,29 +369,7 @@ namespace iSpyApplication
             }
         }
 
-        public static string Disconnect()
-        {
-            string r = "";
-
-            if (MainForm.Conf.ServicesEnabled && WebsiteLive && !LoginFailed)
-            {
-                int port = MainForm.Conf.ServerPort;
-                if (MainForm.Conf.IPMode == "IPv6")
-                    port = MainForm.Conf.LANPort;
-                try
-                {
-                    r = Wsa.Disconnect(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port);
-                }
-                catch (Exception ex)
-                {
-                    MainForm.LogExceptionToFile(ex);
-                    WebsiteLive = false;
-                }
-                if (WebsiteLive)
-                    return r;
-            }
-            return WebservicesDisabledMessage;
-        }
+        
 
         public static string Connect()
         {

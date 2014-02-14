@@ -19,7 +19,7 @@ namespace iSpyApplication
 
         public MainForm MainClass;
         
-        private Image _floorPlanImage;
+        private Bitmap _floorPlanImage;
         private PictureBox _pnlPlan;
 
         public AddFloorPlan()
@@ -36,7 +36,7 @@ namespace iSpyApplication
             {
                 try
                 {
-                    _floorPlanImage = Image.FromFile(Fpc.Fpobject.image);
+                    _floorPlanImage = (Bitmap)Image.FromFile(Fpc.Fpobject.image);
                 }
                 catch (Exception ex)
                 {
@@ -192,7 +192,7 @@ namespace iSpyApplication
                 Image img = Image.FromFile(fileName);
                 try
                 {                   
-                    Fpc.ImgPlan = (Image) img.Clone();// 
+                    Fpc.ImgPlan = (Bitmap) img.Clone();// 
                     var rf = new ResizeBilinear(533, 400);
                     _floorPlanImage = rf.Apply((Bitmap)img);
                 }

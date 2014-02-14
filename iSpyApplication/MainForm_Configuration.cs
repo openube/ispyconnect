@@ -1011,6 +1011,9 @@ namespace iSpyApplication
                     if (ocmd.id >= rcid)
                         rcid = ocmd.id + 1;
                 }
+
+                
+                
                 if (bAlertVlc)
                     MessageBox.Show(LocRm.GetString("CamerasNotLoadedVLC"), LocRm.GetString("Message"));
 
@@ -1027,6 +1030,7 @@ namespace iSpyApplication
                 InitRemoteCommands();
                 _floorplans = new List<objectsFloorplan>();
             }
+
             Filter.CheckedCameraIDs = new List<int>();
             Filter.CheckedMicIDs = new List<int>();
             Filter.Filtered = false;
@@ -2556,7 +2560,7 @@ namespace iSpyApplication
         {
             if (fileName == "")
                 fileName = Program.AppDataPath + @"XML\objects.xml";
-            var c = new objects();
+            var c = new objects {Version = Convert.ToInt32(Application.ProductVersion.Replace(".", ""))};
             foreach (objectsCamera oc in Cameras)
             {
                 CameraWindow occ = GetCameraWindow(oc.id);
@@ -2885,10 +2889,7 @@ namespace iSpyApplication
                         LocRm.GetString(cameraControl.Recording ? "StopRecording" : "StartRecording");
                     ctxtMnu.Show(cameraControl, new Point(e.X, e.Y));
                     break;
-                case MouseButtons.Middle:
-                    cameraControl.PTZReference = new Point(cameraControl.Width / 2, cameraControl.Height / 2);
-                    cameraControl.PTZNavigate = true;
-                    break;
+                
             }
         }
 

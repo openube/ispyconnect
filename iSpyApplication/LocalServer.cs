@@ -2212,6 +2212,60 @@ namespace iSpyApplication
                     }
                     resp = "OK";
                     break;
+                case "closeaudio":
+                    //deprecated
+                    resp = "OK";
+                    break;
+                case "stoplisten":
+                    {
+                        VolumeLevel vw = _parent.GetVolumeLevel(oid);
+                        if (vw != null && vw.Listening)
+                        {
+                            var cc = vw.CameraControl;
+                            if (cc != null && vw.Listening)
+                                cc.Listen(); //switch off
+                            else
+                                vw.Listening = false;
+                        }
+                    }
+                    resp = "OK";
+                    break;
+                case "startlisten":
+                    {
+                        VolumeLevel vw = _parent.GetVolumeLevel(oid);
+                        if (vw != null && !vw.Listening)
+                        {
+                            var cc = vw.CameraControl;
+                            if (cc != null)
+                            {
+                                cc.Listen();
+                            }
+                            else
+                                vw.Listening = true;
+                        }
+                    }
+                    resp = "OK";
+                    break;
+                case "stoptalk":
+                    {
+                        CameraWindow cw = _parent.GetCameraWindow(oid);
+                        if (cw != null && cw.Talking)
+                        {
+                            cw.Talk();
+                        }
+                    }
+                    resp = "OK";
+                    break;
+                case "starttalk":
+                    {
+                        CameraWindow cw = _parent.GetCameraWindow(oid);
+                        if (cw != null && !cw.Talking)
+                        {
+                            cw.Talk();
+                        }
+                    }
+                    resp = "OK";
+                    break;
                 case "massdelete":
                     files = GetVar(sRequest, "filelist").Trim('|').Split('|');
                     string dir = "audio";
@@ -3264,7 +3318,7 @@ namespace iSpyApplication
                             j = 0;
                             k++;
                         }
-                        Image img = Resources.cam_removed;
+                        Bitmap img = Resources.cam_removed;
                         if (!cw.IsDisposed &&  !cw.Disposing)
                         {
                             if (cw.LastFrameNull)

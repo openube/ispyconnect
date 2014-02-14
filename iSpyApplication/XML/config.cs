@@ -1442,6 +1442,8 @@ public partial class configurationGrid {
     
     private bool fillField;
     
+    private bool showAtStartupField;
+    
     public configurationGrid() {
         this.rowsField = 1;
         this.columnsField = 1;
@@ -1451,6 +1453,7 @@ public partial class configurationGrid {
         this.modeIndexField = 0;
         this.modeConfigField = "";
         this.fillField = true;
+        this.showAtStartupField = false;
     }
     
     /// <remarks/>
@@ -1579,6 +1582,18 @@ public partial class configurationGrid {
         }
         set {
             this.fillField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(false)]
+    public bool ShowAtStartup {
+        get {
+            return this.showAtStartupField;
+        }
+        set {
+            this.showAtStartupField = value;
         }
     }
 }

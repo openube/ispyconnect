@@ -16,6 +16,7 @@ namespace iSpyApplication
         public int Mode = 0;
         public bool Fill = true;
         public string ModeConfig = "";
+        public bool ShowAtStartup = false;
 
         public GridViewCustom()
         {
@@ -40,6 +41,7 @@ namespace iSpyApplication
             Framerate = (int)numFramerate.Value;
             Mode = ddlMode.SelectedIndex;
             Fill = chkFill.Checked;
+            ShowAtStartup = chkShowOnLoad.Checked;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -59,6 +61,7 @@ namespace iSpyApplication
             numFramerate.Value = Framerate;
             ddlMode.SelectedIndex = Mode;
             chkFill.Checked = Fill;
+            chkShowOnLoad.Checked = ShowAtStartup;
 
             if (!String.IsNullOrEmpty(txtName.Text))
                 return;

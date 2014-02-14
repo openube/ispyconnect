@@ -24,6 +24,8 @@ using System.Xml.Serialization;
 [System.Xml.Serialization.XmlRootAttribute(Namespace="", IsNullable=false)]
 public partial class objects {
     
+    private int versionField;
+    
     private objectsCamera[] camerasField;
     
     private objectsMicrophone[] microphonesField;
@@ -31,6 +33,20 @@ public partial class objects {
     private objectsFloorplan[] floorplansField;
     
     private objectsCommand[] remotecommandsField;
+    
+    public objects() {
+        this.versionField = 0;
+    }
+    
+    /// <remarks/>
+    public int Version {
+        get {
+            return this.versionField;
+        }
+        set {
+            this.versionField = value;
+        }
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("camera", IsNullable=false)]

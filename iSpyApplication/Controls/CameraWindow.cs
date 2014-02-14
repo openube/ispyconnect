@@ -800,85 +800,87 @@ namespace iSpyApplication.Controls
             {
                 hwnd = Parent.Handle;
             }
-            if (e.Button == MouseButtons.Left)
+            switch (e.Button)
             {
-                MousePos mousePos = GetMousePos(e.Location);
-
-                if (mousePos == MousePos.NoWhere)
-                {
-                    if (MainForm.Conf.ShowOverlayControls)
-                    {
-                        int leftpoint = Width / 2 - ButtonPanelWidth / 2;
-                        int ypoint = Height - 24 - ButtonPanelHeight;
-                        if (Seekable && Camera != null && Camera.VideoSource != null)
+                    case MouseButtons.Left:
+                        MousePos mousePos = GetMousePos(e.Location);
+                        if (mousePos == MousePos.NoWhere)
                         {
-                            if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
-                                e.Location.Y > ypoint - 20 && e.Location.Y < ypoint + 4)
+                            if (MainForm.Conf.ShowOverlayControls)
                             {
-                                _seeking = true;
-                                return;
-                            }
-                        }
-                        if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
-                            e.Location.Y > ypoint && e.Location.Y < ypoint + ButtonPanelHeight)
-                        {
-                            int x = e.Location.X - leftpoint;
-                            if (x < ButtonWidth + ButtonOffset)
-                            {
-                                //power
-                                if (Camobject.settings.active)
+                                int leftpoint = Width / 2 - ButtonPanelWidth / 2;
+                                int ypoint = Height - 24 - ButtonPanelHeight;
+                                if (Seekable && Camera != null && Camera.VideoSource != null)
                                 {
-                                    Disable();
-                                }
-                                else
-                                {
-                                    Enable();
-                                }
-                            }
-                            else
-                            {
-                                if (x < (ButtonWidth + ButtonOffset) * 2)
-                                {
-                                    //record
-                                    if (Camobject.settings.active)
+                                    if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
+                                        e.Location.Y > ypoint - 20 && e.Location.Y < ypoint + 4)
                                     {
-                                        RecordSwitch(!Recording);
+                                        _seeking = true;
+                                        return;
                                     }
                                 }
-                                else
+                                if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
+                                    e.Location.Y > ypoint && e.Location.Y < ypoint + ButtonPanelHeight)
                                 {
-                                    if (TopLevelControl != null)
+                                    int x = e.Location.X - leftpoint;
+                                    if (x < ButtonWidth + ButtonOffset)
                                     {
-                                        if (x < (ButtonWidth + ButtonOffset) * 3)
-                                            ((MainForm)TopLevelControl).EditCamera(Camobject);
+                                        //power
+                                        if (Camobject.settings.active)
+                                        {
+                                            Disable();
+                                        }
                                         else
                                         {
-                                            if (x < (ButtonWidth + ButtonOffset) * 4)
+                                            Enable();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (x < (ButtonWidth + ButtonOffset) * 2)
+                                        {
+                                            //record
+                                            if (Camobject.settings.active)
                                             {
-                                                string url = MainForm.Webserver + "/watch_new.aspx";
-                                                if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
-                                                {
-                                                    MainForm.OpenUrl(url);
-                                                }
-                                                else
-                                                    ((MainForm)TopLevelControl).Connect(url, false);
+                                                RecordSwitch(!Recording);
                                             }
-                                            else
+                                        }
+                                        else
+                                        {
+                                            if (TopLevelControl != null)
                                             {
-                                                if (x < (ButtonWidth + ButtonOffset) * 5)
-                                                {
-                                                    if (Camobject.settings.active)
-                                                    {
-                                                        string fn = SaveFrame();
-                                                        if (fn != "")
-                                                            MainForm.OpenUrl(fn);
-                                                    }
-                                                }
+                                                if (x < (ButtonWidth + ButtonOffset) * 3)
+                                                    ((MainForm)TopLevelControl).EditCamera(Camobject);
                                                 else
                                                 {
-                                                    Talk();
+                                                    if (x < (ButtonWidth + ButtonOffset) * 4)
+                                                    {
+                                                        string url = MainForm.Webserver + "/watch_new.aspx";
+                                                        if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                                        {
+                                                            MainForm.OpenUrl(url);
+                                                        }
+                                                        else
+                                                            ((MainForm)TopLevelControl).Connect(url, false);
+                                                    }
+                                                    else
+                                                    {
+                                                        if (x < (ButtonWidth + ButtonOffset) * 5)
+                                                        {
+                                                            if (Camobject.settings.active)
+                                                            {
+                                                                string fn = SaveFrame();
+                                                                if (fn != "")
+                                                                    MainForm.OpenUrl(fn);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            Talk();
                                                     
 
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -886,32 +888,35 @@ namespace iSpyApplication.Controls
                                 }
                             }
                         }
-                    }
-                }
 
-                if (MainForm.Conf.LockLayout) return;
-                switch (mousePos)
-                {
-                    case MousePos.Right:
+                        if (MainForm.Conf.LockLayout) return;
+                        switch (mousePos)
                         {
-                            NativeCalls.ReleaseCapture(hwnd);
-                            NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeE, IntPtr.Zero);
+                            case MousePos.Right:
+                                {
+                                    NativeCalls.ReleaseCapture(hwnd);
+                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeE, IntPtr.Zero);
+                                }
+                                break;
+                            case MousePos.Bottom:
+                                {
+                                    NativeCalls.ReleaseCapture(hwnd);
+                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeS, IntPtr.Zero);
+                                }
+                                break;
+                            case MousePos.BottomRight:
+                                {
+                                    NativeCalls.ReleaseCapture(hwnd);
+                                    NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeSe,
+                                                            IntPtr.Zero);
+                                }
+                                break;
                         }
-                        break;
-                    case MousePos.Bottom:
-                        {
-                            NativeCalls.ReleaseCapture(hwnd);
-                            NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeS, IntPtr.Zero);
-                        }
-                        break;
-                    case MousePos.BottomRight:
-                        {
-                            NativeCalls.ReleaseCapture(hwnd);
-                            NativeCalls.SendMessage(hwnd, NativeCalls.WmSyscommand, NativeCalls.ScDragsizeSe,
-                                                    IntPtr.Zero);
-                        }
-                        break;
-                }
+                    break;
+                    case MouseButtons.Middle:
+                        PTZReference = new Point(Width / 2, Height / 2);
+                        PTZNavigate = true;
+                    break;
             }
         }
 
@@ -925,8 +930,11 @@ namespace iSpyApplication.Controls
                     IWin32Window obj = this;
                     if (f != null)
                         obj = f;
-                    MessageBox.Show(obj, "You need to configure talk settings for this camera first");
-                    topLevelControl.EditCamera(Camobject, f);
+                    if (!InvokeRequired)
+                    {
+                        MessageBox.Show(obj, "You need to configure talk settings for this camera first");
+                        topLevelControl.EditCamera(Camobject, f);
+                    }
                 }
                 else
                 {
@@ -1335,6 +1343,7 @@ namespace iSpyApplication.Controls
             {
                 _requestRefresh = false;
                 Invalidate();
+                Update();
             }
         }
 
@@ -1473,7 +1482,7 @@ namespace iSpyApplication.Controls
                             Image frame = LastFrame;
                             string dir = Dir.Entry + "video\\" +
                                          Camobject.directory + "\\";
-                            dir += @"timelapseframes\";
+                            dir += @"grabs\";
 
                             DateTime date = DateTime.Now;
                             string filename = String.Format("Frame_{0}-{1}-{2}_{3}-{4}-{5}.jpg",
@@ -2301,6 +2310,7 @@ namespace iSpyApplication.Controls
                     _lastFrame = value;
                 }
                 _lastframenull = value == null;
+                Invalidate();
             }
         }
 
@@ -2336,7 +2346,7 @@ namespace iSpyApplication.Controls
             else
                 AutoSize = false;
             
-            Monitor.Enter(this);
+            //Monitor.Enter(this);
             Graphics gCam = pe.Graphics;
 
             var grabBrush = new SolidBrush(BorderColor);
@@ -2506,7 +2516,7 @@ namespace iSpyApplication.Controls
             grabBrush.Dispose();
             volBrush.Dispose();
 
-            Monitor.Exit(this);
+            //Monitor.Exit(this);
 
             base.OnPaint(pe);
             _lastRedraw = DateTime.Now;
@@ -2722,7 +2732,6 @@ namespace iSpyApplication.Controls
                 if (_lastRedraw < DateTime.Now.AddMilliseconds(0 - 1000 / MainForm.Conf.MaxRedrawRate))
                 {
                     LastFrame = e.Frame;
-                    Invalidate();
                 }
 
                 if (_reconnectTime != DateTime.MinValue)

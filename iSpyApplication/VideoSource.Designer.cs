@@ -81,21 +81,20 @@ namespace iSpyApplication
             this.ddlRTSP = new System.Windows.Forms.ComboBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel12 = new System.Windows.Forms.FlowLayoutPanel();
-            this.linkLabel3 = new System.Windows.Forms.LinkLabel();
             this.label40 = new System.Windows.Forms.Label();
+            this.linkLabel3 = new System.Windows.Forms.LinkLabel();
             this.pnlVLC = new System.Windows.Forms.Panel();
             this.tlpVLC = new System.Windows.Forms.TableLayoutPanel();
             this.label21 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
-            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
-            this.label18 = new System.Windows.Forms.Label();
-            this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.lblInstallVLC = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
             this.flowLayoutPanel11 = new System.Windows.Forms.FlowLayoutPanel();
             this.cmbVLCURL = new System.Windows.Forms.ComboBox();
             this.button6 = new System.Windows.Forms.Button();
             this.btnGetStreamSize = new System.Windows.Forms.Button();
             this.linkLabel5 = new System.Windows.Forms.LinkLabel();
+            this.label16 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.label39 = new System.Windows.Forms.Label();
@@ -185,6 +184,7 @@ namespace iSpyApplication
             this.button7 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numBorderTimeout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtFrameInterval2)).BeginInit();
             this.tcSource.SuspendLayout();
@@ -201,7 +201,6 @@ namespace iSpyApplication
             this.flowLayoutPanel12.SuspendLayout();
             this.pnlVLC.SuspendLayout();
             this.tlpVLC.SuspendLayout();
-            this.flowLayoutPanel6.SuspendLayout();
             this.flowLayoutPanel11.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
@@ -842,18 +841,27 @@ namespace iSpyApplication
             // 
             // flowLayoutPanel12
             // 
-            this.flowLayoutPanel12.Controls.Add(this.linkLabel3);
             this.flowLayoutPanel12.Controls.Add(this.label40);
-            this.flowLayoutPanel12.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel12.Location = new System.Drawing.Point(6, 215);
+            this.flowLayoutPanel12.Controls.Add(this.linkLabel3);
+            this.flowLayoutPanel12.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel12.Location = new System.Drawing.Point(6, 233);
             this.flowLayoutPanel12.Name = "flowLayoutPanel12";
-            this.flowLayoutPanel12.Size = new System.Drawing.Size(713, 67);
+            this.flowLayoutPanel12.Size = new System.Drawing.Size(713, 25);
             this.flowLayoutPanel12.TabIndex = 59;
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.ForeColor = System.Drawing.Color.Red;
+            this.label40.Location = new System.Drawing.Point(3, 0);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(0, 13);
+            this.label40.TabIndex = 58;
             // 
             // linkLabel3
             // 
             this.linkLabel3.AutoSize = true;
-            this.linkLabel3.Location = new System.Drawing.Point(3, 0);
+            this.linkLabel3.Location = new System.Drawing.Point(9, 0);
             this.linkLabel3.Name = "linkLabel3";
             this.linkLabel3.Size = new System.Drawing.Size(78, 13);
             this.linkLabel3.TabIndex = 57;
@@ -861,46 +869,41 @@ namespace iSpyApplication
             this.linkLabel3.Text = "Download VLC";
             this.linkLabel3.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel3LinkClicked);
             // 
-            // label40
-            // 
-            this.label40.AutoSize = true;
-            this.label40.ForeColor = System.Drawing.Color.Red;
-            this.label40.Location = new System.Drawing.Point(87, 0);
-            this.label40.Name = "label40";
-            this.label40.Size = new System.Drawing.Size(0, 13);
-            this.label40.TabIndex = 58;
-            // 
             // pnlVLC
             // 
+            this.pnlVLC.AutoSize = true;
             this.pnlVLC.Controls.Add(this.tlpVLC);
             this.pnlVLC.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlVLC.Location = new System.Drawing.Point(6, 6);
             this.pnlVLC.Name = "pnlVLC";
-            this.pnlVLC.Size = new System.Drawing.Size(713, 209);
+            this.pnlVLC.Size = new System.Drawing.Size(713, 227);
             this.pnlVLC.TabIndex = 56;
             this.pnlVLC.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlVLC_Paint);
             // 
             // tlpVLC
             // 
+            this.tlpVLC.AutoSize = true;
             this.tlpVLC.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.tlpVLC.ColumnCount = 2;
             this.tlpVLC.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpVLC.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tlpVLC.Controls.Add(this.label21, 0, 0);
             this.tlpVLC.Controls.Add(this.label19, 1, 1);
+            this.tlpVLC.Controls.Add(this.lblInstallVLC, 1, 4);
             this.tlpVLC.Controls.Add(this.txtVLCArgs, 1, 2);
             this.tlpVLC.Controls.Add(this.label18, 0, 2);
-            this.tlpVLC.Controls.Add(this.flowLayoutPanel6, 1, 3);
             this.tlpVLC.Controls.Add(this.flowLayoutPanel11, 1, 0);
+            this.tlpVLC.Controls.Add(this.label16, 1, 3);
             this.tlpVLC.Dock = System.Windows.Forms.DockStyle.Top;
             this.tlpVLC.Location = new System.Drawing.Point(0, 0);
             this.tlpVLC.Name = "tlpVLC";
-            this.tlpVLC.RowCount = 4;
+            this.tlpVLC.RowCount = 5;
             this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpVLC.Size = new System.Drawing.Size(713, 206);
+            this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 90F));
+            this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tlpVLC.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tlpVLC.Size = new System.Drawing.Size(713, 227);
             this.tlpVLC.TabIndex = 58;
             // 
             // label21
@@ -922,14 +925,17 @@ namespace iSpyApplication
             this.label19.TabIndex = 53;
             this.label19.Text = "eg: http://username:password@192.168.1.4/videostream.asf";
             // 
-            // txtVLCArgs
+            // lblInstallVLC
             // 
-            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
-            this.txtVLCArgs.Multiline = true;
-            this.txtVLCArgs.Name = "txtVLCArgs";
-            this.txtVLCArgs.Size = new System.Drawing.Size(294, 71);
-            this.txtVLCArgs.TabIndex = 61;
-            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            this.lblInstallVLC.AutoSize = true;
+            this.lblInstallVLC.Location = new System.Drawing.Point(66, 177);
+            this.lblInstallVLC.Name = "lblInstallVLC";
+            this.lblInstallVLC.Size = new System.Drawing.Size(562, 39);
+            this.lblInstallVLC.TabIndex = 54;
+            this.lblInstallVLC.Text = "You can use VLC to connect to many different sources including .asf, .mp4, rtsp s" +
+    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy " +
+    "to enable this functionality";
+            this.lblInstallVLC.Click += new System.EventHandler(this.lblInstallVLC_Click);
             // 
             // label18
             // 
@@ -940,27 +946,6 @@ namespace iSpyApplication
             this.label18.Size = new System.Drawing.Size(57, 13);
             this.label18.TabIndex = 52;
             this.label18.Text = "Arguments";
-            // 
-            // flowLayoutPanel6
-            // 
-            this.flowLayoutPanel6.Controls.Add(this.lblInstallVLC);
-            this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel6.Location = new System.Drawing.Point(66, 136);
-            this.flowLayoutPanel6.Name = "flowLayoutPanel6";
-            this.flowLayoutPanel6.Size = new System.Drawing.Size(644, 100);
-            this.flowLayoutPanel6.TabIndex = 59;
-            // 
-            // lblInstallVLC
-            // 
-            this.lblInstallVLC.AutoSize = true;
-            this.lblInstallVLC.Location = new System.Drawing.Point(3, 0);
-            this.lblInstallVLC.Name = "lblInstallVLC";
-            this.lblInstallVLC.Size = new System.Drawing.Size(562, 39);
-            this.lblInstallVLC.TabIndex = 54;
-            this.lblInstallVLC.Text = "You can use VLC to connect to many different sources including .asf, .mp4, rtsp s" +
-    "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy " +
-    "to enable this functionality";
-            this.lblInstallVLC.Click += new System.EventHandler(this.lblInstallVLC_Click);
             // 
             // flowLayoutPanel11
             // 
@@ -1015,6 +1000,15 @@ namespace iSpyApplication
             this.linkLabel5.TabStop = true;
             this.linkLabel5.Text = "Help";
             this.linkLabel5.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel5_LinkClicked);
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(66, 146);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(311, 13);
+            this.label16.TabIndex = 62;
+            this.label16.Text = "Add \"--ffmpeg-hw\" to enable H264 GPU decoding (experimental)";
             // 
             // tabPage4
             // 
@@ -1071,7 +1065,7 @@ namespace iSpyApplication
             this.devicesCombo.FormattingEnabled = true;
             this.devicesCombo.Location = new System.Drawing.Point(3, 34);
             this.devicesCombo.Name = "devicesCombo";
-            this.devicesCombo.Size = new System.Drawing.Size(365, 21);
+            this.devicesCombo.Size = new System.Drawing.Size(387, 21);
             this.devicesCombo.TabIndex = 9;
             this.devicesCombo.SelectedIndexChanged += new System.EventHandler(this.devicesCombo_SelectedIndexChanged_1);
             // 
@@ -2054,6 +2048,16 @@ namespace iSpyApplication
             this.panel2.Size = new System.Drawing.Size(733, 35);
             this.panel2.TabIndex = 61;
             // 
+            // txtVLCArgs
+            // 
+            this.txtVLCArgs.Dock = System.Windows.Forms.DockStyle.Left;
+            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
+            this.txtVLCArgs.Multiline = true;
+            this.txtVLCArgs.Name = "txtVLCArgs";
+            this.txtVLCArgs.Size = new System.Drawing.Size(294, 84);
+            this.txtVLCArgs.TabIndex = 61;
+            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
+            // 
             // VideoSource
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -2090,13 +2094,13 @@ namespace iSpyApplication
             this.tableLayoutPanel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAnalyseDuration)).EndInit();
             this.tabPage6.ResumeLayout(false);
+            this.tabPage6.PerformLayout();
             this.flowLayoutPanel12.ResumeLayout(false);
             this.flowLayoutPanel12.PerformLayout();
             this.pnlVLC.ResumeLayout(false);
+            this.pnlVLC.PerformLayout();
             this.tlpVLC.ResumeLayout(false);
             this.tlpVLC.PerformLayout();
-            this.flowLayoutPanel6.ResumeLayout(false);
-            this.flowLayoutPanel6.PerformLayout();
             this.flowLayoutPanel11.ResumeLayout(false);
             this.flowLayoutPanel11.PerformLayout();
             this.tabPage4.ResumeLayout(false);
@@ -2238,7 +2242,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button btnGetStreamSize;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel6;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.TextBox txtDecodeKey;
         private System.Windows.Forms.Label label22;
@@ -2306,5 +2309,6 @@ namespace iSpyApplication
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.ComboBox ddlCloneCamera;
+        private System.Windows.Forms.Label label16;
     }
 }

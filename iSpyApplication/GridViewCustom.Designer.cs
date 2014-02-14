@@ -46,6 +46,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.chkFill = new System.Windows.Forms.CheckBox();
             this.btnConfigure = new System.Windows.Forms.Button();
+            this.chkShowOnLoad = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCols)).BeginInit();
@@ -65,7 +66,7 @@
             this.tableLayoutPanel1.Controls.Add(this.txtName, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.chkFullScreen, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 9);
+            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 10);
             this.tableLayoutPanel1.Controls.Add(this.label4, 0, 8);
             this.tableLayoutPanel1.Controls.Add(this.cmbDisplay, 1, 8);
             this.tableLayoutPanel1.Controls.Add(this.chkAlwaysOnTop, 1, 5);
@@ -75,10 +76,11 @@
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.chkFill, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.btnConfigure, 2, 1);
+            this.tableLayoutPanel1.Controls.Add(this.chkShowOnLoad, 1, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 10;
+            this.tableLayoutPanel1.RowCount = 11;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -89,7 +91,8 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(263, 269);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(263, 291);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // numRows
@@ -190,7 +193,7 @@
             // button1
             // 
             this.button1.AutoSize = true;
-            this.button1.Location = new System.Drawing.Point(69, 232);
+            this.button1.Location = new System.Drawing.Point(69, 255);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -299,11 +302,21 @@
             this.btnConfigure.UseVisualStyleBackColor = true;
             this.btnConfigure.Click += new System.EventHandler(this.btnConfigure_Click);
             // 
+            // chkShowOnLoad
+            // 
+            this.chkShowOnLoad.AutoSize = true;
+            this.chkShowOnLoad.Location = new System.Drawing.Point(69, 232);
+            this.chkShowOnLoad.Name = "chkShowOnLoad";
+            this.chkShowOnLoad.Size = new System.Drawing.Size(95, 17);
+            this.chkShowOnLoad.TabIndex = 18;
+            this.chkShowOnLoad.Text = "Show on Load";
+            this.chkShowOnLoad.UseVisualStyleBackColor = true;
+            // 
             // GridViewCustom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(263, 269);
+            this.ClientSize = new System.Drawing.Size(263, 291);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "GridViewCustom";
@@ -339,5 +352,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox chkFill;
         private System.Windows.Forms.Button btnConfigure;
+        private System.Windows.Forms.CheckBox chkShowOnLoad;
     }
 }
