@@ -3,6 +3,7 @@
     <xs:element name="objects">
         <xs:complexType>
             <xs:sequence>
+                <xs:element name="Version" type="xs:int" default="0"/>
                 <xs:element name="cameras">
                     <xs:complexType>
                         <xs:sequence>

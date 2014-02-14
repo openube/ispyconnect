@@ -12,7 +12,6 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Timers;
@@ -1213,12 +1212,23 @@ namespace iSpyApplication
                 _cputotalCounter = null;
             }
 
+
             if (Conf.StartupForm != "iSpy")
             {
                 configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == Conf.StartupForm);
                 if (cg != null)
                 {
                     var gv = new GridView(this, ref cg);
+                    gv.Show();
+                }
+            }
+
+            foreach (var cg in Conf.GridViews)
+            {
+                if (cg.ShowAtStartup)
+                {
+                    var c = cg;
+                    var gv = new GridView(this, ref c);
                     gv.Show();
                 }
             }
@@ -2235,28 +2245,7 @@ namespace iSpyApplication
             {
                 LogExceptionToFile(ex);
             }
-            try
-            {
-                Application.DoEvents();
-                if (Conf.ServicesEnabled)
-                {
-                    if (WsWrapper.WebsiteLive)
-                    {
-                        try
-                        {
-                            WsWrapper.Disconnect();
-                        }
-                        catch
-                        {
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogExceptionToFile(ex);
-            }
-
+            WsWrapper.Disconnect();
             try
             {
                 File.WriteAllText(Program.AppDataPath + "exit.txt", "OK");
@@ -2905,34 +2894,40 @@ namespace iSpyApplication
 
         private void ShowFilesToolStripMenuItemClick(object sender, EventArgs e)
         {
-            string foldername;
+            
             if (ContextTarget is CameraWindow)
             {
-                var cw = ((CameraWindow) ContextTarget);
-                foldername = GetMediaDirectory(2, cw.Camobject.id) + "video\\" + cw.Camobject.directory +
-                             "\\";
-                if (!foldername.EndsWith(@"\"))
-                    foldername += @"\";
-                Process.Start(foldername);
-                cw.Camobject.newrecordingcount = 0;
+                ShowFiles(((CameraWindow)ContextTarget));   
                 return;
             }
 
             if (ContextTarget is VolumeLevel)
             {
-                var vl = ((VolumeLevel) ContextTarget);
-                foldername = GetMediaDirectory(1, vl.Micobject.id) + "audio\\" + vl.Micobject.directory +
-                             "\\";
-                if (!foldername.EndsWith(@"\"))
-                    foldername += @"\";
-                Process.Start(foldername);
-                vl.Micobject.newrecordingcount = 0;
+                ShowFiles((VolumeLevel)ContextTarget);
                 return;
             }
             foreach (configurationDirectory s in Conf.MediaDirectories)
             {
                 Process.Start(s.Entry);
             }
+        }
+
+        internal void ShowFiles(CameraWindow cw)
+        {
+            string foldername = GetMediaDirectory(2, cw.Camobject.id) + "video\\" + cw.Camobject.directory +"\\";
+            if (!foldername.EndsWith(@"\"))
+                foldername += @"\";
+            Process.Start(foldername);
+            cw.Camobject.newrecordingcount = 0;
+        }
+
+        internal void ShowFiles(VolumeLevel vl)
+        {
+            string foldername = GetMediaDirectory(1, vl.Micobject.id) + "audio\\" + vl.Micobject.directory + "\\";
+            if (!foldername.EndsWith(@"\"))
+                foldername += @"\";
+            Process.Start(foldername);
+            vl.Micobject.newrecordingcount = 0;
         }
 
         private void ViewMediaOnAMobileDeviceToolStripMenuItemClick(object sender, EventArgs e)
@@ -3986,6 +3981,7 @@ namespace iSpyApplication
                              ModeIndex = gvc.Mode,
                              Fill = gvc.Fill,
                              ModeConfig = gvc.ModeConfig,
+                             ShowAtStartup = gvc.ShowAtStartup,
                              GridItem = new configurationGridGridItem[] {}
                          };
                 List<configurationGrid> l = Conf.GridViews.ToList();
@@ -4090,7 +4086,8 @@ namespace iSpyApplication
                               Framerate = cg.Framerate,
                               Mode = cg.ModeIndex,
                               ModeConfig = cg.ModeConfig,
-                              Fill = cg.Fill
+                              Fill = cg.Fill,
+                              ShowAtStartup = cg.ShowAtStartup,
                           };
                 gvc.ShowDialog(parent);
                 if (gvc.DialogResult == DialogResult.OK)
@@ -4105,6 +4102,7 @@ namespace iSpyApplication
                     cg.ModeIndex = gvc.Mode;
                     cg.ModeConfig = gvc.ModeConfig;
                     cg.Fill = gvc.Fill;
+                    cg.ShowAtStartup = gvc.ShowAtStartup;
                     ListGridViews();
                 }
                 gvc.Dispose();

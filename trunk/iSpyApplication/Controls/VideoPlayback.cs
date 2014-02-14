@@ -146,7 +146,7 @@ namespace iSpyApplication.Controls
                 {
                     try
                     {
-                        gCam.DrawImage(LastFrame, _x , _y, _w, _h);
+                        gCam.DrawImage(LastFrame, _x, _y, _w, _h);
                     }
                     catch
                     {

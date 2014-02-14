@@ -42,7 +42,7 @@ namespace iSpyApplication.Controls
 
 
 
-        public Image ImgPlan
+        public Bitmap ImgPlan
         {
             
             get
@@ -69,7 +69,7 @@ namespace iSpyApplication.Controls
         }
 
 
-        public Image ImgView
+        public Bitmap ImgView
         {
              get
              {
@@ -83,7 +83,7 @@ namespace iSpyApplication.Controls
 
         #endregion
         private DateTime _mouseMove = DateTime.MinValue;
-        private Image _imgplan, _imgview;
+        private Bitmap _imgplan, _imgview;
         private const int ButtonOffset = 4, ButtonCount = 2;
 
         private static int ButtonWidth
@@ -592,7 +592,7 @@ namespace iSpyApplication.Controls
                             }
                             _imgview = null;
                         }
-                        var img = Image.FromFile(Fpobject.image);
+                        var img = (Bitmap)Image.FromFile(Fpobject.image);
                         if (!Fpobject.originalsize)
                         {
                             var rf = new ResizeBilinear(533, 400);
@@ -613,7 +613,7 @@ namespace iSpyApplication.Controls
                     
 
                     Graphics gLf = Graphics.FromImage(_imgview);
-                    gLf.DrawImage(_imgplan,0,0);
+                    gLf.DrawImage(_imgplan, 0, 0,_imgplan.Width,_imgplan.Height);
 
                     bool itemRemoved = false;
                     double wrat = Convert.ToDouble(ImageWidth) / 533d;

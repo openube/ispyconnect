@@ -41,10 +41,10 @@
             // contextMenuStrip1
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.editToolStripMenuItem,
             this.fullScreenToolStripMenuItem,
             this.alwaysOnTopToolStripMenuItem,
-            this.closeGridViewToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.closeGridViewToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             this.contextMenuStrip1.Size = new System.Drawing.Size(194, 114);
             // 

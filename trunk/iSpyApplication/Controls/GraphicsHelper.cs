@@ -1,49 +1,73 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using AForge.Imaging;
 
 namespace iSpyApplication.Controls
 {
     public static class GraphicsHelper
     {
-        public static void GdiDrawImage(this Graphics graphics, Bitmap image, int x, int y, int w, int h)
+        public static bool UseManaged = true;
+
+        public static void GdiDrawImage(this Graphics graphics, UnmanagedImage image, int x, int y, int w, int h)
         {
-            var rectangleDst = new Rectangle(x,y,w,h);
+            
+            IntPtr hdc = graphics.GetHdc();
+            IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
+            IntPtr bmp = image.ImageData;
+            GdiInterop.SelectObject(memdc, bmp);
+            GdiInterop.SetStretchBltMode(hdc, 0x04);
+            GdiInterop.StretchBlt(hdc, x, y, w, h, memdc, 0, 0, image.Width, image.Height, GdiInterop.TernaryRasterOperations.SRCCOPY);
+            GdiInterop.DeleteObject(bmp);
+            GdiInterop.DeleteDC(memdc);
+            graphics.ReleaseHdc(hdc);
+
+        }
+
+        public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle r)
+        {
+            if (UseManaged)
+            {
+                graphics.DrawImage(image, r);
+                return;
+            }
+
             IntPtr hdc = graphics.GetHdc();
             IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
             IntPtr bmp = image.GetHbitmap();
             GdiInterop.SelectObject(memdc, bmp);
             GdiInterop.SetStretchBltMode(hdc, 0x04);
-            GdiInterop.StretchBlt(hdc, rectangleDst.Left, rectangleDst.Top, rectangleDst.Width, rectangleDst.Height, memdc, 0, 0, image.Width, image.Height, GdiInterop.TernaryRasterOperations.SRCCOPY);
+            GdiInterop.StretchBlt(hdc, r.Left, r.Top, r.Width, r.Height, memdc, 0, 0, image.Width, image.Height, GdiInterop.TernaryRasterOperations.SRCCOPY);
             GdiInterop.DeleteObject(bmp);
             GdiInterop.DeleteDC(memdc);
             graphics.ReleaseHdc(hdc);
         }
-        
-        public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle rectangleDst)
+
+        public static void GdiDrawImage(this Graphics graphics, UnmanagedImage image, Rectangle r)
         {
+
             IntPtr hdc = graphics.GetHdc();
             IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
-            IntPtr bmp = image.GetHbitmap();
+            IntPtr bmp = image.ImageData;
             GdiInterop.SelectObject(memdc, bmp);
             GdiInterop.SetStretchBltMode(hdc, 0x04);
-            GdiInterop.StretchBlt(hdc, rectangleDst.Left, rectangleDst.Top, rectangleDst.Width, rectangleDst.Height, memdc, 0,0,image.Width,image.Height, GdiInterop.TernaryRasterOperations.SRCCOPY);
+            GdiInterop.StretchBlt(hdc, r.Left, r.Top, r.Width, r.Height, memdc, 0, 0, image.Width, image.Height, GdiInterop.TernaryRasterOperations.SRCCOPY);
             GdiInterop.DeleteObject(bmp);
             GdiInterop.DeleteDC(memdc);
             graphics.ReleaseHdc(hdc);
         }
-        public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle rectangleDst, int nXSrc, int nYSrc, int nWidth, int nHeight)
-        {
-            IntPtr hdc = graphics.GetHdc();
-            IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
-            IntPtr bmp = image.GetHbitmap();
-            GdiInterop.SelectObject(memdc, bmp);
-            GdiInterop.SetStretchBltMode(hdc, 0x04);
-            GdiInterop.StretchBlt(hdc, rectangleDst.Left, rectangleDst.Top, rectangleDst.Width, rectangleDst.Height, memdc, nXSrc, nYSrc, nWidth, nHeight, GdiInterop.TernaryRasterOperations.SRCCOPY);
-            GdiInterop.DeleteObject(bmp);
-            GdiInterop.DeleteDC(memdc);
-            graphics.ReleaseHdc(hdc);
-        }
+        //public static void GdiDrawImage(this Graphics graphics, Bitmap image, Rectangle rectangleDst, int nXSrc, int nYSrc, int nWidth, int nHeight)
+        //{
+        //    IntPtr hdc = graphics.GetHdc();
+        //    IntPtr memdc = GdiInterop.CreateCompatibleDC(hdc);
+        //    IntPtr bmp = image.GetHbitmap();
+        //    GdiInterop.SelectObject(memdc, bmp);
+        //    GdiInterop.SetStretchBltMode(hdc, 0x04);
+        //    GdiInterop.StretchBlt(hdc, rectangleDst.Left, rectangleDst.Top, rectangleDst.Width, rectangleDst.Height, memdc, nXSrc, nYSrc, nWidth, nHeight, GdiInterop.TernaryRasterOperations.SRCCOPY);
+        //    GdiInterop.DeleteObject(bmp);
+        //    GdiInterop.DeleteDC(memdc);
+        //    graphics.ReleaseHdc(hdc);
+        //}
     }
 
     public class GdiInterop
@@ -70,6 +94,7 @@ namespace iSpyApplication.Controls
             DSTINVERT = 0x00550009, // dest = (NOT dest)
             BLACKNESS = 0x00000042, // dest = BLACK
             WHITENESS = 0x00FF0062, // dest = WHITE
+            CAPTUREBLT = 0x40000000 //only if WinVer >= 5.0.0 (see wingdi.h)
         };
 
         /// <summary>

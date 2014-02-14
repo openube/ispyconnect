@@ -143,6 +143,7 @@
                   <xs:attribute name="ModeIndex" type="xs:int" default="0" />
                   <xs:attribute name="ModeConfig" type="xs:string" default="" />
                   <xs:attribute name="Fill" type="xs:boolean" default="true" />
+                  <xs:attribute name="ShowAtStartup" type="xs:boolean" default="false" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
