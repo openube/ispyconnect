@@ -50,7 +50,7 @@ namespace iSpyApplication
                     if (_jst.Buttons[i] != _buttonsLast[i] && _jst.Buttons[i])
                     {
                         int j = i + 1;
-                        
+
                         if (j == Conf.Joystick.Listen)
                         {
                             if (cw != null)
@@ -104,6 +104,11 @@ namespace iSpyApplication
                         {
                             if (cw!=null)
                                 cw.SaveFrame();
+                        }
+
+                        if (j == Conf.Joystick.MaxMin)
+                        {
+                            ProcessKey("maxmin");
                         }
 
                     }
@@ -615,7 +620,7 @@ namespace iSpyApplication
                         }
                     }
                     break;
-
+                case "maxmin":
                 case "zoom":
                     foreach (Control c in _pnlCameras.Controls)
                     {

@@ -111,4 +111,8 @@
   <StartupForm>iSpy</StartupForm>
   <FeatureSet>0</FeatureSet>
   <EnableGZip>true</EnableGZip>
+  <Archive></Archive>
+  <MailAlertSubject>[EVENT]: [OBJECTNAME]</MailAlertSubject>
+  <MailAlertBody>[EVENT]: [OBJECTNAME] [RECORDED] [PLUGIN]</MailAlertBody>
+  <SMSAlert>[EVENT]: [OBJECTNAME] [RECORDED] [PLUGIN]</SMSAlert>
 </configuration>

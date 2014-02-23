@@ -34,7 +34,7 @@ namespace iSpyApplication.Controls
         private DateTime _mouseMove = DateTime.MinValue;
         public event EventHandler AudioDeviceEnabled;
         private double _intervalCount;
-        private long _lastRun = DateTime.Now.Ticks;
+        private long _lastRun = Helper.Now.Ticks;
         private double _secondCountNew;
         private double _recordingTime;
         private Point _mouseLoc;
@@ -44,18 +44,18 @@ namespace iSpyApplication.Controls
         private int _ttind = -1;
         private DateTime _errorTime = DateTime.MinValue;
         private DateTime _reconnectTime = DateTime.MinValue;
-        public DateTime SoundLastDetected = DateTime.MinValue;
+        public DateTime LastSoundDetected = DateTime.MinValue;
         public DateTime LastAlerted = DateTime.MinValue;
         private DateTime _lastAlertCheck = DateTime.MinValue;
         private bool _isTrigger;
         private readonly DateTime _lastScheduleCheck = DateTime.MinValue;
         private List<FilesFile> _filelist = new List<FilesFile>();
         private readonly AutoResetEvent _newRecordingFrame = new AutoResetEvent(false);
-        private readonly object _obj = new object();
         private Thread _recordingThread;
         private const int ButtonOffset = 4, ButtonCount = 5;
         private bool _requestRefresh;
         private readonly Pen _vline = new Pen(Color.Green, 2);
+        private readonly object _lockobject = new object();
         public bool ShuttingDown;
         public bool IsClone;
         private static int ButtonWidth
@@ -75,7 +75,6 @@ namespace iSpyApplication.Controls
         }
         private bool _pairedRecording;
         public volatile bool IsReconnect;
-        private delegate void SwitchDelegate();
         private readonly StringBuilder _soundData = new StringBuilder(100000);
 
         //private AudioStreamer _as = null;
@@ -120,18 +119,12 @@ namespace iSpyApplication.Controls
             }
         }
 
-        #region Delegates
-        public delegate void NewDataAvailable(object sender, NewDataAvailableArgs eventArgs);
-        public delegate void NotificationEventHandler(object sender, NotificationType e);
-        public delegate void RemoteCommandEventHandler(object sender, ThreadSafeCommand e);
-        public delegate void FileListUpdatedEventHandler(object sender);
-        #endregion
 
         #region Events
-        public event RemoteCommandEventHandler RemoteCommand;
-        public event NotificationEventHandler Notification;
-        public event NewDataAvailable DataAvailable;
-        public event FileListUpdatedEventHandler FileListUpdated;
+        public event Delegates.RemoteCommandEventHandler RemoteCommand;
+        public event Delegates.NotificationEventHandler Notification;
+        public event Delegates.NewDataAvailable DataAvailable;
+        public event Delegates.FileListUpdatedEventHandler FileListUpdated;
         #endregion
 
         public List<AudioAction> AudioBuffer;
@@ -141,7 +134,7 @@ namespace iSpyApplication.Controls
         public Enums.AudioStreamMode AudioStreamMode;
        
         public Rectangle RestoreRect = Rectangle.Empty;
-        public int FlashCounter;
+        public DateTime FlashCounter = DateTime.MinValue;
         public bool ForcedRecording;
         public double InactiveRecord;
         public bool IsEdit;
@@ -197,7 +190,7 @@ namespace iSpyApplication.Controls
                             using (TextReader reader = new StreamReader(fs))
                             {
                                 fs.Position = 0;
-                                lock (_filelist)
+                                lock (_lockobject)
                                 {
                                     var t = ((Files)s.Deserialize(reader));
                                     if (t.File == null || !t.File.Any())
@@ -237,7 +230,7 @@ namespace iSpyApplication.Controls
             //else build from directory contents
 
             _filelist = new List<FilesFile>();
-            lock (_filelist)
+            lock (_lockobject)
             {
                 var dirinfo = new DirectoryInfo(Dir.Entry + "audio\\" + Micobject.directory + "\\");
 
@@ -285,7 +278,7 @@ namespace iSpyApplication.Controls
 
         public void ClearFileList()
         {
-            lock(_filelist)
+            lock (_lockobject)
             {
                 _filelist.Clear();
             }
@@ -295,7 +288,7 @@ namespace iSpyApplication.Controls
 
         public void RemoveFile(string filename)
         {
-            lock (_filelist)
+            lock (_lockobject)
             {
                 _filelist.RemoveAll(p => p.Filename == filename);
             }
@@ -355,7 +348,7 @@ namespace iSpyApplication.Controls
                 lFi = lFi.OrderByDescending(f => f.CreationTime).ToList();
 
                 //var farr = _filelist.ToArray();
-                lock (_filelist)
+                lock (_lockobject)
                 {
                     for (int j = 0; j < _filelist.Count; j++)
                     {
@@ -399,12 +392,11 @@ namespace iSpyApplication.Controls
                 FileListUpdated(this);
         }
 
-        private readonly object _recordinglock = new object();
         public bool Recording
         {
             get
             {
-                lock (_recordinglock)
+                lock (_lockobject)
                 {
                     return _recordingThread != null && !_recordingThread.Join(TimeSpan.Zero);
                 }
@@ -495,7 +487,7 @@ namespace iSpyApplication.Controls
                             if (x < ButtonWidth + ButtonOffset)
                             {
                                 //power
-                                if (Micobject.settings.active)
+                                if (IsEnabled)
                                 {
                                     Disable();
                                 }
@@ -509,7 +501,7 @@ namespace iSpyApplication.Controls
                                 if (x < (ButtonWidth + ButtonOffset)*2)
                                 {
                                     //record
-                                    if (Micobject.settings.active)
+                                    if (IsEnabled)
                                     {
                                         RecordSwitch(!Recording);
                                     }
@@ -534,7 +526,7 @@ namespace iSpyApplication.Controls
                                             }
                                             else
                                             {
-                                                if (Micobject.settings.active)
+                                                if (IsEnabled)
                                                 {
                                                     if (CameraControl!=null)
                                                         CameraControl.Listen();
@@ -586,7 +578,7 @@ namespace iSpyApplication.Controls
             _mouseLoc.X = e.X;
             _mouseLoc.Y = e.Y;
 
-            _mouseMove = DateTime.Now;
+            _mouseMove = Helper.Now;
             MousePos mousePos = GetMousePos(e.Location);
             switch (mousePos)
             {
@@ -616,7 +608,7 @@ namespace iSpyApplication.Controls
                                 if (_ttind != 0)
                                 {
                                     _toolTipMic.Show(
-                                        Micobject.settings.active
+                                        IsEnabled
                                             ? LocRm.GetString("switchOff")
                                             : LocRm.GetString("Switchon"), this, toolTipLocation, 1000);
                                     _ttind = 0;
@@ -813,8 +805,8 @@ namespace iSpyApplication.Controls
         public void Tick()
         {
             //time since last tick
-            var ts = new TimeSpan(DateTime.Now.Ticks - _lastRun);
-            _lastRun = DateTime.Now.Ticks;
+            var ts = new TimeSpan(Helper.Now.Ticks - _lastRun);
+            _lastRun = Helper.Now.Ticks;
             _secondCountNew = ts.Milliseconds / 1000.0;
 
             if (Micobject.schedule.active)
@@ -822,47 +814,48 @@ namespace iSpyApplication.Controls
                 if (CheckSchedule()) goto skip;
             }
 
-            if (!Micobject.settings.active) goto skip;
+            if (!IsEnabled) goto skip;
 
-            if (FlashCounter <= 5)
+            if (FlashCounter > DateTime.MinValue)
             {
-                SoundDetected = false;
-            }
+                double iFc = (FlashCounter - Helper.Now).TotalSeconds;
 
-            if (FlashCounter > 5)
-            {
-                InactiveRecord = 0;
-                if (Micobject.alerts.mode != "nosound" && (Micobject.detector.recordondetect || Micobject.detector.recordonalert))
+                if (iFc <= 5)
                 {
-                    var cc = CameraControl;
-                    if (cc != null)
-                        cc.InactiveRecord = 0;
+                    SoundDetected = false;
                 }
-            }
 
-            if (FlashCounter == 1)
-            {
-                UpdateFloorplans(false);
-            }
+                if (iFc > 5)
+                {
+                    InactiveRecord = 0;
+                    if (Micobject.alerts.mode != "nosound" &&
+                        (Micobject.detector.recordondetect || Micobject.detector.recordonalert))
+                    {
+                        var cc = CameraControl;
+                        if (cc != null)
+                            cc.InactiveRecord = 0;
+                    }
+                }
 
-            if (FlashCounter > 0)
-                FlashCounter--;
+                if (iFc < 1)
+                {
+                    UpdateFloorplans(false);
+                    FlashCounter = DateTime.MinValue;
+                }
+
+            }
 
             if (Recording)
                 _recordingTime += Convert.ToDouble(ts.TotalMilliseconds)/1000.0;
 
-            bool reset = true;
-
-            if (Micobject.settings.active)
+            if (IsEnabled)
             {
-                reset = FlashBackground();
+                FlashBackground();
             }
-            if (reset)
-                BackgroundColor = MainForm.BackgroundColor;
-
+            
             _tickThrottle += _secondCountNew;
 
-            if (_tickThrottle > 1 && Micobject.settings.active) //every second
+            if (_tickThrottle > 1 && IsEnabled) //every second
             {
                 if (CheckReconnect()) goto skip;
 
@@ -897,56 +890,56 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private bool FlashBackground()
+        private DateTime _lastFlash = DateTime.MinValue;
+        private void FlashBackground()
         {
-            bool reset = true;
-            if (FlashCounter > 0 && _isTrigger)
+            var dt = Helper.Now;
+            if ((dt - _lastFlash).TotalMilliseconds < 500)
+                return;
+            _lastFlash = dt;
+            bool b = BackgroundColor != MainForm.BackgroundColor;
+
+            if (FlashCounter > Helper.Now && _isTrigger)
             {
                 BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                     ? MainForm.BackgroundColor
-                                     : MainForm.ActivityColor;
-                reset = false;
+                                      ? MainForm.BackgroundColor
+                                      : MainForm.ActivityColor;
+                b = false;
             }
             else
             {
-                switch (Micobject.alerts.mode)
+                switch (Micobject.alerts.mode.ToLower())
                 {
-                    case "sound":
-                        if (FlashCounter > 0)
-                        {
-                            BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                                  ? MainForm.BackgroundColor
-                                                  : MainForm.ActivityColor;
-                            reset = false;
-                        }
-                        break;
                     case "nosound":
                         if (!SoundDetected)
                         {
                             BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
                                                   ? MainForm.BackgroundColor
                                                   : MainForm.NoActivityColor;
-                            reset = false;
+                            b = false;
                         }
+
                         break;
                     default:
-                        if (FlashCounter > 0)
+                        if (FlashCounter > Helper.Now)
                         {
                             BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
                                                   ? MainForm.BackgroundColor
                                                   : MainForm.ActivityColor;
-                            reset = false;
+                            b = false;
                         }
 
                         break;
                 }
             }
-            return reset;
+            if (b)
+                BackgroundColor = MainForm.BackgroundColor;
+
         }
 
         private void CheckReconnectInterval(double since)
         {
-            if (Micobject.settings.active && AudioSource != null && !IsClone && !IsReconnect && !(AudioSource is IVideoSource))
+            if (IsEnabled && AudioSource != null && !IsClone && !IsReconnect && !(AudioSource is IVideoSource))
             {
                 if (Micobject.settings.reconnectinterval > 0)
                 {
@@ -983,30 +976,33 @@ namespace iSpyApplication.Controls
 
         private void CheckDisconnect()
         {
-            if (!String.IsNullOrEmpty(Micobject.settings.emailondisconnect) && _errorTime != DateTime.MinValue)
+            if (_errorTime != DateTime.MinValue)
             {
-                int sec = Convert.ToInt32((DateTime.Now - _errorTime).TotalSeconds);
+                int sec = Convert.ToInt32((Helper.Now - _errorTime).TotalSeconds);
                 if (sec > MainForm.Conf.DisconnectNotificationDelay)
                 {
-                    string subject =
-                        LocRm.GetString("MicrophoneNotifyDisconnectMailSubject").Replace("[OBJECTNAME]",
-                                                                                         Micobject.name);
-                    string message = LocRm.GetString("MicrophoneNotifyDisconnectMailBody");
-                    message = message.Replace("[NAME]", Micobject.name);
-
-                    decimal offset = 0;
-                    var oc = CameraControl;
-                    if (oc != null && oc.Camobject != null)
-                        offset = oc.Camobject.settings.timestampoffset;
-
-                    message = message.Replace("[TIME]", DateTime.Now.AddHours(Convert.ToDouble(offset)).ToLongTimeString());
-
-
-                    WsWrapper.SendAlert(Micobject.settings.emailondisconnect, subject, message);
-
+                    DoAlert("disconnect");
                     _errorTime = DateTime.MinValue;
                 }
             }
+        }
+
+        private string MailMerge(string s, string mode, bool recorded = false, string pluginMessage = "")
+        {
+            double offset = 0;
+            var oc = CameraControl;
+            if (oc != null && oc.Camobject != null)
+                offset = Convert.ToDouble(oc.Camobject.settings.timestampoffset);
+
+            s = s.Replace("[OBJECTNAME]", Micobject.name);
+            s = s.Replace("[TIME]", DateTime.Now.AddHours(offset).ToLongTimeString());
+            s = s.Replace("[DATE]", DateTime.Now.AddHours(offset).ToShortDateString());
+            s = s.Replace("[RECORDED]", recorded ? "(recorded)" : "");
+            s = s.Replace("[PLUGIN]", pluginMessage);
+            s = s.Replace("[EVENT]", mode.ToUpper());
+            s = s.Replace("[SERVER]", MainForm.Conf.ServerName);
+            
+            return s;
         }
 
         private bool CheckSchedule()
@@ -1030,7 +1026,7 @@ namespace iSpyApplication.Controls
                                 Micobject.detector.recordonalert = entry.recordonalert;
                                 Micobject.alerts.active = entry.alerts;
 
-                                if (Micobject.settings.active)
+                                if (IsEnabled)
                                     Disable();
                                 return true;
                             }
@@ -1044,7 +1040,7 @@ namespace iSpyApplication.Controls
                         {
                             if (Convert.ToInt32(start[1]) == dtnow.Minute && dtnow.Second < 3)
                             {
-                                if (!Micobject.settings.active)
+                                if (!IsEnabled)
                                     Enable();
                                 if ((dtnow - _lastScheduleCheck).TotalSeconds > 60)
                                 {
@@ -1067,7 +1063,7 @@ namespace iSpyApplication.Controls
 
         private void CheckAlert(double since)
         {
-            if (Micobject.settings.active && AudioSource != null)
+            if (IsEnabled && AudioSource != null)
             {
                 if (Alerted)
                 {
@@ -1077,7 +1073,7 @@ namespace iSpyApplication.Controls
                         Alerted = false;
                         _intervalCount = 0;
                         UpdateFloorplans(false);
-                        _lastAlertCheck = DateTime.Now;
+                        _lastAlertCheck = Helper.Now;
                     }
                 }
                 else
@@ -1088,27 +1084,27 @@ namespace iSpyApplication.Controls
                         {
                             case "sound":
 
-                                if (SoundLastDetected > _lastAlertCheck)
+                                if (LastSoundDetected > _lastAlertCheck)
                                 {
                                     SoundCount += since;
                                     Debug.WriteLine(SoundCount);
                                     if (_isTrigger ||
                                         (SoundCount >= Micobject.detector.soundinterval))
                                     {
-                                        DoAlert();
+                                        DoAlert("alert");
                                         SoundCount = 0;
                                     }
-                                    _lastAlertCheck = DateTime.Now;
+                                    _lastAlertCheck = Helper.Now;
                                 }
                                 else
                                     SoundCount = 0;
 
                                 break;
                             case "nosound":
-                                if ((DateTime.Now - SoundLastDetected).TotalSeconds >
+                                if ((Helper.Now - LastSoundDetected).TotalSeconds >
                                     Micobject.detector.nosoundinterval)
                                 {
-                                    DoAlert();
+                                    DoAlert("alert");
                                 }
                                 break;
                         }
@@ -1152,7 +1148,7 @@ namespace iSpyApplication.Controls
             {
                 if (AudioSource != null)
                 {
-                    int sec = Convert.ToInt32((DateTime.Now - _reconnectTime).TotalSeconds);
+                    int sec = Convert.ToInt32((Helper.Now - _reconnectTime).TotalSeconds);
                     if (sec > 10)
                     {
                         //try to reconnect every 10 seconds
@@ -1160,7 +1156,7 @@ namespace iSpyApplication.Controls
                         {  
                             AudioSource.Start();
                         }
-                        _reconnectTime = DateTime.Now;
+                        _reconnectTime = Helper.Now;
                         return true;
                     }
                 }
@@ -1218,7 +1214,7 @@ namespace iSpyApplication.Controls
 
             gMic.Clear(BackgroundColor);
 
-            if (Micobject.settings.active && _levels != null && !AudioSourceErrorState)
+            if (IsEnabled && _levels != null && !AudioSourceErrorState)
             {
 
                 int bh = (rc.Height - 20) / Micobject.settings.channels - (Micobject.settings.channels - 1) * 2;
@@ -1304,7 +1300,7 @@ namespace iSpyApplication.Controls
                 }
             }
 
-            if (_mouseMove > DateTime.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
+            if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
             {
                 int leftpoint = Width - ButtonPanelWidth-1;
                 //const int ypoint = 0;
@@ -1313,10 +1309,10 @@ namespace iSpyApplication.Controls
                 overlayBackgroundBrush.Dispose();
 
 
-                gMic.DrawString(">", MainForm.Iconfont, Micobject.settings.active ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ButtonOffset);
+                gMic.DrawString(">", MainForm.Iconfont, IsEnabled ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ButtonOffset);
 
                 var b = MainForm.IconBrushOff;
-                if (Micobject.settings.active)
+                if (IsEnabled)
                 {
                     b = MainForm.IconBrush;
                 }
@@ -1392,7 +1388,7 @@ namespace iSpyApplication.Controls
             if (Recording || Dir.StopSavingFlag || IsEdit)
                 return;
 
-            lock (_recordinglock)
+            lock (_lockobject)
             {
                 _recordingThread = new Thread(Record)
                                    {
@@ -1446,7 +1442,7 @@ namespace iSpyApplication.Controls
                 {
                     #region mp3writer
 
-                    DateTime date = DateTime.Now;
+                    DateTime date = Helper.Now;
 
                     string filename = String.Format("{0}-{1}-{2}_{3}-{4}-{5}",
                                                     date.Year, Helper.ZeroPad(date.Month), Helper.ZeroPad(date.Day),
@@ -1504,7 +1500,7 @@ namespace iSpyApplication.Controls
                     ClearAudioBuffer();
 
                     if (recordingStart == DateTime.MinValue)
-                        recordingStart = DateTime.Now;
+                        recordingStart = Helper.Now;
 
                     try
                     {
@@ -1513,7 +1509,7 @@ namespace iSpyApplication.Controls
                             while (WriterBuffer.Count > 0)
                             {
                                 AudioAction b;
-                                lock (_obj)
+                                lock (_lockobject)
                                 {
                                     b = WriterBuffer.Dequeue();
                                 }
@@ -1549,7 +1545,7 @@ namespace iSpyApplication.Controls
                         string[] fnpath = (filename + ".mp3").Split('\\');
                         string fn = fnpath[fnpath.Length - 1];
                         var fi = new FileInfo(filename + ".mp3");
-                        var dSeconds = Convert.ToInt32((DateTime.Now - recordingStart).TotalSeconds);
+                        var dSeconds = Convert.ToInt32((Helper.Now - recordingStart).TotalSeconds);
 
                         ff.CreatedDateTicks = DateTime.Now.Ticks;
                         ff.Filename = fnpath[fnpath.Length - 1];
@@ -1564,15 +1560,16 @@ namespace iSpyApplication.Controls
 
                         if (newfile)
                         {
-                            lock (_filelist)
+                            lock (_lockobject)
                             {
                                 _filelist.Insert(0, ff);
                             }
+
                             MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Micobject.name,
-                                                                            DateTime.Now.Ticks, 1, Micobject.id,
-                                                                            ff.MaxAlarm));
-                            MainForm.NeedsMediaRefresh = DateTime.Now;
-                            
+                                DateTime.Now.Ticks, 1, Micobject.id,
+                                ff.MaxAlarm));
+                            MainForm.NeedsMediaRefresh = Helper.Now;
+
                         }
 
 
@@ -1588,7 +1585,7 @@ namespace iSpyApplication.Controls
                         try
                         {
                             Program.WriterMutex.WaitOne();
-                            Console.WriteLine("closing audio writer " + Micobject.name);
+                            //Console.WriteLine("closing audio writer " + Micobject.name);
                             _writer.Dispose();
                         }
                         catch (Exception ex)
@@ -1643,7 +1640,7 @@ namespace iSpyApplication.Controls
         {
             if (WriterBuffer != null)
             {
-                lock (WriterBuffer)
+                lock (_lockobject)
                 {
                     while (WriterBuffer.Count > 0)
                     {
@@ -1678,24 +1675,11 @@ namespace iSpyApplication.Controls
             base.Dispose(disposing);
         }
 
-        public void Disable()
-        {
-            if (!IsEnabled)
-                return;
-            if (InvokeRequired)
-            {
-                Invoke(new SwitchDelegate(Disable));
-                return;
-            }
-
-            SetDisabled(true);
-        }
-
         public void ClearAudioBuffer()
         {
             if (AudioBuffer != null)
             {
-                lock (AudioBuffer)
+                lock (_lockobject)
                 {
                     while (AudioBuffer.Count > 0)
                     {
@@ -1706,9 +1690,30 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void SetDisabled(bool stopSource)
+        public void InvokeDisable()
         {
-            if (Recording)
+            BeginInvoke(new Delegates.DisableDelegate(Disable));
+        }
+
+        public void Disable()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Delegates.DisableDelegate(Disable));
+                return;
+            }
+
+            lock (_lockobject)
+            {
+                if (!IsEnabled)
+                    return;
+                IsEnabled = true;
+            }
+
+            IsEnabled = false;
+            IsReconnect = false;
+
+            if (_recordingThread != null)
                 RecordSwitch(false);
 
             if (AudioSource != null)
@@ -1717,11 +1722,11 @@ namespace iSpyApplication.Controls
                 AudioSource.DataAvailable -= AudioDeviceDataAvailable;
                 AudioSource.LevelChanged -= AudioDeviceLevelChanged;
 
-                if (!IsClone && stopSource)
+                if (!IsClone)
                 {
                     if (!(AudioSource is IVideoSource))
                     {
-                        lock (_obj)
+                        lock (_lockobject)
                         {
                             AudioSource.Stop();
                             //allow operations to complete in other threads
@@ -1743,7 +1748,7 @@ namespace iSpyApplication.Controls
             SoundDetected = false;
             ForcedRecording = false;
             Alerted = false;
-            FlashCounter = 0;
+            FlashCounter = DateTime.MinValue;
             _recordingTime = 0;
             Listening = false;
             ReconnectCount = 0;
@@ -1759,14 +1764,23 @@ namespace iSpyApplication.Controls
                 _requestRefresh = true;
         }
 
+        public void InvokeEnable()
+        {
+            BeginInvoke(new Delegates.EnableDelegate(Enable));
+        }
         public void Enable()
         {
-            if (IsEnabled)
-                return;
             if (InvokeRequired)
             {
-                Invoke(new SwitchDelegate(Enable));
+                Invoke(new Delegates.EnableDelegate(Enable));
                 return;
+            }
+
+            lock (_lockobject)
+            {
+                if (IsEnabled)
+                    return;
+                IsEnabled = true;
             }
            
             if (CameraControl != null)
@@ -1894,7 +1908,7 @@ namespace iSpyApplication.Controls
 
                 if (!AudioSource.IsRunning && !IsClone && !(AudioSource is IVideoSource))
                 {
-                    lock (_obj)
+                    lock (_lockobject)
                     {
                         AudioSource.Start();
                     }                    
@@ -1904,11 +1918,11 @@ namespace iSpyApplication.Controls
             AudioBuffer = new List<AudioAction>();
             SoundDetected = false;
             Alerted = false;
-            FlashCounter = 0;
+            FlashCounter = DateTime.MinValue;
             _recordingTime = 0;
             ReconnectCount = 0;
             Listening = false;
-            SoundLastDetected = _lastAlertCheck = DateTime.Now;
+            LastSoundDetected = _lastAlertCheck = Helper.Now;
             UpdateFloorplans(false);
             Micobject.settings.active = true;
 
@@ -1935,7 +1949,7 @@ namespace iSpyApplication.Controls
         {
             SoundDetected = true;
             InactiveRecord = 0;
-            FlashCounter = 10;
+            FlashCounter = Helper.Now.AddSeconds(10);
             MicrophoneAlarm(sender, EventArgs.Empty);
         }
 
@@ -1949,18 +1963,18 @@ namespace iSpyApplication.Controls
                 {
                     if (Micobject.settings.buffer > 0)
                     {
-                        var dt = DateTime.Now.AddSeconds(0 - Micobject.settings.buffer);
+                        var dt = Helper.Now.AddSeconds(0 - Micobject.settings.buffer);
                         while (AudioBuffer.Count > 0 && AudioBuffer[0].TimeStamp < dt)
                         {
                             AudioBuffer[0].Nullify();
                             AudioBuffer.RemoveAt(0);
                         }
-                        AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
+                        AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
                     }
                 }
                 else
                 {
-                    WriterBuffer.Enqueue(new AudioAction(e.RawData, Levels.Max(), DateTime.Now));
+                    WriterBuffer.Enqueue(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
                 }
 
 
@@ -2034,6 +2048,7 @@ namespace iSpyApplication.Controls
                 {
                     Micobject.settings.active = true;
                     _errorTime = _reconnectTime = DateTime.MinValue;
+                    DoAlert("reconnect");
                 }
                 _errorTime = DateTime.MinValue;
 
@@ -2044,7 +2059,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void ProcessAlertEvent(string pluginmessage, string type, string param1, string param2, string param3, string param4)
+        private void ProcessAlertEvent(string mode, string pluginmessage, string type, string param1, string param2, string param3, string param4)
         {
             string id = Micobject.id.ToString(CultureInfo.InvariantCulture);
 
@@ -2081,8 +2096,9 @@ namespace iSpyApplication.Controls
                                         if (fi.DirectoryName != null)
                                             startInfo.WorkingDirectory = fi.DirectoryName;
                                     }
-                                    catch
+                                    catch(Exception ex)
                                     {
+                                        MainForm.LogExceptionToFile(ex);
                                     }
                                     if (!MainForm.Conf.CreateAlertWindows)
                                     {
@@ -2265,70 +2281,17 @@ namespace iSpyApplication.Controls
                         break;
                     case "E":
                         {
-                            string subject = LocRm.GetString("MicrophoneAlertMailSubject").Replace("[OBJECTNAME]", Micobject.name);
-                            string message = LocRm.GetString("MicrophoneAlertMailBody");
-                            message = message.Replace("[OBJECTNAME]", Micobject.name);
+                            string subject = MailMerge(MainForm.Conf.MailAlertSubject, mode, Recording, pluginmessage);
+                            string message = MailMerge(MainForm.Conf.MailAlertBody, mode,Recording, pluginmessage);
 
-                            decimal offset = 0;
-                            var oc = CameraControl;
-                            if (oc != null && oc.Camobject!=null)
-                                offset = oc.Camobject.settings.timestampoffset;
-
-                            string body = "";
-                            switch (Micobject.alerts.mode)
-                            {
-                                case "sound":
-                                    body = LocRm.GetString("MicrophoneAlertBodySound").Replace("[TIME]",
-                                                                                               DateTime.Now.AddHours(
-                                                                                                   Convert.ToDouble(
-                                                                                                       offset)).
-                                                                                                   ToLongTimeString());
-
-                                    if (Recording)
-                                    {
-                                        body += " " + LocRm.GetString("AudioCaptured");
-                                    }
-                                    else
-                                        body += " " + LocRm.GetString("AudioNotCaptured");
-                                    break;
-                                case "nosound":
-
-                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
-                                    int seconds = (Micobject.detector.nosoundinterval % 60);
-
-                                    body =
-                                        LocRm.GetString("MicrophoneAlertBodyNoSound").Replace("[TIME]",
-                                                                                              DateTime.Now.AddHours(Convert.ToDouble(offset)).ToLongTimeString()).
-                                            Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace("[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
-                                    break;
-                            }
-
-                            message = message.Replace("[BODY]", body + "<br/>" + MainForm.Conf.AppendLinkText);
+                            message += MainForm.Conf.AppendLinkText;
 
                             WsWrapper.SendAlert(param1, subject, message);
                         }
                         break;
                     case "SMS":
                         {
-                            string message = LocRm.GetString("SMSAudioAlert").Replace("[OBJECTNAME]", Micobject.name) + " ";
-                            switch (Micobject.alerts.mode)
-                            {
-                                case "sound":
-                                    message += LocRm.GetString("SMSAudioDetected");
-                                    message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
-                                    break;
-                                case "nosound":
-                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
-                                    int seconds = (Micobject.detector.nosoundinterval % 60);
-
-                                    message +=
-                                        LocRm.GetString("SMSNoAudioDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace(
-                                            "[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
-                                    break;
-                            }
-
-                            if (pluginmessage != "")
-                                message = pluginmessage + ": " + message;
+                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
                             if (message.Length > 160)
                                 message = message.Substring(0, 159);
 
@@ -2337,25 +2300,7 @@ namespace iSpyApplication.Controls
                         break;
                     case "TM":
                         {
-                            string message = LocRm.GetString("SMSAudioAlert").Replace("[OBJECTNAME]", Micobject.name) + " ";
-                            switch (Micobject.alerts.mode)
-                            {
-                                case "sound":
-                                    message += LocRm.GetString("SMSAudioDetected");
-                                    message = message.Replace("[RECORDED]", Recording ? LocRm.GetString("AudioCaptured") : LocRm.GetString("AudioNotCaptured"));
-                                    break;
-                                case "nosound":
-                                    int minutes = Convert.ToInt32(Micobject.detector.nosoundinterval / 60);
-                                    int seconds = (Micobject.detector.nosoundinterval % 60);
-
-                                    message +=
-                                        LocRm.GetString("SMSNoAudioDetected").Replace("[MINUTES]", minutes.ToString(CultureInfo.InvariantCulture)).Replace(
-                                            "[SECONDS]", seconds.ToString(CultureInfo.InvariantCulture));
-                                    break;
-                            }
-
-                            if (pluginmessage != "")
-                                message = pluginmessage + ": " + message;
+                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
                             if (message.Length > 160)
                                 message = message.Substring(0, 159);
 
@@ -2401,7 +2346,7 @@ namespace iSpyApplication.Controls
                     SetErrorState("Source Error");
                     break;
                 case ReasonToFinishPlaying.StoppedByUser:
-                    SetDisabled(false);
+                    Disable();
                     break;
             }
             
@@ -2420,10 +2365,10 @@ namespace iSpyApplication.Controls
                 MainForm.LogExceptionToFile(new Exception("Error: " + reason), "Mic " + Micobject.id);
                 if (_reconnectTime == DateTime.MinValue)
                 {
-                    _reconnectTime = DateTime.Now;
+                    _reconnectTime = Helper.Now;
                 }
                 if (_errorTime == DateTime.MinValue)
-                    _errorTime = DateTime.Now;
+                    _errorTime = Helper.Now;
             }
         }
 
@@ -2441,7 +2386,7 @@ namespace iSpyApplication.Controls
                     if (TopLevelControl != null)
                     {
                         FloorPlanControl fpc = ((MainForm) TopLevelControl).GetFloorPlan(ofp.id);
-                        fpc.LastAlertTimestamp = DateTime.Now.UnixTicks();
+                        fpc.LastAlertTimestamp = Helper.Now.UnixTicks();
                         fpc.LastOid = Micobject.id;
                         fpc.LastOtid = 1;
                     }
@@ -2473,10 +2418,10 @@ namespace iSpyApplication.Controls
 
         public void MicrophoneAlarm(object sender, EventArgs e)
         {
-            SoundLastDetected = DateTime.Now;
+            LastSoundDetected = Helper.Now.AddSeconds(0.3d);
             if (sender is IAudioSource)
             {
-                FlashCounter = 10;
+                FlashCounter = Helper.Now.AddSeconds(10);
                 SoundDetected = true;
                 _isTrigger = false;
                 return;
@@ -2484,7 +2429,7 @@ namespace iSpyApplication.Controls
 
             if (sender is LocalServer || sender is VolumeLevel || sender is CameraWindow)
             {
-                FlashCounter = 10;
+                FlashCounter = Helper.Now.AddSeconds(10);
                 _isTrigger = true;
             }
         }
@@ -2495,48 +2440,42 @@ namespace iSpyApplication.Controls
             get { return _filelist.AsReadOnly(); }
         }
 
-        private void DoAlert(string msg = "")
+        private void DoAlert(string type, string msg = "")
         {
             if (IsEdit)
                 return;
 
-            RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
-            
-            Alerted = true;
-            UpdateFloorplans(true);
-            LastAlerted = DateTime.Now;
-
-            var t = new Thread(AlertThread) { Name = "Alert (" + Micobject.id + ")", IsBackground = false };
-            t.Start(msg);
-
-            if (Micobject.detector.recordonalert && !Recording)
+            if (type == "alert")
             {
-                StartSaving();
+                RemoteCommand(this, new ThreadSafeCommand("bringtofrontmic," + Micobject.id));
+
+                Alerted = true;
+                UpdateFloorplans(true);
+                LastAlerted = Helper.Now;
+                if (Micobject.detector.recordonalert && !Recording)
+                {
+                    StartSaving();
+                }
+                
             }
+            var t = new Thread(() => AlertThread(type, msg, Micobject.id)) { Name = type + " (" + Micobject.id + ")", IsBackground = false };
+            t.Start();           
         }
 
-        private void AlertThread(object omsg)
+        private void AlertThread(string mode, string msg, int oid)
         {
-            string msg = omsg.ToString();
-
             if (Notification != null)
             {
-                if (omsg is String)
-                    Notification(this, new NotificationType("ALERT_UC", Micobject.name, "", omsg.ToString()));
-                else
-                    Notification(this, new NotificationType("ALERT_UC", Micobject.name, ""));
+                Notification(this, new NotificationType(mode.ToUpper(), Micobject.name, "", ""));
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
                 ScreenSaver.KillScreenSaver();
 
-
-            
-            foreach (var ev in Micobject.alertevents.entries)
+            foreach (var ev in MainForm.Actions.Where(p => p.objectid == oid && p.objecttypeid == 1 && p.mode == mode))
             {
-                ProcessAlertEvent(msg, ev.type, ev.param1, ev.param2, ev.param3, ev.param4);
+                ProcessAlertEvent(ev.mode, msg, ev.type, ev.param1, ev.param2, ev.param3, ev.param4);
             }
-
             
         }
 
@@ -2544,7 +2483,7 @@ namespace iSpyApplication.Controls
         {  
             if (record)
             {
-                if (!Micobject.settings.active)
+                if (!IsEnabled)
                 {
                     Enable();
                 }
@@ -2627,7 +2566,7 @@ namespace iSpyApplication.Controls
                     Micobject.detector.recordondetect = mostrecent.recordondetect;
                     Micobject.detector.recordonalert = mostrecent.recordonalert;
                     Micobject.alerts.active = mostrecent.alerts;
-                    if (!Micobject.settings.active)
+                    if (!IsEnabled)
                         Enable();
                     if (mostrecent.recordonstart)
                     {
@@ -2636,25 +2575,11 @@ namespace iSpyApplication.Controls
                 }
                 else
                 {
-                    if (Micobject.settings.active)
+                    if (IsEnabled)
                         Disable();
                 }
             }
         }
-
-        #region Nested type: ThreadSafeCommand
-
-        public class ThreadSafeCommand : EventArgs
-        {
-            public string Command;
-            // Constructor
-            public ThreadSafeCommand(string command)
-            {
-                Command = command;
-            }
-        }
-
-        #endregion
 
         #region Nested type: VolumeChangedEventArgs
 

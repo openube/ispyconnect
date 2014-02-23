@@ -345,19 +345,19 @@ namespace iSpyApplication
             {
                 var lb = (from Control c in MF.flowPreview.Controls select c as PreviewBox into pb where pb != null && pb.Selected select pb).ToList();
 
-                for (int i = 0; i < lb.Count; i++)
+                for (int i = lb.Count-1; i >-1 ; i--)
                 {
                     var pb = lb[i];
                     if (pb.FileName == _filename)
                     {
-                        j = i + n;
-                        if (lb.Count <= j)
+                        j = i - n;
+                        if (j < 0)
                         {
                             //stop at the last movie
                             return;
                         }
-                        if (j < 0)
-                            j = lb.Count - 1;
+                        if (j >= lb.Count)
+                            j = 0;
                         break;
                     }
                 }

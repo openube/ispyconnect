@@ -34,15 +34,15 @@ namespace iSpyApplication
             int i = MainForm.Conf.UploadedVideos.IndexOf(filename, StringComparison.Ordinal);
             if (i != -1)
             {
-                if (emailOnComplete != "")
-                {
-                    string cfg = MainForm.Conf.UploadedVideos.Substring(i);
-                    string vid = cfg.Substring(cfg.IndexOf("|", StringComparison.Ordinal) + 1);
-                    if (vid.IndexOf(",", StringComparison.Ordinal) != -1)
-                        vid = vid.Substring(0, vid.IndexOf(",", StringComparison.Ordinal));
-                    SendYouTubeMails(emailOnComplete, message, vid);
-                    return LocRm.GetString("YouTubUploadedAlreadyNotificationsSent");
-                }
+                //if (emailOnComplete != "")
+                //{
+                //    string cfg = MainForm.Conf.UploadedVideos.Substring(i);
+                //    string vid = cfg.Substring(cfg.IndexOf("|", StringComparison.Ordinal) + 1);
+                //    if (vid.IndexOf(",", StringComparison.Ordinal) != -1)
+                //        vid = vid.Substring(0, vid.IndexOf(",", StringComparison.Ordinal));
+                //    SendYouTubeMails(emailOnComplete, message, vid);
+                //    return LocRm.GetString("YouTubUploadedAlreadyNotificationsSent");
+                //}
                 return LocRm.GetString("YouTubUploadedAlready");
             }
 
@@ -130,10 +130,10 @@ namespace iSpyApplication
                     msg += " (public)";
                 MainForm.LogMessageToFile(msg);
 
-                if (us.EmailOnComplete != "" && us.Ispublic)
-                {
-                    SendYouTubeMails(us.EmailOnComplete, us.Message, vCreated.VideoId);
-                }
+                //if (us.EmailOnComplete != "" && us.Ispublic)
+                //{
+                //    SendYouTubeMails(us.EmailOnComplete, us.Message, vCreated.VideoId);
+                //}
                 //check against most recent uploaded videos
                 MainForm.Conf.UploadedVideos += "," + us.AbsoluteFilePath + "|" + vCreated.VideoId;
                 if (MainForm.Conf.UploadedVideos.Length > 10000)
@@ -144,38 +144,38 @@ namespace iSpyApplication
         }
 
 
-        private static void SendYouTubeMails(string addresses, string message, string videoid)
-        {
-            string[] emails = addresses.Split('|');
-            foreach (string email in emails)
-            {
-                string em = email.Trim();
-                if (em.IsValidEmail())
-                {
-                    string body;
-                    if (em != MainForm.EmailAddress)
-                    {
-                        body = LocRm.GetString("YouTubeShareMailBody").Replace("[USERNAME]",
-                                                                                MainForm.Conf.WSUsername);
-                        body = body.Replace("[EMAIL]", MainForm.EmailAddress);
-                        body = body.Replace("[MESSAGE]", message);
-                        body = body.Replace("[INFO]", videoid);
-                        WsWrapper.SendContent(em,
-                                                 LocRm.GetString("YouTubeShareMailSubject").Replace("[EMAIL]",
-                                                                                                    MainForm.
-                                                                                                        EmailAddress),
-                                                 body);
-                    }
-                    else
-                    {
-                        body = LocRm.GetString("YouTubeUploadMailBody").Replace("[USERNAME]",
-                                                                                 MainForm.Conf.WSUsername);
-                        body = body.Replace("[INFO]", videoid);
-                        WsWrapper.SendContent(em, LocRm.GetString("YouTubeUploadMailSubject"), body);
-                    }
-                }
-            }
-        }
+        //private static void SendYouTubeMails(string addresses, string message, string videoid)
+        //{
+        //    string[] emails = addresses.Split('|');
+        //    foreach (string email in emails)
+        //    {
+        //        string em = email.Trim();
+        //        if (em.IsValidEmail())
+        //        {
+        //            string body;
+        //            if (em != MainForm.EmailAddress)
+        //            {
+        //                body = LocRm.GetString("YouTubeShareMailBody").Replace("[USERNAME]",
+        //                                                                        MainForm.Conf.WSUsername);
+        //                body = body.Replace("[EMAIL]", MainForm.EmailAddress);
+        //                body = body.Replace("[MESSAGE]", message);
+        //                body = body.Replace("[INFO]", videoid);
+        //                WsWrapper.SendContent(em,
+        //                                         LocRm.GetString("YouTubeShareMailSubject").Replace("[EMAIL]",
+        //                                                                                            MainForm.
+        //                                                                                                EmailAddress),
+        //                                         body);
+        //            }
+        //            else
+        //            {
+        //                body = LocRm.GetString("YouTubeUploadMailBody").Replace("[USERNAME]",
+        //                                                                         MainForm.Conf.WSUsername);
+        //                body = body.Replace("[INFO]", videoid);
+        //                WsWrapper.SendContent(em, LocRm.GetString("YouTubeUploadMailSubject"), body);
+        //            }
+        //        }
+        //    }
+        //}
 
         #region Nested type: UserState
 
@@ -204,7 +204,7 @@ namespace iSpyApplication
             {
                 get
                 {
-                    return MainForm.GetMediaDirectory(2,_objectid) + "video\\" + CameraData.directory + "\\" +
+                    return Helper.GetMediaDirectory(2, _objectid) + "video\\" + CameraData.directory + "\\" +
                            Filename;
                 }
             }

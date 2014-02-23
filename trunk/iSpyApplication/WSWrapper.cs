@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Google.GData.Extensions;
 using iSpyApplication.iSpyWS;
 
 namespace iSpyApplication
@@ -10,7 +11,7 @@ namespace iSpyApplication
         private static iSpyAPI _wsa;
         private static string _externalIP = "";
         private static bool _websitelive = true;
-        internal static DateTime LastLiveCheck = DateTime.Now;
+        internal static DateTime LastLiveCheck = Helper.Now;
 
         public static iSpyAPI Wsa
         {
@@ -114,6 +115,11 @@ namespace iSpyApplication
         {
             if (!Enabled)
                 return;
+            if (imageData.Length == 0)
+            {
+                SendAlert(emailAddress, subject, message);
+                return;
+            }
             Debug.WriteLine("WEBSERVICE CALL: SendAlertWithImageAsync");
             Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, imageData,Guid.NewGuid());
         }
@@ -213,7 +219,7 @@ namespace iSpyApplication
                 if (MainForm.Conf.IPMode == "IPv6")
                     port = MainForm.Conf.LANPort;
 
-                LastLiveCheck = DateTime.Now;
+                LastLiveCheck = Helper.Now;
                 Debug.WriteLine("WEBSERVICE CALL: PingServer");
                 Wsa.PingAliveAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.IPAddress, Guid.NewGuid());
 
@@ -234,7 +240,7 @@ namespace iSpyApplication
                     port = MainForm.Conf.LANPort;
                 try
                 {
-                    Wsa.DisconnectAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, Guid.NewGuid());
+                    Wsa.DisconnectAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port, Guid.NewGuid());                       
                 }
                 catch (Exception ex)
                 {

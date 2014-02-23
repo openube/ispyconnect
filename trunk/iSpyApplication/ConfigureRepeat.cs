@@ -6,7 +6,7 @@ namespace iSpyApplication
     public partial class ConfigureRepeat : Form
     {
         public int Interval = 10;
-        public DateTime Until = DateTime.Now;
+        public DateTime Until = Helper.Now;
 
         public ConfigureRepeat()
         {

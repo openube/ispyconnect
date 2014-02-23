@@ -12,6 +12,7 @@ namespace iSpyApplication
 {
     public partial class AddMicrophone : Form
     {
+        private readonly object[] _actiontypes = { "Alert", "Connection Lost", "Reconnect" };
         public VolumeLevel VolumeLevel;
         private bool _loaded;
         public bool IsNew;
@@ -162,7 +163,11 @@ namespace iSpyApplication
 
             tmrUpdateSourceDetails.Start();
 
-
+            foreach (string dt in _actiontypes)
+            {
+                ddlActionType.Items.Add(LocRm.GetString(dt));
+            }
+            ddlActionType.SelectedIndex = 0;
 
             string t2 = VolumeLevel.Micobject.recorder.trigger ?? "";
 
@@ -192,11 +197,7 @@ namespace iSpyApplication
                 toolTip1.SetToolTip(txtBuffer,"Change the buffer on the paired camera to update");
             }
 
-            actionEditor1.Init(VolumeLevel.Micobject.alertevents);
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
-
-            txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
-            txtEmailOnDisconnect.Text = VolumeLevel.Micobject.settings.emailondisconnect;
 
             LoadMediaDirectories();
 
@@ -283,7 +284,6 @@ namespace iSpyApplication
 
             LocRm.SetString(label23,"Listen");
             LocRm.SetString(label22, "TriggerRecording");
-            LocRm.SetString(label6, "EmailOnDisconnect");
 
             HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
@@ -410,7 +410,7 @@ namespace iSpyApplication
 
                 if (VolumeLevel.Micobject.directory != txtDirectory.Text || IsNew)
                 {
-                    var dir = MainForm.GetMediaDirectory(2, VolumeLevel.Micobject.id);
+                    var dir = Helper.GetMediaDirectory(2, VolumeLevel.Micobject.id);
                     string path = dir + "audio\\" + txtDirectory.Text + "\\";
                     try
                     {
@@ -456,7 +456,6 @@ namespace iSpyApplication
 
                 VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
                 VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
-                VolumeLevel.Micobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
 
 
                 DialogResult = DialogResult.OK;
@@ -466,7 +465,7 @@ namespace iSpyApplication
                 {
                     VolumeLevel.GenerateFileList();
                     MainForm.NeedsMediaRebuild = true;
-                    MainForm.NeedsMediaRefresh = DateTime.Now;
+                    MainForm.NeedsMediaRefresh = Helper.Now;
                 }
                 Close();
             }
@@ -642,7 +641,6 @@ namespace iSpyApplication
         private void Login()
         {
             MainClass.Connect(MainForm.Website + "/subscribe.aspx", false);
-             txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
 
 
@@ -869,6 +867,26 @@ namespace iSpyApplication
             }
             if (ddlMediaDirectory.SelectedIndex == -1)
                 ddlMediaDirectory.SelectedIndex = 0;
+        }
+
+        private void ddlActionType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlActionType.SelectedIndex > -1)
+            {
+                string at = "alert";
+                switch (ddlActionType.SelectedIndex)
+                {
+                    case 1:
+                        at = "disconnect";
+                        break;
+                    case 2:
+                        at = "reconnect";
+                        break;
+                }
+
+
+                actionEditor1.Init(at, VolumeLevel.Micobject.id, 1);
+            }
         }
     }
 }

@@ -10,7 +10,8 @@ namespace iSpyApplication.Controls
         public double Maximum = 100;
         public double Minimum = 0;
 
-        private double _valueMin, _valueMax = 100;
+        private double _valueMin = 20;
+        private double _valueMax = 100;
         public double ValueMin
         {
             get { return _valueMin; }

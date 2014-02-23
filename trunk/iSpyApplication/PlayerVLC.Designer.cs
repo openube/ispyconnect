@@ -202,9 +202,9 @@ namespace iSpyApplication
             this.chkRepeatAll.Location = new System.Drawing.Point(339, 6);
             this.chkRepeatAll.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
             this.chkRepeatAll.Name = "chkRepeatAll";
-            this.chkRepeatAll.Size = new System.Drawing.Size(69, 17);
+            this.chkRepeatAll.Size = new System.Drawing.Size(58, 17);
             this.chkRepeatAll.TabIndex = 25;
-            this.chkRepeatAll.Text = "repeat all";
+            this.chkRepeatAll.Text = "play all";
             this.chkRepeatAll.UseVisualStyleBackColor = true;
             this.chkRepeatAll.CheckedChanged += new System.EventHandler(this.chkRepeatAll_CheckedChanged);
             // 

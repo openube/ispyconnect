@@ -42,7 +42,7 @@ namespace iSpyApplication
 
             Helper.SetTitle(this);
 
-            _lblCopyright.Text = "Copyright " + DateTime.Now.Year;
+            _lblCopyright.Text = "Copyright " + Helper.Now.Year;
 
             linkLabel1.Visible = false;
 

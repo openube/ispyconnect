@@ -169,6 +169,7 @@
                                                     <xs:element name="filename" type="xs:string" />
                                                     <xs:element name="port" type="xs:int" />
                                                     <xs:element name="interval" type="xs:int" />
+                                                    <xs:element name="intervalnew" type="xs:double" default="-1" />
                                                     <xs:element name="counter" type="xs:int" />
                                                     <xs:element name="countermax" type="xs:int" />
                                                     <xs:element name="ftpcounter" type="xs:int" />
@@ -578,6 +579,30 @@
                             </xs:element>
                         </xs:sequence>
                     </xs:complexType>
+                </xs:element>
+                <xs:element name="actions">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="entries">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="entry">
+                              <xs:complexType>
+                                <xs:attribute name="type" type="xs:string" use="required" />
+                                <xs:attribute name="objecttypeid" type="xs:int" use="required"/>
+                                <xs:attribute name="objectid" type="xs:int" use="required"/>
+                                <xs:attribute name="mode" type="xs:string" use="required"/>
+                                <xs:attribute name="param1" type="xs:string" default="" />
+                                <xs:attribute name="param2" type="xs:string" default="" />
+                                <xs:attribute name="param3" type="xs:string" default="" />
+                                <xs:attribute name="param4" type="xs:string" default="" />
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:sequence>
+                  </xs:complexType>
                 </xs:element>
             </xs:sequence>
         </xs:complexType>

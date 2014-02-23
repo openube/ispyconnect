@@ -30,6 +30,8 @@ namespace iSpyApplication
 
         private readonly object[] _processortypes = {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
+        private readonly object[] _actiontypes = {"Alert", "Connection Lost", "Reconnect"};
+
         public CameraWindow CameraControl;
         public bool StartWizard;
         public bool IsNew;
@@ -243,6 +245,12 @@ namespace iSpyApplication
                 }
             }
 
+            foreach (string dt in _actiontypes)
+            {
+                ddlActionType.Items.Add(LocRm.GetString(dt));
+            }
+            ddlActionType.SelectedIndex = 0;
+
             LoadAlertTypes();
 
             ddlProcessFrames.SelectedItem = CameraControl.Camobject.detector.processeveryframe.ToString(CultureInfo.InvariantCulture);
@@ -350,7 +358,7 @@ namespace iSpyApplication
             txtFTPUsername.Text = CameraControl.Camobject.ftp.username;
             txtFTPPassword.Text = CameraControl.Camobject.ftp.password;
             txtFTPPort.Text = CameraControl.Camobject.ftp.port.ToString(CultureInfo.InvariantCulture);
-            txtUploadEvery.Text = CameraControl.Camobject.ftp.interval.ToString(CultureInfo.InvariantCulture);
+            txtUploadEvery.Text = CameraControl.Camobject.ftp.intervalnew.ToString(CultureInfo.InvariantCulture);
             txtFTPFilename.Text = CameraControl.Camobject.ftp.filename;
             chkFTP.Checked = gbFTP.Enabled = CameraControl.Camobject.ftp.enabled;
             gbLocal.Enabled = CameraControl.Camobject.ftp.savelocal;
@@ -459,11 +467,8 @@ namespace iSpyApplication
             numMaxAge.Value = CameraControl.Camobject.settings.storagemanagement.maxage;
             numMaxFolderSize.Value = CameraControl.Camobject.settings.storagemanagement.maxsize;
 
-            actionEditor1.Init(CameraControl.Camobject.alertevents);
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
 
-            txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
-            txtEmailOnDisconnect.Text = CameraControl.Camobject.settings.emailondisconnect;
             //chkNotifyDisconnect.Checked = CameraControl.Camobject.settings.notifyondisconnect;
 
             numAutoOff.Value = CameraControl.Camobject.detector.autooff;
@@ -758,7 +763,6 @@ namespace iSpyApplication
             linkLabel3.Text = LocRm.GetString("Plugins");
             chkTrack.Text = LocRm.GetString("TrackObjects");
             linkLabel10.Text = LocRm.GetString("Reload");
-            label6.Text = LocRm.GetString("EmailOnDisconnect");
 
             LocRm.SetString(label3,"TriggerRange");
             LocRm.SetString(groupBox8, "Talk");
@@ -984,8 +988,8 @@ namespace iSpyApplication
                     MessageBox.Show(LocRm.GetString("Validate_Camera_FTPPort"));
                     return;
                 }
-                int ftpinterval;
-                if (!int.TryParse(txtUploadEvery.Text, out ftpinterval))
+                double ftpinterval;
+                if (!double.TryParse(txtUploadEvery.Text, out ftpinterval))
                 {
                     MessageBox.Show(LocRm.GetString("Validate_Camera_FTPInterval"));
                     return;
@@ -1080,10 +1084,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.settings.storagemanagement.maxsize = (int) numMaxFolderSize.Value;
 
                 CameraControl.Camobject.detector.autooff = (int)numAutoOff.Value;
-                
-
-                CameraControl.Camobject.settings.emailondisconnect = txtEmailOnDisconnect.Text;
-                
+                                
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
 
@@ -1099,7 +1100,7 @@ namespace iSpyApplication
 
                 if (CameraControl.Camobject.directory != txtDirectory.Text || IsNew)
                 {
-                    var dir = MainForm.GetMediaDirectory(2, CameraControl.Camobject.id);
+                    var dir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id);
                     string path = dir + "video\\" + txtDirectory.Text + "\\";
                     try
                     {
@@ -1185,7 +1186,7 @@ namespace iSpyApplication
                 CameraControl.Camobject.ftp.username = txtFTPUsername.Text;
                 CameraControl.Camobject.ftp.password = txtFTPPassword.Text;
                 CameraControl.Camobject.ftp.port = ftpport;
-                CameraControl.Camobject.ftp.interval = ftpinterval;
+                CameraControl.Camobject.ftp.intervalnew = ftpinterval;
                 CameraControl.Camobject.ftp.filename = txtFTPFilename.Text;
                 CameraControl.Camobject.ftp.text = txtFTPText.Text;
                 int ftpmode = 0;
@@ -1278,7 +1279,7 @@ namespace iSpyApplication
                 {
                     CameraControl.GenerateFileList();
                     MainForm.NeedsMediaRebuild = true;
-                    MainForm.NeedsMediaRefresh = DateTime.Now;
+                    MainForm.NeedsMediaRefresh = Helper.Now;
                 }
                 Close();
             }
@@ -1646,10 +1647,10 @@ namespace iSpyApplication
 
                 try
                 {
-                    if (CameraControl.Camera != null && !CameraControl.LastFrameNull)
+                    if (CameraControl.Camera != null)
                         myThumbnail = CameraControl.LastFrame;
                         //CameraControl.Camera.LastFrame.GetThumbnailImage(320, 240, myCallback, IntPtr.Zero);
-                    else
+                    if (myThumbnail==null)
                         myThumbnail =
                             Image.FromFile(Program.AppDataPath + @"WebServerRoot\images\camoffline.jpg").
                                 GetThumbnailImage(
@@ -1667,7 +1668,7 @@ namespace iSpyApplication
                     string error;
                     txtFTPServer.Text = txtFTPServer.Text.Trim('/');
                     string fn = String.Format(CultureInfo.InvariantCulture, txtFTPFilename.Text,
-                                              DateTime.Now);
+                                              Helper.Now);
                     if ((new AsynchronousFtpUpLoader()).FTP(txtFTPServer.Text + ":" + txtFTPPort.Text,
                                                             chkUsePassive.Checked,
                                                             txtFTPUsername.Text, txtFTPPassword.Text, fn,0,
@@ -1713,10 +1714,8 @@ namespace iSpyApplication
         private void Login()
         {
             MainClass.Connect(MainForm.Website + "/subscribe.aspx", false);
-            gpbSubscriber2.Enabled = txtEmailOnDisconnect.Enabled = MainForm.Conf.Subscribed;
         }
-
-
+        
         private void Button3Click(object sender, EventArgs e)
         {
             DeleteSchedule();
@@ -2519,7 +2518,7 @@ namespace iSpyApplication
 
         private void linkLabel11_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var dir = MainForm.GetMediaDirectory(2, CameraControl.Camobject.id);
+            var dir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id);
             string path = dir + "video\\" + txtDirectory.Text + "\\";
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -2849,6 +2848,26 @@ namespace iSpyApplication
             var vsa = new VideoSourceAdvanced { Camobject = CameraControl.Camobject };
             vsa.ShowDialog(this);
             vsa.Dispose();
+        }
+
+        private void ddlEventType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlActionType.SelectedIndex > -1)
+            {
+                string at = "alert";
+                switch (ddlActionType.SelectedIndex)
+                {
+                    case 1:
+                        at = "disconnect";
+                        break;
+                    case 2:
+                        at = "reconnect";
+                        break;
+                }
+                
+
+                actionEditor1.Init(at,CameraControl.Camobject.id,2);
+            }
         }
 
     }

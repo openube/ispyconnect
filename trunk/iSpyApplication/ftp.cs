@@ -21,7 +21,7 @@ namespace iSpyApplication
 
                 while (filename.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
                 {
-                    filename = String.Format(CultureInfo.InvariantCulture, filename, DateTime.Now);
+                    filename = String.Format(CultureInfo.InvariantCulture, filename, Helper.Now);
                     i++;
                 }
 
@@ -129,7 +129,7 @@ namespace iSpyApplication
             int i = 0;
             while (task.FileName.IndexOf("{", StringComparison.Ordinal) != -1 && i < 20)
             {
-                task.FileName = String.Format(CultureInfo.InvariantCulture, task.FileName, DateTime.Now);
+                task.FileName = String.Format(CultureInfo.InvariantCulture, task.FileName, Helper.Now);
                 i++;
             }
             string error;

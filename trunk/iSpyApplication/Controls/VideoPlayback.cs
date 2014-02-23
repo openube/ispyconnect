@@ -31,7 +31,7 @@ namespace iSpyApplication.Controls
         public bool RequestFrame;
         public Timer TmrRefresh;
 
-        private DateTime _lastMove = DateTime.Now;
+        private DateTime _lastMove = Helper.Now;
 
         private Bitmap _lastFrame;
         public Bitmap LastFrame
@@ -154,7 +154,7 @@ namespace iSpyApplication.Controls
                     }
                 }
                 
-                if (_lastMove>DateTime.Now.AddSeconds(-3))
+                if (_lastMove>Helper.Now.AddSeconds(-3))
                 {
                     //draw scrolling graph
                     var pxCursor = ((float)Value / 100) * Width;
@@ -377,7 +377,7 @@ namespace iSpyApplication.Controls
         protected override void  OnMouseMove(MouseEventArgs e)
         {
  	        base.OnMouseMove(e);
-            _lastMove = DateTime.Now;
+            _lastMove = Helper.Now;
             Cursor = Cursors.Default;
             string m = "";
             int newttind = -1;

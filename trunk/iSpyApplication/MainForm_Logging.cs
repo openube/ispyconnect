@@ -56,7 +56,7 @@ namespace iSpyApplication
 
         internal static void LogPluginToFile(string name, int id, string action, string detail)
         {
-            DateTime dt = DateTime.Now;
+            DateTime dt = Helper.Now;
             PluginLogFile.Append("<message name=\"" + name + "\" id=\"" + id + "\" action=\"" + action + "\" timestamp=\"" + dt.Ticks+"\">" + detail.Replace("&", "&amp;") + "</message>");
         }
 

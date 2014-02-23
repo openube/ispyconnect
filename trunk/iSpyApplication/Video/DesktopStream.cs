@@ -169,7 +169,7 @@ namespace iSpyApplication.Video
             {
                 try
                 {
-                    DateTime start = DateTime.Now;
+                    DateTime start = Helper.Now;
                     if (!_stopEvent.WaitOne(0, true))
                     {
                         // increment frames counter
@@ -238,7 +238,7 @@ namespace iSpyApplication.Video
                     if (_frameInterval > 0)
                     {
                         // get download duration
-                        TimeSpan span = DateTime.Now.Subtract(start);
+                        TimeSpan span = Helper.Now.Subtract(start);
                         // miliseconds to sleep
                         int msec = _frameInterval - (int) span.TotalMilliseconds;
 

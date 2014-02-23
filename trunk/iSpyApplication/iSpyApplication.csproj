@@ -329,6 +329,7 @@
     <Compile Include="Controls\AlertEventRow.Designer.cs">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Delegates.cs" />
     <Compile Include="Controls\DirectoryEventRow.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -360,6 +361,7 @@
     </Compile>
     <Compile Include="Controls\GraphicsHelper.cs" />
     <Compile Include="Controls\Reflector.cs" />
+    <Compile Include="Controls\ThreadSafeCommand.cs" />
     <Compile Include="GridViewCustom.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -404,6 +406,9 @@
     </Compile>
     <Compile Include="GridViewModeConfig.Designer.cs">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm_Configuration.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MicrophoneSourceAdvanced.cs">
       <SubType>Form</SubType>
@@ -541,9 +546,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MainForm_Commands.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm_Configuration.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm_Layout.cs">

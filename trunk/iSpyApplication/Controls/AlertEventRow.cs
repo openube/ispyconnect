@@ -7,27 +7,18 @@ namespace iSpyApplication.Controls
     public sealed partial class AlertEventRow : UserControl
     {
         public new static int Height = 31;
-        public objectsCameraAlerteventsEntry OcaeeC;
-        public objectsMicrophoneAlerteventsEntry OcaeeM;
+        public objectsActionsEntry Oae;
 
         public event EventHandler AlertEntryDelete;
         public event EventHandler AlertEntryEdit;
         public event EventHandler MouseOver;
 
 
-        public AlertEventRow(objectsCameraAlerteventsEntry ocaee)
+        public AlertEventRow(objectsActionsEntry oae)
         {
-            OcaeeC = ocaee;
+            Oae = oae;
             InitializeComponent();
-            lblSummary.Text = GetSummary(OcaeeC.type, OcaeeC.param1, OcaeeC.param2, OcaeeC.param3, OcaeeC.param4);
-            BackColor = DefaultBackColor;
-        }
-
-        public AlertEventRow(objectsMicrophoneAlerteventsEntry ocaee)
-        {
-            OcaeeM = ocaee;
-            InitializeComponent();
-            lblSummary.Text = GetSummary(OcaeeM.type, OcaeeM.param1, OcaeeM.param2, OcaeeM.param3, OcaeeM.param4);
+            lblSummary.Text = GetSummary(Oae.type, Oae.param1, Oae.param2, Oae.param3, Oae.param4);
             BackColor = DefaultBackColor;
         }
 

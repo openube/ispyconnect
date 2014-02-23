@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
@@ -12,7 +13,7 @@ namespace iSpyApplication
     {
         internal void SelectMediaRange(PreviewBox controlFrom, PreviewBox controlTo)
         {
-            lock (flowPreview.Controls)
+            lock (ThreadLock)
             {
                 if (controlFrom != null && controlTo != null)
                 {
@@ -59,7 +60,7 @@ namespace iSpyApplication
         public void DeleteSelectedMedia()
         {
             flowPreview.SuspendLayout();
-            lock (flowPreview.Controls)
+            lock (ThreadLock)
             {
                 for (int i = 0; i < flowPreview.Controls.Count; i++)
                 {
@@ -72,6 +73,34 @@ namespace iSpyApplication
                 }
             }
             flowPreview.ResumeLayout(true);
+        }
+
+        public void ArchiveSelectedMedia()
+        {
+            if (String.IsNullOrWhiteSpace(Conf.Archive))
+            {
+                MessageBox.Show(this, "Please specify an archive location (do not use a directory that is under storage management)");
+                ShowSettings(2);
+            }
+            if (!String.IsNullOrWhiteSpace(Conf.Archive))
+            {
+                int j = 0;
+                lock (ThreadLock)
+                {
+                    for (int i = 0; i < flowPreview.Controls.Count; i++)
+                    {
+                        var pb = flowPreview.Controls[i] as PreviewBox;
+                        if (pb != null && pb.Selected)
+                        {
+                            Helper.ArchiveFile(pb.FileName);
+                            j++;
+                        }
+                    }
+                }
+                if (j > 0)
+                    MessageBox.Show(this, "Media archived to " + Conf.Archive);
+            }
+
         }
 
         private void RemovePreviewBox(PreviewBox pb)
@@ -109,9 +138,11 @@ namespace iSpyApplication
             pb.MouseEnter -= PbMouseEnter;
             pb.Dispose();
 
-            NeedsMediaRefresh = DateTime.Now;
+            NeedsMediaRefresh = Helper.Now;
            
         }
+
+        
 
         public void LoadPreviews()
         {
@@ -125,7 +156,7 @@ namespace iSpyApplication
 
         private void RenderPreviewBoxes()  {
 
-            lock (flowPreview.Controls)
+            lock (ThreadLock)
             {
                 if (MediaPanelPage * Conf.PreviewItems > MasterFileList.Count-1)
                 {
@@ -158,31 +189,7 @@ namespace iSpyApplication
             }
         }
 
-        internal static string GetMediaDirectory(int ot, int oid)
-        {
-            int i = 0;
-            switch(ot)
-            {
-                case 1:
-                    {
-                        var o = Microphones.FirstOrDefault(p => p.id == oid);
-                        if (o != null)
-                            i = o.settings.directoryIndex;
-                    }
-                    break;
-                case 2:
-                    {
-                        var o = Cameras.FirstOrDefault(p => p.id == oid);
-                        if (o != null)
-                            i = o.settings.directoryIndex;
-                    }
-                    break;
-            }
-            var o2 = Conf.MediaDirectories.FirstOrDefault(p=>p.ID==i);
-            if (o2!=null)
-                return o2.Entry;
-            return Conf.MediaDirectories[0].Entry;
-        }
+        
 
         private void RenderList(List<FilePreview> l, int pageCount )
         {
@@ -242,7 +249,7 @@ namespace iSpyApplication
                 if (pb == null)
                 {
                     FilePreview fp1 = fp;
-                    var dir = GetMediaDirectory(fp1.ObjectTypeId, fp1.ObjectId);
+                    var dir = Helper.GetMediaDirectory(fp1.ObjectTypeId, fp1.ObjectId);
                     switch (fp1.ObjectTypeId)
                     {
                         case 1:
@@ -282,7 +289,7 @@ namespace iSpyApplication
 
         public void RemovePreviewByFileName(string fn)
         {
-            lock (flowPreview.Controls)
+            lock (ThreadLock)
             {
                 for(int i=0;i<flowPreview.Controls.Count;i++)
                 {

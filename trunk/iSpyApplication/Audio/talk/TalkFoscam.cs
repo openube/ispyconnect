@@ -19,7 +19,7 @@ namespace iSpyApplication.Audio.talk
         private const int AvLoginReq = 0x0;
         private const int TalkData = 0x3;
         private const int TalkBufferSize = 25000;
-        private readonly DateTime _dt = DateTime.Now.AddHours(0 - DateTime.Now.Hour);
+        private readonly DateTime _dt = Helper.Now.AddHours(0 - Helper.Now.Hour);
         private readonly IMA_ADPCM _enc = new IMA_ADPCM();
         private readonly object _obj = new object();
         private readonly int _port = 80;
@@ -295,7 +295,7 @@ namespace iSpyApplication.Audio.talk
                         Buffer.BlockCopy(buff,0,_talkBuffer,_talkDatalen,c);
                         _talkDatalen += c;
 
-                        var dtms = (int) (DateTime.Now - _dt).TotalMilliseconds;
+                        var dtms = (int) (Helper.Now - _dt).TotalMilliseconds;
                         int i = 0;
                         int j = 0;
                         try
@@ -307,7 +307,7 @@ namespace iSpyApplication.Audio.talk
 
                                 cmd = AddNext(cmd, dtms + (i*40));
                                 cmd = AddNext(cmd, _seq);
-                                cmd = AddNext(cmd, (int) (DateTime.Now - _dt).TotalSeconds);
+                                cmd = AddNext(cmd, (int) (Helper.Now - _dt).TotalSeconds);
                                 cmd = AddNext(cmd, (byte) 0x0);
                                 cmd = AddNext(cmd, 160);
 
@@ -347,7 +347,7 @@ namespace iSpyApplication.Audio.talk
             byte[] cmd = SInit(OprLoginReq, MoIPOprFlag);
             Send(cmd);
 
-            DateTime dtref = DateTime.Now;
+            DateTime dtref = Helper.Now;
 
             bool bConnected = false;
 
@@ -359,11 +359,11 @@ namespace iSpyApplication.Audio.talk
                         Thread.Sleep(100);
                     if (bConnected)
                     {
-                        if (DateTime.Now - dtref > TimeSpan.FromSeconds(120))
+                        if (Helper.Now - dtref > TimeSpan.FromSeconds(120))
                         {
                             byte[] ka = SInit(OprKeepAlive, MoIPOprFlag);
                             Send(ka);
-                            dtref = DateTime.Now;
+                            dtref = Helper.Now;
                         }
                     }
                     if (_stream.DataAvailable)

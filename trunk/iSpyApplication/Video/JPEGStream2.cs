@@ -418,7 +418,7 @@ namespace iSpyApplication.Video
             // stream for JPEG downloading
 			Stream stream = null;
             // random generator to add fake parameter for cache preventing
-			var rand = new Random( (int) DateTime.Now.Ticks );
+			var rand = new Random( (int) Helper.Now.Ticks );
             // download start time and duration
             TimeSpan span;
             var res = ReasonToFinishPlaying.StoppedByUser;
@@ -431,7 +431,7 @@ namespace iSpyApplication.Video
 			    try
 				{
                     // set dowbload start time
-					DateTime start = DateTime.Now;
+					DateTime start = Helper.Now;
 
 					// create request
 					if ( !_preventCaching )
@@ -569,7 +569,7 @@ namespace iSpyApplication.Video
 					if ( _frameInterval > 0 )
 					{
 						// get download duration
-						span = DateTime.Now.Subtract( start );
+						span = Helper.Now.Subtract( start );
 						// miliseconds to sleep
 						int msec = _frameInterval - (int) span.TotalMilliseconds;
 

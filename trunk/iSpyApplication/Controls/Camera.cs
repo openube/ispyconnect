@@ -403,7 +403,7 @@ namespace iSpyApplication.Controls
             
             if (_lastframeEvent > DateTime.MinValue)
             {
-                if ((DateTime.Now<_nextFrameTarget))
+                if ((Helper.Now<_nextFrameTarget))
                 {
                     return;
                 }
@@ -411,11 +411,11 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                _lastframeEvent = DateTime.Now;
+                _lastframeEvent = Helper.Now;
             }
             lock (_sync)
             {
-                _lastframeProcessed = DateTime.Now;
+                _lastframeProcessed = Helper.Now;
 
                 Bitmap bmOrig = null;
                 try
@@ -627,13 +627,13 @@ namespace iSpyApplication.Controls
                 }
                 double dist = Math.Sqrt(Math.Pow(prec.X, 2.0d) + Math.Pow(prec.Y, 2.0d));
 
-                double maxdist = Math.Sqrt(Math.Pow(Width/2, 2.0d) + Math.Pow(Height/2, 2.0d));
+                double maxdist = Math.Sqrt(Math.Pow(Width/2d, 2.0d) + Math.Pow(Height/2d, 2.0d));
                 double dratio = dist/maxdist;
 
                 if (dratio > dratiomin)
                 {
                     CW.PTZ.SendPTZDirection(angle, 1);
-                    CW.LastAutoTrackSent = DateTime.Now;
+                    CW.LastAutoTrackSent = Helper.Now;
                     CW.Ptzneedsstop = true;
                 }
             }
@@ -676,7 +676,7 @@ namespace iSpyApplication.Controls
         internal void TriggerDetect(object sender)
         {
             MotionDetected = true;
-            _motionlastdetected = DateTime.Now;
+            _motionlastdetected = Helper.Now;
             if (Alarm!=null)
                 Alarm(sender, new EventArgs());
         }
@@ -725,11 +725,12 @@ namespace iSpyApplication.Controls
         {
             double dMin = Mininterval;
             _nextFrameTarget = _nextFrameTarget.AddMilliseconds(dMin);
-            if (_nextFrameTarget < DateTime.Now)
-                _nextFrameTarget = DateTime.Now.AddMilliseconds(dMin);
+            var d = Helper.Now;
+            if (_nextFrameTarget < d)
+                _nextFrameTarget = d.AddMilliseconds(dMin);
 
 
-            TimeSpan tsFr = DateTime.Now - _lastframeProcessed;
+            TimeSpan tsFr = d - _lastframeProcessed;
             _framerates.Enqueue(1000d/tsFr.TotalMilliseconds);
             if (_framerates.Count >= 30)
                 _framerates.Dequeue();
@@ -760,7 +761,7 @@ namespace iSpyApplication.Controls
             switch (CW.Camobject.alerts.processmode)
             {
                 case "motion":
-                    runplugin = _motionlastdetected > DateTime.Now.AddSeconds(-3);
+                    runplugin = _motionlastdetected > Helper.Now.AddSeconds(-3);
                     break;
                 case "trigger":
                     runplugin = _pluginTrigger;
