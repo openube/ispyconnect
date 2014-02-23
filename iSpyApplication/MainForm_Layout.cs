@@ -38,10 +38,15 @@ namespace iSpyApplication
                         if (c is CameraWindow)
                         {
                             var cw = ((CameraWindow)c);
-                            if (cw.Camera != null && !cw.LastFrameNull)
+                            
+                            if (cw.Camera != null)
                             {
-                                p.Width = cw.LastFrame.Width + 2;
-                                p.Height = cw.LastFrame.Height + 32;
+                                var bmp = cw.LastFrame;
+                                if (bmp != null)
+                                {
+                                    p.Width = bmp.Width + 2;
+                                    p.Height = bmp.Height + 32;
+                                }
                             }
                         }
                         else

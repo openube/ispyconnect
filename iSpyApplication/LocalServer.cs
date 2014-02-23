@@ -709,7 +709,7 @@ namespace iSpyApplication
             int ot =  Convert.ToInt32(GetVar(sPhysicalFilePath, "ot"));
 
 
-            string dir = MainForm.GetMediaDirectory(ot, oid); 
+            string dir = Helper.GetMediaDirectory(ot, oid); 
             if (ot==1)
             {
                 dir += @"audio\"+MainForm.Microphones.Single(p => p.id == oid).directory + @"\";
@@ -1445,12 +1445,16 @@ namespace iSpyApplication
                     {
                         try
                         {
-                            string subdir = GetDirectory(1, oid);
-                            FileOperations.Delete(MainForm.GetMediaDirectory(1, oid) + "audio\\" + subdir + @"\" + fn);
-                            var vl = _parent.GetVolumeLevel(oid);
-                            if (vl != null)
+                            string subdir = Helper.GetDirectory(1, oid);
+                            if (subdir != "")
                             {
-                                vl.RemoveFile(fn);
+                                FileOperations.Delete(Helper.GetMediaDirectory(1, oid) + "audio\\" + subdir + @"\" + fn);
+                                var vl = _parent.GetVolumeLevel(oid);
+                                if (vl != null)
+                                {
+                                    vl.RemoveFile(fn);
+                                    MainForm.NeedsMediaRefresh = Helper.Now;
+                                }
                             }
                         }
                         catch (Exception e)
@@ -1462,7 +1466,17 @@ namespace iSpyApplication
                     {
                         try
                         {
-                            _parent.RemovePreviewByFileName(fn);
+                            string subdir = Helper.GetDirectory(2, oid);
+                            if (subdir != "")
+                            {
+                                FileOperations.Delete(Helper.GetMediaDirectory(2, oid) + "video\\" + subdir + @"\" + fn);
+                                var vl = _parent.GetCameraWindow(oid);
+                                if (vl != null)
+                                {
+                                    vl.RemoveFile(fn);
+                                    MainForm.NeedsMediaRefresh = Helper.Now;
+                                }
+                            }
                         }
                         catch (Exception e)
                         {
@@ -1471,16 +1485,46 @@ namespace iSpyApplication
                     }
                     resp = "OK";
                     break;
-                case "deleteall":
-                    string objdir = GetDirectory(otid, oid);
+                case "archive":
+                    resp = "Archive failed. Check storage settings.";
+                    {
+                        files = GetVar(sRequest, "filelist").Trim('|').Split('|');
+                        string d = "audio";
+                        if (otid == 2)
+                            d = "video";
 
-                    Helper.DeleteAllContent(otid,oid,objdir);
+                        folderpath = Helper.GetMediaDirectory(otid, oid) + d + "\\" +
+                                     Helper.GetDirectory(otid, oid) + "\\";
+
+                        foreach (string fn3 in files)
+                        {
+                            if (Helper.ArchiveFile(folderpath + fn3))
+                                resp = "OK";
+                            else
+                                break;
+                        }
+                    }
+                    break;
+                case "deleteall":
+                    Helper.DeleteAllContent(otid,oid);
                     if (otid == 1)
-                        _parent.GetVolumeLevel(oid).ClearFileList();
+                    {
+                        var vl = _parent.GetVolumeLevel(oid);
+                        if (vl != null)
+                        {
+                            vl.ClearFileList();
+                            MainForm.NeedsMediaRefresh = Helper.Now;
+                        }
+                    }
+                    
                     if (otid == 2)
                     {
-                        _parent.GetCameraWindow(oid).ClearFileList();
-                        MainForm.NeedsMediaRefresh = DateTime.Now;
+                        var cw = _parent.GetCameraWindow(oid);
+                        if (cw != null)
+                        {
+                            cw.ClearFileList();
+                            MainForm.NeedsMediaRefresh = Helper.Now;
+                        }
                     }
                     resp = "OK";
                     break;
@@ -1491,6 +1535,7 @@ namespace iSpyApplication
                 case "sendbyemail":
                     string email = GetVar(sRequest, "email");
                     string message = GetVar(sRequest, "message").Replace("%20", " ");
+                    //send by email has been removed
                     resp = YouTubeUploader.AddUpload(oid, fn, true, email, message) + ",OK";
                     break;
                 case "kinect_tilt_up":
@@ -2062,7 +2107,7 @@ namespace iSpyApplication
                     string grabs = "";
                     foreach (objectsCamera oc1 in MainForm.Cameras)
                     {
-                        var dirinfo = new DirectoryInfo(MainForm.GetMediaDirectory(2, oid) + "video\\" +
+                        var dirinfo = new DirectoryInfo(Helper.GetMediaDirectory(2, oid) + "video\\" +
                                                         oc1.directory + "\\grabs\\");
 
                         var lFi = new List<FileInfo>();
@@ -2119,7 +2164,7 @@ namespace iSpyApplication
                     var ocgrab = MainForm.Cameras.FirstOrDefault(p => p.id == oid);
                     if (ocgrab != null)
                     {
-                        var dirinfo = new DirectoryInfo(MainForm.GetMediaDirectory(2, oid) + "video\\" +
+                        var dirinfo = new DirectoryInfo(Helper.GetMediaDirectory(2, oid) + "video\\" +
                                                         ocgrab.directory + "\\grabs\\");
 
                         var lFi = new List<FileInfo>();
@@ -2203,8 +2248,8 @@ namespace iSpyApplication
                 case "massdeletegrabs":
                     files = GetVar(sRequest, "filelist").Trim('|').Split('|');
 
-                    folderpath = MainForm.GetMediaDirectory(otid, oid) + "video\\" +
-                                 GetDirectory(otid, oid) + "\\grabs\\";
+                    folderpath = Helper.GetMediaDirectory(otid, oid) + "video\\" +
+                                 Helper.GetDirectory(otid, oid) + "\\grabs\\";
 
                     foreach (string fn3 in files)
                     {
@@ -2272,8 +2317,8 @@ namespace iSpyApplication
                     if (otid == 2)
                         dir = "video";
 
-                    folderpath = MainForm.GetMediaDirectory(otid, oid) + dir + "\\" +
-                                 GetDirectory(otid, oid) + "\\";
+                    folderpath = Helper.GetMediaDirectory(otid, oid) + dir + "\\" +
+                                 Helper.GetDirectory(otid, oid) + "\\";
 
                     VolumeLevel vlUpdate = null;
                     CameraWindow cwUpdate = null;
@@ -2322,9 +2367,7 @@ namespace iSpyApplication
                             }
                         }
                     }
-                    if (otid == 2)
-                        MainForm.NeedsMediaRefresh = DateTime.Now;
-
+                    MainForm.NeedsMediaRefresh = Helper.Now;
                     resp = "OK";
                     break;
                 case "getobjectlist":
@@ -2684,15 +2727,6 @@ namespace iSpyApplication
             return resp;
         }
 
-        private static string GetDirectory(int objectTypeId, int objectId)
-        {
-            if (objectTypeId == 1)
-            {
-                return MainForm.Microphones.Single(p => p.id == objectId).directory;
-            }
-            return MainForm.Cameras.Single(p => p.id == objectId).directory;
-        }
-
         private static void GetDirectoryPath(String sRequest, String sMyWebServerRoot, out String sLocalDir,
                                              out String sDirName)
         {
@@ -2711,8 +2745,8 @@ namespace iSpyApplication
                         string sfile = sRequest.Substring(sRequest.LastIndexOf("/", StringComparison.Ordinal) + 1);
                         int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_", StringComparison.Ordinal)));
 
-                        sLocalDir = MainForm.GetMediaDirectory(2, iind) + "video\\";
-                        sLocalDir += GetDirectory(2, iind) + "\\";
+                        sLocalDir = Helper.GetMediaDirectory(2, iind) + "video\\";
+                        sLocalDir += Helper.GetDirectory(2, iind) + "\\";
                         if (sfile.Contains(".jpg"))
                             sLocalDir += "thumbs\\";
                     }
@@ -2723,8 +2757,8 @@ namespace iSpyApplication
                             
                             string sfile = sRequest.Substring(sRequest.LastIndexOf("/", StringComparison.Ordinal) + 1);
                             int iind = Convert.ToInt32(sfile.Substring(0, sfile.IndexOf("_", StringComparison.Ordinal)));
-                            sLocalDir = MainForm.GetMediaDirectory(1, iind) + "video\\";
-                            sLocalDir += GetDirectory(1, iind) + "\\";
+                            sLocalDir = Helper.GetMediaDirectory(1, iind) + "video\\";
+                            sLocalDir += Helper.GetDirectory(1, iind) + "\\";
                         }
                         else
                             sLocalDir = sMyWebServerRoot + sDirName.Replace("../", "").Replace("/", @"\");
@@ -2890,14 +2924,14 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        if (cw.LastFrameNull)
+                        Bitmap b = cw.LastFrame;
+                        if (b==null)
                         {
                             SendHeader(sHttpVersion, "image/jpeg", CameraConnecting.Length, " 200 OK", 0, ref mySocket);
                             SendToBrowser(CameraConnecting, mySocket);
                         }
                         else
                         {
-                            Bitmap b = cw.LastFrame;
                             using (var imageStream = new MemoryStream())
                             {
 
@@ -2977,7 +3011,7 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    string sFileName = MainForm.GetMediaDirectory(2, oid) + "Video/" + cw.Camobject.directory +
+                    string sFileName = Helper.GetMediaDirectory(2, oid) + "Video/" + cw.Camobject.directory +
                                        "/thumbs/" + fn;
 
                     if (!File.Exists(sFileName))
@@ -3062,7 +3096,7 @@ namespace iSpyApplication
                 }
                 else
                 {
-                    string sFileName = MainForm.GetMediaDirectory(2, oid) + "Video/" + cw.Camobject.directory +
+                    string sFileName = Helper.GetMediaDirectory(2, oid) + "Video/" + cw.Camobject.directory +
                                        "/grabs/" + fn;
 
                     if (!File.Exists(sFileName))
@@ -3214,6 +3248,7 @@ namespace iSpyApplication
             string size = GetVar(sPhysicalFilePath, "size");
             bool basicCt = GetVar(sPhysicalFilePath, "basicct") != "";
             bool maintainAR = GetVar(sPhysicalFilePath, "keepAR") == "true";
+            bool overlay = GetVar(sPhysicalFilePath, "overlay") != "false";
             int w = 320, h = 240;
             
             if (size != "")
@@ -3236,7 +3271,7 @@ namespace iSpyApplication
 
             try
             {
-                var feed2 = new Thread(p => MJPEGFeedMulti(scamid, mySocket, w, h, basicCt, maintainAR));
+                var feed2 = new Thread(p => MJPEGFeedMulti(scamid, mySocket, w, h, basicCt, maintainAR,overlay));
                 feed2.Start();
             }
             catch (Exception ex)
@@ -3245,7 +3280,7 @@ namespace iSpyApplication
             }
         }
 
-        private void MJPEGFeedMulti(string cameraids, Socket mySocket, int w, int h, bool basicContentType, bool maintainAspectRatio)
+        private void MJPEGFeedMulti(string cameraids, Socket mySocket, int w, int h, bool basicContentType, bool maintainAspectRatio, bool includeOverlay)
         {
             String sResponse = "";
 
@@ -3321,14 +3356,9 @@ namespace iSpyApplication
                         Bitmap img = Resources.cam_removed;
                         if (!cw.IsDisposed &&  !cw.Disposing)
                         {
-                            if (cw.LastFrameNull)
-                            {
+                            img = cw.LastFrame;
+                            if (img==null)
                                 img = Resources.cam_offline;
-                            }
-                            else
-                            {
-                                img = cw.LastFrame;
-                            }
                         }
                         if (maintainAspectRatio)
                         {
@@ -3361,9 +3391,12 @@ namespace iSpyApplication
                                 //cam offline?
                             }
                         }
-                        g.FillRectangle(overlayBackgroundBrush, x, y + camh - 20, camw, y + camh);
-                        g.DrawString(cw.Camobject.name,drawfont,Brushes.White,x+2,y+camh-17);
-                        
+                        if (includeOverlay)
+                        {
+                            g.FillRectangle(overlayBackgroundBrush, x, y + camh - 20, camw, y + camh);
+                            g.DrawString(cw.Camobject.name, drawfont, Brushes.White, x + 2, y + camh - 17);
+                        }
+
 
                     }
 
@@ -3645,14 +3678,14 @@ namespace iSpyApplication
                 try
                 {
                     int j = 0;
-                    //DateTime dtStart = DateTime.Now;
+                    //DateTime dtStart = Helper.Now;
                     bool pktComplete = false;
-                    DateTime dt = DateTime.Now;
+                    DateTime dt = Helper.Now;
                     while (mySocket.Connected) // && talkTarget.Connected)
                     {
                         while (!pktComplete && mySocket.Connected)
                         {
-                           // DateTime sR = DateTime.Now;
+                           // DateTime sR = Helper.Now;
 
                             int i = mySocket.Receive(bBuffer, j, ds.PacketSize, SocketFlags.None);
                             if (i == 0)
@@ -3663,10 +3696,10 @@ namespace iSpyApplication
                                 var data = new byte[ds.PacketSize];
                                 Buffer.BlockCopy(bBuffer, 0, data, 0, ds.PacketSize);
                                 ds.AddSamples(data);
-                                int ms = Convert.ToInt32((DateTime.Now - dt).TotalMilliseconds);
+                                int ms = Convert.ToInt32((Helper.Now - dt).TotalMilliseconds);
                                 if (ms < 40)
                                     Thread.Sleep(40 - ms);
-                                dt = DateTime.Now;
+                                dt = Helper.Now;
                                 pktComplete = true;
                                 Buffer.BlockCopy(bBuffer, ds.PacketSize, bBuffer, 0, j - ds.PacketSize);
                                 j = j - ds.PacketSize;

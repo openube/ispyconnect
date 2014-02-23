@@ -8,8 +8,8 @@ namespace iSpyApplication.Controls
     {
         public static List<int> CheckedCameraIDs = new List<int>();
         public static List<int> CheckedMicIDs = new List<int>();
-        public static DateTime StartDate = DateTime.Now.AddDays(-7);
-        public static DateTime EndDate = DateTime.Now;
+        public static DateTime StartDate = Helper.Now.AddDays(-7);
+        public static DateTime EndDate = Helper.Now;
         public static bool Filtered = false;
 
         public Filter()

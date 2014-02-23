@@ -304,8 +304,8 @@ namespace iSpyApplication.Audio.streams
             //some feeds keep returning frames even when the connection is lost
             //this detects that by comparing timestamps from the eventstimechanged event
             //and signals an error if more than 8 seconds ago
-            bool q = _timestamp > DateTime.MinValue && (DateTime.Now - _timestamp).TotalMilliseconds > TimeOut;
-            q = q || (_lastframetimestamp > DateTime.MinValue && (DateTime.Now - _lastframetimestamp).TotalMilliseconds > TimeOut);
+            bool q = _timestamp > DateTime.MinValue && (Helper.Now - _timestamp).TotalMilliseconds > TimeOut;
+            q = q || (_lastframetimestamp > DateTime.MinValue && (Helper.Now - _lastframetimestamp).TotalMilliseconds > TimeOut);
 
             if (q)
             {
@@ -336,7 +336,7 @@ namespace iSpyApplication.Audio.streams
         void EventsTimeChanged(object sender, MediaPlayerTimeChanged e)
         {
             Time = e.NewTime;
-            _timestamp = DateTime.Now;
+            _timestamp = Helper.Now;
         }
 
         #region Audio Stuff

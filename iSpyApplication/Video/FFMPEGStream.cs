@@ -430,7 +430,7 @@ namespace iSpyApplication.Video
             double maxdrift = 0, firstmaxdrift = 0;
             const int analyseInterval = 10;
             DateTime dtAnalyse = DateTime.MinValue;
-            _lastFrame = DateTime.Now;
+            _lastFrame = Helper.Now;
 
             if (_initialSeek>-1)
                 _vfr.Seek(_initialSeek);
@@ -553,11 +553,11 @@ namespace iSpyApplication.Video
                         }
                         return true;
                     }
-                    if ((DateTime.Now - _lastFrame).TotalMilliseconds > Timeout)
+                    if ((Helper.Now - _lastFrame).TotalMilliseconds > Timeout)
                         throw new TimeoutException("Timeout reading from video stream");
                     break;
                 case 1:
-                    _lastFrame = DateTime.Now;
+                    _lastFrame = Helper.Now;
                     if (hasaudio)
                     {
                         var data = frame as byte[];
@@ -572,14 +572,14 @@ namespace iSpyApplication.Video
                     }
                     break;
                 case 2:
-                    _lastFrame = DateTime.Now;
+                    _lastFrame = Helper.Now;
                     
                     if (frame != null)
                     {
                         var bmp = frame as Bitmap;
                         if (dtAnalyse == DateTime.MinValue)
                         {
-                            dtAnalyse = DateTime.Now.AddSeconds(analyseInterval);
+                            dtAnalyse = Helper.Now.AddSeconds(analyseInterval);
                         }
 
                         double t = _vfr.VideoTime;
@@ -589,7 +589,7 @@ namespace iSpyApplication.Video
                         {
                             double drift = _vfr.VideoTime - _sw.ElapsedMilliseconds;
 
-                            if (dtAnalyse > DateTime.Now)
+                            if (dtAnalyse > Helper.Now)
                             {
                                 if (Math.Abs(drift) > Math.Abs(maxdrift))
                                 {
@@ -603,7 +603,7 @@ namespace iSpyApplication.Video
                                 else
                                     firstmaxdrift = maxdrift;
                                 maxdrift = 0;
-                                dtAnalyse = DateTime.Now.AddSeconds(analyseInterval);
+                                dtAnalyse = Helper.Now.AddSeconds(analyseInterval);
                             }
 
                             //Console.WriteLine("delay: " + _delay + " firstmaxdrift: "+firstmaxdrift+" drift: " + drift + " maxdrift: " + maxdrift + " buffer: " + _videoframes.Count);

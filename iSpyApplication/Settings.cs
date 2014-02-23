@@ -33,6 +33,7 @@ namespace iSpyApplication
         private static readonly object Jslock = new object();
         private bool _loaded;
         public MainForm MainClass;
+        public FolderSelectDialog Fsd = new FolderSelectDialog();
 
         public Settings()
         {
@@ -121,7 +122,21 @@ namespace iSpyApplication
             MainForm.Conf.DisconnectNotificationDelay = (int)numDisconnectNotification.Value;
             var l = mediaDirectoryEditor1.Directories.ToList();
             MainForm.Conf.MediaDirectories = l.ToArray();
+            MainForm.Conf.MailAlertSubject = txtAlertSubject.Text;
+            MainForm.Conf.MailAlertBody = txtAlertBody.Text;
+            MainForm.Conf.SMSAlert = txtSMSBody.Text;
 
+            MainForm.Conf.Archive = txtArchive.Text.Trim();
+            if (!String.IsNullOrEmpty(MainForm.Conf.Archive))
+            {
+                if (!MainForm.Conf.Archive.EndsWith(@"\"))
+                    MainForm.Conf.Archive += @"\";
+                if (!Directory.Exists(MainForm.Conf.Archive))
+                {
+                    MainForm.Conf.Archive = "";
+                    MainForm.LogErrorToFile("Archive directory ignored - couldn't be found on disk");
+                }
+            }
 
             MainForm.Iconfont = new Font(FontFamily.GenericSansSerif, MainForm.Conf.BigButtons ? 22 : 15, FontStyle.Bold, GraphicsUnit.Pixel);
             
@@ -219,7 +234,7 @@ namespace iSpyApplication
         private jbutton _curButton;
         private jaxis _curAxis;
 
-        void jbutton_GetInput(object sender, EventArgs e)
+        void JbuttonGetInput(object sender, EventArgs e)
         {
             jbutton1.Reset();
             jbutton2.Reset();
@@ -338,6 +353,11 @@ namespace iSpyApplication
             numMJPEGStreamInterval.Value = MainForm.Conf.MJPEGStreamInterval;
             txtAlertOnDisconnect.Text = MainForm.Conf.AlertOnDisconnect;
             txtAlertOnReconnect.Text = MainForm.Conf.AlertOnReconnect;
+            txtArchive.Text = MainForm.Conf.Archive;
+
+            txtAlertSubject.Text = MainForm.Conf.MailAlertSubject;
+            txtAlertBody.Text = MainForm.Conf.MailAlertBody;
+            txtSMSBody.Text = MainForm.Conf.SMSAlert;
 
             foreach (string s in StartupModes)
             {
@@ -448,15 +468,15 @@ namespace iSpyApplication
             jbutton8.ID = MainForm.Conf.Joystick.Stop;
             jbutton9.ID = MainForm.Conf.Joystick.MaxMin;
 
-            jbutton1.GetInput += jbutton_GetInput;
-            jbutton2.GetInput += jbutton_GetInput;
-            jbutton3.GetInput += jbutton_GetInput;
-            jbutton4.GetInput += jbutton_GetInput;
-            jbutton5.GetInput += jbutton_GetInput;
-            jbutton6.GetInput += jbutton_GetInput;
-            jbutton7.GetInput += jbutton_GetInput;
-            jbutton8.GetInput += jbutton_GetInput;
-            jbutton9.GetInput += jbutton_GetInput;
+            jbutton1.GetInput += JbuttonGetInput;
+            jbutton2.GetInput += JbuttonGetInput;
+            jbutton3.GetInput += JbuttonGetInput;
+            jbutton4.GetInput += JbuttonGetInput;
+            jbutton5.GetInput += JbuttonGetInput;
+            jbutton6.GetInput += JbuttonGetInput;
+            jbutton7.GetInput += JbuttonGetInput;
+            jbutton8.GetInput += JbuttonGetInput;
+            jbutton9.GetInput += JbuttonGetInput;
 
             jaxis1.GetInput += jaxis_GetInput;
             jaxis2.GetInput += jaxis_GetInput;
@@ -1106,6 +1126,50 @@ namespace iSpyApplication
                 name = name.Substring(0, name.LastIndexOf(".", StringComparison.Ordinal));
                 lbPlugins.Items.Add(name);
             }
+        }
+
+        private void btnArchive_Click(object sender, EventArgs e)
+        {
+            string f = GetFolder(MainForm.Conf.Archive);
+            if (f != "")
+            {
+                txtArchive.Text = f;
+            }
+        }
+
+        private string GetFolder(string initialPath)
+        {
+            string f = "";
+            if (!String.IsNullOrEmpty(initialPath))
+            {
+                try
+                {
+                    Fsd.InitialDirectory = initialPath;
+                }
+                catch
+                {
+
+                }
+            }
+
+
+            if (Fsd.ShowDialog(Handle))
+            {
+                f = Fsd.FileName;
+                if (!f.EndsWith(@"\"))
+                    f += @"\";
+            }
+            return f;
+        }
+
+        private void linkLabel5_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            txtAlertSubject.Text = "[EVENT]: [SERVER] [OBJECTNAME]";
+            txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";
+
+            txtAlertSubject.Text = "[EVENT]: [SERVER] [OBJECTNAME]";
+            txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";            
+            txtAppendLinkText.Text = "<br/>ispyconnect.com";
         }
     }
 }

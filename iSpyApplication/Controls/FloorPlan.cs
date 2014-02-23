@@ -232,7 +232,7 @@ namespace iSpyApplication.Controls
         {
             if (_mouseLoc.X == e.X && _mouseLoc.Y == e.Y)
                 return;
-            _mouseMove = DateTime.Now;
+            _mouseMove = Helper.Now;
             MousePos mousePos = GetMousePos(e.Location);
             switch (mousePos)
             {
@@ -515,7 +515,7 @@ namespace iSpyApplication.Controls
                 MainForm.LogExceptionToFile(ex);
             }
 
-            if (_mouseMove > DateTime.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
+            if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
             {
                 int leftpoint = Width/2 - ButtonPanelWidth/2;
                 int ypoint = Height - 24 - ButtonPanelHeight;
@@ -716,7 +716,7 @@ namespace iSpyApplication.Controls
                     gLf.Dispose();
                 }
                 Invalidate();
-                LastRefreshTimestamp = DateTime.Now.UnixTicks();
+                LastRefreshTimestamp = Helper.Now.UnixTicks();
                 NeedsRefresh = false;
                 IsAlert = alert;
             }

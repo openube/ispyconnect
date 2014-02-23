@@ -539,7 +539,7 @@ namespace iSpyApplication.Video
                                     //hack for panasonic cameras that redirect on reboot in privacy mode - POST a command to disable privacy
                                     if (DisablePrivacy(request))
                                     {
-                                        _needsPrivacyEnabledTarget = DateTime.Now.AddSeconds(4);
+                                        _needsPrivacyEnabledTarget = Helper.Now.AddSeconds(4);
                                         _needsPrivacyEnabled = true;
                                     }
 
@@ -683,7 +683,7 @@ namespace iSpyApplication.Video
                                     // release the image
                                     bitmap.Dispose();
                                     bitmap = null;
-                                    if (_needsPrivacyEnabled && _needsPrivacyEnabledTarget < DateTime.Now)
+                                    if (_needsPrivacyEnabled && _needsPrivacyEnabledTarget < Helper.Now)
                                     {
                                         if (EnablePrivacy(request))
                                         {

@@ -41,22 +41,21 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.chkCalibrate = new System.Windows.Forms.CheckBox();
-            this.chkFBA = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtCookies = new System.Windows.Forms.TextBox();
             this.txtUserAgent = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
             this.txtHeaders = new System.Windows.Forms.TextBox();
-            this.chkHttp10 = new System.Windows.Forms.CheckBox();
             this.numTimeout = new System.Windows.Forms.NumericUpDown();
             this.lblTimeout = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.chkFBA = new System.Windows.Forms.CheckBox();
+            this.chkHttp10 = new System.Windows.Forms.CheckBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tlpFishEye = new System.Windows.Forms.TableLayoutPanel();
-            this.chkFishEyeActive = new System.Windows.Forms.CheckBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -65,6 +64,7 @@
             this.numScale = new System.Windows.Forms.NumericUpDown();
             this.label11 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkFishEyeActive = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtResizeWidth)).BeginInit();
@@ -273,16 +273,6 @@
             this.chkCalibrate.Text = "Calibrate on Reconnect";
             this.chkCalibrate.UseVisualStyleBackColor = true;
             // 
-            // chkFBA
-            // 
-            this.chkFBA.AutoSize = true;
-            this.chkFBA.Location = new System.Drawing.Point(114, 189);
-            this.chkFBA.Name = "chkFBA";
-            this.chkFBA.Size = new System.Drawing.Size(153, 17);
-            this.chkFBA.TabIndex = 52;
-            this.chkFBA.Text = "Force Basic Authentication";
-            this.chkFBA.UseVisualStyleBackColor = true;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -330,32 +320,12 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 8);
-            this.label7.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(47, 13);
-            this.label7.TabIndex = 84;
-            this.label7.Text = "Headers";
-            // 
             // txtHeaders
             // 
             this.txtHeaders.Location = new System.Drawing.Point(114, 3);
             this.txtHeaders.Name = "txtHeaders";
             this.txtHeaders.Size = new System.Drawing.Size(207, 20);
             this.txtHeaders.TabIndex = 85;
-            // 
-            // chkHttp10
-            // 
-            this.chkHttp10.AutoSize = true;
-            this.chkHttp10.Location = new System.Drawing.Point(114, 220);
-            this.chkHttp10.Name = "chkHttp10";
-            this.chkHttp10.Size = new System.Drawing.Size(95, 17);
-            this.chkHttp10.TabIndex = 53;
-            this.chkHttp10.Text = "Use HTTP 1.0";
-            this.chkHttp10.UseVisualStyleBackColor = true;
             // 
             // numTimeout
             // 
@@ -388,6 +358,38 @@
             this.lblTimeout.Size = new System.Drawing.Size(67, 13);
             this.lblTimeout.TabIndex = 87;
             this.lblTimeout.Text = "Timeout (ms)";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 8);
+            this.label7.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(47, 13);
+            this.label7.TabIndex = 84;
+            this.label7.Text = "Headers";
+            // 
+            // chkFBA
+            // 
+            this.chkFBA.AutoSize = true;
+            this.chkFBA.Location = new System.Drawing.Point(117, 192);
+            this.chkFBA.Margin = new System.Windows.Forms.Padding(6);
+            this.chkFBA.Name = "chkFBA";
+            this.chkFBA.Size = new System.Drawing.Size(153, 17);
+            this.chkFBA.TabIndex = 52;
+            this.chkFBA.Text = "Force Basic Authentication";
+            this.chkFBA.UseVisualStyleBackColor = true;
+            // 
+            // chkHttp10
+            // 
+            this.chkHttp10.AutoSize = true;
+            this.chkHttp10.Location = new System.Drawing.Point(117, 223);
+            this.chkHttp10.Margin = new System.Windows.Forms.Padding(6);
+            this.chkHttp10.Name = "chkHttp10";
+            this.chkHttp10.Size = new System.Drawing.Size(95, 17);
+            this.chkHttp10.TabIndex = 53;
+            this.chkHttp10.Text = "Use HTTP 1.0";
+            this.chkHttp10.UseVisualStyleBackColor = true;
             // 
             // tabControl1
             // 
@@ -448,17 +450,6 @@
             this.tlpFishEye.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tlpFishEye.Size = new System.Drawing.Size(368, 287);
             this.tlpFishEye.TabIndex = 0;
-            // 
-            // chkFishEyeActive
-            // 
-            this.chkFishEyeActive.AutoSize = true;
-            this.chkFishEyeActive.Location = new System.Drawing.Point(0, 0);
-            this.chkFishEyeActive.Name = "chkFishEyeActive";
-            this.chkFishEyeActive.Size = new System.Drawing.Size(103, 17);
-            this.chkFishEyeActive.TabIndex = 0;
-            this.chkFishEyeActive.Text = "Apply Correction";
-            this.chkFishEyeActive.UseVisualStyleBackColor = true;
-            this.chkFishEyeActive.CheckedChanged += new System.EventHandler(this.chkFishEyeActive_CheckedChanged);
             // 
             // label8
             // 
@@ -566,6 +557,17 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(368, 26);
             this.panel1.TabIndex = 1;
+            // 
+            // chkFishEyeActive
+            // 
+            this.chkFishEyeActive.AutoSize = true;
+            this.chkFishEyeActive.Location = new System.Drawing.Point(0, 0);
+            this.chkFishEyeActive.Name = "chkFishEyeActive";
+            this.chkFishEyeActive.Size = new System.Drawing.Size(103, 17);
+            this.chkFishEyeActive.TabIndex = 0;
+            this.chkFishEyeActive.Text = "Apply Correction";
+            this.chkFishEyeActive.UseVisualStyleBackColor = true;
+            this.chkFishEyeActive.CheckedChanged += new System.EventHandler(this.chkFishEyeActive_CheckedChanged);
             // 
             // VideoSourceAdvanced
             // 

@@ -21,6 +21,7 @@ namespace iSpyApplication.Controls
         public Brush IconBrushActive = new SolidBrush(Color.Red);
         public Brush OverlayBrush = new SolidBrush(Color.White);
         public Brush RecordBrush = new SolidBrush(Color.Red);
+        public Brush lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
 
         internal MainForm MainClass;
@@ -43,7 +44,7 @@ namespace iSpyApplication.Controls
         private readonly Pen _pline = new Pen(Color.Gray, 2);
         private readonly Pen _vline = new Pen(Color.Green, 2);
         private readonly Pen _pAlert = new Pen(Color.Red, 2);
-        private readonly SolidBrush _bOverlay = new SolidBrush(Color.FromArgb(100, Color.Black));
+        private readonly SolidBrush _bOverlay = new SolidBrush(Color.FromArgb(160, Color.Black));
 
         #endregion
 
@@ -153,7 +154,7 @@ namespace iSpyApplication.Controls
                 {
                     var ctrl = MainClass.GetCameraWindow(cam.id);
 
-                    bool add = (Cg.ModeIndex == 1 && ctrl.LastMovementDetected > DateTime.Now.AddSeconds(0 - del)) || (Cg.ModeIndex == 2 && ctrl.LastAlerted > DateTime.Now.AddSeconds(0 - del));
+                    bool add = (Cg.ModeIndex == 1 && ctrl.LastMovementDetected > Helper.Now.AddSeconds(0 - del)) || (Cg.ModeIndex == 2 && ctrl.LastAlerted > Helper.Now.AddSeconds(0 - del));
 
                     if (add)
                     {
@@ -183,8 +184,8 @@ namespace iSpyApplication.Controls
                         if (ctrl.CameraControl == null)
                         {
 
-                            bool add = (Cg.ModeIndex == 1 && ctrl.SoundLastDetected > DateTime.Now.AddSeconds(0 - del)) ||
-                                       (Cg.ModeIndex == 2 && ctrl.LastAlerted > DateTime.Now.AddSeconds(0 - del));
+                            bool add = (Cg.ModeIndex == 1 && ctrl.LastSoundDetected > Helper.Now.AddSeconds(0 - del)) ||
+                                       (Cg.ModeIndex == 2 && ctrl.LastAlerted > Helper.Now.AddSeconds(0 - del));
                             if (add)
                             {
                                 for (int k = 0; k < _controls.Count; k++)
@@ -377,12 +378,12 @@ namespace iSpyApplication.Controls
                     }
                     else
                     {
-                        if ((DateTime.Now - gvc.LastCycle).TotalSeconds > gvc.Delay)
+                        if ((Helper.Now - gvc.LastCycle).TotalSeconds > gvc.Delay)
                         {
                             if (!gvc.Hold)
                             {
                                 gvc.CurrentIndex++;
-                                gvc.LastCycle = DateTime.Now;
+                                gvc.LastCycle = Helper.Now;
                             }
                         }
                         if (gvc.CurrentIndex >= gvc.ObjectIDs.Count)
@@ -398,9 +399,8 @@ namespace iSpyApplication.Controls
                                 var vl = MainClass.GetVolumeLevel(obj.ObjectID);
                                 if (vl != null)
                                 {
-                                    if (vl.Micobject.settings.active && vl.Levels != null && !vl.AudioSourceErrorState)
+                                    if (vl.IsEnabled && vl.Levels != null && !vl.AudioSourceErrorState)
                                     {
-                                        var lgb = new SolidBrush(MainForm.VolumeLevelColor);
                                         int bh = (rFeed.Height) / vl.Micobject.settings.channels - (vl.Micobject.settings.channels - 1) * 2;
                                         if (bh <= 2)
                                             bh = 2;
@@ -416,7 +416,6 @@ namespace iSpyApplication.Controls
                                             gGrid.FillRectangle(lgb, rFeed.X + 2, rFeed.Y + 2 + m * bh + (m * 2), drawW - 4, bh);
 
                                         }
-                                        lgb.Dispose();
                                         var mx = rFeed.X+ (float)((Convert.ToDouble(rFeed.Width) / 100.00) * Convert.ToDouble(vl.Micobject.detector.sensitivity));
                                         gGrid.DrawLine(_vline, mx, rFeed.Y+1, mx, rFeed.Y + rFeed.Height-2);
 
@@ -428,7 +427,7 @@ namespace iSpyApplication.Controls
                                     else
                                     {
                                         string m = LocRm.GetString("Offline");
-                                        if (vl.Micobject.settings.active)
+                                        if (vl.IsEnabled)
                                             m = "Connecting...";
 
                                         int txtOffline =
@@ -456,18 +455,16 @@ namespace iSpyApplication.Controls
                             case 2:
                                 var cw = MainClass.GetCameraWindow(obj.ObjectID);
                                 if (cw != null)
-                                {                                    
-                                    if (cw.Camera != null && !cw.LastFrameNull)
+                                {
+                                    var bmp = cw.LastFrame;
+                                    if (cw.Camera != null && bmp != null && !cw.VideoSourceErrorState)
                                     {
-                                        var bmp = cw.LastFrame;
-                                        if (bmp != null)
+                                        if (!Cg.Fill)
                                         {
-                                            if (!Cg.Fill)
-                                            {
-                                                rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
-                                            }
-                                            gGrid.DrawImage(bmp, rFeed);
+                                            rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
                                         }
+                                        gGrid.DrawImage(bmp, rFeed);
+                                        
                                         if (cw.Alerted)
                                         {
                                             gGrid.DrawRectangle(_pAlert, rFeed);
@@ -478,7 +475,7 @@ namespace iSpyApplication.Controls
                                     else
                                     {
                                         string m = LocRm.GetString("Offline");
-                                        if (cw.Camobject.settings.active)
+                                        if (cw.IsEnabled)
                                             m = "Connecting...";
                                         
                                         int txtOffline =
@@ -516,11 +513,14 @@ namespace iSpyApplication.Controls
                                         {
                                             rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
                                         }
-                                        gGrid.DrawImage(bmp, rFeed);
-                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
-                                        gGrid.DrawString(fp.Fpobject.name, Drawfont, OverlayBrush,
-                                                         r.X + 5,
-                                                         r.Y + r.Height - 16);
+                                        if (bmp != null)
+                                        {
+                                            gGrid.DrawImage(bmp, rFeed);
+                                            gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
+                                            gGrid.DrawString(fp.Fpobject.name, Drawfont, OverlayBrush,
+                                                r.X + 5,
+                                                r.Y + r.Height - 16);
+                                        }
                                     }
 
                                 }
@@ -535,12 +535,8 @@ namespace iSpyApplication.Controls
                     
                     if (_overControlIndex == ind)
                     {
-                            
-
                         if (gvc != null && gvc.ObjectIDs.Count != 0)
                         {
-                                
-
                             gGrid.FillRectangle(_bOverlay, r.X, oy, r.Width, 18);
                             if (Cg.ModeIndex==0)
                                 gGrid.DrawString("Add", Drawfont, OverlayBrush, r.X + 2, oy + 2);
@@ -557,15 +553,14 @@ namespace iSpyApplication.Controls
                                     if (vl != null)
                                     {
                                         gGrid.FillRectangle(_bOverlay, r.X, oy - 18, r.Width, 18);
-                                        if (vl.Micobject.settings.active)
+                                        if (vl.IsEnabled)
                                         {
                                             gGrid.DrawString("Listen", Drawfont, vl.Listening ? IconBrushActive : OverlayBrush, r.X + 90, oy + 2);
 
                                             gGrid.DrawString("Off", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
 
-                                            gGrid.DrawString("Edit", Drawfont, OverlayBrush, r.X + 30,
-                                                oy - 18);
+                                            
                                             gGrid.DrawString("Rec", Drawfont, vl.Recording ? IconBrushActive : OverlayBrush, r.X + 60,
                                                 oy - 18);
                                         }
@@ -574,6 +569,8 @@ namespace iSpyApplication.Controls
                                             gGrid.DrawString("On", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
                                         }
+                                        gGrid.DrawString("Edit", Drawfont, OverlayBrush, r.X + 30,
+                                                oy - 18);
                                         gGrid.DrawString("Files", Drawfont, OverlayBrush, r.X + 90, oy - 18);
                                     }
                                     break;
@@ -582,7 +579,7 @@ namespace iSpyApplication.Controls
                                     if (cw != null)
                                     {
                                         gGrid.FillRectangle(_bOverlay, r.X, oy - 18, r.Width, 18);
-                                        if (cw.Camobject.settings.active)
+                                        if (cw.IsEnabled && cw.Camera != null)
                                         {
                                             gGrid.DrawString("Talk", Drawfont, cw.Talking ? IconBrushActive : OverlayBrush, r.X + 90, oy + 2);
                                             if (cw.VolumeControl!=null)
@@ -591,11 +588,10 @@ namespace iSpyApplication.Controls
                                             gGrid.DrawString("Off", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
 
-                                            gGrid.DrawString("Edit", Drawfont, OverlayBrush, r.X + 30,
-                                                oy - 18);
+                                            
                                             gGrid.DrawString("Rec", Drawfont, cw.Recording ? IconBrushActive : OverlayBrush, r.X + 60,
                                                 oy - 18);
-                                            gGrid.DrawString("Snap", Drawfont, OverlayBrush, r.X + 90,
+                                            gGrid.DrawString("Grab", Drawfont, OverlayBrush, r.X + 90,
                                                 oy - 18);
                                         }
                                         else
@@ -603,6 +599,8 @@ namespace iSpyApplication.Controls
                                             gGrid.DrawString("On", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
                                         }
+                                        gGrid.DrawString("Edit", Drawfont, OverlayBrush, r.X + 30,
+                                                oy - 18);
                                         gGrid.DrawString("Files", Drawfont, OverlayBrush, r.X + 120, oy - 18);
                                         
                                     }
@@ -800,7 +798,7 @@ namespace iSpyApplication.Controls
                                         if (i > cgv.ObjectIDs.Count)
                                             i = 0;
                                         cgv.CurrentIndex = i;
-                                        cgv.LastCycle = DateTime.Now;
+                                        cgv.LastCycle = Helper.Now;
                                     }
                                 }
                                 else
@@ -864,20 +862,20 @@ namespace iSpyApplication.Controls
                                 {
                                     if (ox < 30)
                                     {
-                                        if (!vl.Micobject.settings.active)
-                                            vl.Enable();
+                                        if (!vl.IsEnabled)
+                                            vl.InvokeEnable();
                                         else
-                                            vl.Disable();
+                                            vl.InvokeDisable();
                                         break;
                                     }
-                                    
+                                    if (ox < 60)
+                                    {
+                                        MainClass.EditMicrophone(vl.Micobject, this);
+                                        break;
+                                    }
                                     if (vl.IsEnabled)
                                     {
-                                        if (ox < 60)
-                                        {
-                                            MainClass.EditMicrophone(vl.Micobject, this);
-                                            break;
-                                        }
+                                        
                                         if (ox < 90)
                                         {
                                             //Rec
@@ -898,20 +896,19 @@ namespace iSpyApplication.Controls
                                 {
                                     if (ox < 30)
                                     {
-                                        if (!cw.Camobject.settings.active)
-                                            cw.Enable();
+                                        if (!cw.IsEnabled)
+                                            cw.InvokeEnable();
                                         else
-                                            cw.Disable();
+                                            cw.InvokeDisable();
                                         break;
                                     }
-                                    
-                                    if (cw.IsEnabled)
+                                    if (ox < 60)
                                     {
-                                        if (ox < 60)
-                                        {
-                                            MainClass.EditCamera(cw.Camobject,this);
-                                            break;
-                                        }
+                                        MainClass.EditCamera(cw.Camobject, this);
+                                        break;
+                                    }
+                                    if (cw.IsEnabled)
+                                    {  
                                         if (ox < 90)
                                         {
                                             //Rec
@@ -1178,7 +1175,7 @@ namespace iSpyApplication.Controls
             {
                 ObjectIDs = objectIDs;
                 Delay = delay;
-                LastCycle = DateTime.Now;
+                LastCycle = Helper.Now;
                 Hold = false;
             }
         }

@@ -30,7 +30,7 @@ namespace iSpyApplication.Video
         private DateTime _lastWarnedTripWire = DateTime.MinValue;
         //private readonly bool _bound;
         private ManualResetEvent _stopEvent;
-        private DateTime _lastFrameTimeStamp = DateTime.Now;
+        private DateTime _lastFrameTimeStamp = Helper.Now;
         public int StreamMode = 0;//color
 
         private const double MaxInterval = 1000d/15;
@@ -318,9 +318,9 @@ namespace iSpyApplication.Video
             {
                 if (depthFrame != null)
                 {
-                    if ((DateTime.Now - _lastFrameTimeStamp).TotalMilliseconds >= MaxInterval)
+                    if ((Helper.Now - _lastFrameTimeStamp).TotalMilliseconds >= MaxInterval)
                     {
-                        _lastFrameTimeStamp = DateTime.Now;
+                        _lastFrameTimeStamp = Helper.Now;
 
                         // Copy the pixel data from the image to a temporary array
                         depthFrame.CopyPixelDataTo(_depthPixels);
@@ -410,9 +410,9 @@ namespace iSpyApplication.Video
 
         void SensorColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
         {
-            if ((DateTime.Now - _lastFrameTimeStamp).TotalMilliseconds >= MaxInterval)
+            if ((Helper.Now - _lastFrameTimeStamp).TotalMilliseconds >= MaxInterval)
             {
-                _lastFrameTimeStamp = DateTime.Now;
+                _lastFrameTimeStamp = Helper.Now;
 
                 using (ColorImageFrame imageFrame = e.OpenColorImageFrame())
                 {
@@ -559,10 +559,10 @@ namespace iSpyApplication.Video
                     {
                         if (ProcessIntersection(p1, p2, TripWires[i]))
                         {
-                            if ((DateTime.Now - _lastWarnedTripWire).TotalSeconds > 5)
+                            if ((Helper.Now - _lastWarnedTripWire).TotalSeconds > 5)
                             {
                                 TripWire(this, EventArgs.Empty);
-                                _lastWarnedTripWire = DateTime.Now;
+                                _lastWarnedTripWire = Helper.Now;
                             }
                             break;
 

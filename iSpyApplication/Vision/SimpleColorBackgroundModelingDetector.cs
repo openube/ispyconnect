@@ -6,6 +6,8 @@
 // contacts@aforgenet.com
 //
 
+using iSpyApplication;
+
 namespace AForge.Vision.Motion
 {
     using System;
@@ -356,7 +358,7 @@ namespace AForge.Vision.Motion
                 // check background frame
                 if ( backgroundFrame == null )
                 {
-                    lastTimeMeasurment = DateTime.Now;
+                    lastTimeMeasurment = Helper.Now;
 
                     // save image dimension
                     width  = videoFrame.Width;
@@ -421,7 +423,7 @@ namespace AForge.Vision.Motion
                     // update background frame using timer as a base
 
                     // get current time and calculate difference
-                    DateTime currentTime = DateTime.Now;
+                    DateTime currentTime = Helper.Now;
                     TimeSpan timeDff = currentTime - lastTimeMeasurment;
                     // save current time as the last measurment
                     lastTimeMeasurment = currentTime;

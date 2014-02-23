@@ -253,12 +253,12 @@ namespace iSpyApplication.Audio.streams
 
             int mult = _afr.BitsPerSample / 8;
             double btrg = Convert.ToDouble(_afr.SampleRate * mult * _afr.Channels);
-            DateTime lastPacket = DateTime.Now;
+            DateTime lastPacket = Helper.Now;
             bool realTime = !IsFileSource;
 
             try
             {
-                DateTime req = DateTime.Now;
+                DateTime req = Helper.Now;
                 while (!_stopEvent.WaitOne(10, false) && !MainForm.Reallyclose)
                 {
                     byte[] data = _afr.ReadAudioFrame();
@@ -272,7 +272,7 @@ namespace iSpyApplication.Audio.streams
                     }
                     if (data!=null && data.Length > 0)
                     {
-                        lastPacket = DateTime.Now;
+                        lastPacket = Helper.Now;
                         if (DataAvailable != null)
                         {
                             //forces processing of volume level without piping it out
@@ -300,17 +300,17 @@ namespace iSpyApplication.Audio.streams
                             double f = (data.Length/btrg)*1000;
                             if (f > 0)
                             {
-                                var span = DateTime.Now.Subtract(req);
+                                var span = Helper.Now.Subtract(req);
                                 var msec = Convert.ToInt32(f - (int) span.TotalMilliseconds);
                                 if ((msec > 0) && (_stopEvent.WaitOne(msec, false)))
                                     break;
-                                req = DateTime.Now;
+                                req = Helper.Now;
                             }
                         }
                     }
                     else
                     {
-                        if ((DateTime.Now - lastPacket).TotalMilliseconds > 5000)
+                        if ((Helper.Now - lastPacket).TotalMilliseconds > 5000)
                         {
                             throw new Exception("Audio source timeout");
                         }

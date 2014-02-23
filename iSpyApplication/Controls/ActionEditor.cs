@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -6,9 +7,10 @@ namespace iSpyApplication.Controls
 {
     public partial class ActionEditor : UserControl
     {
-        public objectsCameraAlertevents Aec;
-        public objectsMicrophoneAlertevents Aem;
         public event EventHandler LoginRequested;
+        public string Mode = "alert";
+        public int Oid = -1;
+        public int Otid = -1;
 
         public string[] Actions =
             {
@@ -31,15 +33,11 @@ namespace iSpyApplication.Controls
             InitializeComponent();
         }
         
-        public void Init(objectsCameraAlertevents ae)
+        public void Init(string mode, int oid, int otid)
         {
-            Aec = ae;
-            Init();
-
-        }
-        public void Init(objectsMicrophoneAlertevents ae)
-        {
-            Aem = ae;
+            Oid = oid;
+            Otid = otid;
+            Mode = mode;
             Init();
 
         }
@@ -80,38 +78,21 @@ namespace iSpyApplication.Controls
             int vertScrollWidth = SystemInformation.VerticalScrollBarWidth;
 
             var w = flpActions.Width - 2;
-            
-            
-            if (Aec != null)
-            {
-                if (Aec.entries.Length * AlertEventRow.Height >= flpActions.Height)
-                    w = flpActions.Width - vertScrollWidth - 2;
-                foreach (var e in Aec.entries)
-                {
-                    var c = new AlertEventRow(e) {Width = w};
-                    c.AlertEntryDelete += CAlertEntryDelete;
-                    c.AlertEntryEdit += CAlertEntryEdit;
-                    c.MouseOver += CMouseOver;
-                    flpActions.Controls.Add(c);
-                    flpActions.SetFlowBreak(c, true);
-                }
-            }
-            if (Aem != null)
-            {
-                if (Aem.entries.Length * AlertEventRow.Height >= flpActions.Height)
-                    w = flpActions.Width - vertScrollWidth - 2;
 
-                foreach (var e in Aem.entries)
-                {
-                    var c = new AlertEventRow(e) { Width = w};
-                    c.AlertEntryDelete += CAlertEntryDelete;
-                    c.AlertEntryEdit += CAlertEntryEdit;
-                    c.MouseOver += CMouseOver;
-                    flpActions.Controls.Add(c);
-                    flpActions.SetFlowBreak(c, true);
-                }
-            }
+            var oae = MainForm.Actions.Where(p => p.mode == Mode && p.objectid == Oid && p.objecttypeid == Otid).ToList();
 
+            if (oae.Count() * AlertEventRow.Height >= flpActions.Height)
+                w = flpActions.Width - vertScrollWidth - 2;
+            foreach (var e in oae)
+            {
+                var c = new AlertEventRow(e) {Width = w};
+                c.AlertEntryDelete += CAlertEntryDelete;
+                c.AlertEntryEdit += CAlertEntryEdit;
+                c.MouseOver += CMouseOver;
+                flpActions.Controls.Add(c);
+                flpActions.SetFlowBreak(c, true);
+            }
+            
             flpActions.PerformLayout();
             flpActions.HorizontalScroll.Visible = flpActions.HorizontalScroll.Enabled = false;
             
@@ -132,30 +113,13 @@ namespace iSpyApplication.Controls
 
         void CAlertEntryEdit(object sender, EventArgs e)
         {
-            string t = "";
-            string param1Val = "";
-            string param2Val = "";
-            string param3Val = "";
-            string param4Val = "";
+            var oe = ((AlertEventRow)sender).Oae;
+            string t = oe.type;
+            string param1Val = oe.param1;
+            string param2Val = oe.param2;
+            string param3Val = oe.param3;
+            string param4Val = oe.param4;
 
-            if (Aec != null)
-            {
-                var oe = ((AlertEventRow)sender).OcaeeC;
-                t = oe.type;
-                param1Val = oe.param1;
-                param2Val = oe.param2;
-                param3Val = oe.param3;
-                param4Val = oe.param4;
-            }
-            if (Aem != null)
-            {
-                var oe = ((AlertEventRow)sender).OcaeeM;
-                t = oe.type;
-                param1Val = oe.param1;
-                param2Val = oe.param2;
-                param3Val = oe.param3;
-                param4Val = oe.param4;
-            }
 
             bool cancel;
             var config = GetConfig(param2Val, param3Val, param4Val, param1Val, t, out cancel);
@@ -163,49 +127,26 @@ namespace iSpyApplication.Controls
             if (cancel)
                 return;
 
-            if (Aec != null)
+
+            oe = ((AlertEventRow)sender).Oae;
+
+            if (config.Length > 0)
             {
-                var oe = ((AlertEventRow)sender).OcaeeC;
-
-                if (config.Length > 0)
-                {
-                    oe.param1 = config[0];
-                }
-                if (config.Length > 1)
-                {
-                    oe.param2 = config[1];
-                }
-                if (config.Length > 2)
-                {
-                    oe.param3 = config[2];
-                }
-                if (config.Length > 3)
-                {
-                    oe.param4 = config[3];
-                }
+                oe.param1 = config[0];
             }
-
-            if (Aem != null)
+            if (config.Length > 1)
             {
-                var oe = ((AlertEventRow)sender).OcaeeM;
-
-                if (config.Length > 0)
-                {
-                    oe.param1 = config[0];
-                }
-                if (config.Length > 1)
-                {
-                    oe.param2 = config[1];
-                }
-                if (config.Length > 2)
-                {
-                    oe.param3 = config[2];
-                }
-                if (config.Length > 3)
-                {
-                    oe.param4 = config[3];
-                }
+                oe.param2 = config[1];
             }
+            if (config.Length > 2)
+            {
+                oe.param3 = config[2];
+            }
+            if (config.Length > 3)
+            {
+                oe.param4 = config[3];
+            }
+            
             RenderEventList();
         }
 
@@ -275,21 +216,8 @@ namespace iSpyApplication.Controls
 
         void CAlertEntryDelete(object sender, EventArgs e)
         {
-            if (Aec != null)
-            {
-                var oe = ((AlertEventRow)sender).OcaeeC;
-                var l = Aec.entries.ToList();
-                l.Remove(oe);
-                Aec.entries = l.ToArray();
-            }
-            if (Aem != null)
-            {
-                var oe = ((AlertEventRow)sender).OcaeeM;
-                var l = Aem.entries.ToList();
-                l.Remove(oe);
-                Aem.entries = l.ToArray();
-            }
-
+            var oe = ((AlertEventRow)sender).Oae;
+            MainForm.Actions.Remove(oe);
             RenderEventList();
         }
 
@@ -325,36 +253,19 @@ namespace iSpyApplication.Controls
             if (cancel)
                 return;
 
-            if (Aec != null)
-            {
-                var ocaee = new objectsCameraAlerteventsEntry
-                                {
-                                    type = oa.Value,
-                                    param1 = config[0],
-                                    param2 = config[1],
-                                    param3 = config[2],
-                                    param4 = config[3]
-                                };
-
-                var l = Aec.entries.ToList();
-                l.Add(ocaee);
-                Aec.entries = l.ToArray();
-            }
-
-            if (Aem != null)
-            {
-                var ocaee = new objectsMicrophoneAlerteventsEntry { type = oa.Value,
-                    param1 = config[0],
-                    param2 = config[1],
-                    param3 = config[2],
-                    param4 = config[3]
-                                };
-
-                var l = Aem.entries.ToList();
-                l.Add(ocaee);
-                Aem.entries = l.ToArray();
-            }
-
+            
+            var oae = new objectsActionsEntry
+                      {
+                                mode=Mode,
+                                objectid = Oid,
+                                objecttypeid = Otid,
+                                type = oa.Value,
+                                param1 = config[0],
+                                param2 = config[1],
+                                param3 = config[2],
+                                param4 = config[3]
+                            };
+            MainForm.Actions.Add(oae);
             RenderEventList();
         }
 

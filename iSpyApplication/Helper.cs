@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -14,6 +15,11 @@ namespace iSpyApplication
             const double minimum = 0.00000001;
             const double maximum = 0.1;
             return minimum + ((maximum - minimum)/100)*Convert.ToDouble(percent);
+        }
+
+        public static DateTime Now
+        {
+            get { return DateTime.UtcNow; }
         }
 
         public static bool HasFeature(Enums.Features feature)
@@ -97,14 +103,80 @@ namespace iSpyApplication
 
         }
 
-        public static void DeleteAllContent(int objectTypeId, int objectid, string directoryName)
+        internal static bool ArchiveFile(string filename)
         {
-            var dir = MainForm.GetMediaDirectory(objectTypeId, objectid);
+
+            if (!String.IsNullOrEmpty(MainForm.Conf.Archive) && Directory.Exists(MainForm.Conf.Archive))
+            {
+                string fn = filename.Substring(filename.LastIndexOf("\\", StringComparison.Ordinal) + 1);
+                if (File.Exists(filename))
+                {
+                    try
+                    {
+                        if (!File.Exists(MainForm.Conf.Archive + fn))
+                            File.Copy(filename, MainForm.Conf.Archive + fn);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                    }
+                }
+            }
+            return false;
+
+        }
+
+        internal static string GetMediaDirectory(int ot, int oid)
+        {
+            int i = 0;
+            switch (ot)
+            {
+                case 1:
+                    {
+                        var o = MainForm.Microphones.FirstOrDefault(p => p.id == oid);
+                        if (o != null)
+                            i = o.settings.directoryIndex;
+                    }
+                    break;
+                case 2:
+                    {
+                        var o = MainForm.Cameras.FirstOrDefault(p => p.id == oid);
+                        if (o != null)
+                            i = o.settings.directoryIndex;
+                    }
+                    break;
+            }
+            var o2 = MainForm.Conf.MediaDirectories.FirstOrDefault(p => p.ID == i);
+            if (o2 != null)
+                return o2.Entry;
+            return MainForm.Conf.MediaDirectories[0].Entry;
+        }
+
+        public static string GetDirectory(int objectTypeId, int objectId)
+        {
+            if (objectTypeId == 1)
+            {
+                var m = MainForm.Microphones.SingleOrDefault(p => p.id == objectId);
+                if (m != null)
+                    return m.directory;
+                throw new Exception("could not find directory for mic " + objectId);
+            }
+            var c = MainForm.Cameras.SingleOrDefault(p => p.id == objectId);
+            if (c != null)
+                return c.directory;
+            throw new Exception("could not find directory for cam " + objectId);
+        }
+
+        public static void DeleteAllContent(int objectTypeId, int objectid)
+        {
+            var dir = GetMediaDirectory(objectTypeId, objectid);
+            var dirName = GetDirectory(objectTypeId, objectid);
             if (objectTypeId == 1)
             {
                 var lFi = new List<FileInfo>();
                 var dirinfo = new DirectoryInfo(dir + "audio\\" +
-                                              directoryName + "\\");
+                                              dirName + "\\");
 
                 lFi.AddRange(dirinfo.GetFiles());
                 lFi = lFi.FindAll(f => f.Extension.ToLower() == ".mp3");
@@ -126,7 +198,7 @@ namespace iSpyApplication
             {
                 var lFi = new List<FileInfo>();
                 var dirinfo = new DirectoryInfo(dir + "video\\" +
-                                              directoryName + "\\");
+                                              dirName + "\\");
 
                 lFi.AddRange(dirinfo.GetFiles());
                 lFi = lFi.FindAll(f => f.Extension.ToLower() == ".mp4" || f.Extension.ToLower() == ".avi");
@@ -143,7 +215,7 @@ namespace iSpyApplication
                     }
                 }
                 System.Array.ForEach(Directory.GetFiles(dir + "video\\" +
-                                              directoryName + "\\thumbs\\"), delegate(string path)
+                                              dirName + "\\thumbs\\"), delegate(string path)
                                               {
                                                   try
                                                   {
