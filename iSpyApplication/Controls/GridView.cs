@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using PictureBox = AForge.Controls.PictureBox;
@@ -21,8 +22,7 @@ namespace iSpyApplication.Controls
         public Brush IconBrushActive = new SolidBrush(Color.Red);
         public Brush OverlayBrush = new SolidBrush(Color.White);
         public Brush RecordBrush = new SolidBrush(Color.Red);
-        public Brush lgb = new SolidBrush(MainForm.VolumeLevelColor);
-
+        public Brush Lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
         internal MainForm MainClass;
 
@@ -31,7 +31,7 @@ namespace iSpyApplication.Controls
         private List<GridViewConfig> _controls;
         private int _itemwidth;
         private int _itemheight;
-        private readonly Timer _tmrRefresh;
+        
         public configurationGrid Cg;
 
         private int _cols = 1, _rows = 1;
@@ -40,6 +40,7 @@ namespace iSpyApplication.Controls
         private readonly object _objlock = new object();
 
         private int _overControlIndex = -1;
+        
 
         private readonly Pen _pline = new Pen(Color.Gray, 2);
         private readonly Pen _vline = new Pen(Color.Green, 2);
@@ -62,25 +63,29 @@ namespace iSpyApplication.Controls
             BackColor = MainForm.Conf.BackColor.ToColor();
 
             Init();
-            
-            
-
-            _tmrRefresh = new Timer(1000d/cg.Framerate);
-            _tmrRefresh.Elapsed += TmrRefreshElapsed;
-            _tmrRefresh.Start();
-
-
         }
+
+
+        private Timer _tmrUpdateList, _tmrRefresh;
+
 
         public void Init()
         {
-            _cols = Cg.Columns;
-            _rows = Cg.Rows;
-            
-            _maxItems = _cols*_rows;
-            if (Cg.ModeIndex > 0)
-                _maxItems = 36;
-
+            if (_tmrUpdateList != null)
+            {
+                _tmrUpdateList.Elapsed -= TmrUpdateLayoutElapsed;
+                _tmrUpdateList.Stop();
+                _tmrUpdateList.Dispose();
+                _tmrUpdateList = null;
+            }
+            if (_tmrRefresh != null)
+            {
+                _tmrRefresh.Elapsed -= TmrRefreshElapsed;
+                _tmrRefresh.Stop();
+                _tmrRefresh.Dispose();
+                _tmrRefresh = null;
+            }
+            _maxItems = 36;
             if (_controls!=null)
                 _controls.Clear();
             _controls = new List<GridViewConfig>(_maxItems);
@@ -93,14 +98,23 @@ namespace iSpyApplication.Controls
             {
                 case 0:
                     AddItems();
+                    _cols = Cg.Columns;
+                    _rows = Cg.Rows;
+            
+                    _maxItems = _cols*_rows;
                     break;
                 case 1:
                 case 2:
-                    var tmrUpdateList = new Timer(1000);
-                    tmrUpdateList.Elapsed += TmrUpdateLayoutElapsed;
-                    tmrUpdateList.Start();
+                    _cols = _rows = 1;
+                    _tmrUpdateList = new Timer(1000);
+                    _tmrUpdateList.Elapsed += TmrUpdateLayoutElapsed;
+                    _tmrUpdateList.Start();
                     break;
             }
+
+            _tmrRefresh = new Timer(1000d / Cg.Framerate);
+            _tmrRefresh.Elapsed += TmrRefreshElapsed;
+            _tmrRefresh.Start();
         }
 
         void AddItems()
@@ -114,11 +128,7 @@ namespace iSpyApplication.Controls
                 {
                     if (o.GridIndex < _controls.Count)
                     {
-                        var li = new List<GridItem>();
-                        foreach (var c in o.Item)
-                        {
-                            li.Add(new GridItem("", c.ObjectID, c.TypeID));
-                        }
+                        var li = o.Item.Select(c => new GridItem("", c.ObjectID, c.TypeID)).ToList();
 
                         if (li.Count == 0)
                             _controls[o.GridIndex] = null;
@@ -158,9 +168,8 @@ namespace iSpyApplication.Controls
 
                     if (add)
                     {
-                        for (int k = 0; k < _controls.Count; k++)
+                        foreach (var c in _controls)
                         {
-                            var c = _controls[k];
                             if (c != null && c.ObjectIDs.Any(o => o.ObjectID == cam.id && o.TypeID == 2))
                             {
                                 add = false;
@@ -188,9 +197,8 @@ namespace iSpyApplication.Controls
                                        (Cg.ModeIndex == 2 && ctrl.LastAlerted > Helper.Now.AddSeconds(0 - del));
                             if (add)
                             {
-                                for (int k = 0; k < _controls.Count; k++)
+                                foreach (var c in _controls)
                                 {
-                                    var c = _controls[k];
                                     if (c!=null && c.ObjectIDs.Any(o => o.ObjectID == mic.id && o.TypeID == 1))
                                     {
                                         add = false;
@@ -241,6 +249,7 @@ namespace iSpyApplication.Controls
         void TmrRefreshElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             Invalidate();
+            //Invoke(new Action(Update));
 
         }
 
@@ -250,7 +259,6 @@ namespace iSpyApplication.Controls
             {
                 _tmrRefresh.Stop();
                 _tmrRefresh.Close();
-
                 Invalidate();
 
             }
@@ -289,8 +297,15 @@ namespace iSpyApplication.Controls
 
         private void DoPaint(PaintEventArgs pe)
         {
+            bool record = Helper.HasFeature(Enums.Features.Recording);
+            bool photo = Helper.HasFeature(Enums.Features.Save_Frames);
+
             Graphics gGrid = pe.Graphics;
-            
+            gGrid.CompositingMode = CompositingMode.SourceOver;
+            gGrid.CompositingQuality = CompositingQuality.HighSpeed;
+            gGrid.PixelOffsetMode = PixelOffsetMode.HighSpeed;
+            gGrid.SmoothingMode = SmoothingMode.None;
+            gGrid.InterpolationMode = InterpolationMode.Default;
             try
             {
                 int cols = _cols;
@@ -399,6 +414,8 @@ namespace iSpyApplication.Controls
                                 var vl = MainClass.GetVolumeLevel(obj.ObjectID);
                                 if (vl != null)
                                 {
+                                    var rect = new Rectangle(r.X, r.Y + r.Height - 20, r.Width, 20);
+                                    string txt = vl.Micobject.name;
                                     if (vl.IsEnabled && vl.Levels != null && !vl.AudioSourceErrorState)
                                     {
                                         int bh = (rFeed.Height) / vl.Micobject.settings.channels - (vl.Micobject.settings.channels - 1) * 2;
@@ -413,7 +430,7 @@ namespace iSpyApplication.Controls
                                             if (drawW < 1)
                                                 drawW = 1;
 
-                                            gGrid.FillRectangle(lgb, rFeed.X + 2, rFeed.Y + 2 + m * bh + (m * 2), drawW - 4, bh);
+                                            gGrid.FillRectangle(Lgb, rFeed.X + 2, rFeed.Y + 2 + m * bh + (m * 2), drawW - 4, bh);
 
                                         }
                                         var mx = rFeed.X+ (float)((Convert.ToDouble(rFeed.Width) / 100.00) * Convert.ToDouble(vl.Micobject.detector.sensitivity));
@@ -423,29 +440,31 @@ namespace iSpyApplication.Controls
                                         {
                                             gGrid.FillEllipse(RecordBrush, new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                         }
+                                        gGrid.FillRectangle(_bOverlay, rect);
+                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
+                                    
                                     }
                                     else
                                     {
-                                        string m = LocRm.GetString("Offline");
-                                        if (vl.IsEnabled)
-                                            m = "Connecting...";
-
-                                        int txtOffline =
-                                            Convert.ToInt32(gGrid.MeasureString(m,
-                                                                                Iconfont).Width);
-                                        gGrid.DrawString(m, Iconfont,
-                                                         OverlayBrush,
-                                                         x + _itemwidth / 2 - (txtOffline / 2),
-                                                         y + _itemheight / 2);
+                                        txt += ": " + (vl.Micobject.schedule.active ? LocRm.GetString("Scheduled") : LocRm.GetString("Offline"));
+                                        gGrid.FillRectangle(_bOverlay, rect);
+                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
+                                        gGrid.DrawString(vl.Micobject.name, Drawfont, OverlayBrush, new PointF(r.X + 5, r.Y + 2));
+                                        gGrid.DrawString(vl.SourceType, Drawfont, OverlayBrush, new PointF(r.X + 5, r.Y + 20));
                                     }
-                                    if (vl.Micobject != null)
+                                    
+                                    if (vl.IsEnabled && vl.AudioSourceErrorState)
                                     {
-
-                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
-                                        gGrid.DrawString(vl.Micobject.name, Drawfont, OverlayBrush,
-                                                         r.X + 5,
-                                                         r.Y + r.Height - 16);
+                                        string conn =  LocRm.GetString("Connecting");
+                                        var sz = gGrid.MeasureString(conn, Iconfont).ToSize();
+                                        sz.Width += 5;
+                                        sz.Height += 5;
+                                        gGrid.DrawString(conn, Iconfont,
+                                            IconBrushActive,
+                                            x + _itemwidth / 2 - (sz.Width / 2),
+                                            y + _itemheight - sz.Height+2);
                                     }
+
                                 }
                                 else
                                 {
@@ -456,45 +475,57 @@ namespace iSpyApplication.Controls
                                 var cw = MainClass.GetCameraWindow(obj.ObjectID);
                                 if (cw != null)
                                 {
-                                    var bmp = cw.LastFrame;
-                                    if (cw.Camera != null && bmp != null && !cw.VideoSourceErrorState)
+                                    string txt = cw.Camobject.name;
+                                    var rect = new Rectangle(r.X, r.Y + r.Height - 20, r.Width, 20);
+                                    if (cw.IsEnabled)
                                     {
-                                        if (!Cg.Fill)
+                                        if (cw.Camera != null && cw.GotImage)
                                         {
-                                            rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
+                                            var bmp = cw.LastFrame;
+                                            if (bmp != null)
+                                            {
+                                                if (!Cg.Fill)
+                                                {
+                                                    rFeed = GetArea(x, y, _itemwidth, _itemheight, bmp.Width, bmp.Height);
+                                                }
+                                                gGrid.CompositingMode = CompositingMode.SourceCopy;
+                                                gGrid.DrawImage(bmp, rFeed);
+                                                gGrid.CompositingMode = CompositingMode.SourceOver;
+                                            }
+                                            
+
+                                            if (cw.Alerted)
+                                            {
+                                                gGrid.DrawRectangle(_pAlert, rFeed);
+                                            }
+                                            if (cw.Recording)
+                                                gGrid.FillEllipse(RecordBrush,
+                                                    new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                         }
-                                        gGrid.DrawImage(bmp, rFeed);
+
+                                        gGrid.FillRectangle(_bOverlay, rect);
+                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
                                         
-                                        if (cw.Alerted)
-                                        {
-                                            gGrid.DrawRectangle(_pAlert, rFeed);
-                                        }
-                                        if (cw.Recording)
-                                            gGrid.FillEllipse(RecordBrush, new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                     }
                                     else
                                     {
-                                        string m = LocRm.GetString("Offline");
-                                        if (cw.IsEnabled)
-                                            m = "Connecting...";
-                                        
-                                        int txtOffline =
-                                            Convert.ToInt32(gGrid.MeasureString(m,
-                                                                                Iconfont).Width);
-                                        gGrid.DrawString(m, Iconfont,
-                                                         OverlayBrush,
-                                                         x + _itemwidth / 2 - (txtOffline / 2),
-                                                         y + _itemheight / 2);
+                                        txt += ": " + (cw.Camobject.schedule.active ? LocRm.GetString("Scheduled") : LocRm.GetString("Offline"));
+                                        gGrid.FillRectangle(_bOverlay, rect);
+                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
+                                        gGrid.DrawString(cw.Camobject.name, Drawfont, OverlayBrush, new PointF(r.X + 5, r.Y + 2));
+                                        gGrid.DrawString(cw.SourceType, Drawfont, OverlayBrush, new PointF(r.X + 5, r.Y + 20));
                                     }
-                                    if (cw.Camobject != null)
-                                    {
-                                        
-                                        gGrid.FillRectangle(_bOverlay, r.X, r.Y + r.Height - 20, r.Width, 20);
-                                        gGrid.DrawString(cw.Camobject.name, Drawfont, OverlayBrush,
-                                                         r.X + 5,
-                                                         r.Y + r.Height - 16);
 
-                                        
+                                    if (cw.IsEnabled && cw.VideoSourceErrorState)
+                                    {
+                                        string conn = LocRm.GetString("Connecting");
+                                        var sz = gGrid.MeasureString(conn, Iconfont).ToSize();
+                                        sz.Width += 5;
+                                        sz.Height += 5;
+                                        gGrid.DrawString(conn, Iconfont,
+                                            IconBrushActive,
+                                            x + _itemwidth / 2 - (sz.Width / 2),
+                                            y + _itemheight - sz.Height+2);
                                     }
                                 }
                                 else
@@ -560,9 +591,8 @@ namespace iSpyApplication.Controls
                                             gGrid.DrawString("Off", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
 
-                                            
-                                            gGrid.DrawString("Rec", Drawfont, vl.Recording ? IconBrushActive : OverlayBrush, r.X + 60,
-                                                oy - 18);
+                                            if (record)
+                                                gGrid.DrawString("Rec", Drawfont, vl.Recording ? IconBrushActive : OverlayBrush, r.X + 60, oy - 18);
                                         }
                                         else
                                         {
@@ -588,11 +618,16 @@ namespace iSpyApplication.Controls
                                             gGrid.DrawString("Off", Drawfont, OverlayBrush, r.X + 2,
                                                 oy - 18);
 
-                                            
-                                            gGrid.DrawString("Rec", Drawfont, cw.Recording ? IconBrushActive : OverlayBrush, r.X + 60,
-                                                oy - 18);
-                                            gGrid.DrawString("Grab", Drawfont, OverlayBrush, r.X + 90,
-                                                oy - 18);
+                                            if (record)
+                                            {
+                                                gGrid.DrawString("Rec", Drawfont,
+                                                    cw.Recording ? IconBrushActive : OverlayBrush, r.X + 60,
+                                                    oy - 18);
+                                            }
+                                            if (photo)  {
+                                                gGrid.DrawString("Grab", Drawfont, OverlayBrush, r.X + 90,
+                                                    oy - 18);
+                                            }
                                         }
                                         else
                                         {
@@ -1002,7 +1037,6 @@ namespace iSpyApplication.Controls
             var col = -1;
             var x = e.Location.X;
             var y = e.Location.Y;
-            int io = 0;
 
             GridViewConfig cgv = null;
             if (_maximised != null)
@@ -1010,16 +1044,15 @@ namespace iSpyApplication.Controls
                 cgv = _maximised;
                 row = 0;
                 col = 0;
-                int j = 0;
-                foreach (var obj in _controls)
-                {
-                    if (obj != null && obj.Equals(cgv))
-                    {
-                        io = j;
-                        break;
-                    }
-                    j++;
-                }
+                //int j = 0;
+                //foreach (var obj in _controls)
+                //{
+                //    if (obj != null && obj.Equals(cgv))
+                //    {
+                //        break;
+                //    }
+                //    j++;
+                //}
             }
             else
             {
@@ -1044,7 +1077,6 @@ namespace iSpyApplication.Controls
                 if (row != -1 && col != -1)
                 {
                     cgv = _controls[row * _cols + col];
-                    io = row * _cols + col;
                 }
 
             }
@@ -1133,13 +1165,7 @@ namespace iSpyApplication.Controls
 
                     gi.CycleDelay = gvc.Delay;
 
-                    var l = new List<configurationGridGridItemItem>();
-                    foreach (var i in gvc.SelectedIDs)
-                    {
-                        l.Add(new configurationGridGridItemItem { ObjectID = i.ObjectID, TypeID = i.TypeID });
-                    }
-
-                    gi.Item = l.ToArray();
+                    gi.Item = gvc.SelectedIDs.Select(i => new configurationGridGridItemItem {ObjectID = i.ObjectID, TypeID = i.TypeID}).ToArray();
                 }
                 _controls[io] = cgv;
                 Invalidate();

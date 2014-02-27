@@ -18,6 +18,16 @@ namespace iSpyApplication
             textBox1.Text = prefill;
         }
 
+        public Prompt(string label, string prefill, bool isPassword)
+        {
+            InitializeComponent();
+            Text = label;
+            if (isPassword)
+                textBox1.PasswordChar = '*';
+            textBox1.Text = prefill;
+            
+        }
+
         public override sealed string Text
         {
             get { return base.Text; }

@@ -92,6 +92,12 @@ namespace iSpyApplication
 
         public static void SendAlert(string emailAddress, string subject, string message)
         {
+            if (MainForm.Conf.UseSMTP)
+            {
+                Mailer.Send(emailAddress, subject, message);
+                return;
+            }
+
             if (!Enabled)
                 return;
             Debug.WriteLine("WEBSERVICE CALL: SendAlertAsync");
@@ -101,6 +107,12 @@ namespace iSpyApplication
 
         public static void SendContent(string emailAddress, string subject, string message)
         {
+            if (MainForm.Conf.UseSMTP)
+            {
+                Mailer.Send(emailAddress, subject, message);
+                return;
+            }
+
             if (!Enabled)
                 return;
             Debug.WriteLine("WEBSERVICE CALL: SendContentAsync");
@@ -113,6 +125,12 @@ namespace iSpyApplication
 
         public static void SendAlertWithImage(string emailAddress, string subject, string message, byte[] imageData)
         {
+            if (MainForm.Conf.UseSMTP)
+            {
+                Mailer.Send(emailAddress, subject, message, imageData);
+                return;
+            }
+
             if (!Enabled)
                 return;
             if (imageData.Length == 0)

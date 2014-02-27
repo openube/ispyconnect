@@ -38,13 +38,13 @@ namespace iSpyApplication
         public Settings()
         {
             InitializeComponent();
-            RenderResources();
+            RenderResources();            
         }
 
         private void Button1Click(object sender, EventArgs e)
         {
             string password = txtPassword.Text;
-            if (chkPasswordProtect.Checked)
+            if (chkPasswordProtect.Checked || chkPasswordProtectSettings.Checked)
             {
                 if (password.Length < 3)
                 {
@@ -52,6 +52,23 @@ namespace iSpyApplication
                     return;
                 }
             }
+            if (password != MainForm.Conf.Password_Protect_Password)
+            {
+                var p = new Prompt("Confirm Password", "", true);
+                if (p.ShowDialog(this) == DialogResult.OK)
+                {
+                    var v = p.Val;
+                    if (v != txtPassword.Text)
+                    {
+                        MessageBox.Show(this, "Password mismatch. Please try again or clear the password.");
+                        tcTabs.SelectedIndex = 0;
+                        p.Dispose();
+                        return;
+                    }
+                }
+                p.Dispose();
+            }
+
             string err = "";
 
             foreach (var s in mediaDirectoryEditor1.Directories)
@@ -73,6 +90,7 @@ namespace iSpyApplication
             {
                 MainForm.EncoderParams.Param[0] = new EncoderParameter(Encoder.Quality, (int) numJPEGQuality.Value);
             }
+            MainForm.Conf.PasswordProtectSettings = chkPasswordProtectSettings.Checked;
             MainForm.Conf.Enable_Error_Reporting = chkErrorReporting.Checked;
             MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
             MainForm.Conf.Enable_Password_Protect = chkPasswordProtect.Checked;
@@ -125,6 +143,7 @@ namespace iSpyApplication
             MainForm.Conf.MailAlertSubject = txtAlertSubject.Text;
             MainForm.Conf.MailAlertBody = txtAlertBody.Text;
             MainForm.Conf.SMSAlert = txtSMSBody.Text;
+            SaveSMTPSettings();
 
             MainForm.Conf.Archive = txtArchive.Text.Trim();
             if (!String.IsNullOrEmpty(MainForm.Conf.Archive))
@@ -277,17 +296,26 @@ namespace iSpyApplication
 
         private void SettingsLoad(object sender, EventArgs e)
         {
+            if (MainForm.Conf.PasswordProtectSettings)
+            {
+                using (var cp = new CheckPassword())
+                {
+                    cp.ShowDialog(this);
+                    if (cp.DialogResult != DialogResult.OK)
+                    {
+                        Close();
+                        return;
+                    }
+                }
+            }
+
             UISync.Init(this);
             tcTabs.SelectedIndex = InitialTab;
             chkErrorReporting.Checked = MainForm.Conf.Enable_Error_Reporting;
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
             
             chkShowGettingStarted.Checked = MainForm.Conf.Enabled_ShowGettingStarted;
-
-            if (MainForm.Conf.Password_Protect_Password != "")
-            {
-                txtPassword.Text = MainForm.Conf.Password_Protect_Password;
-            }
+            txtPassword.Text = MainForm.Conf.Password_Protect_Password;
             _rkApp = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", false);
             chkStartup.Checked = (_rkApp != null && _rkApp.GetValue("iSpy") != null);
 
@@ -312,6 +340,7 @@ namespace iSpyApplication
             chkMinimise.Checked = MainForm.Conf.MinimiseOnClose;
             chkSpeechRecognition.Checked = MainForm.Conf.SpeechRecognition;
             chkMinimiseToTray.Checked = MainForm.Conf.TrayOnMinimise;
+            chkPasswordProtectSettings.Checked = MainForm.Conf.PasswordProtectSettings;
 
             if (chkMonitor.Checked && !MainForm.Conf.Monitor)
             {
@@ -491,6 +520,14 @@ namespace iSpyApplication
             chkPasswordProtect.Checked = MainForm.Conf.Enable_Password_Protect;
             if (Helper.HasFeature(Enums.Features.Plugins))
                 ListPlugins();
+
+            chkUseiSpy.Checked = !MainForm.Conf.UseSMTP;
+            txtSMTPFromAddress.Text = MainForm.Conf.SMTPFromAddress;
+            txtSMTPUsername.Text = MainForm.Conf.SMTPUsername;
+            txtSMTPPassword.Text = MainForm.Conf.SMTPPassword;
+            txtSMTPServer.Text = MainForm.Conf.SMTPServer;
+            chkSMTPUseSSL.Checked = MainForm.Conf.SMTPSSL;
+            numSMTPPort.Value = MainForm.Conf.SMTPPort;
             _loaded = true;
         }
 
@@ -1170,6 +1207,47 @@ namespace iSpyApplication
             txtAlertSubject.Text = "[EVENT]: [SERVER] [OBJECTNAME]";
             txtAlertBody.Text = txtSMSBody.Text = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";            
             txtAppendLinkText.Text = "<br/>ispyconnect.com";
+        }
+
+        private void chkUseiSpy_CheckedChanged(object sender, EventArgs e)
+        {
+            tlpSMTP.Enabled = !chkUseiSpy.Checked;
+        }
+
+        private void btnTestSMTP_Click(object sender, EventArgs e)
+        {
+            SaveSMTPSettings();
+             var p = new Prompt("Test Mail To", MainForm.Conf.SMTPFromAddress);
+            if (p.ShowDialog(this) == DialogResult.OK)
+            {
+                if (Mailer.Send(p.Val, "test", "This is a test message from ispy"))
+                {
+                    MessageBox.Show(this, "Message Sent!");
+                }
+                else
+                {
+                    MessageBox.Show(this, "Failed - check log file");
+                }
+            }
+        }
+
+        private void SaveSMTPSettings()
+        {
+            MainForm.Conf.UseSMTP = !chkUseiSpy.Checked;
+            MainForm.Conf.SMTPFromAddress = txtSMTPFromAddress.Text;
+            MainForm.Conf.SMTPUsername = txtSMTPUsername.Text;
+            MainForm.Conf.SMTPPassword = txtSMTPPassword.Text;
+            MainForm.Conf.SMTPServer = txtSMTPServer.Text;
+            MainForm.Conf.SMTPSSL = chkSMTPUseSSL.Checked;
+            MainForm.Conf.SMTPPort = (int)numSMTPPort.Value;
+
+            
+        }
+
+        private void chkPasswordProtectSettings_CheckedChanged(object sender, EventArgs e)
+        {
+            
+
         }
     }
 }

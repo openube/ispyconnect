@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Windows.Forms;
 using iSpy.Video.FFMPEG;
@@ -163,7 +165,7 @@ internal static class Program
             File.WriteAllText(AppDataPath + "external_command.txt", "");
 
             // in case our https certificate ever expires or there is some other issue
-            ServicePointManager.ServerCertificateValidationCallback += (sender, cert, chain, sslPolicyErrors) => true;
+            ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.Expect100Continue = false;
             
             WriterMutex = new Mutex();
@@ -209,6 +211,16 @@ internal static class Program
             }
         }
     }
+
+    private const bool DisableCertificateValidation = true;
+
+    private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
+    {
+        if (DisableCertificateValidation) return true;
+
+        return policyErrors == null;
+    } 
+
 
     static void CurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {        

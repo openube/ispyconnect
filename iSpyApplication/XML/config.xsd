@@ -116,6 +116,17 @@
         <xs:element name="MailAlertSubject" type="xs:string" default="[EVENT]: [SERVER] [OBJECTNAME]"/>
         <xs:element name="MailAlertBody" type="xs:string" default="[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]"/>
         <xs:element name="SMSAlert" type="xs:string" default="[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]"/>
+        <xs:element name="SMTPFromAddress" type="xs:string" default=""/>
+        <xs:element name="SMTPUsername" type="xs:string" default=""/>
+        <xs:element name="SMTPPassword" type="xs:string" default=""/>
+        <xs:element name="SMTPServer" type="xs:string" default=""/>
+        <xs:element name="SMTPPort" type="xs:int" default="25"/>
+        <xs:element name="UseSMTP" type="xs:boolean" default="false"/>
+        <xs:element name="SMTPSSL" type="xs:boolean" default="false"/>
+        <xs:element name="PasswordProtectSettings" type="xs:boolean" default="false"/>
+        <xs:element name="DefaultRecordOnAlert" type="xs:boolean" default="false"/>
+        <xs:element name="DefaultRecordOnDetect" type="xs:boolean" default="true"/>
+        <xs:element name="FirstRun" type="xs:boolean" default="true"/>
         <xs:element name="GridViews">
           <xs:complexType>
             <xs:sequence>

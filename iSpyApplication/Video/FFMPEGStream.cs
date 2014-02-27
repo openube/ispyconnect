@@ -245,7 +245,7 @@ namespace iSpyApplication.Video
             }
         }
 
-        public bool NoBuffer;
+        private bool _noBuffer;
 
         private List<DelayedFrame> _videoframes;
         private List<DelayedAudio> _audioframes;
@@ -365,7 +365,7 @@ namespace iSpyApplication.Video
                 _vfr.UserAgent = UserAgent;
                 _vfr.Headers = Headers;
                 _vfr.Flags = -1;
-                _vfr.NoBuffer = NoBuffer;
+                _vfr.NoBuffer = _noBuffer;
                 _vfr.RTSPMode = RTSPMode;
                 _vfr.Open(_source);
                 open = true;
@@ -394,7 +394,7 @@ namespace iSpyApplication.Video
             _realtime = !IsFileSource;
 
             if (!_realtime)
-                NoBuffer = false;
+                _noBuffer = false;
 
             if (_vfr.Channels > 0)
             {
@@ -414,7 +414,7 @@ namespace iSpyApplication.Video
 
             Duration = _vfr.Duration;
 
-            if (!NoBuffer)
+            if (!_noBuffer)
             {
                 _tOutput = new Thread(FrameEmitter) {Name="ffmpeg frame emitter"};
                 _tOutput.Start();
@@ -443,7 +443,7 @@ namespace iSpyApplication.Video
                     if (!_paused && !_bufferFull)
                     {
                         if (DecodeFrame(analyseInterval, hasaudio, ref firstmaxdrift, ref maxdrift, ref dtAnalyse)) break;
-                        if (NoBuffer && !_stopEvent.WaitOne(0))
+                        if (_noBuffer && !_stopEvent.WaitOne(0))
                         {
                             if (_videoframes.Count > 0)
                             {
@@ -788,20 +788,26 @@ namespace iSpyApplication.Video
         {
             if (IsRunning && !_stopping)
             {
-                _stopping = true;               
-                _stopEvent.Set();
-
-                while (IsRunning)
+                _stopping = true;
+                if (_stopEvent != null)
                 {
-                    try
+                    //if stopEvent is null the thread is exiting and stop has been called from a related event //bastard!
+                    _stopEvent.Set();
+
+                    while (IsRunning)
                     {
-                        _thread.Join(50);
+                        try
+                        {
+                            _thread.Join(50);
+                        }
+                        catch
+                        {
+                        }
+                        Application.DoEvents();
                     }
-                    catch { }
-                    Application.DoEvents();
                 }
-                            
-                
+
+
                 Listening = false;
 
 

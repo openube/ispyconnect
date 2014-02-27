@@ -1243,6 +1243,7 @@ namespace iSpyApplication
                         {
                             var cameraControl = (CameraWindow)c;
                             RemoveCamera(cameraControl, false);
+                            Application.DoEvents();
                             removed = true;
                             break;
                         }
@@ -1250,6 +1251,7 @@ namespace iSpyApplication
                         {
                             var volumeControl = (VolumeLevel)c;
                             RemoveMicrophone(volumeControl, false);
+                            Application.DoEvents();
                             removed = true;
                             break;
                         }
@@ -1257,6 +1259,7 @@ namespace iSpyApplication
                         {
                             var floorPlanControl = (FloorPlanControl)c;
                             RemoveFloorplan(floorPlanControl, false);
+                            Application.DoEvents();
                             removed = true;
                             break;
                         }
@@ -2231,7 +2234,8 @@ namespace iSpyApplication
             else
                 oc.settings.vlcargs = "";
 
-            oc.detector.recordondetect = true;
+            oc.detector.recordondetect = Conf.DefaultRecordOnDetect;
+            oc.detector.recordonalert = Conf.DefaultRecordOnAlert;
             oc.detector.keepobjectedges = false;
             oc.detector.processeveryframe = 1;
             oc.detector.nomovementintervalnew = oc.detector.nomovementinterval = 30;
@@ -2377,7 +2381,8 @@ namespace iSpyApplication
             om.detector.sensitivity = 60;
             om.detector.nosoundinterval = 30;
             om.detector.soundinterval = 0;
-            om.detector.recordondetect = true;
+            om.detector.recordondetect = Conf.DefaultRecordOnDetect;
+            om.detector.recordonalert = Conf.DefaultRecordOnAlert;
 
             om.alerts.mode = "sound";
             om.alerts.minimuminterval = 180;
@@ -2903,6 +2908,9 @@ namespace iSpyApplication
                     _activateToolStripMenuItem.Visible = false;
                     _recordNowToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = false;
+                    _recordNowToolStripMenuItem.Visible = false;
+                    _takePhotoToolStripMenuItem.Visible = false;
+                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = false;
                     _applyScheduleToolStripMenuItem1.Visible = true;
                     _resetRecordingCounterToolStripMenuItem.Visible = true;
                     _resetRecordingCounterToolStripMenuItem.Text = LocRm.GetString("ResetRecordingCounter") + " (" +
@@ -2911,8 +2919,18 @@ namespace iSpyApplication
                     if (cameraControl.Camobject.settings.active)
                     {
                         _setInactiveToolStripMenuItem.Visible = true;
-                        _recordNowToolStripMenuItem.Visible = true;
-                        _takePhotoToolStripMenuItem.Visible = true;
+                        if (Helper.HasFeature(Enums.Features.Recording))
+                        {
+                            _recordNowToolStripMenuItem.Visible = true;
+                            _takePhotoToolStripMenuItem.Visible = true;
+                        }
+                        if (Helper.HasFeature(Enums.Features.Save_Frames))
+                            _takePhotoToolStripMenuItem.Visible = true;
+
+                        if (Helper.HasFeature(Enums.Features.Access_Media))
+                        {
+                            _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = true;
+                        }
                         if (cameraControl.Camobject.ptz > -1)
                         {
                             pTZToolStripMenuItem.Visible = true;
@@ -2967,8 +2985,6 @@ namespace iSpyApplication
                     else
                     {
                         _activateToolStripMenuItem.Visible = true;
-                        _recordNowToolStripMenuItem.Visible = false;
-                        _takePhotoToolStripMenuItem.Visible = false;
                     }
                     _recordNowToolStripMenuItem.Text =
                         LocRm.GetString(cameraControl.Recording ? "StopRecording" : "StartRecording");
@@ -3096,8 +3112,15 @@ namespace iSpyApplication
                     _resetRecordingCounterToolStripMenuItem.Visible = true;
                     _applyScheduleToolStripMenuItem1.Visible = true;
                     pTZToolStripMenuItem.Visible = false;
+                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = false;
                     _resetRecordingCounterToolStripMenuItem.Text = LocRm.GetString("ResetRecordingCounter") + " (" +
                                                                    volumeControl.Micobject.newrecordingcount + ")";
+
+                    if (Helper.HasFeature(Enums.Features.Access_Media))
+                    {
+                        _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = true;
+                    }
+
                     if (volumeControl.Listening)
                     {
                         _listenToolStripMenuItem.Text = LocRm.GetString("StopListening");
@@ -3112,13 +3135,16 @@ namespace iSpyApplication
                     if (volumeControl.Micobject.settings.active)
                     {
                         _setInactiveToolStripMenuItem.Visible = true;
-                        _recordNowToolStripMenuItem.Visible = true;
+                        if (Helper.HasFeature(Enums.Features.Recording))
+                        {
+                            _recordNowToolStripMenuItem.Visible = true;
+                        }
+
                         _listenToolStripMenuItem.Enabled = true;
                     }
                     else
                     {
                         _activateToolStripMenuItem.Visible = true;
-                        _recordNowToolStripMenuItem.Visible = false;
                         _listenToolStripMenuItem.Enabled = false;
                     }
                     _recordNowToolStripMenuItem.Text =

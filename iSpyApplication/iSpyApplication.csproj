@@ -407,6 +407,7 @@
     <Compile Include="GridViewModeConfig.Designer.cs">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mailer.cs" />
     <Compile Include="MainForm_Configuration.cs">
       <SubType>Form</SubType>
     </Compile>

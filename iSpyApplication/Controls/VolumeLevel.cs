@@ -29,7 +29,6 @@ namespace iSpyApplication.Controls
     {
         #region Private
 
-        
         private AudioFileWriter _writer;
         private DateTime _mouseMove = DateTime.MinValue;
         public event EventHandler AudioDeviceEnabled;
@@ -516,13 +515,17 @@ namespace iSpyApplication.Controls
                                         {
                                             if (x < (ButtonWidth + ButtonOffset)*4)
                                             {
-                                                string url = MainForm.Webserver + "/watch_new.aspx";// "?tab=1&obj=1_" +Micobject.id +"_" +MainForm.Conf.ServerPort;
-                                                if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                                if (Helper.HasFeature(Enums.Features.Access_Media))
                                                 {
-                                                    MainForm.OpenUrl(url);
+                                                    string url = MainForm.Webserver + "/watch_new.aspx";
+                                                        // "?tab=1&obj=1_" +Micobject.id +"_" +MainForm.Conf.ServerPort;
+                                                    if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                                    {
+                                                        MainForm.OpenUrl(url);
+                                                    }
+                                                    else
+                                                        ((MainForm) TopLevelControl).Connect(url, false);
                                                 }
-                                                else
-                                                    ((MainForm) TopLevelControl).Connect(url, false);
                                             }
                                             else
                                             {
@@ -593,6 +596,39 @@ namespace iSpyApplication.Controls
                     break;
                 default:
                     Cursor = Cursors.Hand;
+                    if (_toolTipMic.Active)
+                    {
+                        _toolTipMic.Hide(this);
+                        _ttind = -1;
+                    }
+                    if (e.Location.X < 30 && e.Location.Y > Height - 24)
+                    {
+                        string m = "";
+                        if (Micobject.alerts.active)
+                            m = "Alerts Active";
+
+                        if (ForcedRecording)
+                            m = "Forced Recording, " + m;
+
+                        if (Micobject.detector.recordondetect)
+                            m = "Record on Detect, " + m;
+                        else
+                        {
+                            if (Micobject.detector.recordonalert)
+                                m = "Record on Alert, " + m;
+                            else
+                            {
+                                m = "No Recording, " + m;
+                            }
+                        }
+                        if (Micobject.schedule.active)
+                            m += ", Scheduled";
+
+                        m = m.Trim().Trim(',');
+                        var toolTipLocation = new Point(5, Height - 24);
+                        _toolTipMic.Show(m, this, toolTipLocation, 1000);
+                    }
+
                     if (MainForm.Conf.ShowOverlayControls)
                     {
                         int leftpoint = Width - ButtonPanelWidth - 1;
@@ -621,7 +657,10 @@ namespace iSpyApplication.Controls
                                     //record
                                     if (_ttind != 1)
                                     {
-                                        _toolTipMic.Show(LocRm.GetString("RecordNow"), this, toolTipLocation, 1000);
+                                        if (Helper.HasFeature(Enums.Features.Recording))
+                                        {
+                                            _toolTipMic.Show(LocRm.GetString("RecordNow"), this, toolTipLocation, 1000);
+                                        }
                                         _ttind = 1;
                                     }
                                 }
@@ -643,8 +682,11 @@ namespace iSpyApplication.Controls
                                             {
                                                 if (_ttind != 3)
                                                 {
-                                                    _toolTipMic.Show(LocRm.GetString("MediaoverTheWeb"), this,
-                                                                    toolTipLocation, 1000);
+                                                    if (Helper.HasFeature(Enums.Features.Access_Media))
+                                                    {
+                                                        _toolTipMic.Show(LocRm.GetString("MediaoverTheWeb"), this,
+                                                            toolTipLocation, 1000);
+                                                    }
                                                     _ttind = 3;
                                                 }
                                             }
@@ -663,11 +705,6 @@ namespace iSpyApplication.Controls
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            _toolTipMic.Hide(this);
-                            _ttind = -1;
                         }
                     }
                     break;
@@ -766,6 +803,7 @@ namespace iSpyApplication.Controls
                 
 
                 Invalidate();
+                Invoke(new Action(Update));
             }
         }
 
@@ -893,43 +931,47 @@ namespace iSpyApplication.Controls
         private DateTime _lastFlash = DateTime.MinValue;
         private void FlashBackground()
         {
-            var dt = Helper.Now;
-            if ((dt - _lastFlash).TotalMilliseconds < 500)
-                return;
-            _lastFlash = dt;
-            bool b = BackgroundColor != MainForm.BackgroundColor;
+            bool b = true;
+            if (Micobject.alerts.active)
+            {
+                b = BackgroundColor != MainForm.BackgroundColor;
+                var dt = Helper.Now;
+                if ((dt - _lastFlash).TotalMilliseconds < 500)
+                    return;
+                _lastFlash = dt;
 
-            if (FlashCounter > Helper.Now && _isTrigger)
-            {
-                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                      ? MainForm.BackgroundColor
-                                      : MainForm.ActivityColor;
-                b = false;
-            }
-            else
-            {
-                switch (Micobject.alerts.mode.ToLower())
+                if (FlashCounter > Helper.Now && _isTrigger)
                 {
-                    case "nosound":
-                        if (!SoundDetected)
-                        {
-                            BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
-                                                  ? MainForm.BackgroundColor
-                                                  : MainForm.NoActivityColor;
-                            b = false;
-                        }
+                    BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                          ? MainForm.BackgroundColor
+                                          : MainForm.ActivityColor;
+                    b = false;
+                }
+                else
+                {
+                    switch (Micobject.alerts.mode.ToLower())
+                    {
+                        case "nosound":
+                            if (!SoundDetected)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
+                                                      ? MainForm.BackgroundColor
+                                                      : MainForm.NoActivityColor;
+                                b = false;
+                            }
 
-                        break;
-                    default:
-                        if (FlashCounter > Helper.Now)
-                        {
-                            BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                                  ? MainForm.BackgroundColor
-                                                  : MainForm.ActivityColor;
-                            b = false;
-                        }
+                            break;
+                        default:
+                            if (FlashCounter > Helper.Now)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                                      ? MainForm.BackgroundColor
+                                                      : MainForm.ActivityColor;
+                                b = false;
+                            }
 
-                        break;
+                            break;
+                    }
                 }
             }
             if (b)
@@ -1213,121 +1255,98 @@ namespace iSpyApplication.Controls
             var lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
             gMic.Clear(BackgroundColor);
-
-            if (IsEnabled && _levels != null && !AudioSourceErrorState)
+            string m = "", txt = Micobject.name;
+            if (IsEnabled)
             {
-
-                int bh = (rc.Height - 20) / Micobject.settings.channels - (Micobject.settings.channels - 1) * 2;
-                if (bh <= 2)
-                    bh = 2;
-                for (int j = 0; j < Micobject.settings.channels; j++)
+                var l = _levels;
+                if (l != null && !AudioSourceErrorState)
                 {
-                    float f = 0f;
-                    if (j < _levels.Length)
-                        f = _levels[j];
-                    int drawW = Convert.ToInt32(Convert.ToDouble(rc.Width - 1.0)*f);
-                    if (drawW < 1)
-                        drawW = 1;
-
-                    gMic.FillRectangle(lgb, rc.X + 2, rc.Y + 2 + j * bh + (j * 2), drawW - 4, bh);
-
-                }
-                var mx =
-                    (float) ((Convert.ToDouble(rc.Width)/100.00)*Convert.ToDouble(Micobject.detector.sensitivity));
-                
-                gMic.DrawLine(_vline, mx, 2, mx, rc.Height - 20);
-                
-                if (Listening)
-                {
-                    gMic.DrawString("LIVE", MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 4));
-                }    
-               
-
-                if (Recording)
-                {
-                    gMic.FillEllipse(MainForm.RecordBrush, new Rectangle(rc.Width - 14, 2, 8, 8));
-                }
-                
-                string m = "";
-                if (Micobject.alerts.active)
-                    m = "!: " + m;
-                else
-                {
-                    m = ": " + m;
-                }
-
-                if (ForcedRecording)
-                    m = "F" + m;
-                else
-                {
-                    if (Micobject.detector.recordondetect)
-                        m = "D" + m;
-                    else
+                    int bh = (rc.Height - 20)/Micobject.settings.channels - (Micobject.settings.channels - 1)*2;
+                    if (bh <= 2)
+                        bh = 2;
+                    for (int j = 0; j < Micobject.settings.channels; j++)
                     {
-                        if (Micobject.detector.recordonalert)
-                            m = "A" + m;
-                        else
-                        {
-                            m = "N" + m;
-                        }
+                        float f = 0f;
+                        if (j < l.Length)
+                            f = l[j];
+                        int drawW = Convert.ToInt32(Convert.ToDouble(rc.Width - 1.0)*f);
+                        if (drawW < 1)
+                            drawW = 1;
+
+                        gMic.FillRectangle(lgb, rc.X + 2, rc.Y + 2 + j*bh + (j*2), drawW - 4, bh);
+
+                    }
+                    var mx =
+                        (float) ((Convert.ToDouble(rc.Width)/100.00)*Convert.ToDouble(Micobject.detector.sensitivity));
+
+                    gMic.DrawLine(_vline, mx, 2, mx, rc.Height - 20);
+
+                    if (Listening)
+                    {
+                        gMic.DrawString("LIVE", MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 4));
                     }
 
-                }
-                gMic.DrawString(m+ Micobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, rc.Height - 18));
 
-                lgb.Dispose();
+                    if (Recording)
+                    {
+                        gMic.FillEllipse(MainForm.RecordBrush, new Rectangle(rc.Width - 14, 2, 8, 8));
+                    }
+
+
+                    lgb.Dispose();
+                }
+                else
+                {
+                    string conn = LocRm.GetString("Connecting");
+                    var sz = gMic.MeasureString(conn, MainForm.Iconfont).ToSize();
+                    sz.Width += 5;
+                    sz.Height += 5;
+
+                    gMic.DrawString(conn, MainForm.Iconfont,
+                        MainForm.IconBrushActive,
+                        Width / 2 - (sz.Width / 2),
+                        Height - sz.Height);
+                }
             }
             else
             {
-                if (AudioSourceErrorState)
-                {
-                    gMic.DrawString(AudioSourceErrorMessage + ": " + Micobject.name,
-                                     MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
-                    
-                }
+                txt += ": " + LocRm.GetString("Offline");
+                gMic.DrawString(SourceType + ": " + Micobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
+            }
+
+            string flags = "";
+            if (Micobject.alerts.active)
+                flags += "!";
+
+            if (ForcedRecording)
+                flags += "F";
+            else
+            {
+                if (Micobject.detector.recordondetect)
+                    flags += "D";
                 else
                 {
-                    if (Micobject.schedule.active)
-                    {
-                        gMic.DrawString("S: " + Micobject.name,
-                                         MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
-                    }
+                    if (Micobject.detector.recordonalert)
+                        flags += "A";
                     else
                     {
-                        gMic.DrawString(LocRm.GetString("Offline") + ": " + Micobject.name,
-                                         MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
+                        flags += "N";
                     }
                 }
             }
+            if (Micobject.schedule.active)
+                flags += "S";
+
+            if (flags != "")
+                m = flags + "  " + m;
+
+            gMic.DrawString(m + txt, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, rc.Height - 18));
+            
+
 
             if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
             {
-                int leftpoint = Width - ButtonPanelWidth-1;
-                //const int ypoint = 0;
-                var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
-                gMic.FillRectangle(overlayBackgroundBrush, leftpoint, 0, ButtonPanelWidth, ButtonPanelHeight);
-                overlayBackgroundBrush.Dispose();
-
-
-                gMic.DrawString(">", MainForm.Iconfont, IsEnabled ? MainForm.IconBrushActive : MainForm.IconBrush, leftpoint + ButtonOffset, ButtonOffset);
-
-                var b = MainForm.IconBrushOff;
-                if (IsEnabled)
-                {
-                    b = MainForm.IconBrush;
-                }
-                gMic.DrawString("R", MainForm.Iconfont,
-                                    Recording ? MainForm.IconBrushActive : b,
-                                    leftpoint + (ButtonOffset * 2) + ButtonWidth,
-                                    ButtonOffset);
-
-                gMic.DrawString("E", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 3) + (ButtonWidth * 2),
-                                ButtonOffset);
-                gMic.DrawString("C", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 4) + (ButtonWidth * 3),
-                                ButtonOffset);
-
-                gMic.DrawString("L", MainForm.Iconfont, Listening ? MainForm.IconBrushActive : b, leftpoint + (ButtonOffset * 5) + (ButtonWidth * 4),
-                                ButtonOffset);
+                DrawOverlay(gMic);
             }
 
 
@@ -1358,6 +1377,46 @@ namespace iSpyApplication.Controls
             base.OnPaint(pe);
         }
 
+        private void DrawOverlay(Graphics gMic)
+        {
+            int leftpoint = Width - ButtonPanelWidth - 1;
+            //const int ypoint = 0;
+            var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
+            gMic.FillRectangle(overlayBackgroundBrush, leftpoint, 0, ButtonPanelWidth, ButtonPanelHeight);
+            overlayBackgroundBrush.Dispose();
+
+
+            gMic.DrawString(">", MainForm.Iconfont, IsEnabled ? MainForm.IconBrushActive : MainForm.IconBrush,
+                leftpoint + ButtonOffset, ButtonOffset);
+
+            var b = MainForm.IconBrushOff;
+            if (IsEnabled)
+            {
+                b = MainForm.IconBrush;
+            }
+
+            if (Helper.HasFeature(Enums.Features.Recording))
+            {
+                gMic.DrawString("R", MainForm.Iconfont,
+                    Recording ? MainForm.IconBrushActive : b,
+                    leftpoint + (ButtonOffset*2) + ButtonWidth,
+                    ButtonOffset);
+            }
+
+            gMic.DrawString("E", MainForm.Iconfont, b, leftpoint + (ButtonOffset*3) + (ButtonWidth*2),
+                ButtonOffset);
+
+            if (Helper.HasFeature(Enums.Features.Access_Media))
+            {
+                gMic.DrawString("C", MainForm.Iconfont, b, leftpoint + (ButtonOffset*4) + (ButtonWidth*3),
+                    ButtonOffset);
+            }
+
+            gMic.DrawString("L", MainForm.Iconfont, Listening ? MainForm.IconBrushActive : b,
+                leftpoint + (ButtonOffset*5) + (ButtonWidth*4),
+                ButtonOffset);
+        }
+
         public void StopSaving()
         {
             if (Recording)
@@ -1386,6 +1445,8 @@ namespace iSpyApplication.Controls
         public void StartSaving()
         {
             if (Recording || Dir.StopSavingFlag || IsEdit)
+                return;
+            if (!Helper.HasFeature(Enums.Features.Recording))
                 return;
 
             lock (_lockobject)
@@ -1791,8 +1852,7 @@ namespace iSpyApplication.Controls
                 Height = 50;
                 if (!CameraControl.IsEnabled)
                 {
-                    CameraControl.Enable(); //will then enable this
-                    return;
+                    CameraControl.Enable();
                 }
             }
 
@@ -1931,6 +1991,27 @@ namespace iSpyApplication.Controls
 
             if (AudioDeviceEnabled != null)
                 AudioDeviceEnabled(this, EventArgs.Empty);
+        }
+
+        internal string SourceType
+        {
+            get
+            {
+                switch (Micobject.settings.sourceindex)
+                {
+                    default:
+                        return "Local Device";
+                    case 1:
+                        return "iSpy Server";
+                    case 2:
+                        return "VLC";
+                    case 3:
+                        return "FFMPEG";
+                    case 4:
+                        return "Camera";
+                }
+            }
+
         }
 
         public void AudioDeviceLevelChanged(object sender, LevelChangedEventArgs eventArgs)
@@ -2480,7 +2561,9 @@ namespace iSpyApplication.Controls
         }
 
         public string RecordSwitch(bool record)
-        {  
+        {
+            if (!Helper.HasFeature(Enums.Features.Recording))
+                return "notrecording," + LocRm.GetString("RecordingStopped");
             if (record)
             {
                 if (!IsEnabled)

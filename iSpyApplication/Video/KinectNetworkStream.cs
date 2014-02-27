@@ -482,7 +482,6 @@ namespace iSpyApplication.Video
                 // stream for MJPEG downloading
                 Stream stream = null;
                 // boundary betweeen images (string and binary versions)
-                byte[] boundary;
 
                 try
                 {
@@ -520,7 +519,7 @@ namespace iSpyApplication.Video
                     stream = response.GetResponseStream();
                     stream.ReadTimeout = _requestTimeout;
 
-                    boundary = encoding.GetBytes("--myboundary");
+                    byte[] boundary = encoding.GetBytes("--myboundary");
                     byte[] sep = encoding.GetBytes("\r\n\r\n");
 
                     // loop
