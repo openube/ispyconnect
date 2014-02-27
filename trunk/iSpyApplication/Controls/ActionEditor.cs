@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -23,7 +22,7 @@ namespace iSpyApplication.Controls
                 "M|Maximise",
                 "SOO|Switch Object On...",
                 "TA|Trigger Alert On...",
-                "E|Send Email [SUBSCRIBER]",
+                "E|Send Email [1]",
                 "SMS|Send SMS [SUBSCRIBER]",
                 "TM|Send Twitter Message [SUBSCRIBER]"
             };
@@ -45,6 +44,10 @@ namespace iSpyApplication.Controls
         private void Init() {
             ddlAction.Items.Clear();
             ddlAction.Items.Add(new ListItem {Name = "Select Action", Restricted = false, Value = ""});
+            for(int i=0;i < Actions.Length;i++)
+            {
+                Actions[i] = Actions[i].Replace("[1]", MainForm.Conf.UseSMTP ? "" : "[SUBSCRIBER]");
+            }
             foreach (string s in Actions)
             {
                 var oc = s.Split('|');

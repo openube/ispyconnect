@@ -75,7 +75,6 @@ namespace iSpyApplication
             this.label4 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.numAnalyseDuration = new System.Windows.Forms.NumericUpDown();
-            this.chkNoBuffer = new System.Windows.Forms.CheckBox();
             this.btnTest = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.ddlRTSP = new System.Windows.Forms.ComboBox();
@@ -88,6 +87,7 @@ namespace iSpyApplication
             this.label21 = new System.Windows.Forms.Label();
             this.label19 = new System.Windows.Forms.Label();
             this.lblInstallVLC = new System.Windows.Forms.Label();
+            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.flowLayoutPanel11 = new System.Windows.Forms.FlowLayoutPanel();
             this.cmbVLCURL = new System.Windows.Forms.ComboBox();
@@ -184,7 +184,6 @@ namespace iSpyApplication
             this.button7 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.txtVLCArgs = new ClipboardTextBoxExample.ClipboardTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numBorderTimeout)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtFrameInterval2)).BeginInit();
             this.tcSource.SuspendLayout();
@@ -716,7 +715,6 @@ namespace iSpyApplication
             this.tableLayoutPanel3.Controls.Add(this.label7, 0, 2);
             this.tableLayoutPanel3.Controls.Add(this.numAnalyseDuration, 1, 2);
             this.tableLayoutPanel3.Controls.Add(this.button3, 3, 0);
-            this.tableLayoutPanel3.Controls.Add(this.chkNoBuffer, 1, 4);
             this.tableLayoutPanel3.Controls.Add(this.btnTest, 1, 6);
             this.tableLayoutPanel3.Controls.Add(this.label8, 0, 5);
             this.tableLayoutPanel3.Controls.Add(this.ddlRTSP, 1, 5);
@@ -731,7 +729,7 @@ namespace iSpyApplication
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(713, 242);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(713, 213);
             this.tableLayoutPanel3.TabIndex = 25;
             // 
             // label4
@@ -778,21 +776,9 @@ namespace iSpyApplication
             0,
             0});
             // 
-            // chkNoBuffer
-            // 
-            this.chkNoBuffer.AutoSize = true;
-            this.chkNoBuffer.Location = new System.Drawing.Point(121, 165);
-            this.chkNoBuffer.Margin = new System.Windows.Forms.Padding(6);
-            this.chkNoBuffer.Name = "chkNoBuffer";
-            this.chkNoBuffer.Size = new System.Drawing.Size(71, 17);
-            this.chkNoBuffer.TabIndex = 90;
-            this.chkNoBuffer.Tag = "64";
-            this.chkNoBuffer.Text = "No Buffer";
-            this.chkNoBuffer.UseVisualStyleBackColor = true;
-            // 
             // btnTest
             // 
-            this.btnTest.Location = new System.Drawing.Point(117, 217);
+            this.btnTest.Location = new System.Drawing.Point(117, 188);
             this.btnTest.Margin = new System.Windows.Forms.Padding(2);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(75, 23);
@@ -804,7 +790,7 @@ namespace iSpyApplication
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 196);
+            this.label8.Location = new System.Drawing.Point(3, 167);
             this.label8.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(66, 13);
@@ -821,7 +807,7 @@ namespace iSpyApplication
             "UDP",
             "UDP Multicast",
             "HTTP Tunneling"});
-            this.ddlRTSP.Location = new System.Drawing.Point(118, 191);
+            this.ddlRTSP.Location = new System.Drawing.Point(118, 162);
             this.ddlRTSP.Name = "ddlRTSP";
             this.ddlRTSP.Size = new System.Drawing.Size(112, 21);
             this.ddlRTSP.TabIndex = 93;
@@ -936,6 +922,16 @@ namespace iSpyApplication
     "treams, udp streams and many more.\r\n\r\nPlease install VLC (x86) and restart iSpy " +
     "to enable this functionality";
             this.lblInstallVLC.Click += new System.EventHandler(this.lblInstallVLC_Click);
+            // 
+            // txtVLCArgs
+            // 
+            this.txtVLCArgs.Dock = System.Windows.Forms.DockStyle.Left;
+            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
+            this.txtVLCArgs.Multiline = true;
+            this.txtVLCArgs.Name = "txtVLCArgs";
+            this.txtVLCArgs.Size = new System.Drawing.Size(294, 84);
+            this.txtVLCArgs.TabIndex = 61;
+            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
             // 
             // label18
             // 
@@ -2048,16 +2044,6 @@ namespace iSpyApplication
             this.panel2.Size = new System.Drawing.Size(733, 35);
             this.panel2.TabIndex = 61;
             // 
-            // txtVLCArgs
-            // 
-            this.txtVLCArgs.Dock = System.Windows.Forms.DockStyle.Left;
-            this.txtVLCArgs.Location = new System.Drawing.Point(66, 59);
-            this.txtVLCArgs.Multiline = true;
-            this.txtVLCArgs.Name = "txtVLCArgs";
-            this.txtVLCArgs.Size = new System.Drawing.Size(294, 84);
-            this.txtVLCArgs.TabIndex = 61;
-            this.txtVLCArgs.PastedText += new ClipboardTextBoxExample.ClipboardTextBox.ClipboardEventHandler(this.txtVLCArgs_PastedText);
-            // 
             // VideoSource
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -2281,7 +2267,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numAnalyseDuration;
-        private System.Windows.Forms.CheckBox chkNoBuffer;
         private System.Windows.Forms.TabPage tabPage10;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
         private System.Windows.Forms.Label lblUsername;

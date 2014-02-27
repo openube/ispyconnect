@@ -5019,4 +5019,24 @@
       <Command Name="Stop vertical patrol">command=27</Command>
     </ExtendedCommands>
   </Camera>
+  <Camera id="191">
+    <Makes>
+      <Make Name="Medion" Model="MD86970" />
+    </Makes>
+    <CommandURL>/camera-cgi/com/ptz.cgi</CommandURL>
+    <Commands>
+      <Left>move=left&amp;ptspeed=10</Left>
+      <Right>move=right&amp;ptspeed=10</Right>
+      <Up>move=up&amp;ptspeed=10</Up>
+      <Down>move=down&amp;ptspeed=10</Down>
+      <ZoomIn></ZoomIn>
+      <ZoomOut></ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Go Preset 1">gotopresetIndex=1</Command>
+      <Command Name="Go Preset 2">gotopresetIndex=2</Command>
+      <Command Name="Go Preset 3">gotopresetIndex=3</Command>
+      <Command Name="Go Preset 4">gotopresetIndex=4</Command>
+    </ExtendedCommands>
+  </Camera>
 </PTZSettings2>

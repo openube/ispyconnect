@@ -391,32 +391,53 @@ namespace iSpyApplication
             };
             _remotecommands.Add(cmd);
 
-            cmd = new objectsCommand
+            if (Helper.HasFeature(Enums.Features.Recording))
             {
-                command = "ispy RECORDONDETECTON",
-                id = 3,
-                name = "cmd_RecordOnDetectAll",
-                smscommand = "RECORDONDETECTON"
-            };
-            _remotecommands.Add(cmd);
+                cmd = new objectsCommand
+                      {
+                          command = "ispy RECORDONDETECTON",
+                          id = 3,
+                          name = "cmd_RecordOnDetectAll",
+                          smscommand = "RECORDONDETECTON"
+                      };
+                _remotecommands.Add(cmd);
 
-            cmd = new objectsCommand
-            {
-                command = "ispy RECORDONALERTON",
-                id = 4,
-                name = "cmd_RecordOnAlertAll",
-                smscommand = "RECORDONALERTON"
-            };
-            _remotecommands.Add(cmd);
+                cmd = new objectsCommand
+                      {
+                          command = "ispy RECORDONALERTON",
+                          id = 4,
+                          name = "cmd_RecordOnAlertAll",
+                          smscommand = "RECORDONALERTON"
+                      };
+                _remotecommands.Add(cmd);
 
-            cmd = new objectsCommand
-            {
-                command = "ispy RECORDINGOFF",
-                id = 5,
-                name = "cmd_RecordOffAll",
-                smscommand = "RECORDINGOFF"
-            };
-            _remotecommands.Add(cmd);
+                cmd = new objectsCommand
+                      {
+                          command = "ispy RECORDINGOFF",
+                          id = 5,
+                          name = "cmd_RecordOffAll",
+                          smscommand = "RECORDINGOFF"
+                      };
+                _remotecommands.Add(cmd);
+
+                cmd = new objectsCommand
+                {
+                    command = "ispy RECORD",
+                    id = 8,
+                    name = "cmd_RecordAll",
+                    smscommand = "RECORD"
+                };
+                _remotecommands.Add(cmd);
+
+                cmd = new objectsCommand
+                {
+                    command = "ispy RECORDSTOP",
+                    id = 9,
+                    name = "cmd_RecordAllStop",
+                    smscommand = "RECORDSTOP"
+                };
+                _remotecommands.Add(cmd);
+            }
 
             cmd = new objectsCommand
             {
@@ -436,32 +457,18 @@ namespace iSpyApplication
             };
             _remotecommands.Add(cmd);
 
-            cmd = new objectsCommand
+            if (Helper.HasFeature(Enums.Features.Save_Frames))
             {
-                command = "ispy RECORD",
-                id = 8,
-                name = "cmd_RecordAll",
-                smscommand = "RECORD"
-            };
-            _remotecommands.Add(cmd);
 
-            cmd = new objectsCommand
-            {
-                command = "ispy RECORDSTOP",
-                id = 9,
-                name = "cmd_RecordAllStop",
-                smscommand = "RECORDSTOP"
-            };
-            _remotecommands.Add(cmd);
-
-            cmd = new objectsCommand
-            {
-                command = "ispy SNAPSHOT",
-                id = 10,
-                name = "cmd_SnapshotAll",
-                smscommand = "SNAPSHOT"
-            };
-            _remotecommands.Add(cmd);
+                cmd = new objectsCommand
+                      {
+                          command = "ispy SNAPSHOT",
+                          id = 10,
+                          name = "cmd_SnapshotAll",
+                          smscommand = "SNAPSHOT"
+                      };
+                _remotecommands.Add(cmd);
+            }
         }
 
         private void RunCommand(int commandIndex)

@@ -63,7 +63,7 @@ namespace iSpyApplication.Controls
         private double _intervalCount;
         private DateTime _lastFrameUploaded = Helper.Now;
         private DateTime _lastScheduleCheck = DateTime.MinValue;
-        private DateTime _dtPTZLastCheck = Helper.Now;
+        private DateTime _dtPTZLastCheck = DateTime.Now;
         private long _lastRun = Helper.Now.Ticks;
         public DateTime LastMovementDetected = Helper.Now;
         public DateTime LastAlerted = DateTime.MinValue;
@@ -842,13 +842,16 @@ namespace iSpyApplication.Controls
                                                 {
                                                     if (x < (ButtonWidth + ButtonOffset) * 4)
                                                     {
-                                                        string url = MainForm.Webserver + "/watch_new.aspx";
-                                                        if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                                        if (Helper.HasFeature(Enums.Features.Access_Media))
                                                         {
-                                                            MainForm.OpenUrl(url);
+                                                            string url = MainForm.Webserver + "/watch_new.aspx";
+                                                            if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                                            {
+                                                                MainForm.OpenUrl(url);
+                                                            }
+                                                            else
+                                                                ((MainForm) TopLevelControl).Connect(url, false);
                                                         }
-                                                        else
-                                                            ((MainForm)TopLevelControl).Connect(url, false);
                                                     }
                                                     else
                                                     {
@@ -1012,6 +1015,9 @@ namespace iSpyApplication.Controls
                                 m = "No Recording, " + m;
                             }
                         }
+                        if (Camobject.schedule.active)
+                            m += ", Scheduled";
+
                         m = m.Trim().Trim(',');
                         var toolTipLocation = new Point(5, Height - 24);
                         _toolTipCam.Show(m, this, toolTipLocation, 1000);
@@ -1053,7 +1059,10 @@ namespace iSpyApplication.Controls
                                     //record
                                     if (_ttind != 1)
                                     {
-                                        _toolTipCam.Show(LocRm.GetString("RecordNow"), this, toolTipLocation, 1000);
+                                        if (Helper.HasFeature(Enums.Features.Recording))
+                                        {
+                                            _toolTipCam.Show(LocRm.GetString("RecordNow"), this, toolTipLocation, 1000);
+                                        }
                                         _ttind = 1;
                                     }
                                 }
@@ -1075,7 +1084,11 @@ namespace iSpyApplication.Controls
                                             {
                                                 if (_ttind != 3)
                                                 {
-                                                    _toolTipCam.Show(LocRm.GetString("MediaoverTheWeb"), this, toolTipLocation, 1000);
+                                                    if (Helper.HasFeature(Enums.Features.Access_Media))
+                                                    {
+                                                        _toolTipCam.Show(LocRm.GetString("MediaoverTheWeb"), this,
+                                                            toolTipLocation, 1000);
+                                                    }
                                                     _ttind = 3;
                                                 }
                                             }
@@ -1085,8 +1098,11 @@ namespace iSpyApplication.Controls
                                                 {
                                                     if (_ttind != 4)
                                                     {
-                                                        _toolTipCam.Show(LocRm.GetString("TakePhoto"), this,
-                                                                        toolTipLocation, 1000);
+                                                        if (Helper.HasFeature(Enums.Features.Save_Frames))
+                                                        {
+                                                            _toolTipCam.Show(LocRm.GetString("TakePhoto"), this,
+                                                                toolTipLocation, 1000);
+                                                        }
                                                         _ttind = 4;
                                                     }
                                                 }
@@ -1214,7 +1230,7 @@ namespace iSpyApplication.Controls
                         if (_suspendPTZSchedule)
                         {
                             _suspendPTZSchedule = false;
-                            _dtPTZLastCheck = Helper.Now;
+                            _dtPTZLastCheck = DateTime.Now;
                         }
                     }
 
@@ -1268,14 +1284,12 @@ namespace iSpyApplication.Controls
                 if (Recording)
                     _recordingTime += Convert.ToDouble(ts.TotalMilliseconds) / 1000.0;
 
-                if (IsEnabled)
-                {
-                    FlashBackground();
-                }
 
                 _tickThrottle += _secondCountNew;
                 if (IsEnabled)
                 {
+                    FlashBackground();
+
                     if (_tickThrottle >1) //every second
                     {
 
@@ -1306,9 +1320,12 @@ namespace iSpyApplication.Controls
 
                             CheckVLCTimeStamp();
 
-                            CheckRecord();
+                            if (Helper.HasFeature(Enums.Features.Recording))
+                            {
+                                CheckRecord();
 
-                            CheckTimeLapse(_tickThrottle);
+                                CheckTimeLapse(_tickThrottle);
+                            }
                         }
                         _tickThrottle = 0;
 
@@ -1338,43 +1355,46 @@ namespace iSpyApplication.Controls
         private DateTime _lastFlash = DateTime.MinValue;
         private void FlashBackground()
         {
-            var dt = Helper.Now;
-            if ((dt - _lastFlash).TotalMilliseconds < 500)
-                return;
-            _lastFlash = dt;
-            bool b = BackgroundColor!=MainForm.BackgroundColor;
-            
-            if (FlashCounter > Helper.Now && _isTrigger)
+            bool b = true;
+            if (Camobject.alerts.active)
             {
-                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                      ? MainForm.BackgroundColor
-                                      : MainForm.ActivityColor;
-                b = false;
-            }
-            else
-            {
-                switch (Camobject.alerts.mode.ToLower())
+                var dt = Helper.Now;
+                if ((dt - _lastFlash).TotalMilliseconds < 500)
+                    return;
+                _lastFlash = dt;
+                b = BackgroundColor != MainForm.BackgroundColor;
+                if (FlashCounter > Helper.Now && _isTrigger)
                 {
-                    case "nomovement":
-                        if (!MovementDetected)
-                        {
-                            BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
-                                                  ? MainForm.BackgroundColor
-                                                  : MainForm.NoActivityColor;
-                            b = false;
-                        }
+                    BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                        ? MainForm.BackgroundColor
+                        : MainForm.ActivityColor;
+                    b = false;
+                }
+                else
+                {
+                    switch (Camobject.alerts.mode.ToLower())
+                    {
+                        case "nomovement":
+                            if (!MovementDetected)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.NoActivityColor)
+                                    ? MainForm.BackgroundColor
+                                    : MainForm.NoActivityColor;
+                                b = false;
+                            }
 
-                        break;
-                    default:
-                        if (FlashCounter > Helper.Now)
-                        {
-                            BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
-                                                  ? MainForm.BackgroundColor
-                                                  : MainForm.ActivityColor;
-                            b = false;
-                        }
+                            break;
+                        default:
+                            if (FlashCounter > Helper.Now)
+                            {
+                                BackgroundColor = (BackgroundColor == MainForm.ActivityColor)
+                                    ? MainForm.BackgroundColor
+                                    : MainForm.ActivityColor;
+                                b = false;
+                            }
 
-                        break;
+                            break;
+                    }
                 }
             }
             if (b)
@@ -1633,7 +1653,7 @@ namespace iSpyApplication.Controls
                     }
                 }
             }
-            _dtPTZLastCheck = Helper.Now;
+            _dtPTZLastCheck = DateTime.Now;
         }
 
         private bool CheckSchedule()
@@ -1928,6 +1948,11 @@ namespace iSpyApplication.Controls
             var c = Camera;
             if (c == null || !c.IsRunning)
                 return "";
+
+            if (!Helper.HasFeature(Enums.Features.Save_Frames))
+            {
+                return "";
+            }
 
             Image myThumbnail = bmp;
             Graphics g = null;
@@ -2254,7 +2279,7 @@ namespace iSpyApplication.Controls
             {
                 lock (_lockobject)
                 {
-                    if (_lastFrame == null)
+                    if (_lastFrame == null || !GotImage)
                     {
                         return null;
                     }
@@ -2292,17 +2317,12 @@ namespace iSpyApplication.Controls
                 }
                 else
                 {
-                    GotImage = false;
-                    //try
-                    //{
-                    //    if (_lastFrame != null)
-                    //        _lastFrame.Dispose();
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    MainForm.LogExceptionToFile(ex);
-                    //}
-                    //_lastFrame = value;
+                    if (value!=null)
+                        value.Dispose();
+                    else
+                    {
+                        GotImage = false;
+                    }
                 }
                 Invalidate();
                 Invoke(new Action(Update));
@@ -2335,9 +2355,6 @@ namespace iSpyApplication.Controls
 
         protected override void OnPaint(PaintEventArgs pe)
         {
-            
-            
-            //Monitor.Enter(this);
             Graphics gCam = pe.Graphics;
 
             var grabBrush = new SolidBrush(BorderColor);
@@ -2346,15 +2363,14 @@ namespace iSpyApplication.Controls
 
             var overlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
 
-            string m = "";
+            string m = "", txt = Camobject.name;
             try
             {
                 Rectangle rc = ClientRectangle;
                 int textpos = rc.Height - 15;
 
 
-                bool message = false;
-
+                //bool message = false;
                 if (IsEnabled)
                 {
                     if (Camera != null && GotImage)
@@ -2373,6 +2389,7 @@ namespace iSpyApplication.Controls
                         gCam.SmoothingMode = SmoothingMode.None;
                         gCam.InterpolationMode = InterpolationMode.Default;
                         gCam.Clear(BackgroundColor);
+                        gCam.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
                         if (!_minimised)
                         {
@@ -2391,20 +2408,8 @@ namespace iSpyApplication.Controls
                             }
                         }
 
-                        gCam.CompositingMode = CompositingMode.SourceOver;
-                        gCam.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-
-
-                        if (Calibrating)
-                        {
-                            int remaining = _calibrateTarget - Convert.ToInt32(CalibrateCount);
-                            if (remaining < 0) remaining = 0;
-
-                            gCam.DrawString(
-                                LocRm.GetString("Calibrating") + " (" + remaining + "): " + Camobject.name,
-                                MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
-                            message = true;
-                        }
+                        gCam.CompositingMode = CompositingMode.SourceOver;                      
+                        
                         if (Recording)
                         {
                             gCam.FillEllipse(MainForm.RecordBrush, new Rectangle(rc.Width - 12, 4, 8, 8));
@@ -2414,83 +2419,88 @@ namespace iSpyApplication.Controls
                             RunPTZ(gCam);
                         }
 
-                        if (Camobject.alerts.active)
-                            m = "!: " + m;
-                        else
+                        if (!VideoSourceErrorState)
                         {
-                            m = ": " + m;
-                        }
+                            if (Calibrating)
+                            {
+                                int remaining = _calibrateTarget - Convert.ToInt32(CalibrateCount);
+                                if (remaining < 0) remaining = 0;
 
-                        if (ForcedRecording)
-                            m = "F" + m;
-                        else
-                        {
-                            if (Camobject.detector.recordondetect)
-                                m = "D" + m;
+                                txt += ": " + LocRm.GetString("Calibrating") + " (" + remaining + ")";
+                            }
                             else
                             {
-                                if (Camobject.detector.recordonalert)
-                                    m = "A" + m;
-                                else
+                                if (Camera.MotionDetector != null)
                                 {
-                                    m = "N" + m;
+                                    var blobcounter =
+                                        Camera.MotionDetector.MotionProcessingAlgorithm as BlobCountingObjectsProcessing;
+                                    if (blobcounter != null)
+                                    {
+                                        m += blobcounter.ObjectsCount + " " + LocRm.GetString("Objects") + ", ";
+                                    }
                                 }
                             }
-
                         }
+                    }
 
+                    if (VideoSourceErrorState)
+                    {
+                        string conn = LocRm.GetString("Connecting");
+                        var sz = gCam.MeasureString(conn, MainForm.Iconfont).ToSize();
+                        sz.Width += 5;
+                        sz.Height += 5;
+                        //var rConn = new Rectangle(Convert.ToInt32(Width / 2 - (sz.Width / 2)),
+                        //    Height - sz.Height-2, sz.Width, sz.Height);
+                        //if (GotImage)
+                        //    gCam.FillRectangle(overlayBackgroundBrush, rConn);
+
+                        gCam.DrawString(conn, MainForm.Iconfont,
+                            MainForm.IconBrushActive,
+                            Width/2 - (sz.Width/2),
+                            Height - sz.Height);
                     }
                     else
                     {
-                        if (VideoSourceErrorState)
+                        if (Camera != null && Camera.IsRunning && Camobject.detector.type != "None")
                         {
-                            gCam.DrawString(
-                                VideoSourceErrorMessage,
-                                MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
-                            gCam.DrawString(
-                                LocRm.GetString("Error") + ": " + Camobject.name,
-                                MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
-                            message = true;
+                            DrawDetectionGraph(gCam, volBrush, MainForm.CameraLine, rc);
                         }
-                        else
-                        {
-                            gCam.DrawString(
-                                LocRm.GetString("Connecting") + ": " + Camobject.name,
-                                MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
-                            message = true;
-                        }
-                    }
-
-                    if (Camera != null && Camera.IsRunning)
-                    {
-                        DrawDetectionGraph(gCam, volBrush, MainForm.CameraLine, rc);
                     }
                 }
                 else
                 {
-                    string txt = Camobject.schedule.active ? LocRm.GetString("Scheduled") : LocRm.GetString("Offline");
-                    txt += ": " + Camobject.name;
-                    if (Camobject.schedule.active)
-                        m = "S: " + m;
-                    gCam.DrawString(txt, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
-                    gCam.DrawString(SourceType, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 20));
+                    txt += ": " + LocRm.GetString("Offline");
+                    gCam.DrawString(SourceType+": "+Camobject.name, MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, 5));
                 }
 
-                if (Camera != null && Camera.MotionDetector != null && !Calibrating)
-                {
+                string flags = "";
+                if (Camobject.alerts.active)
+                    flags += "!";
 
-                    var blobcounter = Camera.MotionDetector.MotionProcessingAlgorithm as BlobCountingObjectsProcessing;
-                    if (blobcounter != null)
+                if (ForcedRecording)
+                    flags += "F";
+                else
+                {
+                    if (Camobject.detector.recordondetect)
+                        flags += "D";
+                    else
                     {
-                        m += blobcounter.ObjectsCount + " " + LocRm.GetString("Objects") + ", ";
+                        if (Camobject.detector.recordonalert)
+                            flags += "A";
+                        else
+                        {
+                            flags += "N";
+                        }
                     }
                 }
+                if (Camobject.schedule.active)
+                    flags += "S";
 
-                if (!message)
-                {
-                    gCam.DrawString(m + Camobject.name,
-                                     MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
-                }
+                if (flags!="")
+                    m = flags +"  "+ m;
+
+
+                gCam.DrawString(m + txt,MainForm.Drawfont, MainForm.CameraDrawBrush, new PointF(5, textpos));
 
                 if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls && !PTZNavigate)
                 {
@@ -2516,8 +2526,6 @@ namespace iSpyApplication.Controls
             borderPen.Dispose();
             grabBrush.Dispose();
             volBrush.Dispose();
-
-            //Monitor.Exit(this);
 
             base.OnPaint(pe);
             _lastRedraw = Helper.Now;
@@ -2566,18 +2574,29 @@ namespace iSpyApplication.Controls
             {
                 b = MainForm.IconBrush;
             }
-            gCam.DrawString("R", MainForm.Iconfont,
-                            Recording ? MainForm.IconBrushActive : b,
-                            leftpoint + (ButtonOffset * 2) + ButtonWidth,
-                            ypoint + ButtonOffset);
+            bool r = Helper.HasFeature(Enums.Features.Recording);
+            if (r)
+            {
+                gCam.DrawString("R", MainForm.Iconfont,
+                    Recording ? MainForm.IconBrushActive : b,
+                    leftpoint + (ButtonOffset*2) + ButtonWidth,
+                    ypoint + ButtonOffset);
+            }
 
             gCam.DrawString("E", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 3) + (ButtonWidth * 2),
                             ypoint + ButtonOffset);
-            gCam.DrawString("C", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 4) + (ButtonWidth * 3),
-                            ypoint + ButtonOffset);
 
-            gCam.DrawString("P", MainForm.Iconfont, b, leftpoint + (ButtonOffset * 5) + (ButtonWidth * 4),
-                            ypoint + ButtonOffset);
+            if (Helper.HasFeature(Enums.Features.Access_Media))
+            {
+                gCam.DrawString("C", MainForm.Iconfont, b, leftpoint + (ButtonOffset*4) + (ButtonWidth*3),
+                    ypoint + ButtonOffset);
+            }
+
+            if (Helper.HasFeature(Enums.Features.Save_Frames))
+            {
+                gCam.DrawString("P", MainForm.Iconfont, b, leftpoint + (ButtonOffset*5) + (ButtonWidth*4),
+                    ypoint + ButtonOffset);
+            }
 
             gCam.DrawString("T", MainForm.Iconfont, Talking ? MainForm.IconBrushActive : b,
                             leftpoint + (ButtonOffset * 6) + (ButtonWidth * 5),
@@ -2769,6 +2788,12 @@ namespace iSpyApplication.Controls
         {
             if (Recording || Dir.StopSavingFlag || IsEdit)
                 return;
+
+            if (!Helper.HasFeature(Enums.Features.Recording))
+            {
+                MainForm.LogErrorToFile("Recording has been disabled in settings - feature set");
+                return;
+            }
 
             if (MainForm.RecordingThreads >= MainForm.Conf.MaxRecordingThreads)
             {
@@ -3655,7 +3680,7 @@ namespace iSpyApplication.Controls
                     break;
             }
 
-            LastFrame = null;
+            //LastFrame = null;
         }
 
         private void SetErrorState(string reason)
@@ -3810,9 +3835,9 @@ namespace iSpyApplication.Controls
                     }
                 }
 
-                LastFrame = null;               
+                LastFrame = null;
 
-                Camera.Dispose();
+                if (Camera != null) Camera.Dispose();
                 Camera = null;
             }
             BackgroundColor = MainForm.BackgroundColor;
@@ -3877,7 +3902,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private string SourceType
+        internal string SourceType
         {
             get
             {
@@ -3888,7 +3913,7 @@ namespace iSpyApplication.Controls
                     case 1:
                         return "MJPEG Feed";
                     case 2:
-                        return "FFMPEG File/Stream";
+                        return "FFMPEG";
                     case 3:
                         return "Local Device";
                     case 4:
@@ -3951,7 +3976,7 @@ namespace iSpyApplication.Controls
                 IsEnabled = true;
             }
 
-            LastFrame = null;
+            //LastFrame = null;
             IsReconnect = false;
             Seekable = false;
             IsClone = Camobject.settings.sourceindex == 10;
@@ -4023,7 +4048,6 @@ namespace iSpyApplication.Controls
                         Timeout = Camobject.settings.timeout,
                         UserAgent = Camobject.settings.useragent,
                         Headers = Camobject.settings.headers,
-                        NoBuffer = Camobject.settings.nobuffer,
                         RTSPMode = Camobject.settings.rtspmode
                     };
                     OpenVideoSource(ffmpegSource, true);
@@ -4288,7 +4312,7 @@ namespace iSpyApplication.Controls
             _lastRun = Helper.Now.Ticks;
             MainForm.NeedsSync = true;
             ReconnectCount = 0;
-            _dtPTZLastCheck = Helper.Now;
+            _dtPTZLastCheck = DateTime.Now;
             LastMovementDetected = _lastAlertCheck = Helper.Now;
             _firstFrame = true;
             _autoofftimer = 0;
@@ -4431,6 +4455,8 @@ namespace iSpyApplication.Controls
 
         public string RecordSwitch(bool record)
         {
+            if (!Helper.HasFeature(Enums.Features.Recording))
+                return "notrecording," + LocRm.GetString("RecordingStopped");
             if (record)
             {
                 if (!IsEnabled)

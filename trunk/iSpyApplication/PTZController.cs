@@ -43,8 +43,9 @@ namespace iSpyApplication
             {
                 if (_cameraControl!=null)
                 {
-                    if (_cameraControl.Camobject.ptz==-5)
+                    if (_cameraControl.Camobject.ptz<-2)
                     {
+                        //onvif/pelco-p/pelco-d
                         return true;
                     }
                 }

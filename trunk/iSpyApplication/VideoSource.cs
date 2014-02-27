@@ -270,7 +270,6 @@ namespace iSpyApplication
             cmbVLCURL.Items.AddRange(ObjectList(MainForm.Conf.RecentVLCList));
 
             numAnalyseDuration.Value = CameraControl.Camobject.settings.analyseduration;
-            chkNoBuffer.Checked = CameraControl.Camobject.settings.nobuffer;
            
             int selectedCameraIndex = 0;
 
@@ -507,22 +506,16 @@ namespace iSpyApplication
             label11.Text = LocRm.GetString("Screen");
             label12.Text = LocRm.GetString("milliseconds");
             label13.Text = LocRm.GetString("FrameInterval");
-            
             lblUsername.Text = label15.Text = LocRm.GetString("Username");
-
             lblPassword.Text = label17.Text = LocRm.GetString("Password");
             label2.Text = LocRm.GetString("MjpegUrl");
-            //label3.Text = LocRm.GetString("OpenFile");
-            //label4.Text = LocRm.GetString("SelectLocalDevice");
             label5.Text = label15.Text = LocRm.GetString("Username");
             label6.Text = label17.Text = LocRm.GetString("Password");
-            
             label9.Text = LocRm.GetString("FrameInterval");
             linkLabel1.Text = LocRm.GetString("HelpMeFindTheRightUrl");
             linkLabel2.Text = LocRm.GetString("HelpMeFindTheRightUrl");
             tabPage1.Text = LocRm.GetString("JpegUrl");
             tabPage2.Text = LocRm.GetString("MjpegUrl");
-            //tabPage3.Text = LocRm.GetString("VideoFile");
             tabPage4.Text = LocRm.GetString("LocalDevice");
             tabPage5.Text = LocRm.GetString("Desktop");
             tabPage6.Text = LocRm.GetString("VLCPlugin");
@@ -538,25 +531,17 @@ namespace iSpyApplication
             label27.Text = LocRm.GetString("gain");
             label28.Text = LocRm.GetString("exposure");
             button4.Text = LocRm.GetString("IPCameraWithWizard");
-
             label39.Text = LocRm.GetString("VideoDevice");
             label38.Text = LocRm.GetString("VideoResolution");
             label37.Text = LocRm.GetString("VideoInput");
             snapshotsLabel.Text = LocRm.GetString("SnapshotsResolution");
-
             label18.Text = LocRm.GetString("Arguments");
             lblInstallVLC.Text = LocRm.GetString("VLCConnectInfo");
             linkLabel3.Text = LocRm.GetString("DownloadVLC");
             linkLabel4.Text = LocRm.GetString("UseiSpyServerText");
-            
-
             llblHelp.Text = LocRm.GetString("help");
-            
-            
-           
             LocRm.SetString(label20, "DecodeKey");
-            LocRm.SetString(label22, "OptionaliSpyServer");
-            
+            LocRm.SetString(label22, "OptionaliSpyServer");           
             LocRm.SetString(label3, "FileURL");
             LocRm.SetString(label4, "FFMPEGHelp");
             LocRm.SetString(label42,"DesktopHelp");
@@ -572,7 +557,6 @@ namespace iSpyApplication
             LocRm.SetString(label34, "Provider");
             LocRm.SetString(label45, "BorderTimeout");
             LocRm.SetString(label14, "Camera");
-            
 
             HideTab(tabPage1 , Helper.HasFeature(Enums.Features.Source_JPEG));
             HideTab(tabPage2 , Helper.HasFeature(Enums.Features.Source_MJPEG));
@@ -664,7 +648,6 @@ namespace iSpyApplication
                     if (CameraControl.Camobject.settings.analyseduration > CameraControl.Camobject.settings.timeout - 500)
                         CameraControl.Camobject.settings.timeout = CameraControl.Camobject.settings.analyseduration + 500;
 
-                    CameraControl.Camobject.settings.nobuffer = chkNoBuffer.Checked;
                     CameraControl.Camobject.settings.rtspmode = ddlRTSP.SelectedIndex;
                     break;
                 case 3:
@@ -779,7 +762,7 @@ namespace iSpyApplication
                     nv = "custom=" + ddlCustomProvider.SelectedItem;
                     CameraControl.Camobject.settings.namevaluesettings = nv;
                     CameraControl.Camobject.alerts.mode = "KinectPlugin";
-                    CameraControl.Camobject.detector.recordonalert = true;
+                    CameraControl.Camobject.detector.recordonalert = false;
                     CameraControl.Camobject.alerts.minimuminterval = 10;
                     CameraControl.Camobject.detector.recordondetect = false;
                     CameraControl.Camobject.detector.type = "None";
@@ -816,7 +799,6 @@ namespace iSpyApplication
                     url = url.Replace("[PASSWORD]", li.Value[3]);
                     VideoSourceString = url;
                     CameraControl.Camobject.settings.analyseduration = (int)numAnalyseDuration.Value;
-                    CameraControl.Camobject.settings.nobuffer = chkNoBuffer.Checked;
                     CameraControl.Camobject.settings.onvifident = _onvifurl + "|" + lbONVIFURLs.SelectedIndex;
                     CameraControl.Camobject.ptz = -5;//onvif
                     CameraControl.PTZ.ResetONVIF();
@@ -861,6 +843,12 @@ namespace iSpyApplication
                         return;
                     }
                     break;
+            }
+
+            if (!Helper.HasFeature(Enums.Features.Recording))
+            {
+                CameraControl.Camobject.detector.recordonalert = false;
+                CameraControl.Camobject.detector.recordondetect = false;
             }
 
             string t = FriendlyName;
@@ -1834,7 +1822,7 @@ namespace iSpyApplication
                 vfr.Headers = CameraControl.Camobject.settings.headers;
                 vfr.RTSPMode = ddlRTSP.SelectedIndex;
                 vfr.Flags = -1;
-                vfr.NoBuffer = chkNoBuffer.Checked;
+                vfr.NoBuffer = true;
                 vfr.Open(source);
                 vfr.ReadFrame();
                 vfr.Dispose();

@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System;
 using System.Drawing;
 using System.IO;
@@ -937,17 +935,6 @@ namespace iSpyApplication.Video
         }
     }
 
-    class Certificates
-    {
-        public static bool ValidateRemoteCertificate(
-            object sender,
-                X509Certificate certificate,
-                X509Chain chain,
-                SslPolicyErrors policyErrors
-            )
-        {
-            return true;
-        }
-    }
+    
 
 }

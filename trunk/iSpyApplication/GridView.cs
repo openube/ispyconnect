@@ -9,6 +9,7 @@ namespace iSpyApplication
         private readonly Controls.GridView _gv;
         private readonly configurationGrid _layout;
 
+
         public GridView(MainForm parent, ref configurationGrid layout)
         {
             InitializeComponent();
@@ -20,7 +21,11 @@ namespace iSpyApplication
             _layout = layout;
             fullScreenToolStripMenuItem.Checked = layout.FullScreen;
             alwaysOnTopToolStripMenuItem.Checked = layout.AlwaysOnTop;
+
+            
         }
+
+
 
         private void GridView_Load(object sender, EventArgs e)
         {
@@ -89,6 +94,16 @@ namespace iSpyApplication
         {
             Edit();
             _gv.Init();
+        }
+
+        private void switchFillModeAltFToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _gv.Cg.Fill = !_gv.Cg.Fill;
+        }
+
+        private void GridView_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            
         }
 
     }

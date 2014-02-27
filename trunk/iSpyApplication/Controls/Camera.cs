@@ -557,6 +557,7 @@ namespace iSpyApplication.Controls
             }
 
             var rs = gCam.MeasureString(timestamp, DrawFont).ToSize();
+            rs.Width += 5;
             var p = new Point(0, 0);
             switch (CW.Camobject.settings.timestamplocation)
             {

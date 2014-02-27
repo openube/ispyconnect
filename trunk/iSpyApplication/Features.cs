@@ -25,7 +25,6 @@ namespace iSpyApplication
                 
             }
         }
-
         private void Features_FormClosing(object sender, FormClosingEventArgs e)
         {
             var tot = (from CheckBox c in fpFeatures.Controls where c.Checked select (int) c.Tag).Sum();

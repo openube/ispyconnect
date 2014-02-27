@@ -661,7 +661,8 @@ namespace iSpyServer
             var screenArea = new ScreenArea(screen, area);
 
             screenArea.ShowDialog();
-            CameraControl.Camobject.settings.desktoparea = screenArea.Area.Left + "," + screenArea.Area.Top + "," + screenArea.Area.Width + "," + screenArea.Area.Height;
+            var sa = screenArea.Area;
+            CameraControl.Camobject.settings.desktoparea = sa.Left + "," + sa.Top + "," + sa.Width + "," + sa.Height;
             screenArea.Dispose();
         }
     }

@@ -31,10 +31,11 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(GridView));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fullScreenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.alwaysOnTopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeGridViewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.switchFillModeAltFToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -42,18 +43,26 @@
             // 
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.editToolStripMenuItem,
+            this.switchFillModeAltFToolStripMenuItem,
             this.fullScreenToolStripMenuItem,
             this.alwaysOnTopToolStripMenuItem,
             this.closeGridViewToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(194, 114);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(203, 114);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
             // fullScreenToolStripMenuItem
             // 
             this.fullScreenToolStripMenuItem.CheckOnClick = true;
             this.fullScreenToolStripMenuItem.Name = "fullScreenToolStripMenuItem";
             this.fullScreenToolStripMenuItem.ShortcutKeyDisplayString = "Alt+ Enter";
-            this.fullScreenToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.fullScreenToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.fullScreenToolStripMenuItem.Text = "Full Screen";
             this.fullScreenToolStripMenuItem.Click += new System.EventHandler(this.fullScreenToolStripMenuItem_Click);
             // 
@@ -62,7 +71,7 @@
             this.alwaysOnTopToolStripMenuItem.CheckOnClick = true;
             this.alwaysOnTopToolStripMenuItem.Name = "alwaysOnTopToolStripMenuItem";
             this.alwaysOnTopToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.T)));
-            this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.alwaysOnTopToolStripMenuItem.Text = "Always On Top";
             this.alwaysOnTopToolStripMenuItem.Click += new System.EventHandler(this.alwaysOnTopToolStripMenuItem_Click);
             // 
@@ -70,16 +79,17 @@
             // 
             this.closeGridViewToolStripMenuItem.Name = "closeGridViewToolStripMenuItem";
             this.closeGridViewToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.X)));
-            this.closeGridViewToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.closeGridViewToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.closeGridViewToolStripMenuItem.Text = "Close Grid View";
             this.closeGridViewToolStripMenuItem.Click += new System.EventHandler(this.closeGridViewToolStripMenuItem_Click);
             // 
-            // editToolStripMenuItem
+            // switchFillModeAltFToolStripMenuItem
             // 
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
-            this.editToolStripMenuItem.Text = "Edit";
-            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            this.switchFillModeAltFToolStripMenuItem.Name = "switchFillModeAltFToolStripMenuItem";
+            this.switchFillModeAltFToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.M)));
+            this.switchFillModeAltFToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.switchFillModeAltFToolStripMenuItem.Text = "Switch Fill Mode";
+            this.switchFillModeAltFToolStripMenuItem.Click += new System.EventHandler(this.switchFillModeAltFToolStripMenuItem_Click);
             // 
             // GridView
             // 
@@ -90,6 +100,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "GridView";
             this.Text = "iSpy Grid View";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GridView_FormClosing);
             this.Load += new System.EventHandler(this.GridView_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GridView_KeyDown);
             this.contextMenuStrip1.ResumeLayout(false);
@@ -104,6 +115,7 @@
         private System.Windows.Forms.ToolStripMenuItem alwaysOnTopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem closeGridViewToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem switchFillModeAltFToolStripMenuItem;
 
     }
 }

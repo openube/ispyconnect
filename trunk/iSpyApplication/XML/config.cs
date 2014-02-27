@@ -250,6 +250,28 @@ public partial class configuration {
     
     private string sMSAlertField;
     
+    private string sMTPFromAddressField;
+    
+    private string sMTPUsernameField;
+    
+    private string sMTPPasswordField;
+    
+    private string sMTPServerField;
+    
+    private int sMTPPortField;
+    
+    private bool useSMTPField;
+    
+    private bool sMTPSSLField;
+    
+    private bool passwordProtectSettingsField;
+    
+    private bool defaultRecordOnAlertField;
+    
+    private bool defaultRecordOnDetectField;
+    
+    private bool firstRunField;
+    
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
@@ -299,6 +321,17 @@ public partial class configuration {
         this.mailAlertSubjectField = "[EVENT]: [SERVER] [OBJECTNAME]";
         this.mailAlertBodyField = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";
         this.sMSAlertField = "[EVENT] at [DATE] [TIME]: [SERVER] [OBJECTNAME] [RECORDED] [PLUGIN]";
+        this.sMTPFromAddressField = "";
+        this.sMTPUsernameField = "";
+        this.sMTPPasswordField = "";
+        this.sMTPServerField = "";
+        this.sMTPPortField = 25;
+        this.useSMTPField = false;
+        this.sMTPSSLField = false;
+        this.passwordProtectSettingsField = false;
+        this.defaultRecordOnAlertField = false;
+        this.defaultRecordOnDetectField = true;
+        this.firstRunField = true;
     }
     
     /// <remarks/>
@@ -1428,6 +1461,116 @@ public partial class configuration {
         }
         set {
             this.sMSAlertField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string SMTPFromAddress {
+        get {
+            return this.sMTPFromAddressField;
+        }
+        set {
+            this.sMTPFromAddressField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string SMTPUsername {
+        get {
+            return this.sMTPUsernameField;
+        }
+        set {
+            this.sMTPUsernameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string SMTPPassword {
+        get {
+            return this.sMTPPasswordField;
+        }
+        set {
+            this.sMTPPasswordField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string SMTPServer {
+        get {
+            return this.sMTPServerField;
+        }
+        set {
+            this.sMTPServerField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int SMTPPort {
+        get {
+            return this.sMTPPortField;
+        }
+        set {
+            this.sMTPPortField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool UseSMTP {
+        get {
+            return this.useSMTPField;
+        }
+        set {
+            this.useSMTPField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool SMTPSSL {
+        get {
+            return this.sMTPSSLField;
+        }
+        set {
+            this.sMTPSSLField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool PasswordProtectSettings {
+        get {
+            return this.passwordProtectSettingsField;
+        }
+        set {
+            this.passwordProtectSettingsField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool DefaultRecordOnAlert {
+        get {
+            return this.defaultRecordOnAlertField;
+        }
+        set {
+            this.defaultRecordOnAlertField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool DefaultRecordOnDetect {
+        get {
+            return this.defaultRecordOnDetectField;
+        }
+        set {
+            this.defaultRecordOnDetectField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool FirstRun {
+        get {
+            return this.firstRunField;
+        }
+        set {
+            this.firstRunField = value;
         }
     }
     

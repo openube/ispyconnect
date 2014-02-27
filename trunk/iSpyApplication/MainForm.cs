@@ -240,7 +240,7 @@ namespace iSpyApplication
         private ToolStripButton _toolStripButton8;
         private ToolStripDropDownButton _toolStripDropDownButton1;
         private ToolStripDropDownButton _toolStripDropDownButton2;
-        private ToolStripMenuItem _toolStripMenuItem1;
+        private ToolStripMenuItem _viewMediaToolStripMenuItem;
         private ToolStripStatusLabel _tsslStats;
         private ToolStripMenuItem _uSbCamerasAndMicrophonesOnOtherToolStripMenuItem;
         private ToolStripMenuItem _unlockToolstripMenuItem;
@@ -1068,17 +1068,21 @@ namespace iSpyApplication
                                 case "affiliateid":
                                 case "affiliate id":
                                 case "aid":
-                                    int aid = 0;
+                                    int aid;
                                     if (Int32.TryParse(nv[1].Trim(), out aid))
                                     {
                                         AFFILIATEID = aid;
                                     }
                                     break;
                                 case "featureset":
-                                    int featureset;
-                                    if (Int32.TryParse(nv[1].Trim(), out featureset))
+                                    //only want to set this on install (allow them to modify)
+                                    if (Conf.FirstRun)
                                     {
-                                        Conf.FeatureSet = featureset;
+                                        int featureset;
+                                        if (Int32.TryParse(nv[1].Trim(), out featureset))
+                                        {
+                                            Conf.FeatureSet = featureset;
+                                        }
                                     }
                                     break;
                                 case "webserver":
@@ -1090,10 +1094,21 @@ namespace iSpyApplication
                                     WebserverSecure = nv[1].Trim().Trim('/');
                                     setSecure = true;
                                     break;
+                                case "recordondetect":
+                                    bool defaultRecordOnDetect;
+                                    if (Boolean.TryParse(nv[1].Trim(), out defaultRecordOnDetect))
+                                        Conf.DefaultRecordOnDetect = defaultRecordOnDetect;
+                                    break;
+                                case "recordonalert":
+                                    bool defaultRecordOnAlert;
+                                    if (Boolean.TryParse(nv[1].Trim(), out defaultRecordOnAlert))
+                                        Conf.DefaultRecordOnAlert = defaultRecordOnAlert;
+                                    break;
                             }
                         }
                     }
                 }
+                Conf.FirstRun = false;
                 LogMessageToFile("Webserver: " + Webserver);
 
                 string logo = Program.AppDataPath + "logo.jpg";
@@ -1250,18 +1265,21 @@ namespace iSpyApplication
         public static void LoadPlugins()
         {
             Plugins = new List<string>();
-            var plugindir = new DirectoryInfo(Program.AppPath + "Plugins");
-            LogMessageToFile("Checking Plugins...");
-            foreach (FileInfo dll in plugindir.GetFiles("*.dll"))
+            if (Directory.Exists(Program.AppPath + "Plugins"))
             {
-                AddPlugin(dll);
-            }
-            foreach (DirectoryInfo d in plugindir.GetDirectories())
-            {
-                LogMessageToFile(d.Name);
-                foreach (FileInfo dll in d.GetFiles("*.dll"))
+                var plugindir = new DirectoryInfo(Program.AppPath + "Plugins");
+                LogMessageToFile("Checking Plugins...");
+                foreach (FileInfo dll in plugindir.GetFiles("*.dll"))
                 {
                     AddPlugin(dll);
+                }
+                foreach (DirectoryInfo d in plugindir.GetDirectories())
+                {
+                    LogMessageToFile(d.Name);
+                    foreach (FileInfo dll in d.GetFiles("*.dll"))
+                    {
+                        AddPlugin(dll);
+                    }
                 }
             }
         }
@@ -1454,7 +1472,7 @@ namespace iSpyApplication
             _toolStripButton8.Text = LocRm.GetString("Commands");
             _toolStripDropDownButton1.Text = LocRm.GetString("AccessMedia");
             _toolStripDropDownButton2.Text = LocRm.GetString("Add");
-            _toolStripMenuItem1.Text = LocRm.GetString("Viewmedia");
+            _viewMediaToolStripMenuItem.Text = LocRm.GetString("Viewmedia");
             toolStripToolStripMenuItem.Text = LocRm.GetString("toolStrip");
             menuItem6.Text = LocRm.GetString("toolStrip");
             _tsslStats.Text = LocRm.GetString("Loading");
@@ -1500,7 +1518,7 @@ namespace iSpyApplication
                 _remoteCommandsToolStripMenuItem.Visible =
                     _menuItem35.Visible = (Helper.HasFeature(Enums.Features.Remote_Commands));
             _toolStripButton1.Visible =
-                _toolStripMenuItem1.Visible =
+                _viewMediaToolStripMenuItem.Visible =
                     _menuItem3.Visible =
                         _viewMediaOnAMobileDeviceToolStripMenuItem.Visible =
                             _menuItem25.Visible = _menuItem4.Visible = (Helper.HasFeature(Enums.Features.Web_Settings));
@@ -4346,7 +4364,7 @@ namespace iSpyApplication
             this.ctxtMnu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.pluginCommandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configurePluginToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this._viewMediaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._viewMediaOnAMobileDeviceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._activateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._setInactiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -5430,7 +5448,7 @@ namespace iSpyApplication
             // 
             this.ctxtMnu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.pluginCommandsToolStripMenuItem,
-            this._toolStripMenuItem1,
+            this._viewMediaToolStripMenuItem,
             this._viewMediaOnAMobileDeviceToolStripMenuItem,
             this._activateToolStripMenuItem,
             this._setInactiveToolStripMenuItem,
@@ -5465,13 +5483,13 @@ namespace iSpyApplication
             this.configurePluginToolStripMenuItem.Text = "Configure Plugin";
             this.configurePluginToolStripMenuItem.Click += new System.EventHandler(this.configurePluginToolStripMenuItem_Click);
             // 
-            // _toolStripMenuItem1
+            // _viewMediaToolStripMenuItem
             // 
-            this._toolStripMenuItem1.Image = ((System.Drawing.Image)(resources.GetObject("_toolStripMenuItem1.Image")));
-            this._toolStripMenuItem1.Name = "_toolStripMenuItem1";
-            this._toolStripMenuItem1.Size = new System.Drawing.Size(239, 22);
-            this._toolStripMenuItem1.Text = "View &Media ";
-            this._toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1Click);
+            this._viewMediaToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("_viewMediaToolStripMenuItem.Image")));
+            this._viewMediaToolStripMenuItem.Name = "_viewMediaToolStripMenuItem";
+            this._viewMediaToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
+            this._viewMediaToolStripMenuItem.Text = "View &Media ";
+            this._viewMediaToolStripMenuItem.Click += new System.EventHandler(this.ToolStripMenuItem1Click);
             // 
             // _viewMediaOnAMobileDeviceToolStripMenuItem
             // 
@@ -5616,7 +5634,7 @@ namespace iSpyApplication
             this._websiteToolstripMenuItem,
             this._exitToolStripMenuItem});
             this.ctxtTaskbar.Name = "_ctxtMnu";
-            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 224);
+            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 246);
             this.ctxtTaskbar.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtTaskbarOpening);
             // 
             // _unlockToolstripMenuItem

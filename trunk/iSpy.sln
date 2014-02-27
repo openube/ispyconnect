@@ -16,8 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Video.FFMPEG", "FFMPEG\Vide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Video.DirectShow", "..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj", "{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Profiler", "Profiler\Profiler.csproj", "{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -365,41 +363,6 @@ Global
 		{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}.SingleImage|Win32.ActiveCfg = Release|Any CPU
 		{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}.SingleImage|x64.ActiveCfg = Release|Any CPU
 		{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}.SingleImage|x86.ActiveCfg = Release|Any CPU
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|Any CPU.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|Mixed Platforms.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|Mixed Platforms.Build.0 = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|Win32.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|x64.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|x86.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.CD_ROM|x86.Build.0 = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|Win32.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|x64.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|x86.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Debug|x86.Build.0 = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|Any CPU.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|Mixed Platforms.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|Mixed Platforms.Build.0 = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|Win32.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|x64.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|x86.ActiveCfg = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.DVD-5|x86.Build.0 = Debug|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|Any CPU.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|Mixed Platforms.Build.0 = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|Win32.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|x64.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|x86.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.Release|x86.Build.0 = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|Any CPU.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|Mixed Platforms.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|Mixed Platforms.Build.0 = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|Win32.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|x64.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|x86.ActiveCfg = Release|x86
-		{D19AB8D7-C3D1-4330-8E01-C41D730C98C7}.SingleImage|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

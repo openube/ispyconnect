@@ -519,7 +519,6 @@ namespace iSpyApplication
                     break;
             }
 
-
             foreach (String plugin in MainForm.Plugins)
             {
                 string name = plugin.Substring(plugin.LastIndexOf("\\", StringComparison.Ordinal) + 1);

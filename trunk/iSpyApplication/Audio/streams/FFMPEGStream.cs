@@ -410,16 +410,22 @@ namespace iSpyApplication.Audio.streams
 
                 if (ThreadAlive)
                 {
-                    _stopEvent.Set();
-
-                    while (ThreadAlive)
+                    if (_stopEvent != null)
                     {
-                        try
+                        //if stopEvent is null the thread is exiting and stop has been called from a related event //bastard!
+                        _stopEvent.Set();
+
+                        while (ThreadAlive)
                         {
-                            _thread.Join(50);
+                            try
+                            {
+                                _thread.Join(50);
+                            }
+                            catch
+                            {
+                            }
+                            Application.DoEvents();
                         }
-                        catch { }
-                        Application.DoEvents();
                     }
                 }
 
