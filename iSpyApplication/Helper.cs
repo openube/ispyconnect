@@ -127,6 +127,31 @@ namespace iSpyApplication
 
         }
 
+        internal static bool ArchiveAndDelete(string filename)
+        {
+
+            if (!String.IsNullOrEmpty(MainForm.Conf.Archive) && Directory.Exists(MainForm.Conf.Archive))
+            {
+                string fn = filename.Substring(filename.LastIndexOf("\\", StringComparison.Ordinal) + 1);
+                if (File.Exists(filename))
+                {
+                    try
+                    {
+                        if (!File.Exists(MainForm.Conf.Archive + fn))
+                            File.Copy(filename, MainForm.Conf.Archive + fn);
+                        File.Delete(filename);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                    }
+                }
+            }
+            return false;
+
+        }
+
         internal static string GetMediaDirectory(int ot, int oid)
         {
             int i = 0;

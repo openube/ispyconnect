@@ -79,7 +79,7 @@ namespace iSpyApplication
         {
             if (String.IsNullOrWhiteSpace(Conf.Archive))
             {
-                MessageBox.Show(this, "Please specify an archive location (do not use a directory that is under storage management)");
+                MessageBox.Show(this, LocRm.GetString("SpecifyArchiveLocation"));
                 ShowSettings(2);
             }
             if (!String.IsNullOrWhiteSpace(Conf.Archive))
@@ -98,7 +98,7 @@ namespace iSpyApplication
                     }
                 }
                 if (j > 0)
-                    MessageBox.Show(this, "Media archived to " + Conf.Archive);
+                    MessageBox.Show(this, LocRm.GetString("MediaArchivedTo") +Environment.NewLine+ Conf.Archive);
             }
 
         }

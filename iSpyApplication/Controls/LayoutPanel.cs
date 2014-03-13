@@ -43,7 +43,7 @@ namespace iSpyApplication.Controls
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            Invalidate();
+            //Invalidate();
             base.OnSizeChanged(e);
         }
    }

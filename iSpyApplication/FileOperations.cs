@@ -176,5 +176,15 @@ namespace iSpyApplication
             }
             return true;
         }
+
+        public static bool DeleteOrArchive(string filePath, bool archive)
+        {
+            if (!archive || filePath.EndsWith(".jpg"))
+                return Delete(filePath);
+
+            Helper.ArchiveAndDelete(filePath);
+
+            return true;
+        }
     }
 }

@@ -67,7 +67,7 @@ namespace iSpyApplication
             
             if (!SetupNetwork(out port, out localPort, out error))
             {
-                MessageBox.Show(error+" - Try a different port.");
+                MessageBox.Show(error+Environment.NewLine+LocRm.GetString("TryDifferentPort"));
                 return;
             }
 
@@ -107,8 +107,8 @@ namespace iSpyApplication
                 {
                     MainForm.LogExceptionToFile(ex);
                     MessageBox.Show(this,
-                                       "Error from firewall: " + ex.Message +
-                                       ". Please add an exception into the firewall for ispy.exe manually");
+                                       LocRm.GetString("ErrorFromFirewall") +Environment.NewLine+ ex.Message +Environment.NewLine+
+                                       LocRm.GetString("AddFirewallExceptionManually"));
                 }
 
                 Next.Enabled = false;
@@ -222,7 +222,7 @@ namespace iSpyApplication
                         }
                         else
                         {
-                            MessageBox.Show("No response", LocRm.GetString("ConnectFailed"));
+                            MessageBox.Show(LocRm.GetString("NoResponse"), LocRm.GetString("ConnectFailed"));
                         }
                     }
                 }
@@ -432,7 +432,7 @@ namespace iSpyApplication
                 if (chkEnableIPv6.Checked)
                 {
                     MessageBox.Show(this,
-                                    "IPv6 support can cause problems accessing this form on some systems. You can disable IPv6 support in settings. Please re-open this form to see IPv6 options.", "Warning");
+                                    LocRm.GetString("IPv6Issues")+Environment.NewLine+LocRm.GetString("IPv6Warning"), LocRm.GetString("Warning"));
                 }
                 MainForm.Conf.IPv6Disabled = !chkEnableIPv6.Checked;
             }

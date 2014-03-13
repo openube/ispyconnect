@@ -145,6 +145,29 @@ namespace iSpyApplication
             label8.Text = LocRm.GetString("Adaptor");
 
             linkLabel1.Text = LocRm.GetString("GetLatestList");
+
+            rdoListed.Text = LocRm.GetString("Listed");
+            rdoUnlisted.Text = LocRm.GetString("NotListed");
+            label11.Text = label14.Text = LocRm.GetString("Model");
+
+            chkRTSP.Text = LocRm.GetString("ScanRTSPAddresses");
+            chkHTTP.Text = LocRm.GetString("ScanHTTPAddresses");
+
+            LocRm.SetString(label15,"EnterUsernamePassword");
+            LocRm.SetString(label12, "Channel");
+
+            LocRm.SetString(label10, "Port");
+            LocRm.SetString(label7, "OrFindYourDevice");
+            LocRm.SetString(label8, "Adaptor");
+            LocRm.SetString(label6, "PortsHTTPOnly");
+            LocRm.SetString(button1, "ScanNetwork");
+            LocRm.SetString(label5, "ClickScan");
+            LocRm.SetString(label9, "TryTheseURLs");
+            LocRm.SetString(llblFilter, "CheckAndFilterResults");
+            LocRm.SetString(llblScan, "ScanCameraForMore");
+            LocRm.SetString(llblDownloadVLC, "InstallVLCForOptions");
+            tsddScanner.Text = LocRm.GetString("Scanner");
+
         }
 
         private void PortScannerManager(string host)
@@ -552,14 +575,14 @@ namespace iSpyApplication
                 Application.DoEvents();
                 if (pnlOptions.Controls.Count > 1)
                 {
-                    if (MessageBox.Show(this, "Do you want iSpy to check which of these URLs are valid?", "Verify URLs?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (MessageBox.Show(this, LocRm.GetString("CheckURLValid"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         CheckAndFilterResults();
                     }
                 }
                 else
                 {
-                    if (MessageBox.Show(this, "Do you want iSpy to scan this camera for more feeds?", "Scan Camera?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    if (MessageBox.Show(this, LocRm.GetString("ScanForFeeds"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
                         ScanCamera(make);
                     }
@@ -598,7 +621,7 @@ namespace iSpyApplication
                 _urlscanner = null;
             }
 
-            UISync.Execute(() => tsslCurrent.Text = "Scanner Inactive");
+            UISync.Execute(() => tsslCurrent.Text = LocRm.GetString("ScannerInactive"));
         }
 
 
@@ -623,7 +646,7 @@ namespace iSpyApplication
                 ListCameras(m, ref lp, login, password);
             }
 
-            const int i = 0;
+            int i = 0;
             while (i < pnlOptions.Controls.Count)
             {
                 if (pnlOptions.Controls[i].Enabled)
@@ -637,6 +660,7 @@ namespace iSpyApplication
                     }
                     break;
                 }
+                i++;
             }
 
             UISync.Execute(() => tsslCurrent.Text = "OK");
@@ -693,7 +717,7 @@ namespace iSpyApplication
                     break;
             }
             
-            const int i = 0;
+            int i = 0;
             while (i < pnlOptions.Controls.Count)
             {
                 if (pnlOptions.Controls[i].Enabled)
@@ -707,6 +731,7 @@ namespace iSpyApplication
                     }
                     break;
                 }
+                i++;
             }
 
             UISync.Execute(() => tsslCurrent.Text = "OK");
@@ -734,7 +759,7 @@ namespace iSpyApplication
                                 if (!lp.Contains(addr))
                                 {
                                     lp.Add(addr);
-                                    UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                                    UISync.Execute(() => tsslCurrent.Text =  addr);
                                     //test this url
                                     if (SendHTTPReq(addr, u.cookies, login, password))
                                     {
@@ -750,7 +775,7 @@ namespace iSpyApplication
                                 if (!lp.Contains(addr))
                                 {
                                     lp.Add(addr);
-                                    UISync.Execute(() => tsslCurrent.Text = "Trying: " + addr);
+                                    UISync.Execute(() => tsslCurrent.Text = addr);
                                     //test this url
                                     if (SendRTSPReq(addr, login, password))
                                     {
@@ -907,7 +932,7 @@ namespace iSpyApplication
             var m = MainForm.Sources.FirstOrDefault(p => p.name == make);
             if (m == null)
             {
-                MessageBox.Show(this, "There are no sources available for this camera.");
+                MessageBox.Show(this, LocRm.GetString("NoSourcesAvailable"));
                 ShowPanel(pnlConfig);
                 return;
             }
@@ -933,7 +958,7 @@ namespace iSpyApplication
             }
             pnlOptions.ResumeLayout();
 
-            const int i = 0;
+            int i = 0;
             while (i < pnlOptions.Controls.Count)
             {
                 if (pnlOptions.Controls[i].Enabled)
@@ -941,6 +966,7 @@ namespace iSpyApplication
                     ((RadioButton)pnlOptions.Controls[i]).Checked = true;
                     break;
                 }
+                i++;
             }
         }
 
@@ -1016,7 +1042,7 @@ namespace iSpyApplication
                 {
                     if (ddlMake.SelectedIndex == -1)
                     {
-                        MessageBox.Show(this, "Please choose a make");
+                        MessageBox.Show(this, LocRm.GetString("ChooseMake"));
                         return;
                     }
                 }
@@ -1024,7 +1050,7 @@ namespace iSpyApplication
                 {
                     if (!MainForm.IPRTSP && !MainForm.IPHTTP)
                     {
-                        MessageBox.Show(this, "You need to scan for at least one option");
+                        MessageBox.Show(this, LocRm.GetString("ChooseOption"));
                         return;
                     }
                 }
@@ -1041,13 +1067,13 @@ namespace iSpyApplication
                 string addr = txtIPAddress.Text.Trim();
                 if (String.IsNullOrEmpty(addr))
                 {
-                    MessageBox.Show(this, "Please select or enter an IP address");
+                    MessageBox.Show(this, LocRm.GetString("EnterIPAddress"));
                     return;
                 }
                 Uri nUrl = null;
                 if (!Uri.TryCreate("http://"+addr, UriKind.Absolute, out nUrl))
                 {
-                    MessageBox.Show(this, "Please enter an IP address or DNS address only (excluding http://)");
+                    MessageBox.Show(this, LocRm.GetString("EnterIPDNSOnly"));
                     return;
                 }
 
@@ -1087,7 +1113,7 @@ namespace iSpyApplication
                 }
                 if (s == null)
                 {
-                    MessageBox.Show(this, "Please select a URL");
+                    MessageBox.Show(this, LocRm.GetString("SelectURL"));
                     return;
                 }
 

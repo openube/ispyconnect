@@ -10,6 +10,15 @@ namespace iSpyApplication
         public GridViewModeConfig()
         {
             InitializeComponent();
+            RenderResources();
+        }
+
+        private void RenderResources()
+        {
+            Text = LocRm.GetString("Configuration");
+            LocRm.SetString(label1,"DefaultCamera");
+            LocRm.SetString(label2, "RemoveDelay");
+            LocRm.SetString(button1, "OK");
         }
 
         private void GridViewModeConfig_Load(object sender, EventArgs e)

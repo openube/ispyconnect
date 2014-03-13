@@ -471,8 +471,7 @@ namespace iSpyApplication
             if (tcSource.SelectedTab==null)  {
                 if (tcSource.TabCount == 0)
                 {
-                    MessageBox.Show(this,
-                                    "I couldn't display the controls for this source type. Ensure that the video source type is included in the feature set in settings");
+                    MessageBox.Show(this,LocRm.GetString("CouldNotDisplayControls"));
                     Close();
                 }
                 else
@@ -500,7 +499,7 @@ namespace iSpyApplication
             Text = LocRm.GetString("VideoSource");
             button1.Text = LocRm.GetString("Ok");
             button2.Text = LocRm.GetString("Cancel");
-            button3.Text = LocRm.GetString("chars_3014702301470230147");
+            button3.Text = "...";
             label1.Text = LocRm.GetString("JpegUrl");
             label10.Text = LocRm.GetString("milliseconds");
             label11.Text = LocRm.GetString("Screen");
@@ -557,6 +556,8 @@ namespace iSpyApplication
             LocRm.SetString(label34, "Provider");
             LocRm.SetString(label45, "BorderTimeout");
             LocRm.SetString(label14, "Camera");
+            button8.Text = LocRm.GetString("ScanNetwork");
+            chkConnectVLC.Text = LocRm.GetString("UseVLCToConnect");
 
             HideTab(tabPage1 , Helper.HasFeature(Enums.Features.Source_JPEG));
             HideTab(tabPage2 , Helper.HasFeature(Enums.Features.Source_MJPEG));
@@ -708,7 +709,7 @@ namespace iSpyApplication
                 case 5:
                     if (!VlcHelper.VlcInstalled)
                     {
-                        MessageBox.Show(LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin+" or greater", LocRm.GetString("Note"));
+                        MessageBox.Show(LocRm.GetString("DownloadVLC"), LocRm.GetString("Note"));
                         return;
                     }
                     url = cmbVLCURL.Text.Trim();
@@ -779,7 +780,7 @@ namespace iSpyApplication
                     }
                     catch
                     {
-                        MessageBox.Show("Invalid URL", "Error");
+                        MessageBox.Show(LocRm.GetString("Invalid URL"), LocRm.GetString("Error"));
                         return;
                     }
                     
@@ -839,7 +840,7 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        MessageBox.Show(this, "Select a camera to clone");
+                        MessageBox.Show(this, LocRm.GetString("SelectCameraToClone"));
                         return;
                     }
                     break;
@@ -1058,7 +1059,6 @@ namespace iSpyApplication
                 _player.Events.PlayerEncounteredError -= EventsPlayerEncounteredError;
                 UISync.Execute(() => SetVideoSize(size));
                 UISync.Execute(StopPlayer);
-                MessageBox.Show("OK");
                 UISync.Execute(() => btnGetStreamSize.Enabled = true);
             }
         }
@@ -1732,13 +1732,13 @@ namespace iSpyApplication
             if (lbONVIFDevices.SelectedIndex > -1)
             {
                 var dev = MainForm.ONVIFDevices[lbONVIFDevices.SelectedIndex];
-                var p = new Prompt("Network Address", dev.Uris[0].AbsoluteUri);
+                var p = new Prompt(LocRm.GetString("NetworkAddress"), dev.Uris[0].AbsoluteUri);
                 if (p.ShowDialog(this) == DialogResult.OK)
                 {
                     Uri u;
                     if (!Uri.TryCreate(p.Val, UriKind.Absolute, out u))
                     {
-                        MessageBox.Show(this, "Invalid Uri");
+                        MessageBox.Show(this, LocRm.GetString("InvalidURI"));
                         return;
                     }
                     dev.Uris = new[] {u};
@@ -1748,10 +1748,10 @@ namespace iSpyApplication
                     if (dev.Address == "")
                     {
                         dev.IsInvalidUris = true;
-                        dev.Address = "Invalid Uri";
+                        dev.Address = LocRm.GetString("InvalidURI");
                     }
                     dev.Name = u.AbsoluteUri;
-                    dev.Location = "Unknown";
+                    dev.Location = LocRm.GetString("Unknown");
                     dev.DeviceIconUri = null;
 
                     lbONVIFDevices.Refresh();
@@ -1762,13 +1762,13 @@ namespace iSpyApplication
 
         private void linkLabel8_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var p = new Prompt("Network Address", "http://192.168.0.1/onvif/device_service");
+            var p = new Prompt(LocRm.GetString("NetworkAddress"), "http://192.168.0.1/onvif/device_service");
             if (p.ShowDialog(this) == DialogResult.OK)
             {
                 Uri u;
                 if (!Uri.TryCreate(p.Val, UriKind.Absolute, out u))
                 {
-                    MessageBox.Show(this, "Invalid Uri");
+                    MessageBox.Show(this, LocRm.GetString("InvalidURI"));
                     return;
                 }
                 var devHolder = new DeviceDescriptionHolder { Uris = new[] { u }, Address = "" };
@@ -1777,10 +1777,10 @@ namespace iSpyApplication
                 if (devHolder.Address == "")
                 {
                     devHolder.IsInvalidUris = true;
-                    devHolder.Address = "Invalid Uri";
+                    devHolder.Address = LocRm.GetString("InvalidURI");
                 }
                 devHolder.Name = u.AbsoluteUri;
-                devHolder.Location = "Unknown";
+                devHolder.Location = LocRm.GetString("Unknown");
                 devHolder.DeviceIconUri = null;
 
                 MainForm.ONVIFDevices.Add(devHolder);

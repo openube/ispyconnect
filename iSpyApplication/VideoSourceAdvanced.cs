@@ -39,13 +39,28 @@ namespace iSpyApplication
         {
             label5.Text = LocRm.GetString("ResizeTo");
             label2.Text = LocRm.GetString("UserAgent");
-            label6.Text = LocRm.GetString("X");
+            label6.Text = "X";
             label4.Text = LocRm.GetString("Seconds");
             label3.Text = LocRm.GetString("ReconnectEvery");
+            label7.Text = LocRm.GetString("Headers");
+            LocRm.SetString(label1,"Cookies");
+            LocRm.SetString(label2, "UserAgent");
+            LocRm.SetString(lblTimeout, "TimeoutMS");
+
             chkFBA.Text = LocRm.GetString("ForceBasic");
+            chkHttp10.Text = LocRm.GetString("UseHTTP10");
             LocRm.SetString(label1, "Cookies");
             LocRm.SetString(chkNoResize, "NoResize");
             LocRm.SetString(chkCalibrate, "CalibrateOnReconnect");
+            Text = LocRm.GetString("Advanced");
+            tabPage1.Text = LocRm.GetString("Options");
+            tabPage2.Text = LocRm.GetString("FishEye Correction");
+            chkFishEyeActive.Text = LocRm.GetString("ApplyCorrection");
+            LocRm.SetString(label8, "FocalLength");
+            LocRm.SetString(label9, "Limit");
+            LocRm.SetString(label10, "ScaleSize");
+            LocRm.SetString(label11, "SettingsAppliedLive");
+
         }
 
         private void button1_Click(object sender, EventArgs e)

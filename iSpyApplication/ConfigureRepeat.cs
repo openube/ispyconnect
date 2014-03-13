@@ -18,6 +18,10 @@ namespace iSpyApplication
         {
             label48.Text = LocRm.GetString("Seconds");
             button1.Text = LocRm.GetString("OK");
+            label1.Text = LocRm.GetString("Every");
+            label2.Text = LocRm.GetString("Until");
+            Text = LocRm.GetString("Repeat");
+
         }
 
         private void ForSecondsLoad(object sender, EventArgs e)

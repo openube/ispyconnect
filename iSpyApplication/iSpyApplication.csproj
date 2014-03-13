@@ -315,6 +315,7 @@
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\streams\FFMPEGStream.cs" />
     <Compile Include="Audio\streams\GainHelper.cs" />
+    <Compile Include="Audio\talk\TalkLocal.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Audio\VolumeWaveProvider16.cs" />
     <Compile Include="Controls\ActionEditor.cs">
@@ -329,7 +330,8 @@
     <Compile Include="Controls\AlertEventRow.Designer.cs">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\Delegates.cs" />
+    <Compile Include="Controls\ISpyControl.cs" />
+    <Compile Include="Delegates.cs" />
     <Compile Include="Controls\DirectoryEventRow.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -401,12 +403,19 @@
     <Compile Include="GridView.Designer.cs">
       <DependentUpon>GridView.cs</DependentUpon>
     </Compile>
+    <Compile Include="GridViewManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridViewManager.Designer.cs">
+      <DependentUpon>GridViewManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="GridViewModeConfig.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GridViewModeConfig.Designer.cs">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="HttpRequest.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="MainForm_Configuration.cs">
       <SubType>Form</SubType>
@@ -615,12 +624,19 @@
     <Compile Include="PTZTool.Designer.cs">
       <DependentUpon>PTZTool.cs</DependentUpon>
     </Compile>
+    <Compile Include="RestartableStream.cs" />
     <Compile Include="SerializableFont.cs" />
     <Compile Include="ShareCamera.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ShareCamera.Designer.cs">
       <DependentUpon>ShareCamera.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SSLConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SSLConfig.Designer.cs">
+      <DependentUpon>SSLConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="VideoSourceAdvanced.cs">
       <SubType>Form</SubType>
@@ -764,7 +780,8 @@
     <Compile Include="RemoteCommands.Designer.cs">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
     </Compile>
-    <Compile Include="Translations.cs" />
+    <Compile Include="X509.cs" />
+    <Compile Include="XML\Translations.cs" />
     <Compile Include="upnp.cs" />
     <Compile Include="VideoSource.cs">
       <SubType>Form</SubType>
@@ -789,6 +806,12 @@
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="VirtualDeviceManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VirtualDeviceManager.Designer.cs">
+      <DependentUpon>VirtualDeviceManager.cs</DependentUpon>
     </Compile>
     <Compile Include="Vision\CustomFrameColorDifferenceDetector.cs" />
     <Compile Include="Vision\SimpleColorBackgroundModelingDetector.cs" />
@@ -864,6 +887,12 @@
     <Content Include="Onvif\utils.fsharp.dll" />
     <None Include="Resources\audio.jpg" />
     <None Include="Resources\ispy1audio.png" />
+    <None Include="Resources\cam_connecting_large.jpg" />
+    <None Include="Resources\cam_offline_large.jpg" />
+    <None Include="Resources\connecting.png" />
+    <None Include="Resources\icons.png" />
+    <None Include="Resources\icons.fw.png" />
+    <None Include="Resources\icons_big.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.mp3" />
     <Content Include="sounds\alsation_bark.wav" />
@@ -1046,6 +1075,9 @@
     <EmbeddedResource Include="GridViewCustom.resx">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="GridViewManager.resx">
+      <DependentUpon>GridViewManager.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GridViewModeConfig.resx">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </EmbeddedResource>
@@ -1128,6 +1160,9 @@
     <EmbeddedResource Include="ShareCamera.resx">
       <DependentUpon>ShareCamera.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="SSLConfig.resx">
+      <DependentUpon>SSLConfig.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="VideoSourceAdvanced.resx">
       <DependentUpon>VideoSourceAdvanced.cs</DependentUpon>
     </EmbeddedResource>
@@ -1185,6 +1220,9 @@
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="VirtualDeviceManager.resx">
+      <DependentUpon>VirtualDeviceManager.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Webservices.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Webservices.cs</DependentUpon>
@@ -1221,6 +1259,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="XML\Sources.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="XML\Translations.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -1364,6 +1405,15 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <COMReference Include="CERTENROLLLib">
+      <Guid>{728AB348-217D-11DA-B2A4-000E7BBB2B09}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
     <COMReference Include="NATUPNPLib">
       <Guid>{1C565858-F302-471E-B409-F180AA4ABEC6}</Guid>
       <VersionMajor>1</VersionMajor>
@@ -1398,7 +1448,7 @@
       <Name>Video.DirectShow</Name>
     </ProjectReference>
     <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
-      <Project>{ff31dd24-127d-4eb1-929c-f5738147e886}</Project>
+      <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
       <Name>Video.FFMPEG</Name>
     </ProjectReference>
   </ItemGroup>
@@ -1407,6 +1457,7 @@
     <PreBuildEvent>xcopy "d:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(ProjectDir)" /Y</PreBuildEvent>
     <PostBuildEvent>call "$(SolutionDir)signing\iSpyApplication.bat"
 xcopy "$(ProjectDir)\platform\x86\*.*" "$(TargetDir)" /Y
-xcopy "d:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(TargetDir)" /Y</PostBuildEvent>
+xcopy "d:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(TargetDir)" /Y
+xcopy "d:\Projects\iSpy\ispyapplication\xml\translations.xml" "C:\Users\sean\AppData\Roaming\iSpy\XML" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

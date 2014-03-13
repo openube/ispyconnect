@@ -24,6 +24,11 @@ namespace iSpyApplication
             Text = LocRm.GetString("Configure");
             label1.Text = LocRm.GetString("Location");
             label3.Text = LocRm.GetString("Offset");
+            label7.Text = LocRm.GetString("Font");
+            label2.Text = LocRm.GetString("ForeColor");
+            label6.Text = LocRm.GetString("BackColor");
+            chkTimestampBack.Text = LocRm.GetString("ShowBackground");
+
             button1.Text = LocRm.GetString("OK");
         }
 

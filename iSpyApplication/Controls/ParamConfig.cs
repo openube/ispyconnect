@@ -16,6 +16,8 @@ namespace iSpyApplication.Controls
         public ParamConfig()
         {
             InitializeComponent();
+            button1.Text = LocRm.GetString("OK");
+
         }
 
         private void ParamConfigcs_Load(object sender, EventArgs e)

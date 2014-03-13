@@ -10,10 +10,11 @@ using PictureBox = AForge.Controls.PictureBox;
 
 namespace iSpyApplication.Controls
 {
-    public sealed partial class FloorPlanControl : PictureBox
+    public sealed partial class FloorPlanControl : PictureBox, ISpyControl
     {
         #region Public
 
+        public MainForm MainClass;
         public bool NeedSizeUpdate;
         public bool ResizeParent;
         public objectsFloorplan Fpobject;
@@ -40,7 +41,23 @@ namespace iSpyApplication.Controls
 
         private readonly Font _drawFont = new Font(FontFamily.GenericSansSerif, 9);
 
+        private const int ButtonCount = 2;
+        private Rectangle ButtonPanel
+        {
+            get
+            {
+                int w = ButtonCount * 22 + 3;
+                int h = 28;
+                if (MainForm.Conf.BigButtons)
+                {
+                    w = ButtonCount * 31 + 3;
+                    h = 34;
 
+                }
+                return new Rectangle(Width / 2 - w / 2, Height - 25 - h, w, h);
+
+            }
+        }
 
         public Bitmap ImgPlan
         {
@@ -77,31 +94,12 @@ namespace iSpyApplication.Controls
              }  
         }
 
-        public MainForm Owner;
         public bool NeedsRefresh = true, RefreshImage = true;
 
 
         #endregion
         private DateTime _mouseMove = DateTime.MinValue;
         private Bitmap _imgplan, _imgview;
-        private const int ButtonOffset = 4, ButtonCount = 2;
-
-        private static int ButtonWidth
-        {
-            get { return MainForm.ButtonWidth; }
-        }
-        private static int ButtonPanelWidth
-        {
-            get
-            {
-                return ((ButtonWidth + ButtonOffset) * ButtonCount + ButtonOffset);
-            }
-        }
-        private static int ButtonPanelHeight
-        {
-            get { return (ButtonWidth + ButtonOffset * 2); }
-        }
-
         #region SizingControls
 
         public void UpdatePosition()
@@ -178,27 +176,24 @@ namespace iSpyApplication.Controls
                 {
                     if (MainForm.Conf.ShowOverlayControls)
                     {
-                        int leftpoint = Width / 2 - ButtonPanelWidth / 2;
-                        int ypoint = Height - 24 - ButtonPanelHeight;
-                        if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
-                            e.Location.Y > ypoint && e.Location.Y < ypoint + ButtonPanelHeight)
+                        int bpi = GetButtonIndexByLocation(e.Location);
+                        switch (bpi)
                         {
-                            int x = e.Location.X - leftpoint;
-                            if (x < ButtonWidth + ButtonOffset)
-                            {
-                                //settings
-                                if (TopLevelControl != null)
-                                    ((MainForm)TopLevelControl).EditFloorplan(Fpobject);
-                            }
-                            else
-                            {
-                                string url = MainForm.Webserver + "/watch_new.aspx";// "?tab=2";
-                                if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                            case 0:
+                               MainClass.EditFloorplan(Fpobject);
+                                break;
+                            case 1:
+                                if (Helper.HasFeature(Enums.Features.Access_Media))
                                 {
-                                    MainForm.OpenUrl(url);
+                                    string url = MainForm.Webserver + "/watch_new.aspx";
+                                    if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
+                                    {
+                                        MainForm.OpenUrl(url);
+                                    }
+                                    else
+                                        MainClass.Connect(url, false);
                                 }
-                                else if (TopLevelControl != null) ((MainForm)TopLevelControl).Connect(url, false);
-                            }
+                                break;
                         }
                     }
                 }
@@ -250,39 +245,25 @@ namespace iSpyApplication.Controls
 
                     if (MainForm.Conf.ShowOverlayControls)
                     {
-                        int leftpoint = Width / 2 - ButtonPanelWidth / 2;
-                        int ypoint = Height - 24 - ButtonPanelHeight;
-                        var toolTipLocation = new Point(e.Location.X, ypoint + ButtonPanelHeight + 1);
-                        if (e.Location.X > leftpoint && e.Location.X < leftpoint + ButtonPanelWidth &&
-                            e.Location.Y > ypoint && e.Location.Y < ypoint + ButtonPanelHeight)
+                        var rBp = ButtonPanel;
+                        var toolTipLocation = new Point(e.Location.X, rBp.Y + rBp.Height + 1);
+                        int bpi = GetButtonIndexByLocation(e.Location);
+                        if (_ttind != bpi)
                         {
-                            int x = e.Location.X - leftpoint;
-                            if (x < ButtonWidth + ButtonOffset)
+                            switch (bpi)
                             {
-                                //power
-                                if (_ttind != 0)
-                                {
-                                    _toolTipFp.Show(LocRm.GetString("Edit"), this, toolTipLocation, 1000);
+                                case 0:
+                                    _toolTipFp.Show(LocRm.GetString("Edit"), this,toolTipLocation, 1000);
                                     _ttind = 0;
-                                }
-                            }
-                            else
-                            {
-                                if (x < (ButtonWidth + ButtonOffset) * 2)
-                                {
-                                    //record
-                                    if (_ttind != 1)
+                                    break;
+                                case 1:
+                                    if (Helper.HasFeature(Enums.Features.Access_Media))
                                     {
                                         _toolTipFp.Show(LocRm.GetString("MediaoverTheWeb"), this, toolTipLocation, 1000);
                                         _ttind = 1;
                                     }
-                                }
+                                    break;
                             }
-                        }
-                        else
-                        {
-                            _toolTipFp.Hide(this);
-                            _ttind = -1;
                         }
                     }
                     break;
@@ -339,9 +320,9 @@ namespace iSpyApplication.Controls
         
         #endregion
 
-        public FloorPlanControl(objectsFloorplan ofp, MainForm owner)
+        public FloorPlanControl(objectsFloorplan ofp, MainForm mainForm)
         {
-            Owner = owner;
+            MainClass = mainForm;
             InitializeComponent();
 
             SetStyle(
@@ -381,7 +362,7 @@ namespace iSpyApplication.Controls
                         switch (fpoe.type)
                         {
                             case "camera":
-                                CameraWindow cw = Owner.GetCameraWindow(fpoe.id);
+                                CameraWindow cw = MainClass.GetCameraWindow(fpoe.id);
                                 if (cw != null)
                                 {
                                     //cw.Location = new Point(Location.X + e.X, Location.Y + e.Y);
@@ -392,7 +373,7 @@ namespace iSpyApplication.Controls
                                 changeHighlight = false;
                                 break;
                             case "microphone":
-                                VolumeLevel vl = Owner.GetVolumeLevel(fpoe.id);
+                                VolumeLevel vl = MainClass.GetVolumeLevel(fpoe.id);
                                 if (vl != null)
                                 {
                                     //vl.Location = new Point(Location.X + e.X, Location.Y + e.Y);
@@ -411,7 +392,7 @@ namespace iSpyApplication.Controls
             if (changeHighlight)
             {
                 bool hl = Highlighted;
-                Owner.ClearHighlights();
+                MainClass.ClearHighlights();
 
                 Highlighted = !hl;
             }
@@ -422,12 +403,12 @@ namespace iSpyApplication.Controls
                     switch (fpoe.type)
                     {
                         case "camera":
-                            CameraWindow cw = Owner.GetCameraWindow(fpoe.id);
+                            CameraWindow cw = MainClass.GetCameraWindow(fpoe.id);
                             if (cw!=null)
                                 cw.Highlighted = true;
                             break;
                         case "microphone":
-                            VolumeLevel vl = Owner.GetVolumeLevel(fpoe.id);
+                            VolumeLevel vl = MainClass.GetVolumeLevel(fpoe.id);
                             if (vl!=null)
                                 vl.Highlighted = true;
 
@@ -436,7 +417,7 @@ namespace iSpyApplication.Controls
                 }
             }
 
-            Owner.Invalidate(true);
+            MainClass.Invalidate(true);
         }
 
         protected override void OnLostFocus(EventArgs e)
@@ -479,14 +460,8 @@ namespace iSpyApplication.Controls
         protected override void OnPaint(PaintEventArgs pe)
         {
             Graphics gPlan = pe.Graphics;
-
             Rectangle rc = ClientRectangle;
-
-            var grabPoints = new[]
-                                    {
-                                        new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
-                                        new Point(rc.Width, rc.Height)
-                                    };
+           
             int textpos = rc.Height - 20;
 
             var grabBrush = new SolidBrush(BorderColor);
@@ -517,25 +492,83 @@ namespace iSpyApplication.Controls
 
             if (_mouseMove > Helper.Now.AddSeconds(-3) && MainForm.Conf.ShowOverlayControls)
             {
-                int leftpoint = Width/2 - ButtonPanelWidth/2;
-                int ypoint = Height - 24 - ButtonPanelHeight;
-
-                gPlan.FillRectangle(_sbTs, leftpoint, ypoint, ButtonPanelWidth, ButtonPanelHeight);
-
-                gPlan.DrawString("E", MainForm.Iconfont, MainForm.IconBrush, leftpoint + ButtonOffset,
-                                 ypoint + ButtonOffset);
-                gPlan.DrawString("C", MainForm.Iconfont, MainForm.IconBrush, leftpoint + (ButtonOffset*2) + ButtonWidth,
-                                 ypoint + ButtonOffset);
-
+                DrawOverlay(gPlan);
             }
 
             gPlan.DrawRectangle(borderPen, 0, 0, rc.Width - 1, rc.Height - 1);
-            gPlan.FillPolygon(grabBrush, grabPoints);
+            var borderPoints = new[]
+                {
+                    new Point(rc.Width - 15, rc.Height), new Point(rc.Width, rc.Height - 15),
+                    new Point(rc.Width, rc.Height)
+                };
+            gPlan.FillPolygon(grabBrush, borderPoints);
             grabBrush.Dispose();  
             borderPen.Dispose();
 
             base.OnPaint(pe);
         }
+
+        private int GetButtonIndexByLocation(Point xy)
+        {
+            var rBp = ButtonPanel;
+            if (xy.X >= rBp.X && xy.Y > rBp.Y - 25 && xy.X <= rBp.X + rBp.Width && xy.Y <= rBp.Y + rBp.Height)
+            {
+                if (xy.Y < rBp.Y)
+                    return -1;//seek
+
+                if (xy.Y > 25)
+                {
+                    double x = xy.X - rBp.X;
+                    return Convert.ToInt32(Math.Ceiling((x / rBp.Width) * ButtonCount)) - 1;
+                }
+            }
+            return -999;//nothing
+        }
+
+        private Rectangle GetButtonByIndex(int buttonIndex, out Rectangle destRect)
+        {
+            Rectangle rSrc = Rectangle.Empty;
+            switch (buttonIndex)
+            {
+                case 0://edit
+                    rSrc = MainForm.REdit;
+                    break;
+                case 1://web
+                    if (Helper.HasFeature(Enums.Features.Access_Media))
+                        rSrc = MainForm.RCloud;
+                    else
+                        rSrc = MainForm.RCloudOff;
+                    break;
+            }
+
+            if (MainForm.Conf.BigButtons)
+            {
+                rSrc.X -= 2;
+                rSrc.Width += 8;
+                rSrc.Height += 8;
+            }
+
+            destRect = new Rectangle(ButtonPanel.X + buttonIndex * (rSrc.Width + 5) + 5, Height - 25 - rSrc.Height - 6, rSrc.Width, rSrc.Height);
+            return rSrc;
+        }
+
+
+        private void DrawButton(Graphics gCam, int buttonIndex)
+        {
+            Rectangle rDest;
+            Rectangle rSrc = GetButtonByIndex(buttonIndex, out rDest);
+
+            gCam.DrawImage(MainForm.Conf.BigButtons ? Properties.Resources.icons_big : Properties.Resources.icons, rDest, rSrc, GraphicsUnit.Pixel);
+        }
+
+        private void DrawOverlay(Graphics gCam)
+        {
+            var rPanel = ButtonPanel;
+            gCam.FillRectangle(MainForm.OverlayBackgroundBrush, rPanel);
+            for (int i = 0; i < ButtonCount; i++)
+                DrawButton(gCam, i);
+        }
+
 
         public int ImageWidth
         {
@@ -596,7 +629,7 @@ namespace iSpyApplication.Controls
                         if (!Fpobject.originalsize)
                         {
                             var rf = new ResizeBilinear(533, 400);
-                            _imgplan = rf.Apply((Bitmap)img);
+                            _imgplan = rf.Apply(img);
                             _imgview = (Bitmap)_imgplan.Clone();
                         }
                         else
@@ -635,7 +668,7 @@ namespace iSpyApplication.Controls
                         {
                             case "camera":
                                 {
-                                    var cw = Owner.GetCameraWindow(fpoe.id);
+                                    var cw = MainClass.GetCameraWindow(fpoe.id);
                                     if (cw != null)
                                     {
                                         double drad = (fpoe.angle - 180) * Math.PI / 180;
@@ -679,7 +712,7 @@ namespace iSpyApplication.Controls
                                 break;
                             case "microphone":
                                 {
-                                    var vw = Owner.GetVolumeLevel(fpoe.id);
+                                    var vw = MainClass.GetVolumeLevel(fpoe.id);
                                     if (vw != null)
                                     {
                                         if (vw.Micobject.settings.active && !vw.AudioSourceErrorState)
@@ -735,5 +768,64 @@ namespace iSpyApplication.Controls
         }
 
         #endregion
+
+        public bool IsEnabled { get; private set; }
+        public bool Talking { get; set; }
+        public bool Listening { get; private set; }
+        public bool Recording { get; private set; }
+
+        public bool CanTalk
+        {
+            get { return false; }
+        }
+
+        public bool CanListen
+        {
+            get { return false; }
+        }
+
+        public bool CanRecord
+        {
+            get { return false; }
+        }
+
+        public bool CanEnable
+        {
+            get { return false; }
+        }
+
+        public bool CanGrab { get { return false; }}
+        public bool HasFiles { get { return false; } }
+        public void Disable(bool stopSource = true)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void Enable()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public string RecordSwitch(bool record)
+        {
+            //throw new NotImplementedException();
+            return "";
+        }
+
+        public void Talk(IWin32Window f = null)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void Listen()
+        {
+            //throw new NotImplementedException();
+        }
+
+        public string SaveFrame(Bitmap bmp = null)
+        {
+            //throw new NotImplementedException();
+            return "";
+        }
     }
 }

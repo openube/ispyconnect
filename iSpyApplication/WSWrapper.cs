@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Net.Sockets;
 using System.Windows.Forms;
 using Google.GData.Extensions;
 using iSpyApplication.iSpyWS;
@@ -413,9 +414,9 @@ namespace iSpyApplication
 
                 try
                 {
-                    r = Wsa.Connect(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
+                    r = Wsa.Connect2(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
                                       MainForm.Identifier, tryLoopback, Application.ProductVersion,
-                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.AFFILIATEID);
+                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.AFFILIATEID, X509.SslEnabled);
                     if (r == "OK" && tryLoopback)
                     {
                         MainForm.LoopBack = true;
@@ -454,7 +455,7 @@ namespace iSpyApplication
 
             try
             {
-                r = Wsa.TestConnection(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal);
+                r = Wsa.TestConnection2(username, password, port, MainForm.Identifier, tryLoopback, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, X509.SslEnabled);
                 WebsiteLive = true;
             }
             catch (Exception ex)
@@ -477,6 +478,7 @@ namespace iSpyApplication
                 }
                 return r;
             }
+            
             return new[] { LocRm.GetString("iSpyDown") };
         }
     }

@@ -11,6 +11,7 @@ using Declarations.Media;
 using Declarations.Players;
 using Implementation;
 using iSpyApplication.Controls;
+using onvif.services;
 
 namespace iSpyApplication
 {
@@ -34,6 +35,12 @@ namespace iSpyApplication
         {
             openFolderToolStripMenuItem.Text = LocRm.GetString("OpenLocalFolder");
             saveAsToolStripMenuItem.Text = LocRm.GetString("SaveAs");
+            chkRepeatAll.Text = LocRm.GetString("PlayAll");
+            Text = LocRm.GetString("VideoPlayback");
+            fileToolStripMenuItem.Text = LocRm.GetString("File");
+            saveAsToolStripMenuItem.Text = LocRm.GetString("SaveAs");
+            openFolderToolStripMenuItem.Text = LocRm.GetString("OpenLocation");
+
         }
 
          public PlayerVLC(string titleText, MainForm mf)
@@ -93,7 +100,7 @@ namespace iSpyApplication
             {
                 if (!File.Exists(filename))
                 {
-                    MessageBox.Show(this, "File could not be found:\n" + filename);
+                    MessageBox.Show(this, LocRm.GetString("FileNotFound")+Environment.NewLine + filename);
                     return;
                 }
                 _needsSize = _filename != filename;
@@ -113,7 +120,7 @@ namespace iSpyApplication
                     catch (Exception ex)
                     {
                         MainForm.LogExceptionToFile(ex);
-                        MessageBox.Show(this, "Could not open this file:\n" + filename);
+                        MessageBox.Show(this, LocRm.GetString("CouldNotOpen")+Environment.NewLine + filename);
                         return;
                     }
 
@@ -202,16 +209,16 @@ namespace iSpyApplication
             switch (e.NewState)
             {
                 case MediaState.Playing:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString("||"));
+                    UISync.Execute(() => btnPlayPause.Text = "||");
                     break;
                 case MediaState.Ended:
                     if (chkRepeatAll.Checked)
                         Go(1);
 
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString(">"));
+                    UISync.Execute(() => btnPlayPause.Text = ">");
                     break;
                 default:
-                    UISync.Execute(() => btnPlayPause.Text = LocRm.GetString(">"));
+                    UISync.Execute(() => btnPlayPause.Text = ">");
                     break;
             }
         }

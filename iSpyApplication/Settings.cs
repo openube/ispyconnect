@@ -22,7 +22,12 @@ namespace iSpyApplication
         public static readonly string[] StartupModes = 
             {
                 "Normal","Minimised","Maximised","FullScreen"
-            };  
+            };
+
+        public static readonly string[] Priorities =
+        {
+            "Normal","AboveNormal","High","RealTime"
+        };
         private const int Rgbmax = 255;
         private JoystickDevice _jst;
         public int InitialTab;
@@ -54,13 +59,13 @@ namespace iSpyApplication
             }
             if (password != MainForm.Conf.Password_Protect_Password)
             {
-                var p = new Prompt("Confirm Password", "", true);
+                var p = new Prompt(LocRm.GetString("ConfirmPassword"), "", true);
                 if (p.ShowDialog(this) == DialogResult.OK)
                 {
                     var v = p.Val;
                     if (v != txtPassword.Text)
                     {
-                        MessageBox.Show(this, "Password mismatch. Please try again or clear the password.");
+                        MessageBox.Show(this, LocRm.GetString("PasswordMismatch"));
                         tcTabs.SelectedIndex = 0;
                         p.Dispose();
                         return;
@@ -321,6 +326,7 @@ namespace iSpyApplication
 
             mediaDirectoryEditor1.Init(MainForm.Conf.MediaDirectories);
             
+            
 
             btnDetectColor.BackColor = MainForm.Conf.ActivityColor.ToColor();
             btnNoDetectColor.BackColor = MainForm.Conf.NoActivityColor.ToColor();
@@ -373,7 +379,6 @@ namespace iSpyApplication
             ddlLanguage.SelectedIndex = selind;
             chkAlertWindows.Checked = MainForm.Conf.CreateAlertWindows;
             chkOverlay.Checked = MainForm.Conf.ShowOverlayControls;
-            ddlPriority.SelectedIndex = MainForm.Conf.Priority - 1;
             chkInterrupt.Checked = MainForm.Conf.ScreensaverWakeup;
             chkEnableIPv6.Checked = !MainForm.Conf.IPv6Disabled;
             chkRecycle.Checked = MainForm.Conf.DeleteToRecycleBin;
@@ -383,6 +388,8 @@ namespace iSpyApplication
             txtAlertOnDisconnect.Text = MainForm.Conf.AlertOnDisconnect;
             txtAlertOnReconnect.Text = MainForm.Conf.AlertOnReconnect;
             txtArchive.Text = MainForm.Conf.Archive;
+            SetSSLText();
+            
 
             txtAlertSubject.Text = MainForm.Conf.MailAlertSubject;
             txtAlertBody.Text = MainForm.Conf.MailAlertBody;
@@ -393,12 +400,18 @@ namespace iSpyApplication
                 ddlStartupMode.Items.Add(LocRm.GetString(s));
             }
 
+            foreach (string s in Priorities)
+            {
+                ddlPriority.Items.Add(LocRm.GetString(s));
+            }
             ddlStartupMode.SelectedIndex = MainForm.Conf.StartupMode;
 
             foreach(var grid in MainForm.Conf.GridViews)
             {
                 ddlStartUpForm.Items.Add(grid.name);
             }
+
+            ddlPriority.SelectedIndex = MainForm.Conf.Priority - 1;
 
             ddlStartUpForm.SelectedItem = MainForm.Conf.StartupForm;
             if (ddlStartUpForm.SelectedItem==null)
@@ -567,10 +580,10 @@ namespace iSpyApplication
             label20.Text = LocRm.GetString("additionalControlsForYout");
             label21.Text = LocRm.GetString("TrayIconText");
             label3.Text = LocRm.GetString("MediaDirectory");
-            label4.Text = LocRm.GetString("ms");
+            label4.Text = "ms";
             label5.Text = LocRm.GetString("YoutubeUsername");
             label6.Text = LocRm.GetString("YoutubePassword");
-            label7.Text = LocRm.GetString("ms");
+            label7.Text = "ms";
             label8.Text = LocRm.GetString("MjpegReceiveTimeout");
             
             label18.Text = LocRm.GetString("MaxRecordingThreads");
@@ -592,8 +605,14 @@ namespace iSpyApplication
             label23.Text = LocRm.GetString("JPEGQuality");
             llblHelp.Text = LocRm.GetString("help");
             label17.Text = LocRm.GetString("IPAccessExplainer");
-            
+            chkMonitor.Text = LocRm.GetString("RestartIfCrashed");
+            chkGZip.Text = LocRm.GetString("Enable GZip");
+            chkPasswordProtectSettings.Text = LocRm.GetString("PasswordProtectSettings");
+            label40.Text = LocRm.GetString("FeatureSet");
             label24.Text = LocRm.GetString("MediaPanelItems");
+            label11.Text = LocRm.GetString("ArchiveDirectory");
+            label48.Text = LocRm.GetString("DisconnectionNotificationDelay");
+            label41.Text = LocRm.GetString("MJPEGFrameInterval");
 
             LocRm.SetString(lblMicrophone, "Microphone");
             LocRm.SetString(chkBigButtons, "BigButtons");
@@ -628,8 +647,34 @@ namespace iSpyApplication
             LocRm.SetString(label39, "StartupForm");
             LocRm.SetString(chkMinimiseToTray, "MinimiseToTray");
 
+            LocRm.SetString(label56, "EmailNotifications");
+            LocRm.SetString(label50, "EmailSubject");
+            LocRm.SetString(label51, "EmailBody");
+            LocRm.SetString(label19, "AppendLinkText");
+            LocRm.SetString(label57, "SMSNotifications");
+            LocRm.SetString(label54, "Message");
+            LocRm.SetString(linkLabel5, "Reset");
 
+            chkUseiSpy.Text = LocRm.GetString("UseISpyServers");
+            label52.Text = LocRm.GetString("FromAddress");
+            label58.Text = LocRm.GetString("Username");
 
+            LocRm.SetString(label59, "Password");
+            LocRm.SetString(label53, "Server");
+            LocRm.SetString(label61, "Port");
+            LocRm.SetString(chkSMTPUseSSL, "UseSSL");
+            LocRm.SetString(btnTestSMTP, "Test");
+            LocRm.SetString(label43, "WhenDisconnectedFromWebServices");
+            LocRm.SetString(label45,"Execute");
+            LocRm.SetString(label46, "Execute");
+            LocRm.SetString(label44, "WhenReconnectedToWebServices");
+            LocRm.SetString(label10, "Plugins");
+            LocRm.SetString(linkLabel3, "DownloadPlugins");
+            LocRm.SetString(linkLabel4, "RefreshList");
+            tabPage10.Text = LocRm.GetString("ConnectionAlerts");
+            tabPage11.Text = LocRm.GetString("Plugins");
+            label9.Text = LocRm.GetString("MaximseAndRestore");
+            label60.Text = LocRm.GetString("SSLCertificate");
             //future
             chkSpeechRecognition.Visible = false;
         }
@@ -779,7 +824,7 @@ namespace iSpyApplication
         {
             var d = new downloader
             {
-                Url = MainForm.Website + "/getcontent.aspx?name=translations",
+                Url = MainForm.Website + "/getcontent.aspx?name=translations2&encoding=unicode",
                 SaveLocation = Program.AppDataPath + @"XML\Translations.xml"
             };
             d.ShowDialog(this);
@@ -865,19 +910,14 @@ namespace iSpyApplication
             }
             catch(InvalidCredentialsException)
             {
-                MessageBox.Show(this, "Login Failed");
+                MessageBox.Show(this, LocRm.GetString("LoginFailed"));
             }
             catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
             if (token != "")
-                MessageBox.Show(this, "Login OK");
-
-        }
-
-        private void chkStopRecording_CheckedChanged(object sender, EventArgs e)
-        {
+                MessageBox.Show(this, LocRm.GetString("LoginSuccess"));
 
         }
 
@@ -1138,7 +1178,7 @@ namespace iSpyApplication
         {
             if (_loaded && chkEnableIPv6.Checked)
             {
-                MessageBox.Show(this, "IPv6 support can cause problems on some systems. Please disable IPv6 if you experience issues.", "Warning");
+                MessageBox.Show(this, LocRm.GetString("IPv6Issues"), LocRm.GetString("Warning"));
             }
         }
 
@@ -1217,16 +1257,17 @@ namespace iSpyApplication
         private void btnTestSMTP_Click(object sender, EventArgs e)
         {
             SaveSMTPSettings();
-             var p = new Prompt("Test Mail To", MainForm.Conf.SMTPFromAddress);
+             var p = new Prompt(LocRm.GetString("TestMailTo"), MainForm.Conf.SMTPFromAddress);
             if (p.ShowDialog(this) == DialogResult.OK)
             {
-                if (Mailer.Send(p.Val, "test", "This is a test message from ispy"))
+                if (Mailer.Send(p.Val, LocRm.GetString("test"), 
+                    LocRm.GetString("ISpyMessageTest")))
                 {
-                    MessageBox.Show(this, "Message Sent!");
+                    MessageBox.Show(this, LocRm.GetString("MessageSent"));
                 }
                 else
                 {
-                    MessageBox.Show(this, "Failed - check log file");
+                    MessageBox.Show(this, LocRm.GetString("FailedCheckLog"));
                 }
             }
         }
@@ -1247,6 +1288,31 @@ namespace iSpyApplication
         private void chkPasswordProtectSettings_CheckedChanged(object sender, EventArgs e)
         {
             
+
+        }
+
+        private void btnCert_Click(object sender, EventArgs e)
+        {
+            var c = MainForm.Conf.SSLEnabled;
+            var ssl = new SSLConfig();
+            ssl.ShowDialog(this);
+            ssl.Dispose();
+            SetSSLText();
+            if (MainForm.Conf.SSLEnabled != c)
+            {
+                MainClass.ConnectServices(false);
+
+            }
+            
+        }
+
+        private void SetSSLText()
+        {
+            lblSSLCert.Text = LocRm.GetString("Off");
+            if (MainForm.Conf.SSLEnabled)
+            {
+                lblSSLCert.Text = MainForm.Conf.SSLCertificate;
+            }
 
         }
     }

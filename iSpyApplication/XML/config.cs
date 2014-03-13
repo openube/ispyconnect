@@ -272,6 +272,18 @@ public partial class configuration {
     
     private bool firstRunField;
     
+    private string deviceDriverDefaultField;
+    
+    private string sSLCertificateField;
+    
+    private bool sSLClientRequiredField;
+    
+    private bool sSLIgnoreErrorsField;
+    
+    private bool sSLCheckRevocationField;
+    
+    private bool sSLEnabledField;
+    
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
@@ -332,6 +344,12 @@ public partial class configuration {
         this.defaultRecordOnAlertField = false;
         this.defaultRecordOnDetectField = true;
         this.firstRunField = true;
+        this.deviceDriverDefaultField = "";
+        this.sSLCertificateField = "";
+        this.sSLClientRequiredField = false;
+        this.sSLIgnoreErrorsField = true;
+        this.sSLCheckRevocationField = true;
+        this.sSLEnabledField = false;
     }
     
     /// <remarks/>
@@ -1575,6 +1593,66 @@ public partial class configuration {
     }
     
     /// <remarks/>
+    public string DeviceDriverDefault {
+        get {
+            return this.deviceDriverDefaultField;
+        }
+        set {
+            this.deviceDriverDefaultField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string SSLCertificate {
+        get {
+            return this.sSLCertificateField;
+        }
+        set {
+            this.sSLCertificateField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool SSLClientRequired {
+        get {
+            return this.sSLClientRequiredField;
+        }
+        set {
+            this.sSLClientRequiredField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool SSLIgnoreErrors {
+        get {
+            return this.sSLIgnoreErrorsField;
+        }
+        set {
+            this.sSLIgnoreErrorsField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool SSLCheckRevocation {
+        get {
+            return this.sSLCheckRevocationField;
+        }
+        set {
+            this.sSLCheckRevocationField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool SSLEnabled {
+        get {
+            return this.sSLEnabledField;
+        }
+        set {
+            this.sSLEnabledField = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("Grid", IsNullable=false)]
     public configurationGrid[] GridViews {
         get {
@@ -2195,6 +2273,8 @@ public partial class configurationDirectory {
     
     private int idField;
     
+    private bool archiveField;
+    
     public configurationDirectory() {
         this.entryField = "NotSet";
         this.enable_Storage_ManagementField = false;
@@ -2203,6 +2283,7 @@ public partial class configurationDirectory {
         this.maxMediaFolderSizeMBField = 200;
         this.deleteFilesOlderThanDaysField = 0;
         this.idField = 0;
+        this.archiveField = false;
     }
     
     /// <remarks/>
@@ -2286,6 +2367,18 @@ public partial class configurationDirectory {
         }
         set {
             this.idField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(false)]
+    public bool archive {
+        get {
+            return this.archiveField;
+        }
+        set {
+            this.archiveField = value;
         }
     }
 }

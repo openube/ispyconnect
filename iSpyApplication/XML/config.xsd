@@ -127,6 +127,12 @@
         <xs:element name="DefaultRecordOnAlert" type="xs:boolean" default="false"/>
         <xs:element name="DefaultRecordOnDetect" type="xs:boolean" default="true"/>
         <xs:element name="FirstRun" type="xs:boolean" default="true"/>
+        <xs:element name="DeviceDriverDefault" type="xs:string" default=""/>
+        <xs:element name="SSLCertificate" type="xs:string" default=""/>
+        <xs:element name="SSLClientRequired" type="xs:boolean" default="false"/>
+        <xs:element name="SSLIgnoreErrors" type="xs:boolean" default="true"/>
+        <xs:element name="SSLCheckRevocation" type="xs:boolean" default="true"/>
+        <xs:element name="SSLEnabled" type="xs:boolean" default="false"/>
         <xs:element name="GridViews">
           <xs:complexType>
             <xs:sequence>
@@ -199,6 +205,7 @@
                   <xs:attribute name="MaxMediaFolderSizeMB" type="xs:int" default="200" />
                   <xs:attribute name="DeleteFilesOlderThanDays" type="xs:int" default="0"/>
                   <xs:attribute name="ID" type="xs:int" default="0"/>
+                  <xs:attribute name="archive" type="xs:boolean" default="false" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>

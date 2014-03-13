@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -23,6 +19,7 @@ namespace iSpyApplication
         {
             _btnOk.Text = LocRm.GetString("Ok");
             chkShowGettingStarted.Text = LocRm.GetString("ShowGettingStarted");
+            Text = LocRm.GetString("GettingStarted");
         }
 
         private void GettingStarted_Load(object sender, EventArgs e)

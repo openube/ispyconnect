@@ -15,8 +15,18 @@ namespace iSpyApplication.Controls
         public Filter()
         {
             InitializeComponent();
-            
 
+
+            RenderResources();
+        }
+
+        private void RenderResources()
+        {
+            Text = LocRm.GetString("Filter");
+            button1.Text = LocRm.GetString("OK");
+            label1.Text = LocRm.GetString("Objects");
+            label2.Text = LocRm.GetString("From");
+            label3.Text = LocRm.GetString("To");
         }
 
         private void button1_Click(object sender, EventArgs e)

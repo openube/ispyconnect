@@ -13,18 +13,18 @@ namespace iSpyApplication.Controls
 
         public string[] Actions =
             {
-                "Exe|Execute File",
-                "URL|Call URL",
-                "NM|Network Message",
-                "S|Play Sound",
-                "SW|Show Window",
+                "Exe|ExecuteFile",
+                "URL|CallURL",
+                "NM|NetworkMessage",
+                "S|PlaySound",
+                "SW|ShowWindow",
                 "B|Beep",
                 "M|Maximise",
-                "SOO|Switch Object On...",
-                "TA|Trigger Alert On...",
-                "E|Send Email [1]",
-                "SMS|Send SMS [SUBSCRIBER]",
-                "TM|Send Twitter Message [SUBSCRIBER]"
+                "SOO|SwitchObjectOn",
+                "TA|TriggerAlertOn",
+                "E|SendEmail[1]",
+                "SMS|SendSMS[SUBSCRIBER]",
+                "TM|SendTwitterMessage[SUBSCRIBER]"
             };
 
         public ActionEditor()
@@ -43,7 +43,7 @@ namespace iSpyApplication.Controls
 
         private void Init() {
             ddlAction.Items.Clear();
-            ddlAction.Items.Add(new ListItem {Name = "Select Action", Restricted = false, Value = ""});
+            ddlAction.Items.Add(new ListItem {Name = LocRm.GetString("SelectAction"), Restricted = false, Value = ""});
             for(int i=0;i < Actions.Length;i++)
             {
                 Actions[i] = Actions[i].Replace("[1]", MainForm.Conf.UseSMTP ? "" : "[SUBSCRIBER]");
@@ -52,18 +52,12 @@ namespace iSpyApplication.Controls
             {
                 var oc = s.Split('|');
                 var li = new ListItem();
-                var restricted = false;
-
-                if (MainForm.Conf.Subscribed)
-                    oc[1] = oc[1].Replace("[SUBSCRIBER]", "");
-                else
-                {
-                    if (oc[1].IndexOf("[SUBSCRIBER]", StringComparison.Ordinal) != -1)
-                    {
-                        oc[1] = oc[1].Replace("[SUBSCRIBER]", "(Subscribers Only)");
-                        restricted = true;
-                    }
-                }
+                bool restricted = oc[1].IndexOf("[SUBSCRIBER]", StringComparison.Ordinal) != -1 && !MainForm.Conf.Subscribed;
+                oc[1] = oc[1].Replace("[SUBSCRIBER]", "");
+                oc[1] = LocRm.GetString(oc[1].Trim());
+                if (restricted)
+                    oc[1] += " " + LocRm.GetString("SubscribersOnly");
+                
                 li.Name = oc[1];
                 li.Value = oc[0];
                 li.Restricted = restricted;
@@ -73,6 +67,8 @@ namespace iSpyApplication.Controls
             flpActions.VerticalScroll.Visible = true;
             flpActions.HorizontalScroll.Visible = false;
             RenderEventList();
+
+            button1.Text = LocRm.GetString("Add");
         }
 
         void RenderEventList()
@@ -161,7 +157,7 @@ namespace iSpyApplication.Controls
             switch (t)
             {
                 case "Exe":
-                    config = GetParamConfig(GetName(t), out cancel, "File|FBD:*.*", param1Val, "Arguments", param2Val);
+                    config = GetParamConfig(GetName(t), out cancel, "File|FBD:*.*", param1Val, LocRm.GetString("Arguments"), param2Val);
                     break;
                 case "URL":
                     if (param1Val == "")
@@ -173,11 +169,11 @@ namespace iSpyApplication.Controls
                 case "NM":
                     if (param3Val=="")
                        param3Val = "1010";
-                    config = GetParamConfig(GetName(t), out cancel, "Type|DDL:TCP,UDP", param1Val, "IP Address",
-                                            param2Val, "Port|Numeric:0,65535", param3Val, "Message", param4Val);
+                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("Type")+"|DDL:TCP,UDP", param1Val, "IP Address",
+                                            param2Val, "Port|Numeric:0,65535", param3Val, LocRm.GetString("Message"), param4Val);
                     break;
                 case "S":
-                    config = GetParamConfig("Sound", out cancel, "File|FBD:*.wav", param1Val);
+                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("File") + "|FBD:*.wav", param1Val);
                     break;
                 case "SW":
                 case "B":
@@ -186,35 +182,32 @@ namespace iSpyApplication.Controls
                     break;
                 case "TA":
                 case "SOO":
-                    config = GetParamConfig(GetName(t), out cancel, "Object|Object", param1Val);
+                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("Object")+"|Object", param1Val);
                     break;
                 case "E":
                     if (param2Val == "")
                         param2Val = "True";
-                    config = GetParamConfig(GetName(t), out cancel, "Email Address", param1Val, "Include Grab|Checkbox:True", param2Val);
+                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("EmailAddress"), param1Val, "Include Grab|Checkbox:True", param2Val);
                     break;
                 case "SMS":
-                    config = GetParamConfig(GetName(t), out cancel, "SMS Number|SMS", param1Val);
+                    config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("SMSNumber")+"|SMS", param1Val);
                     break;
                 case "TM":
-                    config = GetParamConfig(GetName(t), out cancel, "|Link:Authorise Twitter", MainForm.Webserver + "/account.aspx?task=twitter-auth");
+                    config = GetParamConfig(GetName(t), out cancel, "|Link:"+LocRm.GetString("AuthoriseTwitter"), MainForm.Webserver + "/account.aspx?task=twitter-auth");
                     break;
             }
             
             return config;
         }
 
-        private string GetName(string type)
+        string GetName(string id)
         {
-            var n = "";
-            foreach(var s in Actions)
+            foreach (ListItem li in ddlAction.Items)
             {
-                if (s.StartsWith(type+"|"))
-                {
-                    n = s.Substring(type.Length + 1).Replace("[SUBSCRIBER]","");
-                }
+                if (li.Value == id)
+                    return li.Name;
             }
-            return n;
+            return "";
         }
 
         void CAlertEntryDelete(object sender, EventArgs e)
@@ -240,7 +233,7 @@ namespace iSpyApplication.Controls
         {
             if (ddlAction.SelectedIndex < 1)
             {
-                MessageBox.Show(this, "Select an action to add");
+                MessageBox.Show(this, LocRm.GetString("SelectAnActionToAdd"));
                 return;
             }
             var oa = (ListItem) ddlAction.SelectedItem;

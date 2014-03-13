@@ -46,6 +46,7 @@
             this.flpDirectories.Name = "flpDirectories";
             this.flpDirectories.Size = new System.Drawing.Size(485, 154);
             this.flpDirectories.TabIndex = 0;
+            this.flpDirectories.Paint += new System.Windows.Forms.PaintEventHandler(this.flpDirectories_Paint);
             // 
             // panel1
             // 

@@ -87,6 +87,7 @@ namespace iSpyApplication
         public PTZTool()
         {
             InitializeComponent();
+            
         }
 
         private void pnlPTZ_MouseDown(object sender, MouseEventArgs e)
@@ -203,7 +204,7 @@ namespace iSpyApplication
 
         private void PTZTool_Load(object sender, EventArgs e)
         {
-
+            Text = LocRm.GetString("PTZTool");
         }
 
         private void pnlPTZ_MouseMove(object sender, MouseEventArgs e)

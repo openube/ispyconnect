@@ -25,7 +25,7 @@ namespace iSpyApplication.Controls
                 _id = value;
                 if (_id > 0)
                 {
-                    lblButton.Text = "Axis " + _id;
+                    lblButton.Text = LocRm.GetString("Axis")+" " + _id;
                     _input = false;
                     button1.Text = "...";
                 }

@@ -131,6 +131,7 @@
                                                           <xs:element name="enabled" type="xs:boolean" default="false"/>
                                                           <xs:element name="maxsize" type="xs:int" />
                                                           <xs:element name="maxage" type="xs:int" />
+                                                          <xs:element name="archive" type="xs:boolean" default="false" />
                                                         </xs:sequence>
                                                       </xs:complexType>
                                                     </xs:element>
@@ -166,13 +167,14 @@
                                                         </xs:restriction>
                                                       </xs:simpleType>
                                                     </xs:element>
-                                                    <xs:element name="filename" type="xs:string" />
+                                                    <xs:element name="filename" type="xs:string" default="mylivecamerafeed.jpg" />
                                                     <xs:element name="port" type="xs:int" />
                                                     <xs:element name="interval" type="xs:int" />
                                                     <xs:element name="intervalnew" type="xs:double" default="-1" />
                                                     <xs:element name="counter" type="xs:int" />
                                                     <xs:element name="countermax" type="xs:int" />
                                                     <xs:element name="ftpcounter" type="xs:int" />
+                                                    <xs:element name="minimumdelay" type="xs:double" default="0" />
                                                     <xs:element name="mode" type="xs:int" default="2"/>
                                                     <xs:element name="ready" type="xs:boolean"/>
                                                     <xs:element name="usepassive" type="xs:boolean"/>
@@ -184,6 +186,21 @@
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
+                                      <xs:element name="savelocal">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="enabled" type="xs:boolean" />
+                                            <xs:element name="filename" type="xs:string" default="{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg" />
+                                            <xs:element name="intervalnew" type="xs:double" default="-1" />
+                                            <xs:element name="counter" type="xs:int" />
+                                            <xs:element name="countermax" type="xs:int" />
+                                            <xs:element name="minimumdelay" type="xs:double" default="0" />
+                                            <xs:element name="mode" type="xs:int" default="2"/>
+                                            <xs:element name="text" type="xs:string" default="www.ispyconnect.com"/>
+                                            <xs:element name="quality" type="xs:int" />
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
                                         <xs:element name="detector">
                                             <xs:complexType>
                                                 <xs:sequence>
@@ -414,6 +431,7 @@
                                                           <xs:element name="enabled" type="xs:boolean" default="false"/>
                                                           <xs:element name="maxsize" type="xs:int" />
                                                           <xs:element name="maxage" type="xs:int" />
+                                                          <xs:element name="archive" type="xs:boolean" default="false" />
                                                         </xs:sequence>
                                                       </xs:complexType>
                                                     </xs:element>

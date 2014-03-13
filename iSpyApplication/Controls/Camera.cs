@@ -413,11 +413,12 @@ namespace iSpyApplication.Controls
             {
                 _lastframeEvent = Helper.Now;
             }
+            
+            Bitmap bmOrig = null;
+            bool bMotion = false;
             lock (_sync)
             {
-                _lastframeProcessed = Helper.Now;
-
-                Bitmap bmOrig = null;
+                _lastframeProcessed = Helper.Now;               
                 try
                 {
                     if (e.Frame != null)
@@ -452,9 +453,10 @@ namespace iSpyApplication.Controls
                         //this converts the image into a windows displayable image so do it regardless
                         var lfu = UnmanagedImage.FromManagedImage(bmOrig);
 
+                        
                         if (_motionDetector != null)
                         {
-                            ApplyMotionDetector(lfu);
+                            bMotion = ApplyMotionDetector(lfu);
                         }
                         else
                         {
@@ -506,12 +508,14 @@ namespace iSpyApplication.Controls
                         MainForm.LogExceptionToFile(ex);
                     }
                 }
-
-                if (NewFrame != null && !_requestedToStop)
-                {
-                    NewFrame(this, new NewFrameEventArgs(bmOrig));
-                }
             }
+
+            if (NewFrame != null && !_requestedToStop && bmOrig!=null)
+            {
+                NewFrame(this, new NewFrameEventArgs(bmOrig));
+            }
+            if (bMotion)
+                TriggerDetect(this);
             
         }
 
@@ -538,54 +542,55 @@ namespace iSpyApplication.Controls
 
         private void AddTimestamp(Bitmap bmp)
         {
-            Graphics gCam = Graphics.FromImage(bmp);
+            using (Graphics gCam = Graphics.FromImage(bmp))
+            {
 
-            var ts = CW.Camobject.settings.timestampformatter.Replace("{FPS}",
-                                                                      string.Format("{0:F2}", Framerate));
-            ts = ts.Replace("{CAMERA}", CW.Camobject.name);
-            ts = ts.Replace("{REC}", CW.Recording ? "REC" : "");
+                var ts = CW.Camobject.settings.timestampformatter.Replace("{FPS}",
+                    string.Format("{0:F2}", Framerate));
+                ts = ts.Replace("{CAMERA}", CW.Camobject.name);
+                ts = ts.Replace("{REC}", CW.Recording ? "REC" : "");
 
-            var timestamp = "Invalid Timestamp";
-            try
-            {
-                timestamp = String.Format(ts,
-                                          DateTime.Now.AddHours(
-                                              Convert.ToDouble(CW.Camobject.settings.timestampoffset))).Trim();
-            }
-            catch
-            {
-            }
+                var timestamp = "Invalid Timestamp";
+                try
+                {
+                    timestamp = String.Format(ts,
+                        DateTime.Now.AddHours(
+                            Convert.ToDouble(CW.Camobject.settings.timestampoffset))).Trim();
+                }
+                catch
+                {
+                }
 
-            var rs = gCam.MeasureString(timestamp, DrawFont).ToSize();
-            rs.Width += 5;
-            var p = new Point(0, 0);
-            switch (CW.Camobject.settings.timestamplocation)
-            {
-                case 2:
-                    p.X = _width/2 - (rs.Width/2);
-                    break;
-                case 3:
-                    p.X = _width - rs.Width;
-                    break;
-                case 4:
-                    p.Y = _height - rs.Height;
-                    break;
-                case 5:
-                    p.Y = _height - rs.Height;
-                    p.X = _width/2 - (rs.Width/2);
-                    break;
-                case 6:
-                    p.Y = _height - rs.Height;
-                    p.X = _width - rs.Width;
-                    break;
+                var rs = gCam.MeasureString(timestamp, DrawFont).ToSize();
+                rs.Width += 5;
+                var p = new Point(0, 0);
+                switch (CW.Camobject.settings.timestamplocation)
+                {
+                    case 2:
+                        p.X = _width/2 - (rs.Width/2);
+                        break;
+                    case 3:
+                        p.X = _width - rs.Width;
+                        break;
+                    case 4:
+                        p.Y = _height - rs.Height;
+                        break;
+                    case 5:
+                        p.Y = _height - rs.Height;
+                        p.X = _width/2 - (rs.Width/2);
+                        break;
+                    case 6:
+                        p.Y = _height - rs.Height;
+                        p.X = _width - rs.Width;
+                        break;
+                }
+                if (CW.Camobject.settings.timestampshowback)
+                {
+                    var rect = new Rectangle(p, rs);
+                    gCam.FillRectangle(BackBrush, rect);
+                }
+                gCam.DrawString(timestamp, DrawFont, ForeBrush, p);
             }
-            if (CW.Camobject.settings.timestampshowback)
-            {
-                var rect = new Rectangle(p, rs);
-                gCam.FillRectangle(BackBrush, rect);
-            }
-            gCam.DrawString(timestamp, DrawFont, ForeBrush, p);
-            gCam.Dispose();
 
         }
 
@@ -641,7 +646,7 @@ namespace iSpyApplication.Controls
         }
 
         [HandleProcessCorruptedStateExceptions] 
-        private void ApplyMotionDetector(UnmanagedImage lfu)
+        private bool ApplyMotionDetector(UnmanagedImage lfu)
         {
             if (Alarm != null && lfu!=null)
             {
@@ -663,7 +668,7 @@ namespace iSpyApplication.Controls
                     {
                         if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
                         {
-                            TriggerDetect(this);
+                            return true;
                         }
                     }
                     else
@@ -672,6 +677,7 @@ namespace iSpyApplication.Controls
             }
             else
                 MotionDetected = false;
+            return false;
         }
 
         internal void TriggerDetect(object sender)
@@ -833,10 +839,18 @@ namespace iSpyApplication.Controls
             set { _backBrush = value; }
         }
 
+        private bool _disposing;
+
         public void Dispose()
         {
+            if (_disposing)
+                return;
+
+            
+            _disposing = true;
+            Console.WriteLine("disposing " + CW.Camobject.name);
             lock (_sync)
-            {
+            {                  
                 ClearMotionZones();
                 ForeBrush.Dispose();
                 BackBrush.Dispose();

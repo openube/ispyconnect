@@ -59,6 +59,8 @@ namespace iSpyApplication
             }
         }
 
+        private const string webports = ",80,8080,8081,8280,8888,8887,9080,16080,";
+
         private void Troubleshooter()
         {
             UISync.Execute(() => rtbOutput.Clear());
@@ -81,7 +83,7 @@ namespace iSpyApplication
             string localserver = "http://" + MainForm.IPAddress + ":" + MainForm.Conf.LANPort;
             
             UISync.Execute(() => rtbOutput.Text = string.Format("Local iSpy Server: {0}{1}", localserver, NL));
-            if (MainForm.Conf.LANPort!=8080)
+            if (webports.IndexOf(","+MainForm.Conf.LANPort+",", StringComparison.Ordinal)==-1)
             {
                 UISync.Execute(() => rtbOutput.Text +=
                     string.Format("Warning: Running a local server on a non-standard port ({0}) may cause web-browser security errors. Click the link above to test in your web browser.{1}", MainForm.Conf.LANPort, NL));
@@ -90,6 +92,8 @@ namespace iSpyApplication
             {
                 UISync.Execute(() => rtbOutput.Text += NL+"Warning: Your network adaptor has assigned itself a link-local address (169.254.x.x). This means your PC is setup for DHCP but can't find a DHCP server and iSpy will be unavailable over your LAN. Try resetting your router."+NL);
             }
+            if (MainForm.Conf.SSLEnabled)
+                UISync.Execute(() => rtbOutput.Text += "Warning: Using SSL - disable SSL in settings if you are having problems with connecting."+NL);
             UISync.Execute(() => rtbOutput.Text += "Checking local server... ");
             Application.DoEvents();
             string res = "";

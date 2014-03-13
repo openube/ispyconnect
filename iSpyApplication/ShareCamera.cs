@@ -17,7 +17,7 @@ namespace iSpyApplication
 
             if (make=="" || model=="")
             {
-                MessageBox.Show(this, "Please enter the make and the model");
+                MessageBox.Show(this, LocRm.GetString("EnterMakeAndModel"));
                 return;
             }
             btnAdd.Enabled = false;

@@ -28,10 +28,10 @@ namespace iSpyApplication.Controls
             switch (type)
             {
                 case "Exe":
-                    t = "Execute: " + param1;
+                    t = LocRm.GetString("ExecuteFile") + ": " + param1;
                     break;
                 case "URL":
-                    t = "URL: " + param1;
+                    t = LocRm.GetString("CallURL")+": " + param1;
                     if (Convert.ToBoolean(param2))
                         t += " (POST grab)";
                     break;
@@ -39,18 +39,18 @@ namespace iSpyApplication.Controls
                     t = param1 + " " + param2 + ":" + param3 + " (" + param4 + ")";
                     break;
                 case "S":
-                    t = "Sound: " + param1;
+                    t = LocRm.GetString("PlaySound")+": " + param1;
                     break;
                 case "SW":
-                    t = "Show Window";
+                    t = LocRm.GetString("ShowWindow");
                     pbEdit.Visible = false;
                     break;
                 case "B":
-                    t = "Beep Speaker";
+                    t = LocRm.GetString("Beep");
                     pbEdit.Visible = false;
                     break;
                 case "M":
-                    t = "Maximise";
+                    t = LocRm.GetString("Maximise");
                     pbEdit.Visible = false;
                     break;
                 case "TA":
@@ -71,7 +71,7 @@ namespace iSpyApplication.Controls
                                     n = oc.name;
                                 break;
                         }
-                        t = "Trigger Alert on " + n;
+                        t = LocRm.GetString("TriggerAlertOn")+" " + n;
                     }
                     break;
                 case "SOO":
@@ -92,19 +92,19 @@ namespace iSpyApplication.Controls
                                     n = oc.name;
                                 break;
                         }
-                        t = "Switch on " + n;
+                        t = LocRm.GetString("SwitchObjectOn")+" " + n;
                     }
                     break;
                 case "E":
-                    t = "Send Email: " + param1;
+                    t = LocRm.GetString("SendEmail")+": " + param1;
                     if (param2!="" && Convert.ToBoolean(param2))
                         t += " (include grab)";
                     break;
                 case "SMS":
-                    t = "Send SMS: " + param1;
+                    t = LocRm.GetString("SendSMS")+": " + param1;
                     break;
                 case "TM":
-                    t = "Tweet (Direct Message)";
+                    t = LocRm.GetString("SendTwitterMessage");
                     pbEdit.Visible = false;
                     break;
             }

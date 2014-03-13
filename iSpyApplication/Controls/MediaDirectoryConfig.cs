@@ -13,13 +13,16 @@ namespace iSpyApplication.Controls
         public MediaDirectoryConfig()
         {
             InitializeComponent();
-            chkStorage.Text = LocRm.GetString("EnableStorageManagementwa");
+            chkStorage.Text = LocRm.GetString("StorageManagement");
             gbStorage.Text = LocRm.GetString("StorageManagement");
             label9.Text = LocRm.GetString("Mb");
             label10.Text = LocRm.GetString("MaxMediaFolderSize");
             label11.Text = LocRm.GetString("WhenOver70FullDeleteFiles");
             label12.Text = LocRm.GetString("DaysOld0ForNoDeletions");
+            label1.Text = LocRm.GetString("Directory");
             chkStopRecording.Text = LocRm.GetString("StopRecordingOnLimit");
+            chkArchive.Text = LocRm.GetString("ArchiveInsteadOfDelete");
+            Text = LocRm.GetString("MediaDirectoryConfiguration");
         }
 
         private void chkStorage_CheckedChanged(object sender, EventArgs e)
@@ -43,7 +46,7 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                MessageBox.Show(this, "Media directory not found");
+                MessageBox.Show(this, LocRm.GetString("MediaDirectoryNotFound"));
             }
             
         }

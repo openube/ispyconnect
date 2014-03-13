@@ -60,6 +60,7 @@ namespace iSpyApplication
         public static Pen CameraLine = new Pen(Color.Green, 2);
         public static Pen CameraNav = new Pen(Color.White, 1);
         public static Brush RecordBrush = new SolidBrush(Color.Red);
+        public static Brush OverlayBackgroundBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
         public static List<DeviceDescriptionHolder> ONVIFDevices = new List<DeviceDescriptionHolder>();
         public static string NextLog = "";
         public static string Identifier;
@@ -87,6 +88,38 @@ namespace iSpyApplication
         public static bool Reallyclose = false;
         public static string Webserver = "http://www.ispyconnect.com";
         public static string WebserverSecure = "https://www.ispyconnect.com";
+
+
+        public static Rectangle RPower = new Rectangle(94, 3, 16, 16);
+        public static Rectangle RPowerOn = new Rectangle(94, 43, 16, 16);
+        public static Rectangle RPowerOff = new Rectangle(94, 83, 16, 16);
+
+        public static Rectangle RAdd = new Rectangle(127, 3, 16, 16);
+        public static Rectangle RAddOff = new Rectangle(127, 83, 16, 16);
+        
+        public static Rectangle REdit = new Rectangle(3, 2, 16, 16);
+
+        public static Rectangle RHold = new Rectangle(255, 2, 16, 16);
+        public static Rectangle RHoldOn = new Rectangle(284, 42, 16, 16);
+        public static Rectangle RHoldOff = new Rectangle(284, 82, 16, 16);
+        
+        public static Rectangle RRecord = new Rectangle(188,2,16,16);
+        public static Rectangle RRecordOn = new Rectangle(188, 42, 16, 16);
+        public static Rectangle RRecordOff = new Rectangle(188, 82, 16, 16);
+        public static Rectangle RNext = new Rectangle(65, 3, 16, 16);
+        public static Rectangle RNextOff = new Rectangle(65, 82, 16, 16);
+        public static Rectangle RGrab = new Rectangle(157,2,16,16);
+        public static Rectangle RGrabOff = new Rectangle(157, 82, 16, 16);
+        public static Rectangle RTalk = new Rectangle(313, 2, 16,16);
+        public static Rectangle RTalkOn = new Rectangle(313, 42, 16, 16);
+        public static Rectangle RTalkOff = new Rectangle(313, 82, 16, 16);
+        public static Rectangle RFiles = new Rectangle(223,3,16,16);
+        public static Rectangle RFilesOff = new Rectangle(223, 83, 16, 16);
+        public static Rectangle RListen = new Rectangle(347,2,16,16);
+        public static Rectangle RListenOn = new Rectangle(380,43,16,16);
+        public static Rectangle RListenOff = new Rectangle(347, 83, 16, 16);
+        public static Rectangle RCloud = new Rectangle(411, 3, 16, 16);
+        public static Rectangle RCloudOff = new Rectangle(411, 83, 16, 16);
 
         internal static LocalServer MWS;
 
@@ -295,10 +328,8 @@ namespace iSpyApplication
         private MenuItem menuItem22;
         private MenuItem menuItem23;
         private MenuItem menuItem24;
-        private MenuItem menuItem25;
         private MenuItem menuItem26;
         private MenuItem menuItem3;
-        private MenuItem menuItem31;
         private MenuItem menuItem4;
         private MenuItem menuItem5;
         private MenuItem menuItem6;
@@ -344,8 +375,12 @@ namespace iSpyApplication
         private LinkLabel linkLabel1;
         private MenuItem menuItem28;
         private ToolStripDropDownButton tssbGridViews;
-        private ToolStripMenuItem newToolStripMenuItem;
+        private ToolStripMenuItem manageToolStripMenuItem;
         private ToolStripMenuItem archiveToolStripMenuItem;
+        private MenuItem menuItem29;
+        private MenuItem menuItem30;
+        private MenuItem menuItem25;
+        private ToolStripMenuItem gridViewsToolStripMenuItem;
         private ToolStripMenuItem websiteToolStripMenuItem;
 
         public MainForm(bool silent, string command)
@@ -470,10 +505,6 @@ namespace iSpyApplication
             get { return Masterfilelist.AsReadOnly(); }
         }
 
-        public static int ButtonWidth
-        {
-            get { return (Convert.ToInt32(Iconfont.Size) + 1); }
-        }
 
         public bool StorageThreadRunning
         {
@@ -1255,7 +1286,7 @@ namespace iSpyApplication
                 }
             }
 
-            var t = new Thread(ConnectServices) {IsBackground = false};
+            var t = new Thread(()=>ConnectServices()) {IsBackground = false};
             t.Start();
 
             _updateTimer.Start();
@@ -1376,7 +1407,7 @@ namespace iSpyApplication
             _addFloorPlanToolStripMenuItem.Text = LocRm.GetString("AddFloorplan");
             _addMicrophoneToolStripMenuItem.Text = LocRm.GetString("Addmicrophone");
             menuItem26.Text = autoLayoutToolStripMenuItem.Text = LocRm.GetString("AutoLayout");
-
+            gridViewsToolStripMenuItem.Text = LocRm.GetString("GridViews");
             _deleteToolStripMenuItem.Text = LocRm.GetString("remove");
             _editToolStripMenuItem.Text = LocRm.GetString("Edit");
             _exitFileItem.Text = LocRm.GetString("Exit");
@@ -1393,10 +1424,10 @@ namespace iSpyApplication
             _menuItem24.Text = LocRm.GetString("ShowGettingStarted");
             _listenToolStripMenuItem.Text = LocRm.GetString("Listen");
             _localCameraToolStripMenuItem.Text = LocRm.GetString("LocalCamera");
-            _menuItem1.Text = LocRm.GetString("chars_2949165");
+            _menuItem1.Text = "-";
             _menuItem10.Text = LocRm.GetString("checkForUpdates");
             _menuItem11.Text = LocRm.GetString("reportBugFeedback");
-            _menuItem13.Text = LocRm.GetString("chars_2949165");
+            _menuItem13.Text = "-";
             _menuItem15.Text = LocRm.GetString("ResetAllRecordingCounters");
             _menuItem16.Text = LocRm.GetString("View");
             _menuItem17.Text = inExplorerToolStripMenuItem.Text = LocRm.GetString("files");
@@ -1409,12 +1440,12 @@ namespace iSpyApplication
             _menuItem23.Text = LocRm.GetString("audiofiles");
             _menuItem25.Text = LocRm.GetString("MediaOnAMobiledeviceiphon");
             _menuItem26.Text = LocRm.GetString("supportIspyWithADonation");
-            _menuItem27.Text = LocRm.GetString("chars_2949165");
+            _menuItem27.Text = "-";
             _menuItem29.Text = LocRm.GetString("Current");
             _menuItem3.Text = LocRm.GetString("MediaoverTheWeb");
-            _menuItem30.Text = LocRm.GetString("chars_2949165");
+            _menuItem30.Text = "-";
             _menuItem31.Text = LocRm.GetString("removeAllObjects");
-            _menuItem32.Text = LocRm.GetString("chars_2949165");
+            _menuItem32.Text = "-";
             _menuItem33.Text = LocRm.GetString("switchOff");
             _menuItem34.Text = LocRm.GetString("Switchon");
             _miOnAll.Text = LocRm.GetString("All");
@@ -1430,7 +1461,7 @@ namespace iSpyApplication
             _menuItem39.Text = LocRm.GetString("AutoLayoutObjects");
             _menuItem4.Text = LocRm.GetString("ConfigureremoteAccess");
             _menuItem5.Text = LocRm.GetString("GoTowebsite");
-            _menuItem6.Text = LocRm.GetString("chars_2949165");
+            _menuItem6.Text = "-";
             _menuItem7.Text = LocRm.GetString("videofiles");
             _menuItem8.Text = LocRm.GetString("settings");
             _menuItem9.Text = LocRm.GetString("options");
@@ -1501,17 +1532,21 @@ namespace iSpyApplication
             tsbPlugins.Text = LocRm.GetString("Plugins");
 
             menuItem14.Text = viewControllerToolStripMenuItem.Text = LocRm.GetString("ViewController");
+            menuItem28.Text = LocRm.GetString("RemoveAllObjects");
+
+            llblFilter.Text = LocRm.GetString("Filter");
+            linkLabel1.Text = LocRm.GetString("Archive");
 
             LocRm.SetString(menuItem15, "ArrangeMedia");
             LocRm.SetString(menuItem22, "LockLayout");
-            LocRm.SetString(menuItem25, "GridView");
-            LocRm.SetString(menuItem31, "New");
             LocRm.SetString(menuItem16, "Bottom");
             LocRm.SetString(menuItem17, "Left");
             LocRm.SetString(menuItem19, "Right");
             LocRm.SetString(menuItem18, "PTZController");
             LocRm.SetString(tsslPerformance, "PerfTips");
-
+            tssbGridViews.Text = LocRm.GetString("GridViews");
+            manageToolStripMenuItem.Text = LocRm.GetString("Manage");
+            menuItem25.Text = LocRm.GetString("DefaultDeviceManager");
 
             _toolStripDropDownButton1.Visible = (Helper.HasFeature(Enums.Features.Access_Media));
             _toolStripButton8.Visible =
@@ -1603,6 +1638,12 @@ namespace iSpyApplication
             if (NeedsMediaRefresh > DateTime.MinValue && NeedsMediaRefresh < Helper.Now.AddSeconds(-3))
                 LoadPreviews();
 
+
+            if (Resizing)
+            {
+                if (_lastResize < Helper.Now.AddSeconds(-1))
+                    Resizing = false;
+            }
 
             if (_pingCounter == 301)
             {
@@ -1701,15 +1742,29 @@ namespace iSpyApplication
                 _houseKeepingTimer.Start();
         }
 
-        public void RunStorageManagement()
+        public void RunStorageManagement(bool abortIfRunning = false)
         {
             if (InvokeRequired)
             {
-                Invoke(new RunStorageManagementDelegate(RunStorageManagement));
+                Invoke(new Delegates.RunStorageManagementDelegate(RunStorageManagement), abortIfRunning);
                 return;
             }
 
 
+            if (StorageThreadRunning)
+            {
+                if (abortIfRunning)
+                {
+                    try
+                    {
+                        _storageThread.Abort();
+                    }
+                    catch
+                    {
+                        //may have exited
+                    }
+                }
+            }
             if (!StorageThreadRunning)
             {
                 lock (ThreadLock)
@@ -1824,7 +1879,7 @@ namespace iSpyApplication
                 {
                     LogMessageToFile("Loading List: " + command);
                     if (InvokeRequired)
-                        Invoke(new ExternalCommandDelegate(LoadObjectList), command.Substring(5).Trim('"'));
+                        Invoke(new Delegates.ExternalCommandDelegate(LoadObjectList), command.Substring(5).Trim('"'));
                     else
                         LoadObjectList(command.Substring(5).Trim('"'));
 
@@ -1857,7 +1912,7 @@ namespace iSpyApplication
                     {
                         LogMessageToFile("Running Command: " + command2);
                         if (InvokeRequired)
-                            Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
+                            Invoke(new Delegates.ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
                         else
                             ProcessCommandInternal(command2.Trim('"'));
                     }
@@ -2098,6 +2153,7 @@ namespace iSpyApplication
 
         private void MainFormResize(object sender, EventArgs e)
         {
+            Resizing = true;
             if (WindowState == FormWindowState.Minimized)
             {
                 if (Conf.TrayOnMinimise)
@@ -2190,6 +2246,15 @@ namespace iSpyApplication
 
         private void Exit()
         {
+            try
+            {
+                SaveObjects("");
+            }
+            catch (Exception ex)
+            {
+                LogExceptionToFile(ex);
+            }
+
             _shuttingDown = true;
             WsWrapper.Disconnect();
             try
@@ -2224,14 +2289,7 @@ namespace iSpyApplication
                 }
             }
             _closing = true;
-            try
-            {
-                SaveObjects("");
-            }
-            catch (Exception ex)
-            {
-                LogExceptionToFile(ex);
-            }
+            
 
             try
             {
@@ -2303,7 +2361,7 @@ namespace iSpyApplication
             if (Conf.BalloonTips)
             {
                 notifyIcon1.BalloonTipText = string.Format("{0}:{1}{2}",
-                    String.IsNullOrEmpty(e.OverrideMessage) ? LocRm.GetString(e.Type) : e.OverrideMessage, NL, e.Text);
+                    (String.IsNullOrEmpty(e.OverrideMessage) ? LocRm.GetString(e.Type) : e.OverrideMessage).ToUpper(), NL, e.Text);
                 notifyIcon1.ShowBalloonTip(1500);
             }
         }
@@ -2335,11 +2393,11 @@ namespace iSpyApplication
 
         private void VolumeControlRemoteCommand(object sender, ThreadSafeCommand e)
         {
-            InvokeMethod i = DoInvoke;
+            Delegates.InvokeMethod i = DoInvoke;
             Invoke(i, new object[] {e.Command});
         }
 
-        private void ConnectServices()
+        internal void ConnectServices(bool checkforUpdates = true)
         {
             if (Conf.ServicesEnabled)
             {
@@ -2375,7 +2433,7 @@ namespace iSpyApplication
                     }
                 }
             }
-            if (Conf.Enable_Update_Check && !SilentStartup)
+            if (checkforUpdates && Conf.Enable_Update_Check && !SilentStartup)
             {
                 UISync.Execute(() => CheckForUpdates(true));
             }
@@ -2539,8 +2597,14 @@ namespace iSpyApplication
         {
             if (ctxtMnu.Visible || ctxtPlayer.Visible)
                 e.Cancel = true;
-        }
 
+            gridViewsToolStripMenuItem.DropDownItems.Clear();
+            foreach (var gv in Conf.GridViews)
+            {
+                gridViewsToolStripMenuItem.DropDownItems.Add(gv.name, null, tsi_Click);
+
+            }
+        }
 
         public static void StartBrowser(string url)
         {
@@ -2941,6 +3005,22 @@ namespace iSpyApplication
             }
         }
 
+        internal void ShowFiles(ISpyControl ctrl)
+        {
+            var cw = ctrl as CameraWindow;
+            if (cw != null)
+            {
+                ShowFiles(cw);
+                return;
+            }
+            var vl = ctrl as VolumeLevel;
+            if (vl != null)
+            {
+                ShowFiles(vl);
+                return;
+            }
+        }
+        
         internal void ShowFiles(CameraWindow cw)
         {
             string foldername = Helper.GetMediaDirectory(2, cw.Camobject.id) + "video\\" + cw.Camobject.directory + "\\";
@@ -3345,7 +3425,7 @@ namespace iSpyApplication
         {
             if (InvokeRequired)
             {
-                Invoke(new CloseDelegate(ExternalClose));
+                Invoke(new Delegates.CloseDelegate(ExternalClose));
                 return;
             }
             Reallyclose = true;
@@ -3986,49 +4066,7 @@ namespace iSpyApplication
             {
                 LogExceptionToFile(ex);
             }
-        }
-
-        private void menuItem25_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void menuItem31_Click(object sender, EventArgs e)
-        {
-            AddGridView();
-        }
-
-        private void AddGridView()
-        {
-            var gvc = new GridViewCustom();
-            gvc.ShowDialog(this);
-            if (gvc.DialogResult == DialogResult.OK)
-            {
-                var cg = new configurationGrid
-                {
-                    Columns = gvc.Cols,
-                    Rows = gvc.Rows,
-                    name = gvc.GridName,
-                    FullScreen = gvc.FullScreen,
-                    AlwaysOnTop = gvc.AlwaysOnTop,
-                    Display = gvc.Display,
-                    Framerate = gvc.Framerate,
-                    ModeIndex = gvc.Mode,
-                    Fill = gvc.Fill,
-                    ModeConfig = gvc.ModeConfig,
-                    ShowAtStartup = gvc.ShowAtStartup,
-                    GridItem = new configurationGridGridItem[] { }
-                };
-                List<configurationGrid> l = Conf.GridViews.ToList();
-                l.Add(cg);
-                Conf.GridViews = l.ToArray();
-
-                var gv = new GridView(this, ref cg);
-                gv.Show();
-
-                ListGridViews();
-            }
-            gvc.Dispose();
-        }
+        }      
 
         private void _tsslStats_Click(object sender, EventArgs e)
         {
@@ -4061,31 +4099,13 @@ namespace iSpyApplication
 
         private void ListGridViews()
         {
-            while (menuItem25.MenuItems.Count > 1)
+            while (tssbGridViews.DropDownItems.Count > 1)
             {
-                menuItem25.MenuItems.RemoveAt(0);
                 tssbGridViews.DropDownItems.RemoveAt(0);
             }
 
             foreach (configurationGrid gv in Conf.GridViews)
             {
-                var mi = new MenuItem(gv.name);
-                var mis = new MenuItem("Show");
-                mis.Click += MisClick;
-                mis.Tag = gv.name;
-                mi.MenuItems.Add(mis);
-
-                var mie = new MenuItem(LocRm.GetString("Edit"));
-                mie.Click += MieClick;
-                mie.Tag = gv.name;
-                mi.MenuItems.Add(mie);
-
-                var mid2 = new MenuItem(LocRm.GetString("Delete"));
-                mid2.Click += MidelClick;
-                mid2.Tag = gv.name;
-                mi.MenuItems.Add(mid2);
-                menuItem25.MenuItems.Add(0, mi);
-
                 var tsi = new ToolStripMenuItem(gv.name, Resources.Video2);
                 tsi.Click += tsi_Click;
                 tssbGridViews.DropDownItems.Insert(0,tsi);
@@ -4103,27 +4123,10 @@ namespace iSpyApplication
             }
         }
 
-        private void MisClick(object sender, EventArgs e)
+        public void EditGridView(string name, IWin32Window parent = null)
         {
-            var mi = (MenuItem) sender;
-            configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Tag.ToString());
-            if (cg != null)
-            {
-                var gv = new GridView(this, ref cg);
-                gv.Show();
-            }
-        }
-
-        private void MieClick(object sender, EventArgs e)
-        {
-            var mi = (MenuItem) sender;
-            configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Tag.ToString());
-            if (cg != null)
-                EditGridView(cg.name, this);
-        }
-
-        public void EditGridView(string name, IWin32Window parent)
-        {
+            if (parent == null)
+                parent = this;
             configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == name);
             if (cg != null)
             {
@@ -4159,15 +4162,6 @@ namespace iSpyApplication
                 }
                 gvc.Dispose();
             }
-        }
-
-        private void MidelClick(object sender, EventArgs e)
-        {
-            object mi = ((MenuItem) sender).Tag;
-            List<configurationGrid> l = Conf.GridViews.ToList();
-            l.RemoveAll(p => p.name == mi.ToString());
-            Conf.GridViews = l.ToArray();
-            ListGridViews();
         }
 
         private void oNVIFCameraToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4248,6 +4242,7 @@ namespace iSpyApplication
             this._menuItem17 = new System.Windows.Forms.MenuItem();
             this._menuItem7 = new System.Windows.Forms.MenuItem();
             this._menuItem23 = new System.Windows.Forms.MenuItem();
+            this.menuItem29 = new System.Windows.Forms.MenuItem();
             this._menuItem3 = new System.Windows.Forms.MenuItem();
             this._menuItem25 = new System.Windows.Forms.MenuItem();
             this.menuItem9 = new System.Windows.Forms.MenuItem();
@@ -4276,8 +4271,6 @@ namespace iSpyApplication
             this._menuItem22 = new System.Windows.Forms.MenuItem();
             this.menuItem2 = new System.Windows.Forms.MenuItem();
             this.menuItem3 = new System.Windows.Forms.MenuItem();
-            this.menuItem25 = new System.Windows.Forms.MenuItem();
-            this.menuItem31 = new System.Windows.Forms.MenuItem();
             this.menuItem4 = new System.Windows.Forms.MenuItem();
             this.menuItem5 = new System.Windows.Forms.MenuItem();
             this.menuItem6 = new System.Windows.Forms.MenuItem();
@@ -4303,6 +4296,8 @@ namespace iSpyApplication
             this._menuItem32 = new System.Windows.Forms.MenuItem();
             this._menuItem4 = new System.Windows.Forms.MenuItem();
             this._menuItem35 = new System.Windows.Forms.MenuItem();
+            this.menuItem30 = new System.Windows.Forms.MenuItem();
+            this.menuItem25 = new System.Windows.Forms.MenuItem();
             this._helpItem = new System.Windows.Forms.MenuItem();
             this._aboutHelpItem = new System.Windows.Forms.MenuItem();
             this._menuItem30 = new System.Windows.Forms.MenuItem();
@@ -4338,6 +4333,7 @@ namespace iSpyApplication
             this.pTZControllerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewControllerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.alwaysOnTopToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.gridViewsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this._toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -4355,7 +4351,7 @@ namespace iSpyApplication
             this._onMobileDevicesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tssbGridViews = new System.Windows.Forms.ToolStripDropDownButton();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.manageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._toolStripButton8 = new System.Windows.Forms.ToolStripButton();
             this._toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.tsbPlugins = new System.Windows.Forms.ToolStripButton();
@@ -4399,9 +4395,11 @@ namespace iSpyApplication
             this.tsslMediaInfo = new System.Windows.Forms.ToolStripStatusLabel();
             this._pnlContent = new System.Windows.Forms.Panel();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.flowPreview = new iSpyApplication.Controls.MediaPanel();
             this.flCommands = new System.Windows.Forms.FlowLayoutPanel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.llblSelectAll = new System.Windows.Forms.LinkLabel();
@@ -4422,8 +4420,6 @@ namespace iSpyApplication
             this.archiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
-            this.flowPreview = new iSpyApplication.Controls.MediaPanel();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -4533,7 +4529,6 @@ namespace iSpyApplication
             this._menuItem22,
             this.menuItem2,
             this.menuItem3,
-            this.menuItem25,
             this.menuItem4,
             this.menuItem5,
             this.menuItem6,
@@ -4550,7 +4545,8 @@ namespace iSpyApplication
             this._menuItem17.Index = 0;
             this._menuItem17.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this._menuItem7,
-            this._menuItem23});
+            this._menuItem23,
+            this.menuItem29});
             this._menuItem17.Text = "&Files";
             this._menuItem17.Click += new System.EventHandler(this.MenuItem17Click);
             // 
@@ -4565,6 +4561,12 @@ namespace iSpyApplication
             this._menuItem23.Index = 1;
             this._menuItem23.Text = "&Audio (files)";
             this._menuItem23.Click += new System.EventHandler(this.MenuItem23Click);
+            // 
+            // menuItem29
+            // 
+            this.menuItem29.Index = 2;
+            this.menuItem29.Text = "Archi&ve";
+            this.menuItem29.Click += new System.EventHandler(this.menuItem29_Click);
             // 
             // _menuItem3
             // 
@@ -4746,69 +4748,55 @@ namespace iSpyApplication
             this.menuItem3.Text = "Full Screen";
             this.menuItem3.Click += new System.EventHandler(this.fullScreenToolStripMenuItem1_Click);
             // 
-            // menuItem25
-            // 
-            this.menuItem25.Index = 16;
-            this.menuItem25.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.menuItem31});
-            this.menuItem25.Text = "Grid View";
-            this.menuItem25.Click += new System.EventHandler(this.menuItem25_Click);
-            // 
-            // menuItem31
-            // 
-            this.menuItem31.Index = 0;
-            this.menuItem31.Text = "New...";
-            this.menuItem31.Click += new System.EventHandler(this.menuItem31_Click);
-            // 
             // menuItem4
             // 
-            this.menuItem4.Index = 17;
+            this.menuItem4.Index = 16;
             this.menuItem4.Text = "Status Bar";
             this.menuItem4.Click += new System.EventHandler(this.statusBarToolStripMenuItem_Click);
             // 
             // menuItem5
             // 
-            this.menuItem5.Index = 18;
+            this.menuItem5.Index = 17;
             this.menuItem5.Text = "File Menu";
             this.menuItem5.Click += new System.EventHandler(this.fileMenuToolStripMenuItem_Click);
             // 
             // menuItem6
             // 
-            this.menuItem6.Index = 19;
+            this.menuItem6.Index = 18;
             this.menuItem6.Text = "Tool Bar";
             this.menuItem6.Click += new System.EventHandler(this.toolStripToolStripMenuItem_Click);
             // 
             // menuItem7
             // 
-            this.menuItem7.Index = 20;
+            this.menuItem7.Index = 19;
             this.menuItem7.Text = "Media Pane";
             this.menuItem7.Click += new System.EventHandler(this.mediaPaneToolStripMenuItem_Click);
             // 
             // menuItem23
             // 
-            this.menuItem23.Index = 21;
+            this.menuItem23.Index = 20;
             this.menuItem23.Text = "-";
             // 
             // menuItem14
             // 
-            this.menuItem14.Index = 22;
+            this.menuItem14.Index = 21;
             this.menuItem14.Text = "Layout Controller";
             this.menuItem14.Click += new System.EventHandler(this.menuItem14_Click);
             // 
             // menuItem18
             // 
-            this.menuItem18.Index = 23;
+            this.menuItem18.Index = 22;
             this.menuItem18.Text = "PTZ Controller";
             this.menuItem18.Click += new System.EventHandler(this.menuItem18_Click);
             // 
             // menuItem24
             // 
-            this.menuItem24.Index = 24;
+            this.menuItem24.Index = 23;
             this.menuItem24.Text = "-";
             // 
             // menuItem8
             // 
-            this.menuItem8.Index = 25;
+            this.menuItem8.Index = 24;
             this.menuItem8.Text = "Always on Top";
             this.menuItem8.Click += new System.EventHandler(this.alwaysOnTopToolStripMenuItem1_Click);
             // 
@@ -4826,7 +4814,9 @@ namespace iSpyApplication
             this._miApplySchedule,
             this._menuItem32,
             this._menuItem4,
-            this._menuItem35});
+            this._menuItem35,
+            this.menuItem30,
+            this.menuItem25});
             this._menuItem9.Text = "&Options";
             // 
             // _menuItem18
@@ -4923,6 +4913,17 @@ namespace iSpyApplication
             this._menuItem35.Text = "Configure &Remote Commands";
             this._menuItem35.Click += new System.EventHandler(this.MenuItem35Click);
             // 
+            // menuItem30
+            // 
+            this.menuItem30.Index = 11;
+            this.menuItem30.Text = "-";
+            // 
+            // menuItem25
+            // 
+            this.menuItem25.Index = 12;
+            this.menuItem25.Text = "Default &Device Manager";
+            this.menuItem25.Click += new System.EventHandler(this.menuItem25_Click);
+            // 
             // _helpItem
             // 
             this._helpItem.Index = 4;
@@ -5009,9 +5010,10 @@ namespace iSpyApplication
             this.opacityToolStripMenuItem,
             this.layoutToolStripMenuItem,
             this.displayToolStripMenuItem,
+            this.gridViewsToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.ctxtMainForm.Name = "_ctxtMainForm";
-            this.ctxtMainForm.Size = new System.Drawing.Size(181, 224);
+            this.ctxtMainForm.Size = new System.Drawing.Size(181, 268);
             this.ctxtMainForm.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtMainFormOpening);
             // 
             // _addCameraToolStripMenuItem
@@ -5211,6 +5213,13 @@ namespace iSpyApplication
             this.alwaysOnTopToolStripMenuItem1.Text = "Always on Top";
             this.alwaysOnTopToolStripMenuItem1.Click += new System.EventHandler(this.alwaysOnTopToolStripMenuItem1_Click);
             // 
+            // gridViewsToolStripMenuItem
+            // 
+            this.gridViewsToolStripMenuItem.Name = "gridViewsToolStripMenuItem";
+            this.gridViewsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.gridViewsToolStripMenuItem.Text = "Grid Views";
+            this.gridViewsToolStripMenuItem.Click += new System.EventHandler(this.gridViewsToolStripMenuItem_Click);
+            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -5384,7 +5393,7 @@ namespace iSpyApplication
             // tssbGridViews
             // 
             this.tssbGridViews.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem});
+            this.manageToolStripMenuItem});
             this.tssbGridViews.Image = global::iSpyApplication.Properties.Resources.Darkfix;
             this.tssbGridViews.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tssbGridViews.Name = "tssbGridViews";
@@ -5392,12 +5401,12 @@ namespace iSpyApplication
             this.tssbGridViews.Size = new System.Drawing.Size(98, 36);
             this.tssbGridViews.Text = "Grid Views";
             // 
-            // newToolStripMenuItem
+            // manageToolStripMenuItem
             // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.newToolStripMenuItem.Text = "New...";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            this.manageToolStripMenuItem.Name = "manageToolStripMenuItem";
+            this.manageToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.manageToolStripMenuItem.Text = "Manage";
+            this.manageToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // _toolStripButton8
             // 
@@ -5634,7 +5643,7 @@ namespace iSpyApplication
             this._websiteToolstripMenuItem,
             this._exitToolStripMenuItem});
             this.ctxtTaskbar.Name = "_ctxtMnu";
-            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 246);
+            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 224);
             this.ctxtTaskbar.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtTaskbarOpening);
             // 
             // _unlockToolstripMenuItem
@@ -5721,7 +5730,7 @@ namespace iSpyApplication
             this.tsslMonitor,
             this.tsslPerformance,
             this.tsslMediaInfo});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 408);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 721);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(887, 30);
             this.statusStrip1.TabIndex = 0;
@@ -5768,7 +5777,7 @@ namespace iSpyApplication
             this._pnlContent.Location = new System.Drawing.Point(0, 0);
             this._pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this._pnlContent.Name = "_pnlContent";
-            this._pnlContent.Size = new System.Drawing.Size(887, 101);
+            this._pnlContent.Size = new System.Drawing.Size(887, 192);
             this._pnlContent.TabIndex = 20;
             // 
             // splitContainer2
@@ -5787,9 +5796,24 @@ namespace iSpyApplication
             // 
             this.splitContainer2.Panel2.Controls.Add(this.flCommands);
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer2.Size = new System.Drawing.Size(887, 101);
+            this.splitContainer2.Size = new System.Drawing.Size(887, 192);
             this.splitContainer2.SplitterDistance = 630;
             this.splitContainer2.TabIndex = 88;
+            // 
+            // flowPreview
+            // 
+            this.flowPreview.AutoScroll = true;
+            this.flowPreview.BackColor = System.Drawing.Color.Transparent;
+            this.flowPreview.ContextMenuStrip = this.ctxtMainForm;
+            this.flowPreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowPreview.Location = new System.Drawing.Point(0, 0);
+            this.flowPreview.Margin = new System.Windows.Forms.Padding(0);
+            this.flowPreview.Name = "flowPreview";
+            this.flowPreview.Size = new System.Drawing.Size(630, 192);
+            this.flowPreview.TabIndex = 0;
+            this.flowPreview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.flowPreview_MouseDown);
+            this.flowPreview.MouseEnter += new System.EventHandler(this.flowPreview_MouseEnter);
+            this.flowPreview.MouseLeave += new System.EventHandler(this.flowPreview_MouseLeave);
             // 
             // flCommands
             // 
@@ -5799,7 +5823,7 @@ namespace iSpyApplication
             this.flCommands.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flCommands.Location = new System.Drawing.Point(0, 0);
             this.flCommands.Name = "flCommands";
-            this.flCommands.Size = new System.Drawing.Size(253, 101);
+            this.flCommands.Size = new System.Drawing.Size(253, 192);
             this.flCommands.TabIndex = 0;
             this.flCommands.MouseEnter += new System.EventHandler(this.flCommands_MouseEnter);
             // 
@@ -5830,9 +5854,25 @@ namespace iSpyApplication
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this._pnlContent);
             this.splitContainer1.Panel2MinSize = 20;
-            this.splitContainer1.Size = new System.Drawing.Size(887, 369);
-            this.splitContainer1.SplitterDistance = 264;
+            this.splitContainer1.Size = new System.Drawing.Size(887, 682);
+            this.splitContainer1.SplitterDistance = 486;
             this.splitContainer1.TabIndex = 21;
+            // 
+            // _pnlCameras
+            // 
+            this._pnlCameras.AutoScroll = true;
+            this._pnlCameras.AutoSize = true;
+            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
+            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
+            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
+            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
+            this._pnlCameras.Name = "_pnlCameras";
+            this._pnlCameras.Size = new System.Drawing.Size(887, 486);
+            this._pnlCameras.TabIndex = 19;
+            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
             // 
             // panel1
             // 
@@ -6065,41 +6105,10 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // _pnlCameras
-            // 
-            this._pnlCameras.AutoScroll = true;
-            this._pnlCameras.AutoSize = true;
-            this._pnlCameras.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this._pnlCameras.BackColor = System.Drawing.Color.DimGray;
-            this._pnlCameras.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this._pnlCameras.ContextMenuStrip = this.ctxtMainForm;
-            this._pnlCameras.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._pnlCameras.Location = new System.Drawing.Point(0, 0);
-            this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
-            this._pnlCameras.Name = "_pnlCameras";
-            this._pnlCameras.Size = new System.Drawing.Size(887, 264);
-            this._pnlCameras.TabIndex = 19;
-            this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
-            // 
-            // flowPreview
-            // 
-            this.flowPreview.AutoScroll = true;
-            this.flowPreview.BackColor = System.Drawing.Color.Transparent;
-            this.flowPreview.ContextMenuStrip = this.ctxtMainForm;
-            this.flowPreview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowPreview.Location = new System.Drawing.Point(0, 0);
-            this.flowPreview.Margin = new System.Windows.Forms.Padding(0);
-            this.flowPreview.Name = "flowPreview";
-            this.flowPreview.Size = new System.Drawing.Size(630, 101);
-            this.flowPreview.TabIndex = 0;
-            this.flowPreview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.flowPreview_MouseDown);
-            this.flowPreview.MouseEnter += new System.EventHandler(this.flowPreview_MouseEnter);
-            this.flowPreview.MouseLeave += new System.EventHandler(this.flowPreview_MouseLeave);
-            // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(887, 438);
+            this.ClientSize = new System.Drawing.Size(887, 751);
             this.ContextMenuStrip = this.ctxtTaskbar;
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStripMenu);
@@ -6115,6 +6124,8 @@ namespace iSpyApplication
             this.HelpButtonClicked += new System.ComponentModel.CancelEventHandler(this.MainFormHelpButtonClicked);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormFormClosing1);
             this.Load += new System.EventHandler(this.MainFormLoad);
+            this.ResizeBegin += new System.EventHandler(this.MainForm_ResizeBegin);
+            this.ResizeEnd += new System.EventHandler(this.MainForm_ResizeEnd);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.Resize += new System.EventHandler(this.MainFormResize);
             this.ctxtMainForm.ResumeLayout(false);
@@ -6149,7 +6160,7 @@ namespace iSpyApplication
 
         #endregion
 
-        private delegate void CloseDelegate();
+        
 
         private enum LayoutModes
         {
@@ -6158,7 +6169,7 @@ namespace iSpyApplication
             right
         };
 
-        private delegate void RunStorageManagementDelegate();
+        
 
         private class UISync
         {
@@ -6196,7 +6207,7 @@ namespace iSpyApplication
             if (_cameras != null && (_cameras.Count > 0 || _microphones.Count > 0 || _floorplans.Count > 0))
             {
                 switch (
-                    MessageBox.Show(this, "Save your current objects first?", LocRm.GetString("Confirm"),
+                    MessageBox.Show(this, LocRm.GetString("SaveObjectsFirst"), LocRm.GetString("Confirm"),
                                     MessageBoxButtons.YesNoCancel))
                 {
                     case DialogResult.Yes:
@@ -6232,7 +6243,11 @@ namespace iSpyApplication
         }
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AddGridView();
+            var gvm = new GridViewManager();
+            gvm.MainClass = this;
+            gvm.ShowDialog(this);
+            gvm.Dispose();
+            ListGridViews();
         }
 
         private void archiveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -6240,15 +6255,63 @@ namespace iSpyApplication
             
             if (String.IsNullOrWhiteSpace(Conf.Archive))
             {
-                MessageBox.Show(this, "Please specify an archive location (do not use a directory that is under storage management)");
+                MessageBox.Show(this, LocRm.GetString("SpecifyArchiveLocation"));
                 ShowSettings(2);
             }
             if (!String.IsNullOrWhiteSpace(Conf.Archive))
             {
                 Helper.ArchiveFile(((PreviewBox)ContextTarget).FileName);
                 ArchiveSelectedMedia();
-                MessageBox.Show(this, "Media archived to " + Conf.Archive);
+                MessageBox.Show(this, LocRm.GetString("MediaArchivedTo")+Environment.NewLine + Conf.Archive);
             }
+
+        }
+
+        private void menuItem29_Click(object sender, EventArgs e)
+        {
+            if (String.IsNullOrWhiteSpace(Conf.Archive))
+            {
+                MessageBox.Show(this, LocRm.GetString("SpecifyArchiveLocation"));
+                ShowSettings(2);
+            }
+            if (!String.IsNullOrWhiteSpace(Conf.Archive))
+            {
+                Process.Start(Conf.Archive);
+            }
+        }
+
+        private void menuItem25_Click(object sender, EventArgs e)
+        {
+            var vdm = new VirtualDeviceManager();
+            vdm.ShowDialog(this);
+            vdm.Dispose();
+        }
+
+        private bool _resizing;
+        private DateTime _lastResize = Helper.Now;
+        private bool Resizing
+        {
+
+            get { return _resizing; }
+            set
+            {
+                _resizing = value;
+                _lastResize = Helper.Now;
+            }
+        }
+
+        private void MainForm_ResizeBegin(object sender, EventArgs e)
+        {
+            Resizing = true;
+        }
+
+        private void MainForm_ResizeEnd(object sender, EventArgs e)
+        {
+            Resizing = false;
+        }
+
+        private void gridViewsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
         }
     }

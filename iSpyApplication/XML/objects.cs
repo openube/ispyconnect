@@ -117,6 +117,8 @@ public partial class objectsCamera {
     
     private objectsCameraFtp ftpField;
     
+    private objectsCameraSavelocal savelocalField;
+    
     private objectsCameraDetector detectorField;
     
     private objectsCameraRecorder recorderField;
@@ -189,6 +191,16 @@ public partial class objectsCamera {
         }
         set {
             this.ftpField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public objectsCameraSavelocal savelocal {
+        get {
+            return this.savelocalField;
+        }
+        set {
+            this.savelocalField = value;
         }
     }
     
@@ -1533,8 +1545,11 @@ public partial class objectsCameraSettingsStoragemanagement {
     
     private int maxageField;
     
+    private bool archiveField;
+    
     public objectsCameraSettingsStoragemanagement() {
         this.enabledField = false;
+        this.archiveField = false;
     }
     
     /// <remarks/>
@@ -1564,6 +1579,16 @@ public partial class objectsCameraSettingsStoragemanagement {
         }
         set {
             this.maxageField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool archive {
+        get {
+            return this.archiveField;
+        }
+        set {
+            this.archiveField = value;
         }
     }
 }
@@ -1598,6 +1623,8 @@ public partial class objectsCameraFtp {
     
     private int ftpcounterField;
     
+    private double minimumdelayField;
+    
     private int modeField;
     
     private bool readyField;
@@ -1615,7 +1642,9 @@ public partial class objectsCameraFtp {
     private string localfilenameField;
     
     public objectsCameraFtp() {
+        this.filenameField = "mylivecamerafeed.jpg";
         this.intervalnewField = -1D;
+        this.minimumdelayField = 0D;
         this.modeField = 2;
         this.textField = "www.ispyconnect.com";
         this.savelocalField = false;
@@ -1733,6 +1762,16 @@ public partial class objectsCameraFtp {
     }
     
     /// <remarks/>
+    public double minimumdelay {
+        get {
+            return this.minimumdelayField;
+        }
+        set {
+            this.minimumdelayField = value;
+        }
+    }
+    
+    /// <remarks/>
     public int mode {
         get {
             return this.modeField;
@@ -1809,6 +1848,131 @@ public partial class objectsCameraFtp {
         }
         set {
             this.localfilenameField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
+public partial class objectsCameraSavelocal {
+    
+    private bool enabledField;
+    
+    private string filenameField;
+    
+    private double intervalnewField;
+    
+    private int counterField;
+    
+    private int countermaxField;
+    
+    private double minimumdelayField;
+    
+    private int modeField;
+    
+    private string textField;
+    
+    private int qualityField;
+    
+    public objectsCameraSavelocal() {
+        this.filenameField = "{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg";
+        this.intervalnewField = -1D;
+        this.minimumdelayField = 0D;
+        this.modeField = 2;
+        this.textField = "www.ispyconnect.com";
+    }
+    
+    /// <remarks/>
+    public bool enabled {
+        get {
+            return this.enabledField;
+        }
+        set {
+            this.enabledField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string filename {
+        get {
+            return this.filenameField;
+        }
+        set {
+            this.filenameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public double intervalnew {
+        get {
+            return this.intervalnewField;
+        }
+        set {
+            this.intervalnewField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int counter {
+        get {
+            return this.counterField;
+        }
+        set {
+            this.counterField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int countermax {
+        get {
+            return this.countermaxField;
+        }
+        set {
+            this.countermaxField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public double minimumdelay {
+        get {
+            return this.minimumdelayField;
+        }
+        set {
+            this.minimumdelayField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int mode {
+        get {
+            return this.modeField;
+        }
+        set {
+            this.modeField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string text {
+        get {
+            return this.textField;
+        }
+        set {
+            this.textField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public int quality {
+        get {
+            return this.qualityField;
+        }
+        set {
+            this.qualityField = value;
         }
     }
 }
@@ -3622,8 +3786,11 @@ public partial class objectsMicrophoneSettingsStoragemanagement {
     
     private int maxageField;
     
+    private bool archiveField;
+    
     public objectsMicrophoneSettingsStoragemanagement() {
         this.enabledField = false;
+        this.archiveField = false;
     }
     
     /// <remarks/>
@@ -3653,6 +3820,16 @@ public partial class objectsMicrophoneSettingsStoragemanagement {
         }
         set {
             this.maxageField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool archive {
+        get {
+            return this.archiveField;
+        }
+        set {
+            this.archiveField = value;
         }
     }
 }

@@ -130,11 +130,6 @@ namespace iSpyApplication
                     msg += " (public)";
                 MainForm.LogMessageToFile(msg);
 
-                //if (us.EmailOnComplete != "" && us.Ispublic)
-                //{
-                //    SendYouTubeMails(us.EmailOnComplete, us.Message, vCreated.VideoId);
-                //}
-                //check against most recent uploaded videos
                 MainForm.Conf.UploadedVideos += "," + us.AbsoluteFilePath + "|" + vCreated.VideoId;
                 if (MainForm.Conf.UploadedVideos.Length > 10000)
                     MainForm.Conf.UploadedVideos = "";
@@ -142,40 +137,6 @@ namespace iSpyApplication
             if (UploadFiles.Count>0)
                 Upload();
         }
-
-
-        //private static void SendYouTubeMails(string addresses, string message, string videoid)
-        //{
-        //    string[] emails = addresses.Split('|');
-        //    foreach (string email in emails)
-        //    {
-        //        string em = email.Trim();
-        //        if (em.IsValidEmail())
-        //        {
-        //            string body;
-        //            if (em != MainForm.EmailAddress)
-        //            {
-        //                body = LocRm.GetString("YouTubeShareMailBody").Replace("[USERNAME]",
-        //                                                                        MainForm.Conf.WSUsername);
-        //                body = body.Replace("[EMAIL]", MainForm.EmailAddress);
-        //                body = body.Replace("[MESSAGE]", message);
-        //                body = body.Replace("[INFO]", videoid);
-        //                WsWrapper.SendContent(em,
-        //                                         LocRm.GetString("YouTubeShareMailSubject").Replace("[EMAIL]",
-        //                                                                                            MainForm.
-        //                                                                                                EmailAddress),
-        //                                         body);
-        //            }
-        //            else
-        //            {
-        //                body = LocRm.GetString("YouTubeUploadMailBody").Replace("[USERNAME]",
-        //                                                                         MainForm.Conf.WSUsername);
-        //                body = body.Replace("[INFO]", videoid);
-        //                WsWrapper.SendContent(em, LocRm.GetString("YouTubeUploadMailSubject"), body);
-        //            }
-        //        }
-        //    }
-        //}
 
         #region Nested type: UserState
 

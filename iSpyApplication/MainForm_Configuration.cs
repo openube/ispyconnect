@@ -202,9 +202,7 @@ namespace iSpyApplication
                     }
                     catch (Exception ex2)
                     {
-                        string m =
-                            "Could not load or restore configuration - you will need to manually copy the file /program files/ispy/XML/config.xml to  /users/<username>/appdata/roaming/ispy/xml: " +
-                            ex2.Message;
+                        string m = LocRm.GetString("CouldNotLoadRestore")+Environment.NewLine+ex2.Message;
                         MessageBox.Show(m);
                         LogMessageToFile(m);
                         throw;
@@ -838,6 +836,23 @@ namespace iSpyApplication
                     if (String.IsNullOrEmpty(cam.settings.ptzpelcoconfig))
                         cam.settings.ptzpelcoconfig = "COM1|9600|8|One|Odd|1";
 
+                    if (cam.savelocal == null)
+                    {
+                        cam.savelocal = new objectsCameraSavelocal
+                                        {
+                                            counter = cam.ftp.counter,
+                                            countermax = cam.ftp.countermax,
+                                            mode = cam.ftp.mode,
+                                            enabled = cam.ftp.savelocal,
+                                            filename = cam.ftp.localfilename,
+                                            intervalnew = cam.ftp.intervalnew,
+                                            minimumdelay = cam.ftp.minimumdelay,
+                                            quality = cam.ftp.quality,
+                                            text = cam.ftp.text
+
+                                        };
+                    }
+
                     if (cam.alerts.processmode == null)
                         cam.alerts.processmode = "continuous";
                     if (cam.alerts.pluginconfig == null)
@@ -1105,8 +1120,11 @@ namespace iSpyApplication
                 _cameras = new List<objectsCamera>();
                 _microphones = new List<objectsMicrophone>();
                 _remotecommands = new List<objectsCommand>();
-                InitRemoteCommands();
+                _actions = new List<objectsActionsEntry>();
                 _floorplans = new List<objectsFloorplan>();
+
+                InitRemoteCommands();
+                
             }
 
             Filter.CheckedCameraIDs = new List<int>();
@@ -1380,6 +1398,7 @@ namespace iSpyApplication
                         var cw = GetCameraWindow(camobj.id);
                         if (cw != null)
                         {
+                            bool archive = camobj.settings.storagemanagement.archive;
                             var dirinfo = new DirectoryInfo(Helper.GetMediaDirectory(2, camobj.id) + "video\\" + camobj.directory);
 
                             var lFi = new List<FileInfo>();
@@ -1395,7 +1414,7 @@ namespace iSpyApplication
                                 for (int i = 0; i < lFi.Count; i++)
                                 {
                                     var fi = lFi[i];
-                                    if (FileOperations.Delete(fi.FullName))
+                                    if (FileOperations.DeleteOrArchive(fi.FullName, archive))
                                     {
                                         try
                                         {
@@ -1414,12 +1433,12 @@ namespace iSpyApplication
                                     }
                                 }
                             }
-                            var targetdate = Helper.Now.AddHours(0 - camobj.settings.storagemanagement.maxage);
+                            var targetdate = DateTime.Now.AddHours(0 - camobj.settings.storagemanagement.maxage);
                             lFi = lFi.FindAll(p => p.CreationTime < targetdate).ToList();
                             for (int i = 0; i < lFi.Count; i++)
                             {
                                 var fi = lFi[i];
-                                if (FileOperations.Delete(fi.FullName))
+                                if (FileOperations.DeleteOrArchive(fi.FullName, archive))
                                 {
                                     try
                                     {
@@ -1452,6 +1471,7 @@ namespace iSpyApplication
                         var vl = GetVolumeLevel(micobj.id);
                         if (vl != null)
                         {
+                            bool archive = micobj.settings.storagemanagement.archive;
                             var dirinfo = new DirectoryInfo(Helper.GetMediaDirectory(1, micobj.id) + "audio\\" + micobj.directory);
 
                             var lFi = new List<FileInfo>();
@@ -1467,7 +1487,7 @@ namespace iSpyApplication
                                 for (int i = 0; i < lFi.Count; i++)
                                 {
                                     var fi = lFi[i];
-                                    if (FileOperations.Delete(fi.FullName))
+                                    if (FileOperations.DeleteOrArchive(fi.FullName, archive))
                                     {
                                         try
                                         {
@@ -1483,12 +1503,12 @@ namespace iSpyApplication
                                     }
                                 }
                             }
-                            var targetdate = Helper.Now.AddHours(0 - micobj.settings.storagemanagement.maxage);
+                            var targetdate = DateTime.Now.AddHours(0 - micobj.settings.storagemanagement.maxage);
                             lFi = lFi.FindAll(p => p.CreationTime < targetdate).ToList();
                             for (int i = 0; i < lFi.Count; i++)
                             {
                                 var fi = lFi[i];
-                                if (FileOperations.Delete(fi.FullName))
+                                if (FileOperations.DeleteOrArchive(fi.FullName, archive))
                                 {
                                     try
                                     {
@@ -1528,7 +1548,7 @@ namespace iSpyApplication
                     if (d.DeleteFilesOlderThanDays <= 0)
                         return;
 
-                    DateTime dtref = Helper.Now.AddDays(0 - d.DeleteFilesOlderThanDays);
+                    DateTime dtref = DateTime.Now.AddDays(0 - d.DeleteFilesOlderThanDays);
 
                     //don't bother if oldest file isn't past cut-off
                     if (_oldestFile > dtref)
@@ -1564,13 +1584,14 @@ namespace iSpyApplication
 
 
                     var lCan = lFi.Where(p => p.CreationTime < dtref).OrderBy(p => p.CreationTime).ToList();
+                    bool archive = d.archive;
 
                     for (int i = 0; i < lCan.Count; i++)
                     {
                         var fi = lCan[i];
                         if (size > targetSize)
                         {
-                            if (FileOperations.Delete(fi.FullName))
+                            if (FileOperations.DeleteOrArchive(fi.FullName, archive))
                             {
                                 size -= fi.Length;
                                 fileschanged = true;
@@ -1690,7 +1711,7 @@ namespace iSpyApplication
 
         private void DisplayMicrophone(objectsMicrophone mic)
         {
-            var micControl = new VolumeLevel(mic);
+            var micControl = new VolumeLevel(mic,this);
             SetMicrophoneEvents(micControl);
             micControl.BackColor = Conf.BackColor.ToColor();
             _pnlCameras.Controls.Add(micControl);
@@ -1747,6 +1768,28 @@ namespace iSpyApplication
             ac.ShowDialog(owner ?? this);
             ac.Dispose();
             TopMost = Conf.AlwaysOnTop;
+        }
+
+        internal void EditObject(ISpyControl ctrl, IWin32Window owner = null)
+        {
+            var cw = ctrl as CameraWindow;
+            if (cw != null)
+            {
+                EditCamera(cw.Camobject,owner);
+                return;
+            }
+            var vl = ctrl as VolumeLevel;
+            if (vl != null)
+            {
+                EditMicrophone(vl.Micobject, owner);
+                return;
+            }
+            var fp = ctrl as FloorPlanControl;
+            if (fp != null)
+            {
+                EditFloorplan(fp.Fpobject, owner);
+                return;
+            }
         }
 
         internal void EditMicrophone(objectsMicrophone om, IWin32Window owner = null)
@@ -1834,7 +1877,7 @@ namespace iSpyApplication
             var dr = DialogResult.No;
             if (confirm)
             {
-                dr = MessageBox.Show("Delete all associated media?", LocRm.GetString("Confirm"),
+                dr = MessageBox.Show(LocRm.GetString("DeleteAllAssociatedMedia"), LocRm.GetString("Confirm"),
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question);
             }
@@ -1862,7 +1905,7 @@ namespace iSpyApplication
                 RemoveMicrophone(cameraControl.VolumeControl, false);
 
             if (InvokeRequired)
-                Invoke(new CameraCommandDelegate(RemoveCameraPanel), cameraControl);
+                Invoke(new Delegates.CameraCommandDelegate(RemoveCameraPanel), cameraControl);
             else
                 RemoveCameraPanel(cameraControl);
 
@@ -1922,7 +1965,7 @@ namespace iSpyApplication
             var dr = DialogResult.No;
             if (confirm)
             {
-                dr = MessageBox.Show("Delete all associated media?", LocRm.GetString("Confirm"),
+                dr = MessageBox.Show(LocRm.GetString("DeleteAllAssociatedMedia"), LocRm.GetString("Confirm"),
                     MessageBoxButtons.YesNoCancel,
                     MessageBoxIcon.Question);
             }
@@ -1945,7 +1988,7 @@ namespace iSpyApplication
             volumeControl.SaveFileList();
 
             if (InvokeRequired)
-                Invoke(new MicrophoneCommandDelegate(RemoveMicrophonePanel), volumeControl);
+                Invoke(new Delegates.MicrophoneCommandDelegate(RemoveMicrophonePanel), volumeControl);
             else
                 RemoveMicrophonePanel(volumeControl);
 
@@ -2114,6 +2157,7 @@ namespace iSpyApplication
                 schedule = new objectsCameraSchedule { entries = new objectsCameraScheduleEntry[0] },
                 settings = new objectsCameraSettings(),
                 ftp = new objectsCameraFtp(),
+                savelocal = new objectsCameraSavelocal(),
                 id = -1,
                 directory = RandomString(5),
                 ptz = -1,
@@ -2266,7 +2310,7 @@ namespace iSpyApplication
             oc.settings.audioip = "";
             oc.rotateMode = "RotateNoneFlipNone";
 
-            var cameraControl = new CameraWindow(oc) { BackColor = Conf.BackColor.ToColor() };
+            var cameraControl = new CameraWindow(oc,this) { BackColor = Conf.BackColor.ToColor() };
             _pnlCameras.Controls.Add(cameraControl);
 
             cameraControl.Location = new Point(oc.x, oc.y);
@@ -2400,7 +2444,7 @@ namespace iSpyApplication
             om.schedule.active = false;
             om.alertevents = new objectsMicrophoneAlertevents { entries = new objectsMicrophoneAlerteventsEntry[] { } };
 
-            var volumeControl = new VolumeLevel(om) { BackColor = Conf.BackColor.ToColor() };
+            var volumeControl = new VolumeLevel(om,this) { BackColor = Conf.BackColor.ToColor() };
             _pnlCameras.Controls.Add(volumeControl);
 
             volumeControl.Location = new Point(om.x, om.y);
@@ -2635,6 +2679,20 @@ namespace iSpyApplication
             return null;
         }
 
+        public ISpyControl GetISpyControl(int ot, int id)
+        {
+            switch (ot)
+            {
+                case 1:
+                    return GetVolumeLevel(id);
+                case 2:
+                    return GetCameraWindow(id);
+                case 3:
+                    return GetFloorPlan(id);
+            }
+            return null;
+        }
+
         public VolumeLevel GetVolumeLevel(int microphoneId)
         {
             for (int index = 0; index < _pnlCameras.Controls.Count; index++)
@@ -2648,6 +2706,9 @@ namespace iSpyApplication
 
         private void SaveObjects(string fileName)
         {
+            if (_shuttingDown)
+                return;
+
             if (fileName == "")
                 fileName = Program.AppDataPath + @"XML\objects.xml";
             var c = new objects { Version = Convert.ToInt32(Application.ProductVersion.Replace(".", "")), actions = new objectsActions {entries = _actions.ToArray()} };
@@ -2736,7 +2797,7 @@ namespace iSpyApplication
             if (_cameras != null && (_cameras.Count > 0 || _microphones.Count > 0 || _floorplans.Count > 0))
             {
                 switch (
-                    MessageBox.Show(this, "Save your current objects first?", LocRm.GetString("Confirm"),
+                    MessageBox.Show(this, LocRm.GetString("SaveObjectsFirst"), LocRm.GetString("Confirm"),
                                     MessageBoxButtons.YesNoCancel))
                 {
                     case DialogResult.Yes:
@@ -2775,7 +2836,7 @@ namespace iSpyApplication
                     if (Cameras.FirstOrDefault(p => p.settings.videosourcestring == url) == null)
                     {
                         if (InvokeRequired)
-                            Invoke(new AddObjectExternalDelegate(AddCameraExternal), sourceIndex, url, width, height,
+                            Invoke(new Delegates.AddObjectExternalDelegate(AddCameraExternal), sourceIndex, url, width, height,
                                    name);
                         else
                             AddCameraExternal(sourceIndex, url, width, height, name);
@@ -2785,7 +2846,7 @@ namespace iSpyApplication
                     if (Microphones.FirstOrDefault(p => p.settings.sourcename == url) == null)
                     {
                         if (InvokeRequired)
-                            Invoke(new AddObjectExternalDelegate(AddMicrophoneExternal), sourceIndex, url, width, height,
+                            Invoke(new Delegates.AddObjectExternalDelegate(AddMicrophoneExternal), sourceIndex, url, width, height,
                                    name);
                         else
                             AddMicrophoneExternal(sourceIndex, url, width, height, name);
@@ -2868,6 +2929,7 @@ namespace iSpyApplication
 
         private void CameraControlMouseMove(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var cameraControl = (CameraWindow)sender;
             if (e.Button == MouseButtons.Left && !Conf.LockLayout)
             {
@@ -2889,6 +2951,7 @@ namespace iSpyApplication
 
         private void CameraControlMouseDown(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var cameraControl = (CameraWindow)sender;
             cameraControl.Focus();
 
@@ -2910,7 +2973,7 @@ namespace iSpyApplication
                     _listenToolStripMenuItem.Visible = false;
                     _recordNowToolStripMenuItem.Visible = false;
                     _takePhotoToolStripMenuItem.Visible = false;
-                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = false;
+                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = Helper.HasFeature(Enums.Features.Access_Media);
                     _applyScheduleToolStripMenuItem1.Visible = true;
                     _resetRecordingCounterToolStripMenuItem.Visible = true;
                     _resetRecordingCounterToolStripMenuItem.Text = LocRm.GetString("ResetRecordingCounter") + " (" +
@@ -2927,10 +2990,6 @@ namespace iSpyApplication
                         if (Helper.HasFeature(Enums.Features.Save_Frames))
                             _takePhotoToolStripMenuItem.Visible = true;
 
-                        if (Helper.HasFeature(Enums.Features.Access_Media))
-                        {
-                            _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = true;
-                        }
                         if (cameraControl.Camobject.ptz > -1)
                         {
                             pTZToolStripMenuItem.Visible = true;
@@ -3062,8 +3121,9 @@ namespace iSpyApplication
             }
         }
 
-        private static void CameraControlMouseUp(object sender, MouseEventArgs e)
+        private void CameraControlMouseUp(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var cameraControl = (CameraWindow)sender;
             switch (e.Button)
             {
@@ -3085,6 +3145,7 @@ namespace iSpyApplication
 
         private void VolumeControlMouseDown(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var volumeControl = (VolumeLevel)sender;
             switch (e.Button)
             {
@@ -3112,14 +3173,9 @@ namespace iSpyApplication
                     _resetRecordingCounterToolStripMenuItem.Visible = true;
                     _applyScheduleToolStripMenuItem1.Visible = true;
                     pTZToolStripMenuItem.Visible = false;
-                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = false;
+                    _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = Helper.HasFeature(Enums.Features.Access_Media);
                     _resetRecordingCounterToolStripMenuItem.Text = LocRm.GetString("ResetRecordingCounter") + " (" +
                                                                    volumeControl.Micobject.newrecordingcount + ")";
-
-                    if (Helper.HasFeature(Enums.Features.Access_Media))
-                    {
-                        _viewMediaOnAMobileDeviceToolStripMenuItem.Visible = _viewMediaToolStripMenuItem.Visible = true;
-                    }
 
                     if (volumeControl.Listening)
                     {
@@ -3155,8 +3211,9 @@ namespace iSpyApplication
             volumeControl.Focus();
         }
 
-        private static void VolumeControlMouseUp(object sender, MouseEventArgs e)
+        private void VolumeControlMouseUp(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var volumeControl = (VolumeLevel)sender;
             if (e.Button == MouseButtons.Left && !volumeControl.Paired)
             {
@@ -3168,6 +3225,7 @@ namespace iSpyApplication
 
         private void VolumeControlMouseMove(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var volumeControl = (VolumeLevel)sender;
             if (e.Button == MouseButtons.Left && !volumeControl.Paired && !Conf.LockLayout)
             {
@@ -3193,6 +3251,7 @@ namespace iSpyApplication
 
         private void FloorPlanMouseDown(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var fpc = (FloorPlanControl)sender;
             if (e.Button == MouseButtons.Left)
             {
@@ -3221,8 +3280,9 @@ namespace iSpyApplication
             fpc.Focus();
         }
 
-        private static void FloorPlanMouseUp(object sender, MouseEventArgs e)
+        private void FloorPlanMouseUp(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var fpc = (FloorPlanControl)sender;
             if (e.Button == MouseButtons.Left)
             {
@@ -3233,6 +3293,7 @@ namespace iSpyApplication
 
         private void FloorPlanMouseMove(object sender, MouseEventArgs e)
         {
+            if (Resizing) return;
             var fpc = (FloorPlanControl)sender;
             if (e.Button == MouseButtons.Left && !Conf.LockLayout)
             {
@@ -3257,7 +3318,7 @@ namespace iSpyApplication
 
         private void DisplayCamera(objectsCamera cam)
         {
-            var cameraControl = new CameraWindow(cam);
+            var cameraControl = new CameraWindow(cam,this);
             SetCameraEvents(cameraControl);
             cameraControl.BackColor = Conf.BackColor.ToColor();
             _pnlCameras.Controls.Add(cameraControl);
@@ -3351,29 +3412,9 @@ namespace iSpyApplication
 
         private void CameraControlRemoteCommand(object sender, ThreadSafeCommand e)
         {
-            InvokeMethod i = DoInvoke;
+            Delegates.InvokeMethod i = DoInvoke;
             Invoke(i, new object[] { e.Command });
         }
-
-        private delegate void InvokeMethod(string command);
-
-        #endregion
-
-        #region Nested type: AddObjectExternalDelegate
-
-        private delegate void AddObjectExternalDelegate(int sourceIndex, string url, int width, int height, string name);
-
-        #endregion
-
-        #region Nested type: CameraCommandDelegate
-
-        private delegate void CameraCommandDelegate(CameraWindow target);
-
-        #endregion
-
-        #region Nested type: ExternalCommandDelegate
-
-        private delegate void ExternalCommandDelegate(string command);
 
         #endregion
 
@@ -3413,13 +3454,7 @@ namespace iSpyApplication
             }
         }
 
-        #endregion
-
-        #region Nested type: MicrophoneCommandDelegate
-
-        private delegate void MicrophoneCommandDelegate(VolumeLevel target);
-
-        #endregion
+        #endregion      
 
         #region Nested type: clsCompareFileInfo
 

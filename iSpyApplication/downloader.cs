@@ -20,12 +20,15 @@ namespace iSpyApplication
         public downloader()
         {
             InitializeComponent();
+
         }
 
         private void downloader_Load(object sender, EventArgs e)
         {
             UISync.Init(this);
             backgroundWorker1.RunWorkerAsync();
+            Text = LocRm.GetString("Updating");
+
         }
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
@@ -64,7 +67,7 @@ namespace iSpyApplication
                         // update the progress bar
                         backgroundWorker1.ReportProgress(iProgressPercentage);
                         int total = iRunningByteTotal;
-                        UISync.Execute(() => lblProgress.Text = "Downloaded " + total + " of " + iSize);
+                        UISync.Execute(() => lblProgress.Text = total + " / " + iSize);
                     }
                     if (!backgroundWorker1.CancellationPending)
                     {
@@ -133,7 +136,7 @@ namespace iSpyApplication
             }
             else
             {
-                MessageBox.Show(this, "Update Failed", "See log file for more information");
+                MessageBox.Show(this, LocRm.GetString("UpdateFailed"), LocRm.GetString("SeeLogFile"));
             }
             Close();
         }
@@ -142,7 +145,7 @@ namespace iSpyApplication
         {
             if (backgroundWorker1.IsBusy && !aborting)
             {
-                if (MessageBox.Show(this, "Cancel update?","Confirm", MessageBoxButtons.YesNo)==DialogResult.Yes)
+                if (MessageBox.Show(this, LocRm.GetString("CancelUpdate"),LocRm.GetString("Confirm"), MessageBoxButtons.YesNo)==DialogResult.Yes)
                 {
                     backgroundWorker1.CancelAsync();
                 }
