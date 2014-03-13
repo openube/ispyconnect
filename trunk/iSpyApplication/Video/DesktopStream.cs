@@ -208,11 +208,12 @@ namespace iSpyApplication.Video
                                                      s.Bounds.Y + _screenSize.Y, 0, 0,
                                                      new Size(_screenSize.Width, _screenSize.Height));
                                 }
-                                catch
+                                catch(Exception ex)
                                 {
                                     target.Dispose();
                                     target = null;
-                                    //probably remote desktop
+                                    throw new Exception("Error grabbing screen ("+ex.Message+") - disable screensaver.");
+                                    //probably remote desktop or screensaver has kicked in
 
                                 }
 
@@ -224,13 +225,11 @@ namespace iSpyApplication.Video
                             }
 
                             // notify client
-                            if (target != null)
-                            {
-                                NewFrame(this, new NewFrameEventArgs(target));
-                                // release the image
-                                target.Dispose();
-                                target = null;
-                            }
+                            NewFrame(this, new NewFrameEventArgs(target));
+                            // release the image
+                            target.Dispose();
+                            target = null;
+                            
                         }
                     }
 

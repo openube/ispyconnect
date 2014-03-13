@@ -37,6 +37,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.chkStopRecording = new System.Windows.Forms.CheckBox();
+            this.chkArchive = new System.Windows.Forms.CheckBox();
             this.chkStorage = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -78,10 +79,12 @@
             this.tableLayoutPanel3.Controls.Add(this.label9, 2, 0);
             this.tableLayoutPanel3.Controls.Add(this.label11, 0, 2);
             this.tableLayoutPanel3.Controls.Add(this.chkStopRecording, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.chkArchive, 1, 4);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(6, 19);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 4;
+            this.tableLayoutPanel3.RowCount = 5;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
@@ -177,6 +180,18 @@
             this.chkStopRecording.TabIndex = 39;
             this.chkStopRecording.Text = "Stop recording when limit exceeded";
             this.chkStopRecording.UseVisualStyleBackColor = true;
+            // 
+            // chkArchive
+            // 
+            this.chkArchive.AutoSize = true;
+            this.tableLayoutPanel3.SetColumnSpan(this.chkArchive, 2);
+            this.chkArchive.Location = new System.Drawing.Point(135, 130);
+            this.chkArchive.Margin = new System.Windows.Forms.Padding(6);
+            this.chkArchive.Name = "chkArchive";
+            this.chkArchive.Size = new System.Drawing.Size(143, 17);
+            this.chkArchive.TabIndex = 40;
+            this.chkArchive.Text = "Archive instead of delete";
+            this.chkArchive.UseVisualStyleBackColor = true;
             // 
             // chkStorage
             // 
@@ -304,5 +319,6 @@
         private System.Windows.Forms.TextBox txtMediaDirectory;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.CheckBox chkArchive;
     }
 }

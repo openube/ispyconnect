@@ -9,6 +9,8 @@ namespace iSpyApplication
         public Prompt()
         {
             InitializeComponent();
+            button1.Text = LocRm.GetString("OK");
+
         }
 
         public Prompt(string label, string prefill)

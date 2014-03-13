@@ -131,7 +131,7 @@ namespace iSpyApplication
 
         private void RenderResources()
         {
-            btnChooseFile.Text = LocRm.GetString("chars_3014702301470230147");
+            btnChooseFile.Text = "...";
             btnFinish.Text = LocRm.GetString("Finish");
             label1.Text = LocRm.GetString("Name");
             label2.Text = LocRm.GetString("Image");

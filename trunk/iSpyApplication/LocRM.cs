@@ -69,6 +69,7 @@ namespace iSpyApplication
             }
             catch (KeyNotFoundException)
             {
+                MainForm.LogErrorToFile("No Translation for token " + identifier);
                 if (CultureCode != "en")
                 {
                     var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
@@ -107,6 +108,7 @@ namespace iSpyApplication
             catch (KeyNotFoundException)
             {
                 ctrl.Text = identifier;
+                MainForm.LogErrorToFile("No Translation for token " + identifier);
                 if (CultureCode != "en")
                 {
                     var eng = TranslationSets.FirstOrDefault(p => p.CultureCode == "en");
@@ -141,6 +143,7 @@ namespace iSpyApplication
             }
             catch (KeyNotFoundException)
             {
+                MainForm.LogErrorToFile("No Translation for token " + identifier);
                 ctrl.Text = identifier;
                 if (CultureCode!="en")
                 {
@@ -177,6 +180,7 @@ namespace iSpyApplication
             }
             catch (KeyNotFoundException)
             {
+                MainForm.LogErrorToFile("No Translation for token " + identifier);
                 ctrl.Text = identifier;
                 if (CultureCode != "en")
                 {

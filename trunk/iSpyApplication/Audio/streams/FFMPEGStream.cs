@@ -180,14 +180,12 @@ namespace iSpyApplication.Audio.streams
                 throw new ArgumentException("Audio source is not specified.");
 
             _stopEvent = new ManualResetEvent(false);
-            lock (_threadLock)
-            {
-                _thread = new Thread(FfmpegListener)
-                          {
-                              Name = "FFMPEG Audio Receiver (" + _source + ")"
-                          };
-                _thread.Start();
-            }
+            
+            _thread = new Thread(FfmpegListener)
+                        {
+                            Name = "FFMPEG Audio Receiver (" + _source + ")"
+                        };
+            _thread.Start();
             //_stopped = false;
 
                         
@@ -266,21 +264,22 @@ namespace iSpyApplication.Audio.streams
                     {
                         if (!realTime)
                         {
-                            _reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
                             break;
                         }
                     }
                     if (data!=null && data.Length > 0)
                     {
                         lastPacket = Helper.Now;
-                        if (DataAvailable != null)
+                        var da = DataAvailable;
+                        if (da != null)
                         {
                             //forces processing of volume level without piping it out
                             _waveProvider.AddSamples(data, 0, data.Length);
 
                             var sampleBuffer = new float[data.Length];
                             _sampleChannel.Read(sampleBuffer, 0, data.Length);
-                            DataAvailable(this, new DataAvailableEventArgs((byte[])data.Clone()));
+                            
+                            da(this, new DataAvailableEventArgs((byte[])data.Clone()));
 
                             if (WaveOutProvider!=null && Listening)
                             {
@@ -352,7 +351,7 @@ namespace iSpyApplication.Audio.streams
             }
 
             if (IsFileSource && !err)
-                _reasonToStop = ReasonToFinishPlaying.StoppedByUser;
+                _reasonToStop = ReasonToFinishPlaying.EndOfStreamReached;
 
             try
             {
@@ -393,7 +392,6 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
-        private readonly object _threadLock = new object();
         private bool _stopping;
         /// <summary>
         /// Stop audio source.
@@ -414,24 +412,21 @@ namespace iSpyApplication.Audio.streams
                     {
                         //if stopEvent is null the thread is exiting and stop has been called from a related event //bastard!
                         _stopEvent.Set();
-
-                        while (ThreadAlive)
+                        try
                         {
-                            try
+                            while (IsRunning)
                             {
-                                _thread.Join(50);
+                                _thread.Join(0);
                             }
-                            catch
-                            {
-                            }
-                            Application.DoEvents();
+                        }
+                        catch
+                        {
+
                         }
                     }
                 }
 
                 Listening = false;
-
-                _thread = null;
                 _stopping = false;
             }
         }
@@ -440,10 +435,7 @@ namespace iSpyApplication.Audio.streams
         {
             get
             {
-                lock (_threadLock)
-                {
-                    return _thread != null && !_thread.Join(TimeSpan.Zero);
-                }
+                return _thread != null && !_thread.Join(TimeSpan.Zero);
             }
         }
 

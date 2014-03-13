@@ -198,6 +198,7 @@ namespace iSpyApplication
             }
 
             actionEditor1.LoginRequested += ActionEditor1LoginRequested;
+            chkArchive.Checked = VolumeLevel.Micobject.settings.storagemanagement.archive;
 
             LoadMediaDirectories();
 
@@ -216,7 +217,7 @@ namespace iSpyApplication
             btnDelete.Text = LocRm.GetString("Delete");
             btnFinish.Text = LocRm.GetString("Finish");
             btnNext.Text = LocRm.GetString("Next");
-            btnSelectSource.Text = LocRm.GetString("chars_3014702301470230147");
+            btnSelectSource.Text = "...";
             btnUpdate.Text = LocRm.GetString("Update");
             button2.Text = LocRm.GetString("Add");
             chkActive.Text = LocRm.GetString("MicrophoneActive");
@@ -241,7 +242,7 @@ namespace iSpyApplication
             chkTue.Text = LocRm.GetString("Tue");
             chkWed.Text = LocRm.GetString("Wed");
             label1.Text = LocRm.GetString("Name");
-            label10.Text = label18.Text = LocRm.GetString("chars_3801146");
+            label10.Text = label18.Text = ":";
             label12.Text = LocRm.GetString("MaxRecordTime");
             label13.Text = LocRm.GetString("Seconds");
             label14.Text = LocRm.GetString("Seconds");
@@ -260,7 +261,7 @@ namespace iSpyApplication
             label50.Text = LocRm.GetString("ImportantMakeSureYourSche");
             label8.Text = LocRm.GetString("Start");
 
-            label9.Text = LocRm.GetString("chars_3801146");
+            label9.Text = ":";
             label7.Text = LocRm.GetString("TipToCreateAScheduleOvern");
             label10.Text = LocRm.GetString("Stop");
 
@@ -284,6 +285,14 @@ namespace iSpyApplication
 
             LocRm.SetString(label23,"Listen");
             LocRm.SetString(label22, "TriggerRecording");
+
+            label11.Text = LocRm.GetString("MediaLocation");
+            label74.Text = LocRm.GetString("Directory");
+            chkStorageManagement.Text = LocRm.GetString("EnableStorageManagement");
+            label85.Text = LocRm.GetString("MaxFolderSizeMb");
+            label94.Text = LocRm.GetString("MaxAgeHours");
+            chkArchive.Text = LocRm.GetString("ArchiveInsteadOfDelete");
+            btnRunNow.Text = LocRm.GetString("RunNow");
 
             HideTab(tabPage2, Helper.HasFeature(Enums.Features.Alerts));
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
@@ -395,7 +404,7 @@ namespace iSpyApplication
                 VolumeLevel.Micobject.detector.recordonalert = rdoRecordAlert.Checked;
                 
                 VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
-                VolumeLevel.Micobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
+
 
                 if (txtDirectory.Text.Trim() == "")
                     txtDirectory.Text = MainForm.RandomString(5);
@@ -424,7 +433,7 @@ namespace iSpyApplication
                         }
                         else
                         {
-                            switch (MessageBox.Show(this, "Directory " + txtDirectory.Text + " already exists. Delete existing contents?", "Confirm", MessageBoxButtons.YesNoCancel))
+                            switch (MessageBox.Show(this, LocRm.GetString("Validate_Directory_Exists"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
                             {
                                 case DialogResult.Yes:
                                     Directory.Delete(path, true);
@@ -440,7 +449,7 @@ namespace iSpyApplication
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, "Directory is invalid please specify a unique string instead eg: " + MainForm.RandomString(5) + Environment.NewLine + ex.Message);
+                        MessageBox.Show(this, LocRm.GetString("Validate_Directory_String")+ Environment.NewLine + ex.Message);
                         tcMicrophone.SelectedIndex = 0;
                         return;
                     }
@@ -448,15 +457,9 @@ namespace iSpyApplication
 
                 
                 VolumeLevel.Micobject.directory = txtDirectory.Text;
-                
-
-
-                VolumeLevel.Micobject.directory = txtDirectory.Text;
                 VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
-                VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
-                VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
-
+                SetStorageManagement();
 
                 DialogResult = DialogResult.OK;
                 MainForm.NeedsSync = true;
@@ -838,11 +841,16 @@ namespace iSpyApplication
 
         private void btnRunNow_Click(object sender, EventArgs e)
         {
+            SetStorageManagement();
+            MainClass.RunStorageManagement(true);
+        }
+
+        private void SetStorageManagement()
+        {
             VolumeLevel.Micobject.settings.storagemanagement.enabled = chkStorageManagement.Checked;
             VolumeLevel.Micobject.settings.storagemanagement.maxage = (int)numMaxAge.Value;
             VolumeLevel.Micobject.settings.storagemanagement.maxsize = (int)numMaxFolderSize.Value;
-
-            MainClass.RunStorageManagement();
+            VolumeLevel.Micobject.settings.storagemanagement.archive = chkArchive.Checked;
         }
 
         private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

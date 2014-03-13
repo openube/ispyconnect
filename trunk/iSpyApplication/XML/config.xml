@@ -115,4 +115,10 @@
   <MailAlertSubject>[EVENT]: [OBJECTNAME]</MailAlertSubject>
   <MailAlertBody>[EVENT]: [OBJECTNAME] [RECORDED] [PLUGIN]</MailAlertBody>
   <SMSAlert>[EVENT]: [OBJECTNAME] [RECORDED] [PLUGIN]</SMSAlert>
+  <DeviceDriverDefault></DeviceDriverDefault>
+  <SSLCertificate></SSLCertificate>
+  <SSLClientRequired>false</SSLClientRequired>
+  <SSLIgnoreErrors>true</SSLIgnoreErrors>
+  <SSLCheckRevocation>false</SSLCheckRevocation>
+  <SSLEnabled>false</SSLEnabled>
 </configuration>

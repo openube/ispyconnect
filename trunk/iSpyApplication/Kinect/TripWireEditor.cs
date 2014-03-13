@@ -83,7 +83,7 @@ namespace iSpyApplication.Kinect
                 {
                     Config = "";
                     TripWires.Clear();
-                    MessageBox.Show(this, "Trip wires have been reset due to an error or missing values in configuration data.");
+                    MessageBox.Show(this, LocRm.GetString("TripWiresReset"));
                 }
             }
         }

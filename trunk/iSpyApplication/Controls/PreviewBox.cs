@@ -137,7 +137,7 @@ namespace iSpyApplication.Controls
         {
             if (!MainForm.Conf.Subscribed)
             {
-                MessageBox.Show(this, "Subscribers only");
+                MessageBox.Show(this, LocRm.GetString("SubscribersOnly"));
                 return;
             }
 
@@ -151,7 +151,7 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                MessageBox.Show(this, "You can only upload MP4 Files.");
+                MessageBox.Show(this, LocRm.GetString("OnlyUploadMP4Files"));
 
             }
         }
@@ -161,7 +161,7 @@ namespace iSpyApplication.Controls
                 MainForm.Conf.PlaybackMode = 0;
             if (!VlcHelper.VlcInstalled && mode == 1)
             {
-                MessageBox.Show(this, "VLC player is not installed (" + VlcHelper.VMin + " or greater required). Using the web player instead. Install VLC (" + Program.Platform + ") and then see settings to enable ispy local playback.");
+                MessageBox.Show(this, LocRm.GetString("VLCNotInstalled"));
                 MainForm.Conf.PlaybackMode = mode = 0;
             }
 
@@ -179,7 +179,7 @@ namespace iSpyApplication.Controls
             }
             if (!File.Exists(movie))
             {
-                MessageBox.Show(this, "File could not be found on disk.");
+                MessageBox.Show(this, LocRm.GetString("FileNotFound"));
                 return;                
             }
             string[] parts = FileName.Split('\\');
@@ -219,7 +219,7 @@ namespace iSpyApplication.Controls
                     catch (Exception ex)
                     {
                         MainForm.LogExceptionToFile(ex);
-                        MessageBox.Show("I could not find a player for this file. Try using iSpyConnect or install VLC (" + Program.Platform + ") and use that instead (" + ex.Message + ")");
+                        MessageBox.Show(LocRm.GetString("NoPlayerForThisFile"));
                     }
                     break;
             }

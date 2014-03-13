@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Controls;
-using NAudio.CoreAudioApi;
 using PictureBox = AForge.Controls.PictureBox;
 
 namespace iSpyApplication

@@ -13,6 +13,7 @@ namespace iSpyApplication
 
         private void Features_Load(object sender, EventArgs e)
         {
+            Text = LocRm.GetString("Features");
             var i = 1;
             var feats = Enum.GetValues(typeof (Enums.Features));
             foreach (var f in feats)

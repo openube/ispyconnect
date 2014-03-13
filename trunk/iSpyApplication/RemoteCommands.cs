@@ -46,7 +46,7 @@ namespace iSpyApplication
             btnAddCommand.Text = LocRm.GetString("Add");
             btnDelete.Text = LocRm.GetString("Delete");
             button1.Text = LocRm.GetString("Finish");
-            button3.Text = LocRm.GetString("chars_3014702301470230147");
+            button3.Text = "...";
             gpbSubscriber.Text = LocRm.GetString("NewRemoteCommand");
             label1.Text = LocRm.GetString("Name");
             label45.Text = LocRm.GetString("forExamples");

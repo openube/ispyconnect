@@ -124,7 +124,7 @@
             this.dataGridView1.MultiSelect = false;
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(224, 380);
+            this.dataGridView1.Size = new System.Drawing.Size(277, 308);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_1);
@@ -233,7 +233,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 380);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 308);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // label8
@@ -314,7 +314,7 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(243, 6);
+            this.linkLabel1.Location = new System.Drawing.Point(6, 267);
             this.linkLabel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(56, 13);
@@ -342,7 +342,7 @@
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tbl2.Size = new System.Drawing.Size(409, 196);
+            this.tbl2.Size = new System.Drawing.Size(1, 1);
             this.tbl2.TabIndex = 0;
             // 
             // label13
@@ -419,13 +419,13 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(100, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(309, 261);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(1, 280);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 269);
+            this.label11.Location = new System.Drawing.Point(3, 288);
             this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(36, 13);
@@ -436,9 +436,9 @@
             // 
             this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlModel.FormattingEnabled = true;
-            this.ddlModel.Location = new System.Drawing.Point(103, 264);
+            this.ddlModel.Location = new System.Drawing.Point(103, 283);
             this.ddlModel.Name = "ddlModel";
-            this.ddlModel.Size = new System.Drawing.Size(149, 21);
+            this.ddlModel.Size = new System.Drawing.Size(1, 21);
             this.ddlModel.TabIndex = 8;
             this.ddlModel.SelectedIndexChanged += new System.EventHandler(this.ddlModel_SelectedIndexChanged);
             // 
@@ -543,9 +543,9 @@
             // pnlConfig
             // 
             this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
-            this.pnlConfig.Location = new System.Drawing.Point(198, -8);
+            this.pnlConfig.Location = new System.Drawing.Point(38, 30);
             this.pnlConfig.Name = "pnlConfig";
-            this.pnlConfig.Size = new System.Drawing.Size(565, 508);
+            this.pnlConfig.Size = new System.Drawing.Size(135, 101);
             this.pnlConfig.TabIndex = 6;
             // 
             // tableLayoutPanel4
@@ -563,7 +563,7 @@
             this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 306F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(565, 508);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(135, 101);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // rdoUnlisted
@@ -571,7 +571,7 @@
             this.rdoUnlisted.AutoSize = true;
             this.rdoUnlisted.Location = new System.Drawing.Point(3, 309);
             this.rdoUnlisted.Name = "rdoUnlisted";
-            this.rdoUnlisted.Size = new System.Drawing.Size(95, 17);
+            this.rdoUnlisted.Size = new System.Drawing.Size(95, 1);
             this.rdoUnlisted.TabIndex = 15;
             this.rdoUnlisted.TabStop = true;
             this.rdoUnlisted.Text = "Unlisted (scan)";
@@ -605,7 +605,7 @@
             this.tbl1.RowCount = 2;
             this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tbl1.Size = new System.Drawing.Size(409, 300);
+            this.tbl1.Size = new System.Drawing.Size(1, 300);
             this.tbl1.TabIndex = 14;
             // 
             // pnlNetwork
@@ -615,16 +615,16 @@
             this.pnlNetwork.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlNetwork.Location = new System.Drawing.Point(0, 33);
             this.pnlNetwork.Name = "pnlNetwork";
-            this.pnlNetwork.Size = new System.Drawing.Size(460, 380);
+            this.pnlNetwork.Size = new System.Drawing.Size(513, 308);
             this.pnlNetwork.TabIndex = 7;
             // 
             // pnlFindNetwork
             // 
             this.pnlFindNetwork.Controls.Add(this.pnlNetwork);
             this.pnlFindNetwork.Controls.Add(this.panel3);
-            this.pnlFindNetwork.Location = new System.Drawing.Point(102, 140);
+            this.pnlFindNetwork.Location = new System.Drawing.Point(38, 144);
             this.pnlFindNetwork.Name = "pnlFindNetwork";
-            this.pnlFindNetwork.Size = new System.Drawing.Size(460, 413);
+            this.pnlFindNetwork.Size = new System.Drawing.Size(513, 341);
             this.pnlFindNetwork.TabIndex = 8;
             // 
             // panel3
@@ -633,7 +633,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(0, 0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(460, 33);
+            this.panel3.Size = new System.Drawing.Size(513, 33);
             this.panel3.TabIndex = 0;
             // 
             // flowLayoutPanel2
@@ -646,7 +646,7 @@
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(460, 33);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(513, 33);
             this.flowLayoutPanel2.TabIndex = 0;
             // 
             // label10
@@ -685,7 +685,7 @@
             // 
             this.pnlConnect.Controls.Add(this.pnlOptions);
             this.pnlConnect.Controls.Add(this.panel4);
-            this.pnlConnect.Location = new System.Drawing.Point(25, 351);
+            this.pnlConnect.Location = new System.Drawing.Point(88, 272);
             this.pnlConnect.Name = "pnlConnect";
             this.pnlConnect.Size = new System.Drawing.Size(335, 269);
             this.pnlConnect.TabIndex = 9;
@@ -714,9 +714,9 @@
             // pnlLogin
             // 
             this.pnlLogin.Controls.Add(this.tableLayoutPanel3);
-            this.pnlLogin.Location = new System.Drawing.Point(609, 27);
+            this.pnlLogin.Location = new System.Drawing.Point(266, 28);
             this.pnlLogin.Name = "pnlLogin";
-            this.pnlLogin.Size = new System.Drawing.Size(392, 197);
+            this.pnlLogin.Size = new System.Drawing.Size(423, 393);
             this.pnlLogin.TabIndex = 10;
             // 
             // tableLayoutPanel3
@@ -739,7 +739,7 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(392, 197);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(423, 393);
             this.tableLayoutPanel3.TabIndex = 0;
             // 
             // label15

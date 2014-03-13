@@ -212,13 +212,9 @@ internal static class Program
         }
     }
 
-    private const bool DisableCertificateValidation = true;
-
     private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors policyErrors)
     {
-        if (DisableCertificateValidation) return true;
-
-        return policyErrors == null;
+        return true;
     } 
 
 

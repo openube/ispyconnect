@@ -608,27 +608,32 @@ namespace iSpyApplication.Video
                                                 HasAudioStream = null;
                                             }
                                         }
-                                        
-                                        if (DataAvailable != null)
+
+                                        var da = DataAvailable;
+                                        if (da != null)
                                         {
                                             int l = endPacket - br - 8;
                                             var data = new byte[l];
+                                            int d = 0;
                                             using (var ms = new MemoryStream(buffer, br+4, l))
                                             {
-                                                ms.Read(data, 0, l);
+                                                d = ms.Read(data, 0, l);
                                             }
-                                            _waveProvider.AddSamples(data, 0, data.Length);
-
-                                            if (Listening)
+                                            if (d > 0)
                                             {
-                                                WaveOutProvider.AddSamples(data, 0, data.Length);
+                                                _waveProvider.AddSamples(data, 0, data.Length);
+
+                                                if (Listening)
+                                                {
+                                                    WaveOutProvider.AddSamples(data, 0, data.Length);
+                                                }
+
+                                                //forces processing of volume level without piping it out
+                                                var sampleBuffer = new float[data.Length];
+                                                _sampleChannel.Read(sampleBuffer, 0, data.Length);
+
+                                                da(this, new DataAvailableEventArgs((byte[]) data.Clone()));
                                             }
-
-                                            //forces processing of volume level without piping it out
-                                            var sampleBuffer = new float[data.Length];
-                                            _sampleChannel.Read(sampleBuffer, 0, data.Length);
-
-                                            DataAvailable(this, new DataAvailableEventArgs((byte[]) data.Clone()));
                                         }
 
                                         break;

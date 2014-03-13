@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -25,6 +24,7 @@ namespace iSpyApplication.Controls
            
             flpDirectories.VerticalScroll.Visible = true;
             flpDirectories.HorizontalScroll.Visible = false;
+            button1.Text = LocRm.GetString("Add");
             RenderDirectoryList();
         }
 
@@ -82,7 +82,7 @@ namespace iSpyApplication.Controls
                 if (d!=c.Config.Entry)
                 {
                     //directory changed
-                    MessageBox.Show(this, "Media directory location changed - please restart ispy");
+                    MessageBox.Show(this, LocRm.GetString("MediaDirectoryChanged"));
                 }
             }
             c.Dispose();
@@ -96,7 +96,7 @@ namespace iSpyApplication.Controls
         {
             if (Directories.Length==1)
             {
-                MessageBox.Show(this, "You must have at least one media directory");
+                MessageBox.Show(this, LocRm.GetString("NeedOneMediaDirectory"));
                 return;
             }
             var oe = ((DirectoryEventRow)sender);
@@ -107,7 +107,7 @@ namespace iSpyApplication.Controls
             if (lname.Count>0)
             {
                 var t = lname.Aggregate("", (current, s) => current + (s + Environment.NewLine));
-                MessageBox.Show(this,"Please reassign all cameras and microphones that are using this media directory first:"+Environment.NewLine+t);
+                MessageBox.Show(this,LocRm.GetString("ReassignAllCamerasMedia")+Environment.NewLine+t);
                 return;
             }
             var l = Directories.ToList();
@@ -131,6 +131,11 @@ namespace iSpyApplication.Controls
                 Directories = l.ToArray();
                 RenderDirectoryList();
             }
+        }
+
+        private void flpDirectories_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }

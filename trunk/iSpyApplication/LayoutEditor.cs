@@ -37,8 +37,8 @@ namespace iSpyApplication
         {
             Text = LocRm.GetString("LayoutEditor");
             button1.Text = LocRm.GetString("Update");
-            label1.Text = LocRm.GetString("X");
-            label2.Text = LocRm.GetString("Y");
+            label1.Text = "X";
+            label2.Text = "Y";
             label3.Text = LocRm.GetString("Width");
             label4.Text = LocRm.GetString("Height");
         }

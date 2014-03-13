@@ -12,6 +12,7 @@ namespace iSpyApplication
 
         private void Pager_Load(object sender, EventArgs e)
         {
+            Text = LocRm.GetString("Page");
             numPage.Minimum = 1;
             numPage.Maximum = (MainForm.MasterFileList.Count - 1)/MainForm.Conf.PreviewItems + 1;
             if (MainForm.MediaPanelPage + 1<=numPage.Maximum)

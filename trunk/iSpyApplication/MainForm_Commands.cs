@@ -14,14 +14,12 @@ namespace iSpyApplication
         private readonly bool[] _buttonsLast = new bool[128];
         private bool _needstop, _sentdirection;
 
-        private delegate void RunCheckJoystick();
-
         void TmrJoystickElapsed(object sender, ElapsedEventArgs e)
         {
             if (_shuttingDown)
                 return;
             _tmrJoystick.Stop();
-            Invoke(new RunCheckJoystick(CheckJoystick));
+            Invoke(new Delegates.RunCheckJoystick(CheckJoystick));
             _tmrJoystick.Start();
         }
 
@@ -229,32 +227,35 @@ namespace iSpyApplication
             {
                 if (c is CameraWindow)
                 {
-                    var cameraControl = (CameraWindow)c;
-                    if (on && !cameraControl.Camobject.settings.active)
+                    var cameraControl = (CameraWindow) c;
+                    if (on && !cameraControl.IsEnabled)
                     {
-                        if (!scheduledOnly || cameraControl.Camobject.schedule.active)
+                        if (!scheduledOnly)
                             cameraControl.Enable();
                     }
 
-                    if (!on && cameraControl.Camobject.settings.active)
+                    if (!on && cameraControl.IsEnabled)
                     {
-                        if (!scheduledOnly || cameraControl.Camobject.schedule.active)
+                        if (!scheduledOnly)
                             cameraControl.Disable();
                     }
                 }
+            }
+            foreach (Control c in _pnlCameras.Controls)
+            {
                 if (c is VolumeLevel)
                 {
                     var volumeControl = (VolumeLevel)c;
 
-                    if (on && !volumeControl.Micobject.settings.active)
+                    if (on && !volumeControl.IsEnabled)
                     {
-                        if (!scheduledOnly || volumeControl.Micobject.schedule.active)
+                        if (!scheduledOnly)
                             volumeControl.Enable();
                     }
 
-                    if (!on && volumeControl.Micobject.settings.active)
+                    if (!on && volumeControl.IsEnabled)
                     {
-                        if (!scheduledOnly || volumeControl.Micobject.schedule.active)
+                        if (!scheduledOnly)
                             volumeControl.Disable();
                     }
                 }
@@ -498,7 +499,7 @@ namespace iSpyApplication
                         if (command2 != "")
                         {
                             if (InvokeRequired)
-                                Invoke(new ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
+                                Invoke(new Delegates.ExternalCommandDelegate(ProcessCommandInternal), command2.Trim('"'));
                             else
                                 ProcessCommandInternal(command2.Trim('"'));
                         }

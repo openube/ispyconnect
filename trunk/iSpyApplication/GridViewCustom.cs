@@ -89,6 +89,14 @@ namespace iSpyApplication
             LocRm.SetString(label1, "Mode");
             LocRm.SetString(label6, "Columns");
             LocRm.SetString(label2, "Rows");
+            LocRm.SetString(chkFullScreen, "FullScreen");
+            LocRm.SetString(chkAlwaysOnTop, "AlwaysOnTop");
+            LocRm.SetString(chkFill, "FillArea");
+            LocRm.SetString(label5, "Framerate");
+            LocRm.SetString(label4, "Display");
+            LocRm.SetString(chkShowOnLoad, "ShowOnLoad");
+            LocRm.SetString(button1,"OK");
+
         }
 
         private void ddlMode_SelectedIndexChanged(object sender, EventArgs e)

@@ -249,6 +249,8 @@ namespace iSpyApplication
             LocRm.SetString(lblCamera, "NoCamera");
 
             LocRm.SetString(tabPage5, "Camera");
+            LocRm.SetString(label1,"SampleRate");
+            LocRm.SetString(label7, "AnalyseDurationMS");
 
         }
 
