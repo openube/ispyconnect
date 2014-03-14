@@ -1405,15 +1405,6 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="CERTENROLLLib">
-      <Guid>{728AB348-217D-11DA-B2A4-000E7BBB2B09}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
     <COMReference Include="NATUPNPLib">
       <Guid>{1C565858-F302-471E-B409-F180AA4ABEC6}</Guid>
       <VersionMajor>1</VersionMajor>

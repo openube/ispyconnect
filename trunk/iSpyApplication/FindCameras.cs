@@ -823,6 +823,7 @@ namespace iSpyApplication
                 wc.AllowAutoRedirect = true;
                 wc.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19";
                 wc.Timeout = 3000;
+                wc.ReadWriteTimeout = 3000;
                 wc.Method = "GET";
                 var authInfo = "";
                 if (!String.IsNullOrEmpty(login))
@@ -850,17 +851,19 @@ namespace iSpyApplication
                     }
                     wc.CookieContainer = myContainer;
                 }
-                var res = (HttpWebResponse) wc.GetResponse();
-                sc = res.StatusCode;
-                res.Close();
-                if (sc==HttpStatusCode.OK)
+                using (var res = (HttpWebResponse) wc.GetResponse())
                 {
-                    string ct = res.ContentType.ToLower();
-                    if (ct.IndexOf("text", StringComparison.Ordinal)==-1)
+                    sc = res.StatusCode;
+                    if (sc==HttpStatusCode.OK)
                     {
-                        b = true;
+                        string ct = res.ContentType.ToLower();
+                        if (ct.IndexOf("text", StringComparison.Ordinal)==-1)
+                        {
+                            b = true;
+                        }
                     }
                 }
+                
             }
             catch (WebException we)
             {

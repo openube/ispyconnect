@@ -2211,10 +2211,22 @@ namespace iSpyApplication
             oc.ftp.interval = 10;
             oc.ftp.intervalnew = 10;
             oc.ftp.filename = "mylivecamerafeed.jpg";
-            oc.ftp.localfilename = "{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg";
             oc.ftp.ready = true;
             oc.ftp.text = "www.ispyconnect.com";
             oc.ftp.quality = 75;
+            oc.ftp.counter = 0;
+            oc.ftp.countermax = 20;
+            oc.ftp.minimumdelay = 0;
+
+            oc.savelocal.enabled = false;
+            oc.savelocal.mode = 0;
+            oc.savelocal.intervalnew = 10;
+            oc.savelocal.filename = "{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg";
+            oc.savelocal.text = "www.ispyconnect.com";
+            oc.savelocal.quality = 75;
+            oc.savelocal.counter = 0;
+            oc.savelocal.countermax = 20;
+            oc.savelocal.minimumdelay = 0;
 
             oc.schedule.active = false;
 

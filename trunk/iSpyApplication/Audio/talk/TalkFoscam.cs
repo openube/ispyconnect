@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -173,18 +174,7 @@ namespace iSpyApplication.Audio.talk
         public void Start()
         {
             _stopEvent = new ManualResetEvent(false);
-            _needsencodeinit = true;
-            TcpClient tcp;
-            try
-            {
-                tcp = new TcpClient(_server, _port);
-            }
-            catch (Exception ex  )
-            {
-                MainForm.LogExceptionToFile(ex);
-                return;
-            }
-            _stream = tcp.GetStream();
+            
             var t = new Thread(CommsThread);
             t.Start();
         }
@@ -344,6 +334,19 @@ namespace iSpyApplication.Audio.talk
         #region CommsThread
         private void CommsThread()
         {
+            _needsencodeinit = true;
+            try
+            {
+                var tcp = new TcpClient(_server, _port);
+                _stream = tcp.GetStream();
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+                return;
+            }
+           
+
             byte[] cmd = SInit(OprLoginReq, MoIPOprFlag);
             Send(cmd);
 
@@ -381,7 +384,7 @@ namespace iSpyApplication.Audio.talk
 
                             if (r.StartsWith(MoIPOprFlag) && data.Length >= 23)
                             {
-                                string code = (data[4] + data[5]).ToString();
+                                string code = (data[4] + data[5]).ToString(CultureInfo.InvariantCulture);
 
                                 switch (code)
                                 {
