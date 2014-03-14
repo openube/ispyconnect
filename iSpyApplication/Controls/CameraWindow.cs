@@ -209,6 +209,11 @@ namespace iSpyApplication.Controls
             }
         }
 
+        public string ObjectName
+        {
+            get { return Camobject.name; }
+        }
+
         public bool CanTalk
         {
             get { return IsEnabled && Camobject.settings.audiomodel != "None"; }

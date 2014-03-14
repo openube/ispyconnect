@@ -1388,11 +1388,11 @@ namespace iSpyApplication
             _serialPort.Write(arr,0,arr.Length);
         }
 
-        void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            string data = _serialPort.ReadLine();
-            Debug.WriteLine(" <- " + data);
-        }
+        //void SerialPortDataReceived(object sender, SerialDataReceivedEventArgs e)
+        //{
+        //    string data = _serialPort.ReadLine();
+        //    Debug.WriteLine(" <- " + data);
+        //}
 
         public void SendPTZCommand(string cmd)
         {

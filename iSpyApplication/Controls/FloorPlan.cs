@@ -774,6 +774,11 @@ namespace iSpyApplication.Controls
         public bool Listening { get; private set; }
         public bool Recording { get; private set; }
 
+        public string ObjectName
+        {
+            get { return Fpobject.name; }
+        }
+
         public bool CanTalk
         {
             get { return false; }

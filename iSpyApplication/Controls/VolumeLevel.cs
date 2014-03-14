@@ -409,6 +409,11 @@ namespace iSpyApplication.Controls
             }
         }
 
+        public string ObjectName
+        {
+            get { return Micobject.name; }
+        }
+
         public bool CanTalk
         {
             get { return false; }

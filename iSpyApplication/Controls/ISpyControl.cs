@@ -15,6 +15,7 @@ namespace iSpyApplication.Controls
         bool CanEnable { get; }
         bool CanGrab { get; }
         bool HasFiles { get; }
+        string ObjectName { get; }
 
         void Disable(bool stopSource=true);
         void Enable();
@@ -22,6 +23,7 @@ namespace iSpyApplication.Controls
         void Talk(IWin32Window f = null);
         void Listen();
         string SaveFrame(Bitmap bmp = null);
+        
 
 
     }

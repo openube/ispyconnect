@@ -381,6 +381,7 @@ namespace iSpyApplication
         private MenuItem menuItem30;
         private MenuItem menuItem25;
         private ToolStripMenuItem gridViewsToolStripMenuItem;
+        private ToolStripMenuItem maximiseToolStripMenuItem;
         private ToolStripMenuItem websiteToolStripMenuItem;
 
         public MainForm(bool silent, string command)
@@ -1401,6 +1402,7 @@ namespace iSpyApplication
         {
             Helper.SetTitle(this);
 
+            maximiseToolStripMenuItem.Text = LocRm.GetString("Maximise");
             _aboutHelpItem.Text = LocRm.GetString("About");
             _activateToolStripMenuItem.Text = LocRm.GetString("Switchon");
             _addCameraToolStripMenuItem.Text = LocRm.GetString("AddCamera");
@@ -2602,6 +2604,12 @@ namespace iSpyApplication
             foreach (var gv in Conf.GridViews)
             {
                 gridViewsToolStripMenuItem.DropDownItems.Add(gv.name, null, tsi_Click);
+
+            }
+            maximiseToolStripMenuItem.DropDownItems.Clear();
+            foreach (ISpyControl ic in _pnlCameras.Controls)
+            {
+                maximiseToolStripMenuItem.DropDownItems.Add(ic.ObjectName, null, tsi_MaximiseClick);
 
             }
         }
@@ -3933,7 +3941,10 @@ namespace iSpyApplication
 
             switch (cw.Camobject.settings.audiomodel)
             {
-                default:
+                default://local playback
+                    _talkTarget = new TalkLocal(_talkSource);
+                    break;
+                case "Foscam":
                     _talkTarget = new TalkFoscam(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport,
                         cw.Camobject.settings.audiousername, cw.Camobject.settings.audiopassword, _talkSource);
                     break;
@@ -4122,6 +4133,21 @@ namespace iSpyApplication
                 gv.Show();
             }
         }
+
+        void tsi_MaximiseClick(object sender, EventArgs e)
+        {
+            var mi = (ToolStripItem)sender;
+            foreach (ISpyControl ic in _pnlCameras.Controls)
+            {
+                if (ic.ObjectName == mi.Text)
+                {
+                    Maximise(ic);
+                    return;
+                }
+            }
+        }
+
+        
 
         public void EditGridView(string name, IWin32Window parent = null)
         {
@@ -4420,6 +4446,7 @@ namespace iSpyApplication
             this.archiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.maximiseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -5011,9 +5038,10 @@ namespace iSpyApplication
             this.layoutToolStripMenuItem,
             this.displayToolStripMenuItem,
             this.gridViewsToolStripMenuItem,
+            this.maximiseToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.ctxtMainForm.Name = "_ctxtMainForm";
-            this.ctxtMainForm.Size = new System.Drawing.Size(181, 268);
+            this.ctxtMainForm.Size = new System.Drawing.Size(181, 290);
             this.ctxtMainForm.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtMainFormOpening);
             // 
             // _addCameraToolStripMenuItem
@@ -6104,6 +6132,12 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // maximiseToolStripMenuItem
+            // 
+            this.maximiseToolStripMenuItem.Name = "maximiseToolStripMenuItem";
+            this.maximiseToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.maximiseToolStripMenuItem.Text = "Maximise";
             // 
             // MainForm
             // 

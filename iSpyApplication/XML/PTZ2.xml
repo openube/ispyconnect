@@ -5039,4 +5039,27 @@
       <Command Name="Go Preset 4">gotopresetIndex=4</Command>
     </ExtendedCommands>
   </Camera>
+  <Camera id="192">
+    <Makes>
+      <Make Name="WansView" Model="NCM625W" />
+    </Makes>
+    <CommandURL>/web/cgi-bin/hi3510/param.cgi?cmd=ptzctrl&amp;-step=0</CommandURL>
+    <Commands>
+      <Center>-act=home</Center>
+      <Left>-act=left</Left>
+      <Right>-act=right</Right>
+      <Up>-act=up</Up>
+      <Down>-act=down</Down>
+      <Stop>-act=stop</Stop>
+      <ZoomIn>-act=zoomin</ZoomIn>
+      <ZoomOut>-act=zoomout</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Horizontal patrol">-act=hscan</Command>
+      <Command Name="Vertical patrol">-act=vscan</Command>
+      <Command Name="Stop">-act=stop</Command>
+    </ExtendedCommands>
+  </Camera>
 </PTZSettings2>
+
+

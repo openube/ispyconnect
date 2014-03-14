@@ -379,6 +379,32 @@ namespace iSpyApplication
             }
         }
 
+        /// <summary>
+        /// Sends data to the browser (client)
+        /// </summary>
+        /// <param name="bSendData">Byte Array</param>
+        /// <param name="datalength"></param>
+        public void SendToBrowser(Byte[] bSendData, int datalength, HttpRequest req)
+        {
+            try
+            {
+                if (req.TcpClient.Client.Connected)
+                {
+                    req.Stream.Write(bSendData, 0, datalength);
+                    //if (req.TcpClient.Client.Send(bSendData) == -1)
+                    //  MainForm.LogExceptionToFile(new Exception("Socket Error cannot Send Packet"));
+                }
+            }
+            catch (SocketException)
+            {
+                //connection error
+            }
+            catch (Exception e)
+            {
+                MainForm.LogExceptionToFile(e);
+            }
+        }
+
         public bool ThumbnailCallback()
         {
             return false;
