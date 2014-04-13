@@ -363,6 +363,7 @@
     <Content Include="lgpl-3.0.txt" />
     <Content Include="license.txt" />
     <Content Include="objects.xml" />
+    <None Include="packages.config" />
     <None Include="Resources\icon_pointer.png" />
     <Content Include="XML\objects.xml" />
     <Content Include="XML\PTZ.xml" />
