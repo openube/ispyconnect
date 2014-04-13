@@ -273,6 +273,9 @@ namespace iSpyApplication
 
                 _conf.IPv6Disabled = true;
 
+                if (_conf.FTPServers == null)
+                    _conf.FTPServers = new configurationServer[] {};
+
                 //can fail on windows xp/vista with a very very nasty error
                 if (IsWinSevenOrHigher())
                 {
@@ -390,7 +393,30 @@ namespace iSpyApplication
                 if (_ipv4Addresses != null)
                     return _ipv4Addresses;
 
-                var arr = Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork).ToArray();
+                IPAddress[] arr;
+                try
+                {
+                    arr =
+                        Dns.GetHostEntry(Dns.GetHostName())
+                            .AddressList.Where(p => p.AddressFamily == AddressFamily.InterNetwork)
+                            .ToArray();//attempts reverse dns lookup
+                }
+                catch (Exception ex)
+                {
+                    LogExceptionToFile(ex);
+                    try
+                    {
+                        arr = Dns.GetHostAddresses(Dns.GetHostName());
+                    }
+                    catch (Exception ex2)
+                    {
+                        LogExceptionToFile(ex2);
+                        //none in the system - just use the loopback address
+                        _ipv4Addresses = new[] { System.Net.IPAddress.Parse("127.0.0.1") };
+                        return _ipv4Addresses;
+                    }
+                    //ignore lookup
+                }
                 _ipv4Addresses = arr.Where(IsValidIP).ToArray();
 
                 if (!_ipv4Addresses.Any()) //none in the system - just use the loopback address
@@ -659,30 +685,29 @@ namespace iSpyApplication
                     if (cam.settings.youtube == null)
                     {
                         cam.settings.youtube = new objectsCameraSettingsYoutube
-                                               {
-                                                   autoupload = false,
-                                                   category = Conf.YouTubeDefaultCategory,
-                                                   tags = "iSpy, Motion Detection, Surveillance",
-                                                   @public = false
-                                               };
+                                {
+                                    category = Conf.YouTubeDefaultCategory,
+                                    tags = "iSpy, Motion Detection, Surveillance",
+                                    @public = true
+                                };
                     }
                     if (cam.ptzschedule == null)
                     {
                         cam.ptzschedule = new objectsCameraPtzschedule
-                                          {
-                                              active = false,
-                                              entries = new objectsCameraPtzscheduleEntry[] {}
-                                          };
+                                {
+                                    active = false,
+                                    entries = new objectsCameraPtzscheduleEntry[] {}
+                                };
                     }
                     if (cam.settings.storagemanagement == null)
                     {
                         cam.settings.storagemanagement = new objectsCameraSettingsStoragemanagement
-                                                         {
-                                                             enabled = false,
-                                                             maxage = 72,
-                                                             maxsize = 1024
+                                {
+                                    enabled = false,
+                                    maxage = 72,
+                                    maxsize = 1024
 
-                                                         };
+                                };
                     }
                     bool migrate = false;
                     if (cam.alertevents == null)
@@ -690,8 +715,13 @@ namespace iSpyApplication
                         cam.alertevents = new objectsCameraAlertevents();
                         migrate = true;
                     }
+                    
+                    if (cam.settings.cloudprovider==null)
+                        cam.settings.cloudprovider = new objectsCameraSettingsCloudprovider();
+
                     if (cam.alertevents.entries == null)
                         cam.alertevents.entries = new objectsCameraAlerteventsEntry[] {};
+
                     if (migrate)
                     {
                         var l = new List<objectsCameraAlerteventsEntry>();
@@ -767,7 +797,7 @@ namespace iSpyApplication
                                 objectid = cam.id,
                                 objecttypeid = 2,
                                 type = "E",
-                                param1 = cam.settings.emailaddress,
+                                param1 = cam.settings.emailondisconnect,
                                 param2 = "False"
                             });
                         }
@@ -807,6 +837,30 @@ namespace iSpyApplication
                         cam.settings.audioport = 80;
                     if (cam.ftp.intervalnew < 0)
                         cam.ftp.intervalnew = cam.ftp.interval;
+
+                    if (cam.ftp.server.Length>10)
+                    {
+                        var ftp = Conf.FTPServers.FirstOrDefault(p => p.name == cam.ftp.server && p.username==cam.ftp.username);
+                        if (ftp == null)
+                        {
+                            ftp = new configurationServer
+                                  {
+                                      ident = Guid.NewGuid().ToString(),
+                                      name=cam.ftp.server,
+                                      password = cam.ftp.password,
+                                      port = cam.ftp.port,
+                                      rename = cam.ftp.rename,
+                                      server = cam.ftp.server,
+                                      usepassive = cam.ftp.usepassive,
+                                      username = cam.ftp.username
+                                  };
+                            var l = Conf.FTPServers.ToList();
+                            l.Add(ftp);
+                            Conf.FTPServers = l.ToArray();
+                            cam.ftp.ident = ftp.ident;
+
+                        }
+                    }
 
                     if (Conf.MediaDirectories.FirstOrDefault(p => p.ID == cam.settings.directoryIndex) == null)
                         cam.settings.directoryIndex = Conf.MediaDirectories.First().ID;
@@ -990,6 +1044,11 @@ namespace iSpyApplication
 
                         };
                     }
+                    if (Math.Abs(mic.detector.minsensitivity - (-1)) < double.Epsilon)
+                    {
+                        mic.detector.minsensitivity = mic.detector.sensitivity;
+                        mic.detector.maxsensitivity = 100;
+                    }
 
                     if (Conf.MediaDirectories.FirstOrDefault(p => p.ID == mic.settings.directoryIndex) == null)
                         mic.settings.directoryIndex = Conf.MediaDirectories.First().ID;
@@ -1068,7 +1127,7 @@ namespace iSpyApplication
                                       objectid = mic.id,
                                       objecttypeid = 1,
                                       type = "E",
-                                      param1 = mic.settings.emailaddress,
+                                      param1 = mic.settings.emailondisconnect,
                                       param2 = "False"
                                   });
                         }
@@ -1662,7 +1721,7 @@ namespace iSpyApplication
                     foreach (var ff in l)
                     {
                         Masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, vl.Micobject.name,
-                                                           ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm));
+                                                           ff.CreatedDateTicks, 1, vl.Micobject.id, ff.MaxAlarm,ff.IsTimelapse,ff.IsMergeFile));
                     }
                     if (!vl.LoadedFiles)
                     {
@@ -2264,12 +2323,12 @@ namespace iSpyApplication
 
             oc.settings.youtube = new objectsCameraSettingsYoutube
             {
-                autoupload = false,
                 category = Conf.YouTubeDefaultCategory,
                 tags = "iSpy, Motion Detection, Surveillance",
-                @public = false
+                @public = true
             };
-
+            oc.settings.cloudprovider = new objectsCameraSettingsCloudprovider();
+            
             oc.settings.storagemanagement = new objectsCameraSettingsStoragemanagement
             {
                 enabled = false,
@@ -2286,7 +2345,7 @@ namespace iSpyApplication
             oc.settings.directoryIndex = Conf.MediaDirectories.First().ID;
 
             if (VlcHelper.VlcInstalled)
-                oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
+                oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config" + NL + "--rtsp-caching 100";
             else
                 oc.settings.vlcargs = "";
 
@@ -2435,6 +2494,9 @@ namespace iSpyApplication
             };
 
             om.detector.sensitivity = 60;
+            om.detector.minsensitivity = 60;
+            om.detector.maxsensitivity = 100;
+
             om.detector.nosoundinterval = 30;
             om.detector.soundinterval = 0;
             om.detector.recordondetect = Conf.DefaultRecordOnDetect;
@@ -2564,7 +2626,7 @@ namespace iSpyApplication
                     foreach (var ff in l)
                     {
                         Masterfilelist.Add(new FilePreview(ff.Filename, ff.DurationSeconds, cw.Camobject.name,
-                                                           ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm));
+                                                           ff.CreatedDateTicks, 2, cw.Camobject.id, ff.MaxAlarm, ff.IsTimelapse, ff.IsMergeFile));
                     }
                     if (!cw.LoadedFiles)
                     {
@@ -2604,32 +2666,29 @@ namespace iSpyApplication
         }
 
 
-        public PreviewBox AddPreviewControl(Image thumb, string movieName, int duration, DateTime createdDate, string name)
+        public PreviewBox AddPreviewControl(FilePreview fp, Image thumb, string movieName, string name)
         {
-            var pb = new PreviewBox { Image = thumb };
-
+            var pb = new PreviewBox(fp.ObjectTypeId, fp.ObjectId, this) {Image = thumb, Duration = fp.Duration};
+            pb.Width = pb.Image.Width;
+            pb.Height = pb.Image.Height + 20;
+            pb.Cursor = Cursors.Hand;
+            pb.Selected = false;
+            pb.FileName = movieName;
+            pb.CreatedDate = new DateTime(fp.CreatedDateTicks);
+            pb.MouseDown += PbMouseDown;
+            pb.MouseEnter += PbMouseEnter;
+            string txt = name + ": " + pb.CreatedDate.ToString(CultureInfo.CurrentUICulture);
+            pb.DisplayName = txt;
+            pb.IsMerged = fp.IsMerged;
             lock (ThreadLock)
             {
-                pb.Duration = duration;
-                pb.Width = pb.Image.Width;
-                pb.Height = pb.Image.Height + 20;
-                pb.Cursor = Cursors.Hand;
-                pb.Selected = false;
-                pb.FileName = movieName;
-                pb.CreatedDate = createdDate;
-                pb.MouseDown += PbMouseDown;
-                pb.MouseEnter += PbMouseEnter;
-                string txt = name + ": " + createdDate.ToString(CultureInfo.CurrentUICulture);
-                pb.DisplayName = txt;
                 flowPreview.Controls.Add(pb);
+                
             }
-
             return pb;
         }
-
-        public PreviewBox AddPreviewControl(string thumbname, string movieName, int duration, DateTime createdDate, string name)
+        public PreviewBox AddPreviewControl(FilePreview fp, string thumb, string movieName, string name)
         {
-            string thumb = thumbname;
             Image bmp;
             try
             {
@@ -2651,8 +2710,59 @@ namespace iSpyApplication
                 LogExceptionToFile(ex);
                 return null;
             }
-            return AddPreviewControl(bmp, movieName, duration, createdDate, name);
+            return AddPreviewControl(fp, bmp, movieName, name);
         }
+
+
+        //public PreviewBox AddPreviewControl(int otid, int oid, Image thumb, string movieName, int duration, DateTime createdDate, string name)
+        //{
+        //    var pb = new PreviewBox(otid,oid,this) { Image = thumb };
+
+        //    lock (ThreadLock)
+        //    {
+        //        pb.Duration = duration;
+        //        pb.Width = pb.Image.Width;
+        //        pb.Height = pb.Image.Height + 20;
+        //        pb.Cursor = Cursors.Hand;
+        //        pb.Selected = false;
+        //        pb.FileName = movieName;
+        //        pb.CreatedDate = createdDate;
+        //        pb.MouseDown += PbMouseDown;
+        //        pb.MouseEnter += PbMouseEnter;
+        //        string txt = name + ": " + createdDate.ToString(CultureInfo.CurrentUICulture);
+        //        pb.DisplayName = txt;
+        //        flowPreview.Controls.Add(pb);
+        //    }
+
+        //    return pb;
+        //}
+
+        //public PreviewBox AddPreviewControl(int otid, int oid, string thumbname, string movieName, int duration, DateTime createdDate, string name)
+        //{
+        //    string thumb = thumbname;
+        //    Image bmp;
+        //    try
+        //    {
+        //        if (!File.Exists(thumb))
+        //        {
+        //            bmp = Resources.notfound;
+        //        }
+        //        else
+        //        {
+        //            using (var f = File.Open(thumb, FileMode.Open, FileAccess.Read))
+        //            {
+        //                bmp = Image.FromStream(f);
+        //                f.Close();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        LogExceptionToFile(ex);
+        //        return null;
+        //    }
+        //    return AddPreviewControl(otid,oid,bmp, movieName, duration, createdDate, name);
+        //}
 
 
         private DateTime _lastOver = DateTime.MinValue;
@@ -3488,7 +3598,7 @@ namespace iSpyApplication
         #endregion
     }
 
-    public struct FilePreview
+    public class FilePreview
     {
         public string Filename;
         public int Duration;
@@ -3497,8 +3607,10 @@ namespace iSpyApplication
         public int ObjectTypeId;
         public int ObjectId;
         public double MaxAlarm;
+        public bool IsTimeLapse;
+        public bool IsMerged;
 
-        public FilePreview(string filename, int duration, string name, long createdDateTicks, int objectTypeId, int objectId, double maxAlarm)
+        public FilePreview(string filename, int duration, string name, long createdDateTicks, int objectTypeId, int objectId, double maxAlarm, bool isTimelapse, bool isMerged)
         {
             Filename = filename;
             Duration = duration;
@@ -3507,6 +3619,8 @@ namespace iSpyApplication
             ObjectId = objectId;
             CreatedDateTicks = createdDateTicks;
             MaxAlarm = maxAlarm;
+            IsMerged = isMerged;
+            IsTimeLapse = isTimelapse;
         }
     }
 }

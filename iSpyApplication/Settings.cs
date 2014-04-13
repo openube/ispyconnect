@@ -19,12 +19,21 @@ namespace iSpyApplication
 {
     public partial class Settings : Form
     {
-        public static readonly string[] StartupModes = 
+        public static readonly object[] StartupModes = 
             {
                 "Normal","Minimised","Maximised","FullScreen"
             };
 
-        public static readonly string[] Priorities =
+        public static readonly object[] PlaybackModes =
+        {
+            "Website", "iSpy", "Default"
+        };
+        public static readonly object[] CloudProviders = 
+            {
+                "Google Drive","Dropbox"
+            };
+
+        public static readonly object[] Priorities =
         {
             "Normal","AboveNormal","High","RealTime"
         };
@@ -113,6 +122,7 @@ namespace iSpyApplication
 
             MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
             MainForm.Conf.Opacity = tbOpacity.Value;
+            MainForm.Conf.OpenGrabs = chkOpenGrabs.Checked;
             
             MainForm.Conf.YouTubePassword = txtYouTubePassword.Text;
             MainForm.Conf.YouTubeUsername = txtYouTubeUsername.Text;
@@ -145,6 +155,9 @@ namespace iSpyApplication
             MainForm.Conf.DisconnectNotificationDelay = (int)numDisconnectNotification.Value;
             var l = mediaDirectoryEditor1.Directories.ToList();
             MainForm.Conf.MediaDirectories = l.ToArray();
+            var l2 = ftpEditor1.Servers.ToList();
+            MainForm.Conf.FTPServers = l2.ToArray();
+
             MainForm.Conf.MailAlertSubject = txtAlertSubject.Text;
             MainForm.Conf.MailAlertBody = txtAlertBody.Text;
             MainForm.Conf.SMSAlert = txtSMSBody.Text;
@@ -416,11 +429,9 @@ namespace iSpyApplication
             ddlStartUpForm.SelectedItem = MainForm.Conf.StartupForm;
             if (ddlStartUpForm.SelectedItem==null)
                 ddlStartUpForm.SelectedIndex = 0;
-            
-            var pbModes = LocRm.GetString("PlaybackModes").Split(',');
-            foreach (var s in pbModes)
-                ddlPlayback.Items.Add(s.Trim());
 
+            ddlPlayback.Items.AddRange(PlaybackModes);
+            
             if (MainForm.Conf.PlaybackMode < 0)
                 MainForm.Conf.PlaybackMode = 0;
 
@@ -541,6 +552,10 @@ namespace iSpyApplication
             txtSMTPServer.Text = MainForm.Conf.SMTPServer;
             chkSMTPUseSSL.Checked = MainForm.Conf.SMTPSSL;
             numSMTPPort.Value = MainForm.Conf.SMTPPort;
+
+            ftpEditor1.Init(MainForm.Conf.FTPServers);
+            chkOpenGrabs.Checked = MainForm.Conf.OpenGrabs;
+            
             _loaded = true;
         }
 
@@ -577,7 +592,6 @@ namespace iSpyApplication
             label14.Text = LocRm.GetString("IspyServerName");
             label16.Text = LocRm.GetString("ispyOpacitymayNotW");
             label2.Text = LocRm.GetString("ServerReceiveTimeout");
-            label20.Text = LocRm.GetString("additionalControlsForYout");
             label21.Text = LocRm.GetString("TrayIconText");
             label3.Text = LocRm.GetString("MediaDirectory");
             label4.Text = "ms";
@@ -590,7 +604,7 @@ namespace iSpyApplication
             label13.Text = LocRm.GetString("PlaybackMode");
             tabPage1.Text = LocRm.GetString("Colors");
             tabPage2.Text = LocRm.GetString("Storage");
-            tabPage3.Text = LocRm.GetString("Youtube");
+            tabPage3.Text = LocRm.GetString("YouTube");
             tabPage4.Text = LocRm.GetString("Timeouts");
             tabPage6.Text = LocRm.GetString("options");
             tabPage7.Text = LocRm.GetString("IPAccess");
@@ -677,6 +691,9 @@ namespace iSpyApplication
             label60.Text = LocRm.GetString("SSLCertificate");
             //future
             chkSpeechRecognition.Visible = false;
+            groupBox1.Text = LocRm.GetString("YouTube");
+            label63.Text = LocRm.GetString("Servers");
+            chkOpenGrabs.Text = LocRm.GetString("OpenImagesAfterSaving");
         }
 
 

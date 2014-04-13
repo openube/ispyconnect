@@ -140,6 +140,7 @@ namespace iSpyApplication
                 MainForm.LogErrorToFile(error);
             }
             
+            
             objectsCamera oc = MainForm.Cameras.SingleOrDefault(p => p.id == task.CameraId);
             if (oc != null)
             {

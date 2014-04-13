@@ -11,6 +11,7 @@
                         <xs:attribute name="MaxAlarm" type="xs:double" use="required" />
                         <xs:attribute name="DurationSeconds" type="xs:int" use="required" />
                         <xs:attribute name="IsTimelapse" type="xs:boolean" use="required" />
+                        <xs:attribute name="IsMergeFile" type="xs:boolean" use="optional" />
                         <xs:attribute name="AlertData" type="xs:string" use="required" />
                         <xs:attribute name="TriggerLevel" type="xs:double" use="required" />
                         <xs:attribute name="TriggerLevelMax" type="xs:double" use="optional" />

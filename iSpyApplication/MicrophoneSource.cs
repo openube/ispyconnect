@@ -267,7 +267,11 @@ namespace iSpyApplication
 
         private void LinkLabel3LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MainForm.OpenUrl( "http://www.videolan.org/vlc/download-windows.html");
+            MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
+            if (Program.Platform == "x64")
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
+            else
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx86")); ;
         }
 
         private void LinkLabel1LinkClicked1(object sender, LinkLabelLinkClickedEventArgs e)

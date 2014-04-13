@@ -23,6 +23,7 @@ using System.Threading;
 using System.Windows.Forms;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
+using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
@@ -1519,13 +1520,13 @@ namespace iSpyApplication
                     resp = "OK";
                     break;
                 case "triggerplugin":
+                {
+                    CameraWindow cw = _parent.GetCameraWindow(oid);
+                    if (cw != null && cw.Camera != null)
                     {
-                        CameraWindow cw = _parent.GetCameraWindow(oid);
-                        if (cw != null && cw.Camera != null)
-                        {
-                            cw.Camera.TriggerPlugin();
-                        }
+                        cw.Camera.TriggerPlugin();
                     }
+                }
                     resp = "OK";
                     break;
                 case "smscmd":
@@ -1539,7 +1540,8 @@ namespace iSpyApplication
                         {
                             if (oc.command.StartsWith("ispy ") || oc.command.StartsWith("ispy.exe "))
                             {
-                                string cmd2 = oc.command.Substring(oc.command.IndexOf(" ", StringComparison.Ordinal) + 1).Trim();
+                                string cmd2 =
+                                    oc.command.Substring(oc.command.IndexOf(" ", StringComparison.Ordinal) + 1).Trim();
 
                                 int k = cmd2.ToLower().IndexOf("commands ", StringComparison.Ordinal);
                                 if (k != -1)
@@ -1638,26 +1640,26 @@ namespace iSpyApplication
                     break;
                 case "archive":
                     resp = "Archive failed. Check storage settings.";
+                {
+                    files = GetVar(sRequest, "filelist").Trim('|').Split('|');
+                    string d = "audio";
+                    if (otid == 2)
+                        d = "video";
+
+                    folderpath = Helper.GetMediaDirectory(otid, oid) + d + "\\" +
+                                 Helper.GetDirectory(otid, oid) + "\\";
+
+                    foreach (string fn3 in files)
                     {
-                        files = GetVar(sRequest, "filelist").Trim('|').Split('|');
-                        string d = "audio";
-                        if (otid == 2)
-                            d = "video";
-
-                        folderpath = Helper.GetMediaDirectory(otid, oid) + d + "\\" +
-                                     Helper.GetDirectory(otid, oid) + "\\";
-
-                        foreach (string fn3 in files)
-                        {
-                            if (Helper.ArchiveFile(folderpath + fn3))
-                                resp = "OK";
-                            else
-                                break;
-                        }
+                        if (Helper.ArchiveFile(folderpath + fn3))
+                            resp = "OK";
+                        else
+                            break;
                     }
+                }
                     break;
                 case "deleteall":
-                    Helper.DeleteAllContent(otid,oid);
+                    Helper.DeleteAllContent(otid, oid);
                     if (otid == 1)
                     {
                         var vl = _parent.GetVolumeLevel(oid);
@@ -1667,7 +1669,7 @@ namespace iSpyApplication
                             MainForm.NeedsMediaRefresh = Helper.Now;
                         }
                     }
-                    
+
                     if (otid == 2)
                     {
                         var cw = _parent.GetCameraWindow(oid);
@@ -1680,49 +1682,45 @@ namespace iSpyApplication
                     resp = "OK";
                     break;
                 case "uploadyoutube":
-                    bool @public = Convert.ToBoolean(GetVar(sRequest, "public"));
-                    resp = YouTubeUploader.AddUpload(oid, fn, @public) + ",OK";
+                    resp = YouTubeUploader.Upload(oid, fn) + ",OK";
                     break;
-                case "sendbyemail":
-                    string email = GetVar(sRequest, "email");
-                    string message = GetVar(sRequest, "message").Replace("%20", " ");
-                    //send by email has been removed
-                    resp = YouTubeUploader.AddUpload(oid, fn, true, email, message) + ",OK";
+                case "uploadcloud":
+                    resp = CloudGateway.Upload(otid, oid, Helper.GetFullPath(otid, oid) + fn) + ",OK";
                     break;
                 case "kinect_tilt_up":
+                {
+                    var c = _parent.GetCameraWindow(oid);
+                    if (c != null)
                     {
-                        var c = _parent.GetCameraWindow(oid);
-                        if (c != null)
+                        try
                         {
-                            try
-                            {
-                                ((KinectStream) c.Camera.VideoSource).Tilt += 4;
-                            }
-                            catch (Exception ex)
-                            {
-                                MainForm.LogExceptionToFile(ex);
-                            }
+                            ((KinectStream) c.Camera.VideoSource).Tilt += 4;
                         }
-
-                        resp = "OK";
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
                     }
+
+                    resp = "OK";
+                }
                     break;
                 case "kinect_tilt_down":
+                {
+                    var c = _parent.GetCameraWindow(oid);
+                    if (c != null)
                     {
-                        var c = _parent.GetCameraWindow(oid);
-                        if (c != null)
+                        try
                         {
-                            try
-                            {
-                                ((KinectStream) c.Camera.VideoSource).Tilt -= 4;
-                            }
-                            catch (Exception ex)
-                            {
-                                MainForm.LogExceptionToFile(ex);
-                            }
+                            ((KinectStream) c.Camera.VideoSource).Tilt -= 4;
                         }
-                        resp = "OK";
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
                     }
+                    resp = "OK";
+                }
                     break;
                 case "removeobject":
                     if (otid == 1)
@@ -1755,11 +1753,16 @@ namespace iSpyApplication
                     resp = "OK";
                     break;
                 case "synthtocam":
-                    var txt = GetVar(sRequest, "text");
-                    var t = new Thread(() => SynthToCam(Uri.UnescapeDataString(txt), oid));
-                    t.Start();
+                {
+                    var txt = GetVar(sRequest, "text");                
+                    var cw = _parent.GetCameraWindow(oid);
+                    if (cw != null)
+                    {
+                        Audio.SpeechSynth.Say(txt,cw);
+                    }
                     resp = "OK";
-                    break;
+                }
+                break;
                 case "changesetting":
                     string field = GetVar(sRequest, "field");
                     string value = GetVar(sRequest, "value");
@@ -1813,9 +1816,6 @@ namespace iSpyApplication
                         CameraWindow cw = _parent.GetCameraWindow(oid);
                         switch (field)
                         {
-                            case "youtube":
-                                cw.Camobject.settings.youtube.autoupload = Convert.ToBoolean(value);
-                                break;
                             case "notifyondisconnect":
                                 cw.Camobject.settings.notifyondisconnect = Convert.ToBoolean(value);
                                 break;
@@ -1859,6 +1859,12 @@ namespace iSpyApplication
                             case "localsaving":
                                 cw.Camobject.ftp.savelocal = Convert.ToBoolean(value);
                                 break;
+                            case "cloudimages":
+                                cw.Camobject.settings.cloudprovider.images = Convert.ToBoolean(value);
+                                break;
+                            case "cloudrecording":
+                                cw.Camobject.settings.cloudprovider.recordings = Convert.ToBoolean(value);
+                                break;                                
                             case "ptz":
                                 if (value != "")
                                 {
@@ -2741,6 +2747,28 @@ namespace iSpyApplication
                                 "</td><td><input type=\"checkbox\" onclick=\"send_changesetting(" + otid + "," +
                                 oid + "," + port + ",'localsaving',this.checked)\" " + strChecked + "/></td></tr>";
 
+                        
+                        html += "<tr><td colspan=\"2\"><strong>" + LocRm.GetString("Cloud") + "</strong></td></tr>";
+
+                        strChecked = "";
+
+                        if (cw.Camobject.settings.cloudprovider.images)
+                            strChecked = "checked=\"checked\"";
+
+                        html += "<tr><td>" + LocRm.GetString("AutomaticallyUploadImages") +
+                                "</td><td><input type=\"checkbox\" onclick=\"send_changesetting(" + otid + "," +
+                                oid + "," + port + ",'cloudimages',this.checked)\" " + strChecked + "/></td></tr>";
+
+                        strChecked = "";
+
+                        if (cw.Camobject.settings.cloudprovider.recordings)
+                            strChecked = "checked=\"checked\"";
+
+                        html += "<tr><td>" + LocRm.GetString("AutomaticallyUploadRecordings") +
+                                "</td><td><input type=\"checkbox\" onclick=\"send_changesetting(" + otid + "," +
+                                oid + "," + port + ",'cloudrecording',this.checked)\" " + strChecked + "/></td></tr>";
+                        
+
 
                         html += "</table>";
                         resp += html.Replace("\"", "\\\"");
@@ -3070,7 +3098,10 @@ namespace iSpyApplication
                                     if (cw.VideoSourceErrorState)
                                     {
                                         using (Graphics g2 = Graphics.FromImage(img))
-                                            g2.DrawImage(Resources.connecting, img.Width-89,2,87,15);
+                                        {
+                                            var img2 = Resources.connecting;
+                                            g2.DrawImage(img2, img.Width - img2.Width - 2, 2, img2.Width, img2.Height);
+                                        }
                                     }
                                     disposeFrame = true;
                                 }
@@ -3518,8 +3549,11 @@ namespace iSpyApplication
                             {
                                 if (cw.VideoSourceErrorState)
                                 {
-                                    using(Graphics g2 = Graphics.FromImage(img))
-                                        g2.DrawImage(Resources.connecting, img.Width-89,2,87,15);
+                                    using (Graphics g2 = Graphics.FromImage(img))
+                                    {
+                                        var img2 = Resources.connecting;
+                                        g2.DrawImage(img2, img.Width - img2.Width - 2, 2, img2.Width, img2.Height);
+                                    }
                                 }
                                 disposeFrame = true;
                             }
@@ -3642,38 +3676,11 @@ namespace iSpyApplication
 
         private void DisconnectRequest(HttpRequest req)
         {
-            
             lock (_connectedSocketsSyncHandle)
             {
                 _connectedSockets.Remove(req);
             }
             req.Destroy();
-
-            //OnSocketDisconnected(endPoint);
-            //try
-            //{
-            //    var lingerOption = new LingerOption(false,0);
-            //    mySocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, lingerOption);
-            //    mySocket.Shutdown(SocketShutdown.Send);
-            //    try
-            //    {
-            //        var recBuff = new byte[1000];
-            //        //clear pending buffer
-            //        mySocket.ReceiveTimeout = 100;
-            //        while (mySocket.Receive(recBuff) > 0)
-            //        { }
-            //    }
-            //    catch
-            //    {
-            //        //ignore
-            //    }
-            //    mySocket.Close();
-            //}
-            //catch
-            //{
-
-            //}
-            //MySockets.Remove(mySocket);
         }
 
         private void SendAudioFeed(Enums.AudioStreamMode streamMode, String sBuffer, String sPhysicalFilePath, HttpRequest req)
@@ -3924,98 +3931,6 @@ namespace iSpyApplication
         }
 
 
-        private void SynthToCam(string text, int cameraId)
-        {
-            var synthFormat = new System.Speech.AudioFormat.SpeechAudioFormatInfo(System.Speech.AudioFormat.EncodingFormat.Pcm, 11025, 16, 1, 22100, 2, null);
-            using (var synthesizer = new SpeechSynthesizer())
-            {
-                using (var waveStream = new MemoryStream())
-                {
-
-                    //write some silence to the stream to allow camera to initialise properly
-                    var silence = new byte[1*22050];
-                    waveStream.Write(silence, 0, silence.Count());
-
-                    var pbuilder = new PromptBuilder();
-                    var pStyle = new PromptStyle
-                                     {
-                                         Emphasis = PromptEmphasis.Strong,
-                                         Rate = PromptRate.Slow,
-                                         Volume = PromptVolume.Loud
-                                     };
-
-                    pbuilder.StartStyle(pStyle);
-                    pbuilder.StartParagraph();
-                    pbuilder.StartVoice(VoiceGender.Male, VoiceAge.Adult, 2);
-                    pbuilder.StartSentence();
-                    pbuilder.AppendText(text);
-                    pbuilder.EndSentence();
-                    pbuilder.EndVoice();
-                    pbuilder.EndParagraph();
-                    pbuilder.EndStyle();
-
-                    synthesizer.SetOutputToAudioStream(waveStream, synthFormat);
-                    synthesizer.Speak(pbuilder);
-                    synthesizer.SetOutputToNull();
-
-                    //write some silence to the stream to allow camera to end properly
-                    waveStream.Write(silence, 0, silence.Count());
-
-                    waveStream.Seek(0, SeekOrigin.Begin);
-                    CameraWindow cw = _parent.GetCameraWindow(cameraId);
-
-                    ITalkTarget talkTarget = null;
-
-                    var ds = new DirectStream(waveStream) {RecordingFormat = new WaveFormat(11025, 16, 1)};
-                    switch (cw.Camobject.settings.audiomodel)
-                    {
-                        case "Foscam":
-                            ds.Interval = 40;
-                            ds.PacketSize = 882; // (40ms packet at 22050 bytes per second)
-                            talkTarget = new TalkFoscam(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport,
-                                                        cw.Camobject.settings.audiousername,
-                                                        cw.Camobject.settings.audiopassword, ds);
-                            break;
-                        case "NetworkKinect":
-                            ds.Interval = 40;
-                            ds.PacketSize = 882;
-                            talkTarget = new TalkNetworkKinect(cw.Camobject.settings.audioip,cw.Camobject.settings.audioport,ds);
-                            break;
-                        case "iSpyServer":
-                            ds.Interval = 40;
-                            ds.PacketSize = 882;
-                            talkTarget = new TalkiSpyServer(cw.Camobject.settings.audioip,
-                                                            cw.Camobject.settings.audioport,
-                                                            ds);
-                            break;
-                        case "Axis":
-                            talkTarget = new TalkAxis(cw.Camobject.settings.audioip, cw.Camobject.settings.audioport,
-                                                      cw.Camobject.settings.audiousername,
-                                                      cw.Camobject.settings.audiopassword, ds);
-                            break;
-                        default:
-                            //local playback
-                            talkTarget = new TalkLocal(ds);
-                            
-                            break;
-                    }
-                    ds.Start();
-                    talkTarget.Start();
-                    while (ds.IsRunning)
-                    {
-                        Thread.Sleep(100);
-                    }
-                    ds.Stop();
-                    if (talkTarget!=null)
-                        talkTarget.Stop();
-                    talkTarget = null;
-                    ds = null;
-
-                    waveStream.Close();    
-                }
-            }
-
-
-        }
+        
     }
 }

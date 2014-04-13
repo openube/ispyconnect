@@ -535,9 +535,9 @@ namespace iSpyApplication.Controls
                     break;
                 case 1://web
                     if (Helper.HasFeature(Enums.Features.Access_Media))
-                        rSrc = MainForm.RCloud;
+                        rSrc = MainForm.RWeb;
                     else
-                        rSrc = MainForm.RCloudOff;
+                        rSrc = MainForm.RWebOff;
                     break;
             }
 

@@ -3,11 +3,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Windows.Forms;
 using iSpy.Video.FFMPEG;
 using iSpyApplication;
+using iSpyApplication.Controls;
 using iSpyApplication.Video;
 using Microsoft.Win32;
 
@@ -17,6 +19,7 @@ internal static class Program
     private static string _apppath = "", _appdatapath = "";
     public static string Platform = "x86";
     private static uint _previousExecutionState;
+    public static WinFormsAppIdleHandler AppIdle;
     public static string AppPath
     {
         get
@@ -177,11 +180,13 @@ internal static class Program
 
             _previousExecutionState = NativeCalls.SetThreadExecutionState(NativeCalls.ES_CONTINUOUS | NativeCalls.ES_SYSTEM_REQUIRED);
             
-            
+            AppIdle = new WinFormsAppIdleHandler {Enabled = true};
             var mf = new MainForm(silentstartup, command);
             Application.Run(mf);
             WriterMutex.Close();
+            AppIdle.Enabled = false;
             ffmpegSetup.DeInitialise();
+            
 
             if (_previousExecutionState != 0)
             {

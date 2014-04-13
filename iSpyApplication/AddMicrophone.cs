@@ -49,6 +49,16 @@ namespace iSpyApplication
             return success;
         }
 
+        void Ranger1ValueMinChanged()
+        {
+            VolumeLevel.Micobject.detector.minsensitivity = ranger1.ValueMin;
+        }
+
+        void Ranger1ValueMaxChanged()
+        {
+            VolumeLevel.Micobject.detector.maxsensitivity = ranger1.ValueMax;
+        }
+
         private void AddMicrophoneLoad(object sender, EventArgs e)
         {
             if (VolumeLevel.Micobject.id == -1)
@@ -65,7 +75,6 @@ namespace iSpyApplication
             
             btnBack.Enabled = false;
             txtMicrophoneName.Text = VolumeLevel.Micobject.name;
-            tbSensitivity.Value = VolumeLevel.Micobject.detector.sensitivity;
             //tbGain.Value = (int)(VolumeLevel.Micobject.settings.gain * 100);
 
             chkSound.Checked = VolumeLevel.Micobject.alerts.active;
@@ -119,7 +128,6 @@ namespace iSpyApplication
 
             txtBuffer.Text = VolumeLevel.Micobject.settings.buffer.ToString(CultureInfo.InvariantCulture);
             txtInactiveRecord.Text = VolumeLevel.Micobject.recorder.inactiverecord.ToString(CultureInfo.InvariantCulture);
-            txtMinimumInterval.Text = VolumeLevel.Micobject.alerts.minimuminterval.ToString(CultureInfo.InvariantCulture);
             txtMaxRecordTime.Text = VolumeLevel.Micobject.recorder.maxrecordtime.ToString(CultureInfo.InvariantCulture);
 
             ddlHourStart.SelectedIndex =
@@ -202,6 +210,14 @@ namespace iSpyApplication
 
             LoadMediaDirectories();
 
+            ranger1.Maximum = 100;
+            ranger1.Minimum = 0.001;
+            ranger1.ValueMin = VolumeLevel.Micobject.detector.minsensitivity;
+            ranger1.ValueMax = VolumeLevel.Micobject.detector.maxsensitivity;
+            ranger1.ValueMinChanged += Ranger1ValueMinChanged;
+            ranger1.ValueMaxChanged += Ranger1ValueMaxChanged;
+            ranger1.SetText();
+
             _loaded = true;
 
         }
@@ -244,7 +260,6 @@ namespace iSpyApplication
             label1.Text = LocRm.GetString("Name");
             label10.Text = label18.Text = ":";
             label12.Text = LocRm.GetString("MaxRecordTime");
-            label13.Text = LocRm.GetString("Seconds");
             label14.Text = LocRm.GetString("Seconds");
             label15.Text = LocRm.GetString("DistinctAlertInterval");
             label16.Text = LocRm.GetString("Seconds");
@@ -260,7 +275,7 @@ namespace iSpyApplication
             label5.Text = LocRm.GetString("Seconds");
             label50.Text = LocRm.GetString("ImportantMakeSureYourSche");
             label8.Text = LocRm.GetString("Start");
-
+            label15.Text = LocRm.GetString("Intervals");
             label9.Text = ":";
             label7.Text = LocRm.GetString("TipToCreateAScheduleOvern");
             label10.Text = LocRm.GetString("Stop");
@@ -275,12 +290,12 @@ namespace iSpyApplication
             Text = LocRm.GetString("Addmicrophone");
 
             toolTip1.SetToolTip(txtMicrophoneName, LocRm.GetString("ToolTip_MicrophoneName"));
-            toolTip1.SetToolTip(txtMinimumInterval, LocRm.GetString("ToolTip_AlertInterval"));
             toolTip1.SetToolTip(txtInactiveRecord, LocRm.GetString("ToolTip_InactiveRecordAudio"));
             toolTip1.SetToolTip(txtBuffer, LocRm.GetString("ToolTip_BufferAudio"));
             toolTip1.SetToolTip(lbSchedule, LocRm.GetString("ToolTip_PressDelete"));
             llblHelp.Text = LocRm.GetString("help");
             lblAccessGroups.Text = LocRm.GetString("AccessGroups");
+            toolTip1.SetToolTip(ranger1, LocRm.GetString("ToolTip_MotionSensitivity"));
             label74.Text = LocRm.GetString("Directory");
 
             LocRm.SetString(label23,"Listen");
@@ -298,6 +313,8 @@ namespace iSpyApplication
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Storage));
+
+
         }
 
         private void HideTab(TabPage t, bool show)
@@ -306,11 +323,6 @@ namespace iSpyApplication
             {
                 tcMicrophone.TabPages.Remove(t);
             }
-        }
-
-        private void TbSensitivityScroll(object sender, EventArgs e)
-        {
-            VolumeLevel.Micobject.detector.sensitivity = tbSensitivity.Value;
         }
 
         private void BtnNextClick(object sender, EventArgs e)
@@ -367,7 +379,7 @@ namespace iSpyApplication
                     err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
 
 
-                if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 || txtMinimumInterval.Text.Length < 1 ||
+                if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
                     txtMaxRecordTime.Text.Length < 1)
                 {
                     err += LocRm.GetString("Validate_Camera_RecordingSettings") + Environment.NewLine;
@@ -382,11 +394,10 @@ namespace iSpyApplication
 
                 VolumeLevel.Micobject.settings.buffer = Convert.ToInt32(txtBuffer.Value);
                 VolumeLevel.Micobject.recorder.inactiverecord = Convert.ToInt32(txtInactiveRecord.Value);
-                VolumeLevel.Micobject.alerts.minimuminterval = Convert.ToInt32(txtMinimumInterval.Value);
                 VolumeLevel.Micobject.recorder.maxrecordtime = Convert.ToInt32(txtMaxRecordTime.Value);
 
                 VolumeLevel.Micobject.name = txtMicrophoneName.Text.Trim();
-                VolumeLevel.Micobject.detector.sensitivity = tbSensitivity.Value;
+
                 VolumeLevel.Micobject.alerts.active = chkSound.Checked;
                 
                 VolumeLevel.Micobject.alerts.mode = "sound";
@@ -895,6 +906,13 @@ namespace iSpyApplication
 
                 actionEditor1.Init(at, VolumeLevel.Micobject.id, 1);
             }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            var aset = new AlertSettings { MicalertSettings = VolumeLevel.Micobject.alerts };
+            aset.ShowDialog(this);
+            aset.Dispose();
         }
     }
 }

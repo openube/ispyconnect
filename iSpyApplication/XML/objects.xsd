@@ -118,22 +118,31 @@
                                                     <xs:element name="youtube">
                                                         <xs:complexType>
                                                             <xs:sequence>
-                                                                <xs:element name="autoupload" type="xs:boolean" />
                                                                 <xs:element name="public" type="xs:boolean" default="false" />
                                                                 <xs:element name="tags" type="xs:string" />
                                                                 <xs:element name="category" type="xs:string" />
                                                             </xs:sequence>
                                                         </xs:complexType>
                                                     </xs:element>
-                                                    <xs:element name="storagemanagement">
+                                                    <xs:element name="cloudprovider">
                                                       <xs:complexType>
                                                         <xs:sequence>
-                                                          <xs:element name="enabled" type="xs:boolean" default="false"/>
-                                                          <xs:element name="maxsize" type="xs:int" />
-                                                          <xs:element name="maxage" type="xs:int" />
-                                                          <xs:element name="archive" type="xs:boolean" default="false" />
+                                                          <xs:element name="provider" type="xs:string" default="Google Drive"/>
+                                                          <xs:element name="recordings" type="xs:boolean" default="false"/>
+                                                          <xs:element name="images" type="xs:boolean" default="false"/>
+                                                          <xs:element name="path" type="xs:string" default="[MEDIATYPE]/[NAME]/" />
                                                         </xs:sequence>
                                                       </xs:complexType>
+                                                    </xs:element>  
+                                                    <xs:element name="storagemanagement">
+                                                        <xs:complexType>
+                                                          <xs:sequence>
+                                                            <xs:element name="enabled" type="xs:boolean" default="false"/>
+                                                            <xs:element name="maxsize" type="xs:int" />
+                                                            <xs:element name="maxage" type="xs:int" />
+                                                            <xs:element name="archive" type="xs:boolean" default="false" />
+                                                          </xs:sequence>
+                                                        </xs:complexType>
                                                     </xs:element>
                                                 </xs:sequence>
                                                 <xs:attribute name="desktopresizewidth" type="xs:int" use="required"/>
@@ -152,6 +161,7 @@
                                             <xs:complexType>
                                                 <xs:sequence>
                                                     <xs:element name="enabled" type="xs:boolean" />
+                                                    <!--deprecated-->
                                                     <xs:element name="server" type="xs:string" />
                                                     <xs:element name="username">
                                                       <xs:simpleType>
@@ -167,8 +177,13 @@
                                                         </xs:restriction>
                                                       </xs:simpleType>
                                                     </xs:element>
-                                                    <xs:element name="filename" type="xs:string" default="mylivecamerafeed.jpg" />
                                                     <xs:element name="port" type="xs:int" />
+                                                    <xs:element name="usepassive" type="xs:boolean"/>
+                                                    <xs:element name="rename" type="xs:boolean" />
+                                                    <!--enddeprecated-->
+                                                    <xs:element name="ready" type="xs:boolean"/>
+                                                    <xs:element name="ident" type="xs:string" />
+                                                    <xs:element name="filename" type="xs:string" default="mylivecamerafeed.jpg" />
                                                     <xs:element name="interval" type="xs:int" />
                                                     <xs:element name="intervalnew" type="xs:double" default="-1" />
                                                     <xs:element name="counter" type="xs:int" />
@@ -176,12 +191,9 @@
                                                     <xs:element name="ftpcounter" type="xs:int" />
                                                     <xs:element name="minimumdelay" type="xs:double" default="0" />
                                                     <xs:element name="mode" type="xs:int" default="2"/>
-                                                    <xs:element name="ready" type="xs:boolean"/>
-                                                    <xs:element name="usepassive" type="xs:boolean"/>
                                                     <xs:element name="text" type="xs:string" default="www.ispyconnect.com"/>
                                                     <xs:element name="savelocal" type="xs:boolean" default="false"/>
-                                                    <xs:element name="quality" type="xs:int" />
-                                                    <xs:element name="rename" type="xs:boolean" />
+                                                    <xs:element name="quality" type="xs:int" />                                                    
                                                     <xs:element name="localfilename" type="xs:string" default="{0:yyyy-MM-dd_HH-mm-ss_fff}.jpg"/>
                                                 </xs:sequence>
                                             </xs:complexType>
@@ -266,6 +278,8 @@
                                                     <xs:element name="arguments" type="xs:string" />
                                                 </xs:sequence>
                                                 <xs:attribute name="minimuminterval" type="xs:int" use="required" />
+                                                <xs:attribute name="resetinterval" type="xs:int" default="0" />
+                                                <xs:attribute name="groupname" type="xs:string" default="" />
                                                 <xs:attribute name="objectcountalert" type="xs:int" use="required" />
                                                 <xs:attribute name="active" type="xs:boolean" use="required" />
                                                 <xs:attribute name="mode" type="xs:string" use="required" />
@@ -323,6 +337,7 @@
                                                             <xs:attribute name="recordondetect" type="xs:boolean" default="true" />
                                                             <xs:attribute name="recordonalert" type="xs:boolean" default="true" />
                                                             <xs:attribute name="timelapseenabled" type="xs:boolean" default="true" />
+                                                            <xs:attribute name="ptz" type="xs:boolean" default="true" />
                                                             <xs:attribute name="ftpenabled" type="xs:boolean" default="false" />
                                                             <xs:attribute name="savelocalenabled" type="xs:boolean" default="false" />
                                                             <xs:attribute name="alerts" type="xs:boolean" default="true" />
@@ -442,6 +457,8 @@
                                         <xs:element name="detector">
                                             <xs:complexType>
                                                 <xs:attribute name="sensitivity" type="xs:int" use="required" />
+                                                <xs:attribute name="maxsensitivity" type="xs:double" default="100"/>
+                                                <xs:attribute name="minsensitivity" type="xs:double" default="-1"/>
                                                 <xs:attribute name="nosoundinterval" type="xs:int" use="required" />
                                                 <xs:attribute name="soundinterval" type="xs:int" use="required" />
                                                 <xs:attribute name="recordondetect" type="xs:boolean" use="required" />
@@ -463,6 +480,8 @@
                                                     <xs:element name="arguments" type="xs:string" />
                                                 </xs:sequence>
                                                 <xs:attribute name="minimuminterval" type="xs:int" use="required" />
+                                                <xs:attribute name="resetinterval" type="xs:int" default="0" />
+                                                <xs:attribute name="groupname" type="xs:string" default="" />
                                                 <xs:attribute name="active" type="xs:boolean" use="required" />
                                                 <xs:attribute name="mode" type="xs:string" use="required" />
                                                 <xs:attribute name="trigger" type="xs:string" default=""/>

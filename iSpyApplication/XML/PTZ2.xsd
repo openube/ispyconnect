@@ -25,21 +25,18 @@
               <xs:element name="Commands">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="Center" type="xs:string" />
+                    <xs:element name="Center" type="xs:string" minOccurs="0"/>
                     <xs:element name="Left" type="xs:string" />
-                    <xs:element name="LeftStop" type="xs:string" />
-                    <xs:element name="LeftUp" type="xs:string" />
+                    <xs:element name="LeftUp" type="xs:string" minOccurs="0"/>
                     <xs:element name="Right" type="xs:string" />
-                    <xs:element name="RightUp" type="xs:string" />
+                    <xs:element name="RightUp" type="xs:string" minOccurs="0"/>
                     <xs:element name="Up" type="xs:string" />
                     <xs:element name="Down" type="xs:string" />
-                    <xs:element name="LeftDown" type="xs:string" />
-                    <xs:element name="RightDown" type="xs:string" />
-                    <xs:element name="Stop" type="xs:string" />
-                    <xs:element name="ZoomIn" type="xs:string" />
-                    <xs:element name="ZoomOut" type="xs:string" />
-                    <xs:element name="RightStop" type="xs:string" />
-                    <xs:element name="stop" type="xs:string" />
+                    <xs:element name="LeftDown" type="xs:string" minOccurs="0"/>
+                    <xs:element name="RightDown" type="xs:string" minOccurs="0"/>
+                    <xs:element name="Stop" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ZoomIn" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ZoomOut" type="xs:string" minOccurs="0"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

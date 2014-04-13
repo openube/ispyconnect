@@ -90,7 +90,7 @@ namespace iSpyApplication.Video
             get
             {
                 if (Program.Platform == "x64")
-                    return true;
+                    return File.Exists(Program.AppPath + "VLC64\\libvlc.dll");
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);
@@ -119,7 +119,7 @@ namespace iSpyApplication.Video
             get
             {
                 if (Program.Platform == "x64")
-                    return new Version(2,0,6);
+                    return new Version(2,1,3);
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);

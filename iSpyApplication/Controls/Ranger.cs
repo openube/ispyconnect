@@ -36,6 +36,14 @@ namespace iSpyApplication.Controls
             }
         }
 
+        public void SetText()
+        {
+            txtVal1.Text = ValueMin.ToString("0.###");
+            txtVal2.Text = ValueMax.ToString("0.###");
+
+            Refresh();
+        }
+
 
         public Ranger()
         {
@@ -45,10 +53,7 @@ namespace iSpyApplication.Controls
 
         private void Ranger_Load(object sender, EventArgs e)
         {
-            txtVal1.Text = ValueMin.ToString("0.###");
-            txtVal2.Text = ValueMax.ToString("0.###");
-
-            Refresh();
+            
         }
 
         private void Ranger_SizeChanged(object sender, EventArgs e)

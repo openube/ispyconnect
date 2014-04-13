@@ -22,6 +22,11 @@ namespace iSpyApplication
             Stop
         } ;
 
+        public enum PlaybackMode
+        {
+            Website=0,iSpy,Default
+        }
+
         public enum MatchMode
         {
             IsInList = 0,

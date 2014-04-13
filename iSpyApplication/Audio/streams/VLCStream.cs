@@ -191,62 +191,78 @@ namespace iSpyApplication.Audio.streams
                     // check source
                     if (string.IsNullOrEmpty(_source))
                         throw new ArgumentException("Audio source is not specified.");
-                    lock (_lock)
+
+                    bool init = _mFactory == null;
+                    if (init)
                     {
                         _mFactory = new MediaPlayerFactory();
-
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                         _mPlayer.Events.TimeChanged += EventsTimeChanged;
+                    }
 
-                        bool file = false;
-                        try
+
+                    _mFactory = new MediaPlayerFactory();
+
+                    _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
+                    _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
+                    _mPlayer.Events.TimeChanged += EventsTimeChanged;
+
+                    bool file = false;
+                    try
+                    {
+                        if (File.Exists(_source))
                         {
-                            if (File.Exists(_source))
-                            {
-                                file = true;
-                            }
+                            file = true;
                         }
-                        catch
-                        {
+                    }
+                    catch
+                    {
 
-                        }
-                        if (file)
-                            _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
-                        else
-                            _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
-
-
+                    }
+                    if (file)
+                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
+                    else
                         _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
-                        _mMedia.Events.DurationChanged += EventsDurationChanged;
-                        _mMedia.Events.StateChanged += EventsStateChanged;
-                        _mPlayer.Open(_mMedia);
 
 
-                        _needsSetup = true;
+                    _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+
+                    _mMedia.Events.DurationChanged -= EventsDurationChanged;
+                    _mMedia.Events.StateChanged -= EventsStateChanged;
+
+                    _mMedia.Events.DurationChanged += EventsDurationChanged;
+                    _mMedia.Events.StateChanged += EventsStateChanged;
+
+                    _mPlayer.Open(_mMedia);
+
+
+                    _needsSetup = true;
+                    if (init)
+                    {
                         var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
                         _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
                         var ac = new AudioCallbacks {SoundCallback = SoundCallback};
                         _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
                         _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
+                    }
 
-                        _mMedia.Parse(true);
-                        _framesReceived = 0;
-                        Duration = Time = 0;
-                        _timestamp = _lastframetimestamp = DateTime.MinValue;
-                        _mPlayer.Play();
+                    _mMedia.Parse(true);
+                    _framesReceived = 0;
+                    Duration = Time = 0;
+                    _timestamp = _lastframetimestamp = DateTime.MinValue;
+                    _mPlayer.Play();
 
-                        //check if file source (isseekable in _mPlayer is not reliable)
+                    //check if file source (isseekable in _mPlayer is not reliable)
+                    Seekable = false;
+                    try
+                    {
+                        var p = Path.GetFullPath(_mMedia.Input);
+                        Seekable = !String.IsNullOrEmpty(p);
+                    }
+                    catch (Exception)
+                    {
                         Seekable = false;
-                        try
-                        {
-                            var p = Path.GetFullPath(_mMedia.Input);
-                            Seekable = !String.IsNullOrEmpty(p);
-                        }
-                        catch (Exception)
-                        {
-                            Seekable = false;
-                        }
                     }
                 }
             }
@@ -274,7 +290,7 @@ namespace iSpyApplication.Audio.streams
 
                             _starting = false;
                             _isrunning = false;
-                            Thread.Sleep(500); //lets buffered frames stop before raising finished event
+                            Thread.Sleep(1000); //lets buffered frames stop before raising finished event
                             //if file source then dont reconnect
                             if (!Seekable && !_stoprequested)
                             {
@@ -539,23 +555,6 @@ namespace iSpyApplication.Audio.streams
                     _mMedia.Dispose();
                     _mMedia = null;
                 }
-
-                if (_mPlayer != null)
-                {
-                    _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
-                    _mPlayer.Events.TimeChanged -= EventsTimeChanged;
-                    _mPlayer.Dispose();
-                    _mPlayer = null;
-                    //^^^ causing major issues :(
-                }
-
-                if (_mFactory != null)
-                {
-                    _mFactory.Dispose();
-                    _mFactory = null;
-
-                }          
-                
 
                 if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
                 {

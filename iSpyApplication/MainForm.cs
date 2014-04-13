@@ -20,6 +20,7 @@ using AForge.Video;
 using Antiufo.Controls;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.Audio.talk;
+using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Joystick;
 using iSpyApplication.Properties;
@@ -38,9 +39,14 @@ namespace iSpyApplication
     /// </summary>
     public partial class MainForm : Form, INetworkListManagerEvents
     {
+        public const string VLCx86 = "http://www.videolan.org/vlc/download-windows.html";
+        public const string VLCx64 = "http://download.videolan.org/pub/videolan/vlc/last/win64/";
+
         public const string Website = "http://www.ispyconnect.com";
         public static bool NeedsSync;
         private static DateTime _needsMediaRefresh = DateTime.MinValue;
+
+        public static DateTime LastAlert = DateTime.MinValue;
 
         public static bool VLCRepeatAll;
         public static bool NeedsMediaRebuild = false;
@@ -75,7 +81,7 @@ namespace iSpyApplication
         public static int IPPORT = 80;
         public static string IPPASS = "";
         public static string IPTYPE = "";
-        public static int AFFILIATEID = 0;
+        public static int Affiliateid = 0;
         public static string EmailAddress = "", MobileNumber = "";
         public static int ThrottleFramerate = 40;
         public static float CpuUsage, CpuTotal;
@@ -93,16 +99,12 @@ namespace iSpyApplication
         public static Rectangle RPower = new Rectangle(94, 3, 16, 16);
         public static Rectangle RPowerOn = new Rectangle(94, 43, 16, 16);
         public static Rectangle RPowerOff = new Rectangle(94, 83, 16, 16);
-
         public static Rectangle RAdd = new Rectangle(127, 3, 16, 16);
         public static Rectangle RAddOff = new Rectangle(127, 83, 16, 16);
-        
         public static Rectangle REdit = new Rectangle(3, 2, 16, 16);
-
         public static Rectangle RHold = new Rectangle(255, 2, 16, 16);
         public static Rectangle RHoldOn = new Rectangle(284, 42, 16, 16);
         public static Rectangle RHoldOff = new Rectangle(284, 82, 16, 16);
-        
         public static Rectangle RRecord = new Rectangle(188,2,16,16);
         public static Rectangle RRecordOn = new Rectangle(188, 42, 16, 16);
         public static Rectangle RRecordOff = new Rectangle(188, 82, 16, 16);
@@ -118,9 +120,13 @@ namespace iSpyApplication
         public static Rectangle RListen = new Rectangle(347,2,16,16);
         public static Rectangle RListenOn = new Rectangle(380,43,16,16);
         public static Rectangle RListenOff = new Rectangle(347, 83, 16, 16);
-        public static Rectangle RCloud = new Rectangle(411, 3, 16, 16);
-        public static Rectangle RCloudOff = new Rectangle(411, 83, 16, 16);
-
+        public static Rectangle RWeb = new Rectangle(411, 3, 16, 16);
+        public static Rectangle RWebOff = new Rectangle(411, 83, 16, 16);
+        public static Rectangle RText = new Rectangle(443, 3, 16, 16);
+        public static Rectangle RTextOff = new Rectangle(443, 83, 16, 16);
+        public static Rectangle RFolder = new Rectangle(473, 3, 16, 16);
+        public static Rectangle RFolderOff = new Rectangle(473, 83, 16, 16);
+        
         internal static LocalServer MWS;
 
         public static string PurchaseLink = "http://www.ispyconnect.com/astore.aspx";
@@ -295,7 +301,6 @@ namespace iSpyApplication
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem fileMenuToolStripMenuItem;
         private FlowLayoutPanel flCommands;
-        private FlowLayoutPanel flowLayoutPanel1;
         internal MediaPanel flowPreview;
         private ToolStripMenuItem fullScreenToolStripMenuItem;
         private ToolStripMenuItem fullScreenToolStripMenuItem1;
@@ -303,12 +308,6 @@ namespace iSpyApplication
         private ToolStripMenuItem iSpyToolStripMenuItem;
         private ToolStripMenuItem inExplorerToolStripMenuItem;
         private ToolStripMenuItem layoutToolStripMenuItem;
-        private LinkLabel llblBack;
-        private LinkLabel llblDelete;
-        private LinkLabel llblFilter;
-        private LinkLabel llblNext;
-        private LinkLabel llblPage;
-        private LinkLabel llblSelectAll;
         private MainMenu mainMenu;
         private ToolStripMenuItem mediaPaneToolStripMenuItem;
         private MenuItem menuItem1;
@@ -349,7 +348,6 @@ namespace iSpyApplication
         private ToolStripMenuItem pTZControllerToolStripMenuItem;
         private ToolStripMenuItem pTZControllerToolStripMenuItem1;
         private ToolStripMenuItem pTZToolStripMenuItem;
-        private Panel panel1;
         private Panel panel2;
         private ToolStripMenuItem pluginCommandsToolStripMenuItem;
         private ToolStripMenuItem resetLayoutToolStripMenuItem1;
@@ -368,11 +366,9 @@ namespace iSpyApplication
         private ToolStripStatusLabel tsslMonitor;
         private ToolStripStatusLabel tsslPerformance;
         private ToolStripMenuItem uploadToYouTubePublicToolStripMenuItem;
-        private ToolStripMenuItem uploadToYouTubeToolStripMenuItem;
         private ToolStripMenuItem videoFileToolStripMenuItem;
         private ToolStripMenuItem viewControllerToolStripMenuItem;
         private MenuItem menuItem27;
-        private LinkLabel linkLabel1;
         private MenuItem menuItem28;
         private ToolStripDropDownButton tssbGridViews;
         private ToolStripMenuItem manageToolStripMenuItem;
@@ -382,6 +378,9 @@ namespace iSpyApplication
         private MenuItem menuItem25;
         private ToolStripMenuItem gridViewsToolStripMenuItem;
         private ToolStripMenuItem maximiseToolStripMenuItem;
+        private ToolStripMenuItem uploadToCloudToolStripMenuItem;
+        private Panel panel1;
+        private MediaPanelControl mediaPanelControl1;
         private ToolStripMenuItem websiteToolStripMenuItem;
 
         public MainForm(bool silent, string command)
@@ -835,7 +834,7 @@ namespace iSpyApplication
                 }
             }
 
-
+            mediaPanelControl1.MainClass = this;
             EncoderParams = new EncoderParameters(1);
             EncoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, Conf.JPEGQuality);
 
@@ -905,6 +904,15 @@ namespace iSpyApplication
             {
                 LogWarningToFile(
                     "VLC not installed - install VLC (" + Program.Platform + ") for additional connectivity.");
+                if (Program.Platform == "x64")
+                {
+                    LogWarningToFile(
+                        "VLC64  must be unzipped so the dll files and folders including libvlc.dll and the plugins folder are in " +
+                        Program.AppPath + "VLC64\\");
+                    LogWarningToFile("Download: <a href=\""+VLCx64+"\">"+VLCx64+"</a>");
+                }
+                else
+                    LogWarningToFile("Download: <a href=\"" + VLCx86 + "\">" + VLCx86 + "</a>");
             }
             else
             {
@@ -1103,7 +1111,7 @@ namespace iSpyApplication
                                     int aid;
                                     if (Int32.TryParse(nv[1].Trim(), out aid))
                                     {
-                                        AFFILIATEID = aid;
+                                        Affiliateid = aid;
                                     }
                                     break;
                                 case "featureset":
@@ -1166,56 +1174,6 @@ namespace iSpyApplication
                     {
                         LogExceptionToFile(ex);
                     }
-                }
-            }
-            else
-            {
-                if (!String.IsNullOrEmpty(Conf.Vendor))
-                {
-                    var pb = new PictureBox();
-                    switch (Conf.Vendor.ToLower())
-                    {
-                        case "ensidio":
-                            pb.Image = Resources.ensidio;
-                            PurchaseLink = "http://www.ensidio.com/";
-                            break;
-                        case "tenvis":
-                            pb.Image = Resources.TENVIS;
-                            PurchaseLink = "http://www.tenvis.com/";
-                            break;
-                        case "smartisp":
-                            pb.Image = Resources.smartisp;
-                            break;
-                        case "addplus":
-                            pb.Image = Resources.Addplus;
-                            break;
-                        case "foscam":
-                            pb.Image = Resources.foscam;
-                            PurchaseLink = "http://www.foscam.com/";
-                            break;
-                        case "phyxius":
-                            pb.Image = Resources.phyxius;
-                            break;
-                        case "bigdipper":
-                            pb.Image = Resources.bigdipper;
-                            break;
-                        case "allnet gmbh":
-                            pb.Image = Resources.ALLNET;
-                            PurchaseLink = "http://www.allnet.de/";
-                            break;
-                        case "eos":
-                            pb.Image = Resources.EOSLogo;
-                            PurchaseLink = "http://nowyoucansee.com/";
-                            break;
-                    }
-                    pb.Width = pb.Image.Width;
-                    pb.Height = pb.Image.Height;
-
-                    pb.Left = _pnlCameras.Width/2 - pb.Width/2;
-                    pb.Top = _pnlCameras.Height/2 - pb.Height/2;
-
-                    _pnlCameras.Controls.Add(pb);
-                    _pnlCameras.BrandedImage = pb;
                 }
             }
 
@@ -1401,7 +1359,12 @@ namespace iSpyApplication
         internal void RenderResources()
         {
             Helper.SetTitle(this);
-
+            uploadToCloudToolStripMenuItem.Text = LocRm.GetString("UploadToCloud");
+            uploadToYouTubePublicToolStripMenuItem.Text = LocRm.GetString("UploadToYouTube");
+            archiveToolStripMenuItem.Text = LocRm.GetString("Archive");
+            saveToToolStripMenuItem.Text = LocRm.GetString("SaveTo");
+            deleteToolStripMenuItem.Text = LocRm.GetString("Delete");
+            showInFolderToolStripMenuItem.Text = LocRm.GetString("ShowInFolder");
             maximiseToolStripMenuItem.Text = LocRm.GetString("Maximise");
             _aboutHelpItem.Text = LocRm.GetString("About");
             _activateToolStripMenuItem.Text = LocRm.GetString("Switchon");
@@ -1518,8 +1481,7 @@ namespace iSpyApplication
             menuItem3.Text = LocRm.GetString("Fullscreen");
             alwaysOnTopToolStripMenuItem1.Text = LocRm.GetString("AlwaysOnTop");
             menuItem8.Text = LocRm.GetString("AlwaysOnTop");
-            llblSelectAll.Text = LocRm.GetString("SelectAll");
-            llblDelete.Text = LocRm.GetString("Delete");
+           
             menuItem13.Text = LocRm.GetString("PurchaseMoreCameras");
             _exitToolStripMenuItem.Text = LocRm.GetString("Exit");
 
@@ -1535,9 +1497,7 @@ namespace iSpyApplication
 
             menuItem14.Text = viewControllerToolStripMenuItem.Text = LocRm.GetString("ViewController");
             menuItem28.Text = LocRm.GetString("RemoveAllObjects");
-
-            llblFilter.Text = LocRm.GetString("Filter");
-            linkLabel1.Text = LocRm.GetString("Archive");
+            
 
             LocRm.SetString(menuItem15, "ArrangeMedia");
             LocRm.SetString(menuItem22, "LockLayout");
@@ -1577,6 +1537,7 @@ namespace iSpyApplication
             oNVIFCameraToolStripMenuItem.Visible = (Helper.HasFeature(Enums.Features.Source_ONVIF));
 
             splitContainer2.Panel2Collapsed = !Helper.HasFeature(Enums.Features.Remote_Commands);
+            mediaPanelControl1.RenderResources();
         }
 
         private void HouseKeepingTimerElapsed(object sender, ElapsedEventArgs e)
@@ -2607,9 +2568,13 @@ namespace iSpyApplication
 
             }
             maximiseToolStripMenuItem.DropDownItems.Clear();
-            foreach (ISpyControl ic in _pnlCameras.Controls)
+            foreach (Control o in _pnlCameras.Controls)
             {
-                maximiseToolStripMenuItem.DropDownItems.Add(ic.ObjectName, null, tsi_MaximiseClick);
+                var ic = o as ISpyControl;
+                if (ic != null)
+                {
+                    maximiseToolStripMenuItem.DropDownItems.Add(ic.ObjectName, null, tsi_MaximiseClick);
+                }
 
             }
         }
@@ -3158,7 +3123,7 @@ namespace iSpyApplication
             {
                 var cameraControl = ((CameraWindow) ContextTarget);
                 string fn = cameraControl.SaveFrame();
-                if (fn != "")
+                if (fn != "" && Conf.OpenGrabs)
                     OpenUrl(fn);
                 //OpenUrl("http://" + IPAddress + ":" + Conf.LANPort + "/livefeed?oid=" + cameraControl.Camobject.id + "&r=" + Random.NextDouble() + "&full=1&auth=" + Identifier);
             }
@@ -3364,7 +3329,6 @@ namespace iSpyApplication
                 }
             }
 
-
             foreach (objectsMicrophone mic in _microphones)
             {
                 if (mic.schedule.active)
@@ -3468,6 +3432,11 @@ namespace iSpyApplication
 
         private void llblSelectAll_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            
+        }
+
+        internal void MediaSelectAll()
+        {
             bool check = false, first = true;
             lock (ThreadLock)
             {
@@ -3484,12 +3453,6 @@ namespace iSpyApplication
                 }
                 flowPreview.Invalidate(true);
             }
-        }
-
-
-        private void llblDelete_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            DeleteSelectedMedia();
         }
 
 
@@ -4008,17 +3971,17 @@ namespace iSpyApplication
 
         private void iSpyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ((PreviewBox) ContextTarget).PlayMedia(1);
+            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.iSpy);
         }
 
         private void defaultPlayerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ((PreviewBox) ContextTarget).PlayMedia(2);
+            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.Default);
         }
 
         private void websiteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ((PreviewBox) ContextTarget).PlayMedia(0);
+            ((PreviewBox) ContextTarget).PlayMedia(Enums.PlaybackMode.Website);
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4049,17 +4012,6 @@ namespace iSpyApplication
         {
             AddCamera(2);
         }
-
-        private void uploadToYouTubeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((PreviewBox) ContextTarget).Upload(false);
-        }
-
-        private void uploadToYouTubePublicToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ((PreviewBox) ContextTarget).Upload(true);
-        }
-
 
         private void saveToToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -4137,9 +4089,10 @@ namespace iSpyApplication
         void tsi_MaximiseClick(object sender, EventArgs e)
         {
             var mi = (ToolStripItem)sender;
-            foreach (ISpyControl ic in _pnlCameras.Controls)
+            foreach (Control o in _pnlCameras.Controls)
             {
-                if (ic.ObjectName == mi.Text)
+                var ic = o as ISpyControl;
+                if (ic!=null && ic.ObjectName == mi.Text)
                 {
                     Maximise(ic);
                     return;
@@ -4219,12 +4172,17 @@ namespace iSpyApplication
 
         private void llblFilter_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            
+        }
+
+        internal void MediaFilter()
+        {
             var f = new Filter();
             if (f.ShowDialog(this) == DialogResult.OK)
             {
                 LoadPreviews();
             }
-            f.Dispose();
+            f.Dispose(); 
         }
 
         private void menuItem26_Click(object sender, EventArgs e)
@@ -4360,6 +4318,7 @@ namespace iSpyApplication
             this.viewControllerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.alwaysOnTopToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.gridViewsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.maximiseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this._toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -4427,26 +4386,18 @@ namespace iSpyApplication
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this._pnlCameras = new iSpyApplication.Controls.LayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.llblSelectAll = new System.Windows.Forms.LinkLabel();
-            this.llblDelete = new System.Windows.Forms.LinkLabel();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.llblFilter = new System.Windows.Forms.LinkLabel();
-            this.llblBack = new System.Windows.Forms.LinkLabel();
-            this.llblPage = new System.Windows.Forms.LinkLabel();
-            this.llblNext = new System.Windows.Forms.LinkLabel();
+            this.mediaPanelControl1 = new iSpyApplication.Controls.MediaPanelControl();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.ctxtPlayer = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.iSpyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.defaultPlayerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.websiteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showInFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.uploadToYouTubeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.uploadToYouTubePublicToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uploadToCloudToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.archiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.maximiseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -4463,7 +4414,6 @@ namespace iSpyApplication
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.ctxtPlayer.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -5041,7 +4991,7 @@ namespace iSpyApplication
             this.maximiseToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.ctxtMainForm.Name = "_ctxtMainForm";
-            this.ctxtMainForm.Size = new System.Drawing.Size(181, 290);
+            this.ctxtMainForm.Size = new System.Drawing.Size(181, 268);
             this.ctxtMainForm.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtMainFormOpening);
             // 
             // _addCameraToolStripMenuItem
@@ -5247,6 +5197,12 @@ namespace iSpyApplication
             this.gridViewsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.gridViewsToolStripMenuItem.Text = "Grid Views";
             this.gridViewsToolStripMenuItem.Click += new System.EventHandler(this.gridViewsToolStripMenuItem_Click);
+            // 
+            // maximiseToolStripMenuItem
+            // 
+            this.maximiseToolStripMenuItem.Name = "maximiseToolStripMenuItem";
+            this.maximiseToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.maximiseToolStripMenuItem.Text = "Maximise";
             // 
             // exitToolStripMenuItem
             // 
@@ -5758,7 +5714,7 @@ namespace iSpyApplication
             this.tsslMonitor,
             this.tsslPerformance,
             this.tsslMediaInfo});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 721);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 700);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(887, 30);
             this.statusStrip1.TabIndex = 0;
@@ -5805,7 +5761,7 @@ namespace iSpyApplication
             this._pnlContent.Location = new System.Drawing.Point(0, 0);
             this._pnlContent.Margin = new System.Windows.Forms.Padding(0);
             this._pnlContent.Name = "_pnlContent";
-            this._pnlContent.Size = new System.Drawing.Size(887, 192);
+            this._pnlContent.Size = new System.Drawing.Size(887, 186);
             this._pnlContent.TabIndex = 20;
             // 
             // splitContainer2
@@ -5824,7 +5780,7 @@ namespace iSpyApplication
             // 
             this.splitContainer2.Panel2.Controls.Add(this.flCommands);
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.splitContainer2.Size = new System.Drawing.Size(887, 192);
+            this.splitContainer2.Size = new System.Drawing.Size(887, 186);
             this.splitContainer2.SplitterDistance = 630;
             this.splitContainer2.TabIndex = 88;
             // 
@@ -5837,7 +5793,7 @@ namespace iSpyApplication
             this.flowPreview.Location = new System.Drawing.Point(0, 0);
             this.flowPreview.Margin = new System.Windows.Forms.Padding(0);
             this.flowPreview.Name = "flowPreview";
-            this.flowPreview.Size = new System.Drawing.Size(630, 192);
+            this.flowPreview.Size = new System.Drawing.Size(630, 186);
             this.flowPreview.TabIndex = 0;
             this.flowPreview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.flowPreview_MouseDown);
             this.flowPreview.MouseEnter += new System.EventHandler(this.flowPreview_MouseEnter);
@@ -5851,7 +5807,7 @@ namespace iSpyApplication
             this.flCommands.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flCommands.Location = new System.Drawing.Point(0, 0);
             this.flCommands.Name = "flCommands";
-            this.flCommands.Size = new System.Drawing.Size(253, 192);
+            this.flCommands.Size = new System.Drawing.Size(253, 186);
             this.flCommands.TabIndex = 0;
             this.flCommands.MouseEnter += new System.EventHandler(this.flCommands_MouseEnter);
             // 
@@ -5882,8 +5838,8 @@ namespace iSpyApplication
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
             this.splitContainer1.Panel2.Controls.Add(this._pnlContent);
             this.splitContainer1.Panel2MinSize = 20;
-            this.splitContainer1.Size = new System.Drawing.Size(887, 682);
-            this.splitContainer1.SplitterDistance = 486;
+            this.splitContainer1.Size = new System.Drawing.Size(887, 661);
+            this.splitContainer1.SplitterDistance = 471;
             this.splitContainer1.TabIndex = 21;
             // 
             // _pnlCameras
@@ -5898,162 +5854,30 @@ namespace iSpyApplication
             this._pnlCameras.Location = new System.Drawing.Point(0, 0);
             this._pnlCameras.Margin = new System.Windows.Forms.Padding(0);
             this._pnlCameras.Name = "_pnlCameras";
-            this._pnlCameras.Size = new System.Drawing.Size(887, 486);
+            this._pnlCameras.Size = new System.Drawing.Size(887, 471);
             this._pnlCameras.TabIndex = 19;
             this._pnlCameras.Scroll += new System.Windows.Forms.ScrollEventHandler(this._pnlCameras_Scroll);
             // 
             // panel1
             // 
             this.panel1.AutoSize = true;
-            this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
-            this.panel1.Controls.Add(this.flowLayoutPanel1);
+            this.panel1.Controls.Add(this.mediaPanelControl1);
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(3);
-            this.panel1.Size = new System.Drawing.Size(306, 21);
-            this.panel1.TabIndex = 20;
+            this.panel1.Size = new System.Drawing.Size(284, 32);
+            this.panel1.TabIndex = 22;
             // 
-            // flowLayoutPanel1
+            // mediaPanelControl1
             // 
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.llblSelectAll);
-            this.flowLayoutPanel1.Controls.Add(this.llblDelete);
-            this.flowLayoutPanel1.Controls.Add(this.linkLabel1);
-            this.flowLayoutPanel1.Controls.Add(this.llblFilter);
-            this.flowLayoutPanel1.Controls.Add(this.llblBack);
-            this.flowLayoutPanel1.Controls.Add(this.llblPage);
-            this.flowLayoutPanel1.Controls.Add(this.llblNext);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 3);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(300, 15);
-            this.flowLayoutPanel1.TabIndex = 2;
-            // 
-            // llblSelectAll
-            // 
-            this.llblSelectAll.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.AutoSize = true;
-            this.llblSelectAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblSelectAll.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblSelectAll.LinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.Location = new System.Drawing.Point(3, 0);
-            this.llblSelectAll.Name = "llblSelectAll";
-            this.llblSelectAll.Size = new System.Drawing.Size(79, 15);
-            this.llblSelectAll.TabIndex = 0;
-            this.llblSelectAll.TabStop = true;
-            this.llblSelectAll.Text = "Select / Clear";
-            this.llblSelectAll.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblSelectAll.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblSelectAll_LinkClicked);
-            // 
-            // llblDelete
-            // 
-            this.llblDelete.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblDelete.AutoSize = true;
-            this.llblDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblDelete.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblDelete.LinkColor = System.Drawing.Color.White;
-            this.llblDelete.Location = new System.Drawing.Point(88, 0);
-            this.llblDelete.Name = "llblDelete";
-            this.llblDelete.Size = new System.Drawing.Size(43, 15);
-            this.llblDelete.TabIndex = 1;
-            this.llblDelete.TabStop = true;
-            this.llblDelete.Text = "Delete";
-            this.llblDelete.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblDelete.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblDelete.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDelete_LinkClicked);
-            // 
-            // linkLabel1
-            // 
-            this.linkLabel1.ActiveLinkColor = System.Drawing.Color.White;
-            this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.linkLabel1.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.linkLabel1.LinkColor = System.Drawing.Color.White;
-            this.linkLabel1.Location = new System.Drawing.Point(137, 0);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(46, 15);
-            this.linkLabel1.TabIndex = 6;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "Archive";
-            this.linkLabel1.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.linkLabel1.VisitedLinkColor = System.Drawing.Color.White;
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            // 
-            // llblFilter
-            // 
-            this.llblFilter.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblFilter.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblFilter.AutoSize = true;
-            this.llblFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblFilter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblFilter.LinkColor = System.Drawing.Color.White;
-            this.llblFilter.Location = new System.Drawing.Point(189, 0);
-            this.llblFilter.Name = "llblFilter";
-            this.llblFilter.Size = new System.Drawing.Size(34, 15);
-            this.llblFilter.TabIndex = 5;
-            this.llblFilter.TabStop = true;
-            this.llblFilter.Text = "Filter";
-            this.llblFilter.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblFilter.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblFilter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblFilter_LinkClicked);
-            // 
-            // llblBack
-            // 
-            this.llblBack.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblBack.AutoSize = true;
-            this.llblBack.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblBack.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblBack.LinkColor = System.Drawing.Color.White;
-            this.llblBack.Location = new System.Drawing.Point(229, 0);
-            this.llblBack.Name = "llblBack";
-            this.llblBack.Size = new System.Drawing.Size(21, 15);
-            this.llblBack.TabIndex = 2;
-            this.llblBack.TabStop = true;
-            this.llblBack.Text = "<<";
-            this.llblBack.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblBack.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblBack.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblBack_LinkClicked);
-            // 
-            // llblPage
-            // 
-            this.llblPage.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblPage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblPage.AutoSize = true;
-            this.llblPage.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblPage.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblPage.LinkColor = System.Drawing.Color.White;
-            this.llblPage.Location = new System.Drawing.Point(256, 0);
-            this.llblPage.Name = "llblPage";
-            this.llblPage.Size = new System.Drawing.Size(14, 15);
-            this.llblPage.TabIndex = 4;
-            this.llblPage.TabStop = true;
-            this.llblPage.Text = "0";
-            this.llblPage.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblPage.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblPage.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblPage_LinkClicked);
-            // 
-            // llblNext
-            // 
-            this.llblNext.ActiveLinkColor = System.Drawing.Color.White;
-            this.llblNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.llblNext.AutoSize = true;
-            this.llblNext.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblNext.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblNext.LinkColor = System.Drawing.Color.White;
-            this.llblNext.Location = new System.Drawing.Point(276, 0);
-            this.llblNext.Name = "llblNext";
-            this.llblNext.Size = new System.Drawing.Size(21, 15);
-            this.llblNext.TabIndex = 3;
-            this.llblNext.TabStop = true;
-            this.llblNext.Text = ">>";
-            this.llblNext.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.llblNext.VisitedLinkColor = System.Drawing.Color.White;
-            this.llblNext.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblNext_LinkClicked);
+            this.mediaPanelControl1.AutoSize = true;
+            this.mediaPanelControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mediaPanelControl1.Location = new System.Drawing.Point(0, 0);
+            this.mediaPanelControl1.Margin = new System.Windows.Forms.Padding(0);
+            this.mediaPanelControl1.Name = "mediaPanelControl1";
+            this.mediaPanelControl1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 2);
+            this.mediaPanelControl1.Size = new System.Drawing.Size(284, 32);
+            this.mediaPanelControl1.TabIndex = 21;
+            this.mediaPanelControl1.Load += new System.EventHandler(this.mediaPanelControl1_Load);
             // 
             // ctxtPlayer
             // 
@@ -6062,87 +5886,82 @@ namespace iSpyApplication
             this.defaultPlayerToolStripMenuItem,
             this.websiteToolStripMenuItem,
             this.showInFolderToolStripMenuItem,
-            this.uploadToYouTubeToolStripMenuItem,
             this.uploadToYouTubePublicToolStripMenuItem,
+            this.uploadToCloudToolStripMenuItem,
             this.archiveToolStripMenuItem,
             this.saveToToolStripMenuItem,
             this.deleteToolStripMenuItem});
             this.ctxtPlayer.Name = "ctxPlayer";
-            this.ctxtPlayer.Size = new System.Drawing.Size(225, 202);
+            this.ctxtPlayer.Size = new System.Drawing.Size(186, 202);
+            this.ctxtPlayer.Opening += new System.ComponentModel.CancelEventHandler(this.ctxtPlayer_Opening);
             // 
             // iSpyToolStripMenuItem
             // 
             this.iSpyToolStripMenuItem.Name = "iSpyToolStripMenuItem";
-            this.iSpyToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.iSpyToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.iSpyToolStripMenuItem.Text = "Play in iSpy";
             this.iSpyToolStripMenuItem.Click += new System.EventHandler(this.iSpyToolStripMenuItem_Click);
             // 
             // defaultPlayerToolStripMenuItem
             // 
             this.defaultPlayerToolStripMenuItem.Name = "defaultPlayerToolStripMenuItem";
-            this.defaultPlayerToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.defaultPlayerToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.defaultPlayerToolStripMenuItem.Text = "Play in Default Player";
             this.defaultPlayerToolStripMenuItem.Click += new System.EventHandler(this.defaultPlayerToolStripMenuItem_Click);
             // 
             // websiteToolStripMenuItem
             // 
             this.websiteToolStripMenuItem.Name = "websiteToolStripMenuItem";
-            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.websiteToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.websiteToolStripMenuItem.Text = "Play on Website";
             this.websiteToolStripMenuItem.Click += new System.EventHandler(this.websiteToolStripMenuItem_Click);
             // 
             // showInFolderToolStripMenuItem
             // 
             this.showInFolderToolStripMenuItem.Name = "showInFolderToolStripMenuItem";
-            this.showInFolderToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.showInFolderToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.showInFolderToolStripMenuItem.Text = "Show in Folder";
             this.showInFolderToolStripMenuItem.Click += new System.EventHandler(this.showInFolderToolStripMenuItem_Click);
-            // 
-            // uploadToYouTubeToolStripMenuItem
-            // 
-            this.uploadToYouTubeToolStripMenuItem.Name = "uploadToYouTubeToolStripMenuItem";
-            this.uploadToYouTubeToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.uploadToYouTubeToolStripMenuItem.Text = "Upload to YouTube (Private)";
-            this.uploadToYouTubeToolStripMenuItem.Click += new System.EventHandler(this.uploadToYouTubeToolStripMenuItem_Click);
             // 
             // uploadToYouTubePublicToolStripMenuItem
             // 
             this.uploadToYouTubePublicToolStripMenuItem.Name = "uploadToYouTubePublicToolStripMenuItem";
-            this.uploadToYouTubePublicToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.uploadToYouTubePublicToolStripMenuItem.Text = "Upload to YouTube (Public)";
+            this.uploadToYouTubePublicToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.uploadToYouTubePublicToolStripMenuItem.Text = "Upload to YouTube";
             this.uploadToYouTubePublicToolStripMenuItem.Click += new System.EventHandler(this.uploadToYouTubePublicToolStripMenuItem_Click);
+            // 
+            // uploadToCloudToolStripMenuItem
+            // 
+            this.uploadToCloudToolStripMenuItem.Name = "uploadToCloudToolStripMenuItem";
+            this.uploadToCloudToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.uploadToCloudToolStripMenuItem.Text = "Upload to Cloud";
+            this.uploadToCloudToolStripMenuItem.Click += new System.EventHandler(this.uploadToGoogleDriveToolStripMenuItem_Click);
             // 
             // archiveToolStripMenuItem
             // 
             this.archiveToolStripMenuItem.Name = "archiveToolStripMenuItem";
-            this.archiveToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.archiveToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.archiveToolStripMenuItem.Text = "Archive";
             this.archiveToolStripMenuItem.Click += new System.EventHandler(this.archiveToolStripMenuItem_Click);
             // 
             // saveToToolStripMenuItem
             // 
             this.saveToToolStripMenuItem.Name = "saveToToolStripMenuItem";
-            this.saveToToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.saveToToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.saveToToolStripMenuItem.Text = "Save to...";
             this.saveToToolStripMenuItem.Click += new System.EventHandler(this.saveToToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
-            // 
-            // maximiseToolStripMenuItem
-            // 
-            this.maximiseToolStripMenuItem.Name = "maximiseToolStripMenuItem";
-            this.maximiseToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.maximiseToolStripMenuItem.Text = "Maximise";
             // 
             // MainForm
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(887, 751);
+            this.ClientSize = new System.Drawing.Size(887, 730);
             this.ContextMenuStrip = this.ctxtTaskbar;
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStripMenu);
@@ -6184,8 +6003,6 @@ namespace iSpyApplication
             this.splitContainer1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
             this.ctxtPlayer.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -6229,11 +6046,6 @@ namespace iSpyApplication
         private void menuItem27_Click(object sender, EventArgs e)
         {
             LayoutObjects(120,50);
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ArchiveSelectedMedia();
         }
 
         private void menuItem28_Click(object sender, EventArgs e)
@@ -6294,9 +6106,8 @@ namespace iSpyApplication
             }
             if (!String.IsNullOrWhiteSpace(Conf.Archive))
             {
-                Helper.ArchiveFile(((PreviewBox)ContextTarget).FileName);
-                ArchiveSelectedMedia();
-                MessageBox.Show(this, LocRm.GetString("MediaArchivedTo")+Environment.NewLine + Conf.Archive);
+                var pb = ((PreviewBox) ContextTarget);
+                Helper.ArchiveFile(pb.FileName);
             }
 
         }
@@ -6345,6 +6156,41 @@ namespace iSpyApplication
         }
 
         private void gridViewsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void uploadToGoogleDriveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string msg = "";
+            lock (ThreadLock)
+            {
+                var pb = ((PreviewBox) ContextTarget);
+                msg = CloudGateway.Upload(pb.Otid, pb.Oid, pb.FileName);
+            }
+            if (msg !="")
+                MessageBox.Show(this, msg);
+            
+        }
+
+        private void ctxtPlayer_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void uploadToYouTubePublicToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string msg = "";
+            lock (ThreadLock)
+            {
+                var pb = ((PreviewBox) ContextTarget);
+                msg = YouTubeUploader.Upload(pb.Oid, pb.FileName);
+            }
+            if (msg != "")
+                MessageBox.Show(this, msg);
+        }
+
+        private void mediaPanelControl1_Load(object sender, EventArgs e)
         {
 
         }

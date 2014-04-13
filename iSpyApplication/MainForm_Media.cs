@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Speech.AudioFormat;
+using System.Text;
 using System.Windows.Forms;
+using Google.GData.YouTube;
+using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
 
@@ -57,8 +62,13 @@ namespace iSpyApplication
             }
         }
 
-        public void DeleteSelectedMedia()
+        internal void MediaDeleteSelected()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Delegates.SimpleDelegate(MediaDeleteSelected));
+                return;
+            }
             flowPreview.SuspendLayout();
             lock (ThreadLock)
             {
@@ -75,7 +85,7 @@ namespace iSpyApplication
             flowPreview.ResumeLayout(true);
         }
 
-        public void ArchiveSelectedMedia()
+        public void MediaArchiveSelected()
         {
             if (String.IsNullOrWhiteSpace(Conf.Archive))
             {
@@ -189,13 +199,11 @@ namespace iSpyApplication
             }
         }
 
-        
-
         private void RenderList(List<FilePreview> l, int pageCount )
         {
             
             flowPreview.SuspendLayout();
-            llblPage.Text = String.Format("{0} / {1}", (MediaPanelPage + 1), pageCount);
+            mediaPanelControl1.lblPage.Text = String.Format("{0} / {1}", (MediaPanelPage + 1), pageCount);
 
             var currentList = new List<PreviewBox>();
             
@@ -257,7 +265,7 @@ namespace iSpyApplication
                             if (v != null)
                             {
                                 var filename = dir + "audio\\" + v.directory + "\\" + fp.Filename;
-                                pb = AddPreviewControl(Resources.audio, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)), v.name);
+                                pb = AddPreviewControl(fp1,Resources.audio, filename, v.name);
                             }
                             break;
                         case 2:
@@ -269,8 +277,7 @@ namespace iSpyApplication
                                             fp.Filename.Substring(0,
                                                                   fp.Filename.LastIndexOf(".", StringComparison.Ordinal)) +
                                             ".jpg";
-                                pb = AddPreviewControl(thumb, filename, fp.Duration, (new DateTime(fp.CreatedDateTicks)),
-                                                       c.name);
+                                pb = AddPreviewControl(fp1,thumb, filename, c.name);
                             }
                             break;
                     }
@@ -306,7 +313,7 @@ namespace iSpyApplication
             }
         }
 
-        private void llblBack_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        internal void MediaBack()
         {
             MediaPanelPage--;
             if (MediaPanelPage < 0)
@@ -315,22 +322,22 @@ namespace iSpyApplication
             {
                 foreach (Control c in flowPreview.Controls)
                 {
-                     var pb = c as PreviewBox;
-                     if (pb != null && pb.Selected)
-                     {
-                         pb.MouseDown -= PbMouseDown;
-                         pb.MouseEnter -= PbMouseEnter;
-                         pb.Dispose();
-                     }
+                    var pb = c as PreviewBox;
+                    if (pb != null && pb.Selected)
+                    {
+                        pb.MouseDown -= PbMouseDown;
+                        pb.MouseEnter -= PbMouseEnter;
+                        pb.Dispose();
+                    }
                 }
                 flowPreview.Controls.Clear();
                 flowPreview.Refresh();
                 LoadPreviews();
             }
-
         }
 
-        private void llblNext_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+
+        internal void MediaNext()
         {
             MediaPanelPage++;
             if (MediaPanelPage * Conf.PreviewItems >= MasterFileList.Count)
@@ -351,10 +358,9 @@ namespace iSpyApplication
                 flowPreview.Refresh();
                 LoadPreviews();
             }
-
         }
 
-        private void llblPage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        internal void MediaPage()
         {
             var p = new Pager();
             int i = MediaPanelPage;
@@ -377,5 +383,37 @@ namespace iSpyApplication
             }
         }
 
+        internal void MediaUploadCloud()
+        {
+            if (!Conf.Subscribed)
+            {
+                var ns = new NotSubscribed();
+                ns.ShowDialog(this);
+                return;
+            }
+
+            string msg = "";
+            lock (ThreadLock)
+            {
+                for (int i = 0; i < flowPreview.Controls.Count; i++)
+                {
+                    var pb = flowPreview.Controls[i] as PreviewBox;
+                    if (pb != null && pb.Selected)
+                    {
+                        msg = CloudGateway.Upload(pb.Otid, pb.Oid, pb.FileName);
+                    }
+                }
+            }
+            if (msg != "")
+                MessageBox.Show(this, msg);
+            
+        }
+
+
+        internal void MergeMedia()
+        {
+            var m = new Merger {MainClass = this};
+            m.ShowDialog(this);
+        }
     }
 }
