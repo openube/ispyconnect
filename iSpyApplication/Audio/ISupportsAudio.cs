@@ -1,6 +1,6 @@
 ﻿using NAudio.Wave;
 
-namespace iSpyApplication.Video
+namespace iSpyApplication.Audio
 {
 
     /// <summary>
@@ -15,7 +15,7 @@ namespace iSpyApplication.Video
         /// HasAudioStream event.
         /// </summary>
         /// 
-        event Audio.HasAudioStreamEventHandler HasAudioStream;
+        event HasAudioStreamEventHandler HasAudioStream;
 
         WaveFormat RecordingFormat { get; set; }
     }
