@@ -36,7 +36,8 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <PublishUrl>
     </PublishUrl>
     <Install>true</Install>
@@ -192,7 +193,35 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Vision.dll</HintPath>
     </Reference>
+    <Reference Include="DropNet, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\DropNet.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Google.Apis, Version=1.8.1.31687, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth, Version=1.8.1.31688, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth.PlatformServices, Version=1.8.1.31699, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core, Version=1.8.1.31685, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Drive.v2, Version=1.8.1.119, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.Drive.v2.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.PlatformServices, Version=1.8.1.31691, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Google.Apis.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="Google.GData.Client, Version=1.8.0.0, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\Google.GData.Client.dll</HintPath>
@@ -209,14 +238,33 @@
       <HintPath>DLLS\Interop.NetFwTypeLib.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Kinect, Version=1.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Program Files\Microsoft SDKs\Kinect\v1.5\Assemblies\Microsoft.Kinect.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop">
+      <HintPath>DLLS\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
+    </Reference>
     <Reference Include="NAudio, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NSpeex">
       <HintPath>DLLS\NSpeex.dll</HintPath>
@@ -245,6 +293,10 @@
     <Reference Include="Renderers">
       <HintPath>DLLS\Renderers.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=104.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>DLLS\SharpDX.dll</HintPath>
     </Reference>
@@ -264,6 +316,23 @@
     </Reference>
     <Reference Include="System.EnterpriseServices" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions, Version=2.1.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=2.1.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>Onvif\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -273,8 +342,14 @@
     <Reference Include="System.Reactive.Linq">
       <HintPath>Onvif\System.Reactive.Linq.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime">
+      <HintPath>DLLS\System.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Speech" />
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>DLLS\System.Threading.Tasks.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms">
       <Name>System.Windows.Forms</Name>
@@ -298,6 +373,10 @@
     <Reference Include="xiApi.NET">
       <HintPath>DLLS\xiApi.NET.dll</HintPath>
     </Reference>
+    <Reference Include="Zlib.Portable, Version=1.9.1.9000, Culture=neutral, PublicKeyToken=6e72eaf7d6c3c55b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\Zlib.Portable.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AboutForm.cs">
@@ -312,12 +391,15 @@
     <Compile Include="Audio\MP3\ReadFullyStream.cs" />
     <Compile Include="Audio\MP3\WebStream.cs" />
     <Compile Include="Audio\SpeechStreamer.cs" />
+    <Compile Include="Audio\SpeechSynth.cs" />
     <Compile Include="Audio\streams\AudioInStream.cs" />
     <Compile Include="Audio\streams\FFMPEGStream.cs" />
     <Compile Include="Audio\streams\GainHelper.cs" />
     <Compile Include="Audio\talk\TalkLocal.cs" />
     <Compile Include="Audio\talk\TalkNetworkKinect.cs" />
     <Compile Include="Audio\VolumeWaveProvider16.cs" />
+    <Compile Include="Cloud\CloudGateway.cs" />
+    <Compile Include="Cloud\Dropbox.cs" />
     <Compile Include="Controls\ActionEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -330,7 +412,48 @@
     <Compile Include="Controls\AlertEventRow.Designer.cs">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AlertSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\AlertSettings.Designer.cs">
+      <DependentUpon>AlertSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\AppLoop.cs" />
+    <Compile Include="Controls\GridViewItem.cs" />
+    <Compile Include="Controls\ServerEventRow.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ServerEventRow.Designer.cs">
+      <DependentUpon>ServerEventRow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FTPEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\FTPEditor.Designer.cs">
+      <DependentUpon>FTPEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FTPConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\FTPConfig.Designer.cs">
+      <DependentUpon>FTPConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ISpyControl.cs" />
+    <Compile Include="Controls\MediaPanelControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\MediaPanelControl.Designer.cs">
+      <DependentUpon>MediaPanelControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MediaPanelControlButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TextToSpeech.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\TextToSpeech.Designer.cs">
+      <DependentUpon>TextToSpeech.cs</DependentUpon>
+    </Compile>
     <Compile Include="Delegates.cs" />
     <Compile Include="Controls\DirectoryEventRow.cs">
       <SubType>UserControl</SubType>
@@ -364,10 +487,11 @@
     <Compile Include="Controls\GraphicsHelper.cs" />
     <Compile Include="Controls\Reflector.cs" />
     <Compile Include="Controls\ThreadSafeCommand.cs" />
-    <Compile Include="GridViewCustom.cs">
+    <Compile Include="Cloud\Drive.cs" />
+    <Compile Include="Controls\GridViewCustom.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GridViewCustom.Designer.cs">
+    <Compile Include="Controls\GridViewCustom.Designer.cs">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\jaxis.cs">
@@ -409,16 +533,22 @@
     <Compile Include="GridViewManager.Designer.cs">
       <DependentUpon>GridViewManager.cs</DependentUpon>
     </Compile>
-    <Compile Include="GridViewModeConfig.cs">
+    <Compile Include="Controls\GridViewModeConfig.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GridViewModeConfig.Designer.cs">
+    <Compile Include="Controls\GridViewModeConfig.Designer.cs">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="HttpRequest.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="MainForm_Configuration.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Merger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Merger.Designer.cs">
+      <DependentUpon>Merger.cs</DependentUpon>
     </Compile>
     <Compile Include="MicrophoneSourceAdvanced.cs">
       <SubType>Form</SubType>
@@ -535,10 +665,10 @@
       <DependentUpon>downloader.cs</DependentUpon>
     </Compile>
     <Compile Include="FileOperations.cs" />
-    <Compile Include="GridViewCamera.cs">
+    <Compile Include="Controls\GridViewCamera.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GridViewCamera.Designer.cs">
+    <Compile Include="Controls\GridViewCamera.Designer.cs">
       <DependentUpon>GridViewCamera.cs</DependentUpon>
     </Compile>
     <Compile Include="Kinect\DepthLine.cs" />
@@ -567,6 +697,7 @@
     <Compile Include="MainForm_Media.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MimeTypes.cs" />
     <Compile Include="MP3Stream\AudioWriters.cs" />
     <Compile Include="MP3Stream\Lame.cs" />
     <Compile Include="MP3Stream\Mp3Writer.cs" />
@@ -579,6 +710,12 @@
     </Compile>
     <Compile Include="MP3Stream\WaveWriter.cs" />
     <Compile Include="MP3Stream\WriterConfig.cs" />
+    <Compile Include="NotSubscribed.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NotSubscribed.Designer.cs">
+      <DependentUpon>NotSubscribed.cs</DependentUpon>
+    </Compile>
     <Compile Include="Pager.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -617,6 +754,11 @@
     <Compile Include="Prompt.Designer.cs">
       <DependentUpon>Prompt.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="PTZController.cs" />
     <Compile Include="PTZTool.cs">
       <SubType>Form</SubType>
@@ -650,7 +792,7 @@
     <Compile Include="Video\FFMPEGStream.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Video\ISupportsAudio.cs" />
+    <Compile Include="Audio\ISupportsAudio.cs" />
     <Compile Include="Video\JPEGStream2.cs" />
     <Compile Include="Video\KinectNetworkStream.cs" />
     <Compile Include="Video\KinectStream.cs" />
@@ -836,11 +978,6 @@
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="WinAPI.cs" />
     <Compile Include="WSWrapper.cs" />
     <Compile Include="XML\config.cs">
@@ -859,20 +996,17 @@
     <Compile Include="XML\Sources.cs">
       <DependentUpon>Sources.xsd</DependentUpon>
     </Compile>
-    <Compile Include="YouTubeUploader.cs" />
+    <Compile Include="Cloud\YouTubeUploader.cs" />
     <Content Include="backgrounds\demo_mask.png" />
     <Content Include="backgrounds\FloorPlan_House.jpg" />
     <Content Include="backgrounds\FloorPlan_House2.jpg" />
     <Content Include="backgrounds\FloorPlan_Planet.jpg" />
     <None Include="chk.png" />
     <Content Include="Copyright.txt" />
-    <None Include="Resources\phyxius.jpg" />
-    <None Include="Resources\bigdipper.jpg" />
-    <None Include="Resources\ALLNET.jpg" />
+    <None Include="packages.config" />
     <None Include="Resources\cam_connecting.png" />
     <None Include="Resources\cam_offline.png" />
     <None Include="Resources\cam_removed.png" />
-    <None Include="Resources\EOSLogo.png" />
     <None Include="Resources\checkbox_off.png" />
     <None Include="Resources\onvif.png" />
     <Content Include="Onvif\onvif.discovery.dll" />
@@ -893,6 +1027,17 @@
     <None Include="Resources\icons.png" />
     <None Include="Resources\icons.fw.png" />
     <None Include="Resources\icons_big.png" />
+    <None Include="Resources\GoogleDrive_Logo.png" />
+    <None Include="Resources\youtube.png" />
+    <None Include="Resources\Clouds.png" />
+    <None Include="Resources\icon_next.png" />
+    <None Include="Resources\icon_previous.png" />
+    <None Include="Resources\icon_filter.png" />
+    <None Include="Resources\icon_archive.png" />
+    <None Include="Resources\icon_delete.png" />
+    <None Include="Resources\icon_tick.png" />
+    <None Include="Resources\media_icons.png" />
+    <None Include="Resources\merged.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.mp3" />
     <Content Include="sounds\alsation_bark.wav" />
@@ -942,14 +1087,11 @@
     <None Include="Resources\icon_listenstop.png" />
     <None Include="Resources\icon_photo.png" />
     <Content Include="Plugins\Demo.dll" />
-    <None Include="Resources\ensidio.jpg" />
     <None Include="Resources\ispylogo.png" />
     <None Include="Resources\ispy1.png" />
     <None Include="Resources\ipcam.png" />
     <None Include="Resources\plugin.png" />
-    <None Include="Resources\TENVIS.jpg" />
     <None Include="Resources\smartisp.png" />
-    <None Include="Resources\Addplus.png" />
     <None Include="Resources\checkbox.png" />
     <None Include="Resources\icons\01 Computer.png" />
     <None Include="Resources\icons\02 Network.png" />
@@ -979,7 +1121,6 @@
     <None Include="Resources\icons\26 Custom.png" />
     <None Include="Resources\icons\27 Run.png" />
     <Content Include="Plugins\readme.txt" />
-    <None Include="Resources\foscam.jpg" />
     <None Include="Resources\icon_pointer.png" />
     <Content Include="readme.txt" />
     <Content Include="sounds\airhorn.wav" />
@@ -989,6 +1130,7 @@
     <Content Include="sounds\pop.wav" />
     <Content Include="sounds\wiggle.wav" />
     <None Include="Web References\iSpyWS\ispyapi.disco" />
+    <Content Include="VLC64\readme.txt" />
     <Content Include="WebServerRoot\notfound.jpg" />
     <Content Include="XML\config.xml">
       <SubType>Designer</SubType>
@@ -1042,8 +1184,20 @@
     <EmbeddedResource Include="Controls\AlertEventRow.resx">
       <DependentUpon>AlertEventRow.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\AlertSettings.resx">
+      <DependentUpon>AlertSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ServerEventRow.resx">
+      <DependentUpon>ServerEventRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FTPEditor.resx">
+      <DependentUpon>FTPEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DirectoryEventRow.resx">
       <DependentUpon>DirectoryEventRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\FTPConfig.resx">
+      <DependentUpon>FTPConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\MediaDirectoryConfig.resx">
       <DependentUpon>MediaDirectoryConfig.cs</DependentUpon>
@@ -1063,6 +1217,12 @@
     <EmbeddedResource Include="Controls\MediaPanel.resx">
       <DependentUpon>MediaPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\MediaPanelControl.resx">
+      <DependentUpon>MediaPanelControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextToSpeech.resx">
+      <DependentUpon>TextToSpeech.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\VideoNavigator.resx">
       <DependentUpon>VideoNavigator.cs</DependentUpon>
     </EmbeddedResource>
@@ -1072,14 +1232,17 @@
     <EmbeddedResource Include="GridView.resx">
       <DependentUpon>GridView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridViewCustom.resx">
+    <EmbeddedResource Include="Controls\GridViewCustom.resx">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GridViewManager.resx">
       <DependentUpon>GridViewManager.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridViewModeConfig.resx">
+    <EmbeddedResource Include="Controls\GridViewModeConfig.resx">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Merger.resx">
+      <DependentUpon>Merger.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MicrophoneSourceAdvanced.resx">
       <DependentUpon>MicrophoneSourceAdvanced.cs</DependentUpon>
@@ -1130,11 +1293,14 @@
     <EmbeddedResource Include="downloader.resx">
       <DependentUpon>downloader.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridViewCamera.resx">
+    <EmbeddedResource Include="Controls\GridViewCamera.resx">
       <DependentUpon>GridViewCamera.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Kinect\EditDepthLine.resx">
       <DependentUpon>EditDepthLine.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NotSubscribed.resx">
+      <DependentUpon>NotSubscribed.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Pager.resx">
       <DependentUpon>Pager.cs</DependentUpon>
@@ -1390,7 +1556,7 @@
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
+      <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
@@ -1451,4 +1617,5 @@ xcopy "$(ProjectDir)\platform\x86\*.*" "$(TargetDir)" /Y
 xcopy "d:\Projects\iSpy\FFMPEG\ffmpeg\bin\*.*" "$(TargetDir)" /Y
 xcopy "d:\Projects\iSpy\ispyapplication\xml\translations.xml" "C:\Users\sean\AppData\Roaming\iSpy\XML" /Y</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.7\tools\Microsoft.Bcl.Build.targets" />
 </Project>

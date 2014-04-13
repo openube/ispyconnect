@@ -370,7 +370,7 @@ namespace iSpyApplication
                 }
                 if (j > -1 && j<lb.Count)
                 {
-                    UISync.Execute(() => lb[j].PlayMedia(3));
+                    UISync.Execute(() => lb[j].PlayMedia(Enums.PlaybackMode.iSpy));
                 }
             }
         }

@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
-using System.Net.Sockets;
 using System.Windows.Forms;
-using Google.GData.Extensions;
 using iSpyApplication.iSpyWS;
 
 namespace iSpyApplication
@@ -142,6 +140,34 @@ namespace iSpyApplication
             Debug.WriteLine("WEBSERVICE CALL: SendAlertWithImageAsync");
             Wsa.SendAlertWithImageAsync(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, emailAddress, subject, message, imageData,Guid.NewGuid());
         }
+
+        //public static void SendAlertWithImages(string emailAddress, string subject, string message, List<byte[]> images)
+        //{
+        //    using (var client = new HttpClient())
+        //    {
+        //        using (var formData = new MultipartFormDataContent())
+        //        {
+        //            formData.Add(new StringContent(emailAddress), "emailAddress");
+        //            formData.Add(new StringContent(subject), "subject");
+        //            formData.Add(new StringContent(message), "message");
+
+        //            int i = 1;
+        //            foreach (byte[] b in images)
+        //            {
+        //                HttpContent bytesContent = new ByteArrayContent(b);
+        //                formData.Add(bytesContent, "image_" + i + ".jpg");
+        //                i++;
+        //            }
+
+        //            var response =
+        //                client.PostAsync(MainForm.WebserverSecure + "/webservices/PostInterface.aspx", formData).Result;
+        //            if (!response.IsSuccessStatusCode)
+        //            {
+        //                MainForm.LogErrorToFile("Send multi image failed: " + response.StatusCode);
+        //            }
+        //        }
+        //    }
+        //}
 
         public static string ExternalIPv4(bool refresh)
         {
@@ -416,7 +442,7 @@ namespace iSpyApplication
                 {
                     r = Wsa.Connect2(MainForm.Conf.WSUsername, MainForm.Conf.WSPassword, port,
                                       MainForm.Identifier, tryLoopback, Application.ProductVersion,
-                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.AFFILIATEID, X509.SslEnabled);
+                                      MainForm.Conf.ServerName, MainForm.Conf.IPMode == "IPv4", MainForm.IPAddressExternal, MainForm.Affiliateid, X509.SslEnabled);
                     if (r == "OK" && tryLoopback)
                     {
                         MainForm.LoopBack = true;

@@ -1,4 +1,5 @@
-﻿using iSpyApplication.Controls;
+﻿using System;
+using iSpyApplication.Controls;
 
 namespace iSpyApplication
 {
@@ -32,7 +33,11 @@ namespace iSpyApplication
 
         public delegate void InvokeMethod(string command);
 
+        public delegate void ErrorHandler(string message);
+
         public delegate void RunCheckJoystick();
+
+        public delegate void SimpleDelegate();
     }
 
     

@@ -13,11 +13,10 @@ namespace iSpyApplication
         public GridView(MainForm parent, ref configurationGrid layout)
         {
             InitializeComponent();
-            _gv = new Controls.GridView(ref layout);
+            _gv = new Controls.GridView(parent, ref layout);
             _gv.KeyDown += GridView_KeyDown;
             Controls.Add(_gv);
             _gv.Dock = DockStyle.Fill;
-            _gv.MainClass = parent;
             _layout = layout;
             fullScreenToolStripMenuItem.Checked = layout.FullScreen;
             alwaysOnTopToolStripMenuItem.Checked = layout.AlwaysOnTop;

@@ -608,6 +608,8 @@ public partial class objectsCameraSettings {
     
     private objectsCameraSettingsYoutube youtubeField;
     
+    private objectsCameraSettingsCloudprovider cloudproviderField;
+    
     private objectsCameraSettingsStoragemanagement storagemanagementField;
     
     private int desktopresizewidthField;
@@ -1344,6 +1346,16 @@ public partial class objectsCameraSettings {
     }
     
     /// <remarks/>
+    public objectsCameraSettingsCloudprovider cloudprovider {
+        get {
+            return this.cloudproviderField;
+        }
+        set {
+            this.cloudproviderField = value;
+        }
+    }
+    
+    /// <remarks/>
     public objectsCameraSettingsStoragemanagement storagemanagement {
         get {
             return this.storagemanagementField;
@@ -1478,8 +1490,6 @@ public partial class objectsCameraSettings {
 [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
 public partial class objectsCameraSettingsYoutube {
     
-    private bool autouploadField;
-    
     private bool publicField;
     
     private string tagsField;
@@ -1488,16 +1498,6 @@ public partial class objectsCameraSettingsYoutube {
     
     public objectsCameraSettingsYoutube() {
         this.publicField = false;
-    }
-    
-    /// <remarks/>
-    public bool autoupload {
-        get {
-            return this.autouploadField;
-        }
-        set {
-            this.autouploadField = value;
-        }
     }
     
     /// <remarks/>
@@ -1527,6 +1527,70 @@ public partial class objectsCameraSettingsYoutube {
         }
         set {
             this.categoryField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
+public partial class objectsCameraSettingsCloudprovider {
+    
+    private string providerField;
+    
+    private bool recordingsField;
+    
+    private bool imagesField;
+    
+    private string pathField;
+    
+    public objectsCameraSettingsCloudprovider() {
+        this.providerField = "Google Drive";
+        this.recordingsField = false;
+        this.imagesField = false;
+        this.pathField = "[MEDIATYPE]/[NAME]/";
+    }
+    
+    /// <remarks/>
+    public string provider {
+        get {
+            return this.providerField;
+        }
+        set {
+            this.providerField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool recordings {
+        get {
+            return this.recordingsField;
+        }
+        set {
+            this.recordingsField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool images {
+        get {
+            return this.imagesField;
+        }
+        set {
+            this.imagesField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string path {
+        get {
+            return this.pathField;
+        }
+        set {
+            this.pathField = value;
         }
     }
 }
@@ -1609,9 +1673,17 @@ public partial class objectsCameraFtp {
     
     private string passwordField;
     
-    private string filenameField;
-    
     private int portField;
+    
+    private bool usepassiveField;
+    
+    private bool renameField;
+    
+    private bool readyField;
+    
+    private string identField;
+    
+    private string filenameField;
     
     private int intervalField;
     
@@ -1627,17 +1699,11 @@ public partial class objectsCameraFtp {
     
     private int modeField;
     
-    private bool readyField;
-    
-    private bool usepassiveField;
-    
     private string textField;
     
     private bool savelocalField;
     
     private int qualityField;
-    
-    private bool renameField;
     
     private string localfilenameField;
     
@@ -1692,22 +1758,62 @@ public partial class objectsCameraFtp {
     }
     
     /// <remarks/>
-    public string filename {
-        get {
-            return this.filenameField;
-        }
-        set {
-            this.filenameField = value;
-        }
-    }
-    
-    /// <remarks/>
     public int port {
         get {
             return this.portField;
         }
         set {
             this.portField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool usepassive {
+        get {
+            return this.usepassiveField;
+        }
+        set {
+            this.usepassiveField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool rename {
+        get {
+            return this.renameField;
+        }
+        set {
+            this.renameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool ready {
+        get {
+            return this.readyField;
+        }
+        set {
+            this.readyField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string ident {
+        get {
+            return this.identField;
+        }
+        set {
+            this.identField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string filename {
+        get {
+            return this.filenameField;
+        }
+        set {
+            this.filenameField = value;
         }
     }
     
@@ -1782,26 +1888,6 @@ public partial class objectsCameraFtp {
     }
     
     /// <remarks/>
-    public bool ready {
-        get {
-            return this.readyField;
-        }
-        set {
-            this.readyField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public bool usepassive {
-        get {
-            return this.usepassiveField;
-        }
-        set {
-            this.usepassiveField = value;
-        }
-    }
-    
-    /// <remarks/>
     public string text {
         get {
             return this.textField;
@@ -1828,16 +1914,6 @@ public partial class objectsCameraFtp {
         }
         set {
             this.qualityField = value;
-        }
-    }
-    
-    /// <remarks/>
-    public bool rename {
-        get {
-            return this.renameField;
-        }
-        set {
-            this.renameField = value;
         }
     }
     
@@ -2554,6 +2630,10 @@ public partial class objectsCameraAlerts {
     
     private int minimumintervalField;
     
+    private int resetintervalField;
+    
+    private string groupnameField;
+    
     private int objectcountalertField;
     
     private bool activeField;
@@ -2573,6 +2653,8 @@ public partial class objectsCameraAlerts {
     private string playsoundField;
     
     public objectsCameraAlerts() {
+        this.resetintervalField = 0;
+        this.groupnameField = "";
         this.overlayField = true;
         this.pluginconfigField = "";
         this.processmodeField = "continuous";
@@ -2619,6 +2701,30 @@ public partial class objectsCameraAlerts {
         }
         set {
             this.minimumintervalField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int resetinterval {
+        get {
+            return this.resetintervalField;
+        }
+        set {
+            this.resetintervalField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute("")]
+    public string groupname {
+        get {
+            return this.groupnameField;
+        }
+        set {
+            this.groupnameField = value;
         }
     }
     
@@ -2973,6 +3079,8 @@ public partial class objectsCameraScheduleEntry {
     
     private bool timelapseenabledField;
     
+    private bool ptzField;
+    
     private bool ftpenabledField;
     
     private bool savelocalenabledField;
@@ -2985,6 +3093,7 @@ public partial class objectsCameraScheduleEntry {
         this.recordondetectField = true;
         this.recordonalertField = true;
         this.timelapseenabledField = true;
+        this.ptzField = true;
         this.ftpenabledField = false;
         this.savelocalenabledField = false;
         this.alertsField = true;
@@ -3080,6 +3189,18 @@ public partial class objectsCameraScheduleEntry {
         }
         set {
             this.timelapseenabledField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(true)]
+    public bool ptz {
+        get {
+            return this.ptzField;
+        }
+        set {
+            this.ptzField = value;
         }
     }
     
@@ -3844,6 +3965,10 @@ public partial class objectsMicrophoneDetector {
     
     private int sensitivityField;
     
+    private double maxsensitivityField;
+    
+    private double minsensitivityField;
+    
     private int nosoundintervalField;
     
     private int soundintervalField;
@@ -3851,6 +3976,11 @@ public partial class objectsMicrophoneDetector {
     private bool recordondetectField;
     
     private bool recordonalertField;
+    
+    public objectsMicrophoneDetector() {
+        this.maxsensitivityField = 100D;
+        this.minsensitivityField = -1D;
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -3860,6 +3990,30 @@ public partial class objectsMicrophoneDetector {
         }
         set {
             this.sensitivityField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(100D)]
+    public double maxsensitivity {
+        get {
+            return this.maxsensitivityField;
+        }
+        set {
+            this.maxsensitivityField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(-1D)]
+    public double minsensitivity {
+        get {
+            return this.minsensitivityField;
+        }
+        set {
+            this.minsensitivityField = value;
         }
     }
     
@@ -3977,6 +4131,10 @@ public partial class objectsMicrophoneAlerts {
     
     private int minimumintervalField;
     
+    private int resetintervalField;
+    
+    private string groupnameField;
+    
     private bool activeField;
     
     private string modeField;
@@ -3984,6 +4142,8 @@ public partial class objectsMicrophoneAlerts {
     private string triggerField;
     
     public objectsMicrophoneAlerts() {
+        this.resetintervalField = 0;
+        this.groupnameField = "";
         this.triggerField = "";
     }
     
@@ -4025,6 +4185,30 @@ public partial class objectsMicrophoneAlerts {
         }
         set {
             this.minimumintervalField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int resetinterval {
+        get {
+            return this.resetintervalField;
+        }
+        set {
+            this.resetintervalField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute("")]
+    public string groupname {
+        get {
+            return this.groupnameField;
+        }
+        set {
+            this.groupnameField = value;
         }
     }
     

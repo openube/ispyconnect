@@ -123,26 +123,6 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Addplus {
-            get {
-                object obj = ResourceManager.GetObject("Addplus", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap ALLNET {
-            get {
-                object obj = ResourceManager.GetObject("ALLNET", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap audio {
             get {
                 object obj = ResourceManager.GetObject("audio", resourceCulture);
@@ -156,16 +136,6 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap Avast {
             get {
                 object obj = ResourceManager.GetObject("Avast", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap bigdipper {
-            get {
-                object obj = ResourceManager.GetObject("bigdipper", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -246,6 +216,16 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap checkbox_off {
             get {
                 object obj = ResourceManager.GetObject("checkbox_off", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Clouds {
+            get {
+                object obj = ResourceManager.GetObject("Clouds", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -383,26 +363,6 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ensidio {
-            get {
-                object obj = ResourceManager.GetObject("ensidio", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap EOSLogo {
-            get {
-                object obj = ResourceManager.GetObject("EOSLogo", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap files {
             get {
                 object obj = ResourceManager.GetObject("files", resourceCulture);
@@ -436,16 +396,6 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap Folder {
             get {
                 object obj = ResourceManager.GetObject("Folder", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap foscam {
-            get {
-                object obj = ResourceManager.GetObject("foscam", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -493,9 +443,39 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap icon_archive {
+            get {
+                object obj = ResourceManager.GetObject("icon_archive", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icon_connect {
             get {
                 object obj = ResourceManager.GetObject("icon_connect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_delete {
+            get {
+                object obj = ResourceManager.GetObject("icon_delete", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_filter {
+            get {
+                object obj = ResourceManager.GetObject("icon_filter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -526,6 +506,16 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap icon_listenstop {
             get {
                 object obj = ResourceManager.GetObject("icon_listenstop", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_next {
+            get {
+                object obj = ResourceManager.GetObject("icon_next", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -573,6 +563,16 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap icon_previous {
+            get {
+                object obj = ResourceManager.GetObject("icon_previous", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icon_record {
             get {
                 object obj = ResourceManager.GetObject("icon_record", resourceCulture);
@@ -606,6 +606,16 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap icon_settings {
             get {
                 object obj = ResourceManager.GetObject("icon_settings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_tick {
+            get {
+                object obj = ResourceManager.GetObject("icon_tick", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -763,6 +773,26 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap media_icons {
+            get {
+                object obj = ResourceManager.GetObject("media_icons", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap merged {
+            get {
+                object obj = ResourceManager.GetObject("merged", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Mic {
             get {
                 object obj = ResourceManager.GetObject("Mic", resourceCulture);
@@ -846,16 +876,6 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap Photoshop {
             get {
                 object obj = ResourceManager.GetObject("Photoshop", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap phyxius {
-            get {
-                object obj = ResourceManager.GetObject("phyxius", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -983,16 +1003,6 @@ namespace iSpyApplication.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap smartisp {
-            get {
-                object obj = ResourceManager.GetObject("smartisp", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap snapshot {
             get {
                 object obj = ResourceManager.GetObject("snapshot", resourceCulture);
@@ -1036,16 +1046,6 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap switchon {
             get {
                 object obj = ResourceManager.GetObject("switchon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap TENVIS {
-            get {
-                object obj = ResourceManager.GetObject("TENVIS", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -1135,6 +1135,16 @@ namespace iSpyApplication.Properties {
         internal static System.Drawing.Bitmap web {
             get {
                 object obj = ResourceManager.GetObject("web", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap youtube {
+            get {
+                object obj = ResourceManager.GetObject("youtube", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

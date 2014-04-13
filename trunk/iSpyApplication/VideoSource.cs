@@ -42,7 +42,9 @@ namespace iSpyApplication
         private bool _loaded;
 
         private readonly object[] _transports = {"RTSP", "HTTP", "UDP", "TCP"};
-
+        //do not put a comma in this description!
+        public static string VideoFormatString = "{0} x {1} ({3} bit up to {2} fps)";
+        public static string SnapshotFormatString = "{0} x {1} ({3} bit)";
 
         // collection of available video devices
         private readonly FilterInfoCollection _videoDevices;
@@ -186,13 +188,13 @@ namespace iSpyApplication
         {
             UISync.Init(this);
             tlpVLC.Enabled = VlcHelper.VlcInstalled;
-            linkLabel3.Visible = lblInstallVLC.Visible = !tlpVLC.Enabled;
-
+            linkLabel3.Visible = !tlpVLC.Enabled;
+            
             cmbJPEGURL.Text = MainForm.Conf.JPEGURL;
             cmbMJPEGURL.Text = MainForm.Conf.MJPEGURL;
             cmbVLCURL.Text = MainForm.Conf.VLCURL;
             cmbFile.Text = MainForm.Conf.AVIFileName;
-            ConfigureSnapshots = false;
+            ConfigureSnapshots = true;
 
             txtOnvifUsername.Text = txtLogin.Text = txtLogin2.Text = CameraControl.Camobject.settings.login;
             txtOnvifPassword.Text = txtPassword.Text = txtPassword2.Text = CameraControl.Camobject.settings.password;
@@ -229,6 +231,9 @@ namespace iSpyApplication
                     break;
                 case 2:
                     cmbFile.Text = VideoSourceString;
+                    break;
+                case 3:
+                    chkAutoImageSettings.Checked = NV("manual") != "true";
                     break;
                 case 5:
                     cmbVLCURL.Text = VideoSourceString;
@@ -380,10 +385,10 @@ namespace iSpyApplication
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Type error if not installed
-                MainForm.LogMessageToFile("Kinect supporting libraries not installed. ("+ex.Message+")" );
+                MainForm.LogMessageToFile("Kinect is not installed");
             }
             if (deviceCount>0)
             {
@@ -535,7 +540,6 @@ namespace iSpyApplication
             label37.Text = LocRm.GetString("VideoInput");
             snapshotsLabel.Text = LocRm.GetString("SnapshotsResolution");
             label18.Text = LocRm.GetString("Arguments");
-            lblInstallVLC.Text = LocRm.GetString("VLCConnectInfo");
             linkLabel3.Text = LocRm.GetString("DownloadVLC");
             linkLabel4.Text = LocRm.GetString("UseiSpyServerText");
             llblHelp.Text = LocRm.GetString("help");
@@ -548,8 +552,6 @@ namespace iSpyApplication
             LocRm.SetString(btnGetStreamSize, "GetStreamSize");
             LocRm.SetString(linkLabel5, "Help");
             LocRm.SetString(label18, "Arguments");
-            LocRm.SetString(lblInstallVLC, "VLCHelp");
-            lblInstallVLC.Text = lblInstallVLC.Text.Replace("x86", Program.Platform);
             LocRm.SetString(linkLabel3, "DownloadVLC");
             LocRm.SetString(chkKinectSkeletal, "ShowSkeleton");
             LocRm.SetString(chkTripWires, "ShowTripWires");
@@ -558,6 +560,10 @@ namespace iSpyApplication
             LocRm.SetString(label14, "Camera");
             button8.Text = LocRm.GetString("ScanNetwork");
             chkConnectVLC.Text = LocRm.GetString("UseVLCToConnect");
+            chkAutoImageSettings.Text = LocRm.GetString("AutomaticImageSettings");
+            rdoCaptureSnapshots.Text = LocRm.GetString("Snapshots");
+            rdoCaptureVideo.Text = LocRm.GetString("Video");
+            label35.Text = LocRm.GetString("CaptureMode");
 
             HideTab(tabPage1 , Helper.HasFeature(Enums.Features.Source_JPEG));
             HideTab(tabPage2 , Helper.HasFeature(Enums.Features.Source_MJPEG));
@@ -595,7 +601,7 @@ namespace iSpyApplication
             MainForm.Conf.AVIFileName = cmbFile.Text.Trim();
             MainForm.Conf.VLCURL = cmbVLCURL.Text.Trim();
            
-            string nv;
+            string nv="";
 
             SourceIndex = GetSourceIndex();
 
@@ -657,7 +663,6 @@ namespace iSpyApplication
                         MessageBox.Show(LocRm.GetString("Validate_SelectCamera"), LocRm.GetString("Note"));
                         return;
                     }
-
                     _videoDeviceMoniker = _videoCaptureDevice.Source;
                     if (_videoCapabilitiesDictionary.Count != 0)
                     {
@@ -665,17 +670,25 @@ namespace iSpyApplication
                             _videoCapabilitiesDictionary[(string) videoResolutionsCombo.SelectedItem];
                         _captureSize = caps.FrameSize;
                         FrameRate = caps.AverageFrameRate;
+                        nv = "video=" + (string) videoResolutionsCombo.SelectedItem + ",";
                     }
 
-                    if ( _configureSnapshots )
+                    if ( ConfigureSnapshots )
                     {
                         // set snapshots size
                         if ( _snapshotCapabilitiesDictionary.Count != 0 )
                         {
                             VideoCapabilities caps = _snapshotCapabilitiesDictionary[(string) snapshotResolutionsCombo.SelectedItem];
                             _snapshotSize = caps.FrameSize;
+                            nv += "snapshots=" + (string)snapshotResolutionsCombo.SelectedItem+",";
                         }
                     }
+                    nv += "manual=" + (!chkAutoImageSettings.Checked).ToString().ToLower()+",";
+                    nv += "capturemode=";
+                    if (rdoCaptureSnapshots.Checked)
+                        nv += "snapshots";
+                    else
+                        nv += "video";
 
                     VideoInputIndex = -1;
                     if (videoInputsCombo.SelectedIndex > 0)
@@ -740,8 +753,6 @@ namespace iSpyApplication
                                         numXimeaExposure.Value);
                     nv += ",downsampling=" + combo_dwnsmpl.SelectedItem;
                     VideoSourceString = nv;
-
-                    CameraControl.Camobject.settings.namevaluesettings = nv;
                     break;
                 case 7:
                     if (!pnlKinect.Enabled)
@@ -756,13 +767,12 @@ namespace iSpyApplication
                     nv += ",StreamMode=" + ddlKinectVideoMode.SelectedIndex;
                     
                     VideoSourceString = nv;
-                    CameraControl.Camobject.settings.namevaluesettings = nv;
                     break;
                 case 8:
                     VideoSourceString = txtCustomURL.Text;
                     nv = "custom=" + ddlCustomProvider.SelectedItem;
                     CameraControl.Camobject.settings.namevaluesettings = nv;
-                    CameraControl.Camobject.alerts.mode = "KinectPlugin";
+                    CameraControl.Camobject.alerts.mode = "KinectPlugin";//custom ispykinect alert mode
                     CameraControl.Camobject.detector.recordonalert = false;
                     CameraControl.Camobject.alerts.minimuminterval = 10;
                     CameraControl.Camobject.detector.recordondetect = false;
@@ -845,6 +855,7 @@ namespace iSpyApplication
                     }
                     break;
             }
+            CameraControl.Camobject.settings.namevaluesettings = nv;
 
             if (!Helper.HasFeature(Enums.Features.Recording))
             {
@@ -967,7 +978,11 @@ namespace iSpyApplication
 
         private void LinkLabel3LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MainForm.OpenUrl( "http://www.videolan.org/vlc/download-windows.html");
+            MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
+            if (Program.Platform == "x64")
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
+            else
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx86"));
         }
 
         private void pnlVLC_Paint(object sender, PaintEventArgs e)
@@ -1370,7 +1385,7 @@ namespace iSpyApplication
         // Collect supported video and snapshot sizes
         private void EnumeratedSupportedFrameSizes()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             videoResolutionsCombo.Items.Clear();
             snapshotResolutionsCombo.Items.Clear();
@@ -1382,18 +1397,21 @@ namespace iSpyApplication
                 // collect video capabilities
                 VideoCapabilities[] videoCapabilities = _videoCaptureDevice.VideoCapabilities;
                 int videoResolutionIndex = 0;
+                string precfg = NV("video");
                 foreach (VideoCapabilities capabilty in videoCapabilities)
                 {
-                    string item = string.Format(
-                        "{0} x {1} ({2} fps)", capabilty.FrameSize.Width, capabilty.FrameSize.Height, capabilty.AverageFrameRate);
+                    //do not put a comma in this description!
+                    string item = string.Format(VideoFormatString, capabilty.FrameSize.Width, Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
 
                     if (!videoResolutionsCombo.Items.Contains(item))
                     {
-                        if (_captureSize == capabilty.FrameSize)
+                        if (String.IsNullOrEmpty(precfg) && _captureSize == capabilty.FrameSize)
                         {
                             videoResolutionIndex = videoResolutionsCombo.Items.Count;
                         }
-
+                        if (item == precfg)
+                            videoResolutionIndex = videoResolutionsCombo.Items.Count;
+                        
                         videoResolutionsCombo.Items.Add(item);
                     }
 
@@ -1407,34 +1425,45 @@ namespace iSpyApplication
                 {
                     videoResolutionsCombo.Enabled = false;
                     videoResolutionsCombo.Items.Add(LocRm.GetString("NotSupported"));
+                    rdoCaptureSnapshots.Checked = true;
+                    rdoCaptureVideo.Checked = false;
+                    rdoCaptureVideo.Enabled = false;
                 }
                 else
                 {
                     videoResolutionsCombo.Enabled = true;
+                    rdoCaptureVideo.Enabled = true;
                 }
 
                 videoResolutionsCombo.SelectedIndex = videoResolutionIndex;
 
-                if (_configureSnapshots)
+                if (ConfigureSnapshots)
                 {
                     // collect snapshot capabilities
                     VideoCapabilities[] snapshotCapabilities = _videoCaptureDevice.SnapshotCapabilities;
                     int snapshotResolutionIndex = 0;
 
+                    precfg = NV("snapshots");
+                    
                     foreach (VideoCapabilities capabilty in snapshotCapabilities)
                     {
-                        string item = string.Format(
-                            "{0} x {1}", capabilty.FrameSize.Width, capabilty.FrameSize.Height);
+                        //do not put a comma in this description!
+                        string item = string.Format(SnapshotFormatString, capabilty.FrameSize.Width, Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
 
                         if (!snapshotResolutionsCombo.Items.Contains(item))
                         {
-                            if (_snapshotSize == capabilty.FrameSize)
+                            if (String.IsNullOrEmpty(precfg) && _snapshotSize == capabilty.FrameSize)
                             {
                                 snapshotResolutionIndex = snapshotResolutionsCombo.Items.Count;
                             }
+                            if (item == precfg)
+                                snapshotResolutionIndex = snapshotResolutionsCombo.Items.Count;
 
                             snapshotResolutionsCombo.Items.Add(item);
-                            _snapshotCapabilitiesDictionary.Add(item, capabilty);
+                            if (!_snapshotCapabilitiesDictionary.ContainsKey(item))
+                            {
+                                _snapshotCapabilitiesDictionary.Add(item, capabilty);
+                            }
                         }
                     }
 
@@ -1442,10 +1471,14 @@ namespace iSpyApplication
                     {
                         snapshotResolutionsCombo.Enabled = false;
                         snapshotResolutionsCombo.Items.Add(LocRm.GetString("NotSupported"));
+                        rdoCaptureVideo.Checked = true;
+                        rdoCaptureSnapshots.Checked = false;
+                        rdoCaptureSnapshots.Enabled = false;
                     }
                     else
                     {
                         snapshotResolutionsCombo.Enabled = true;
+                        rdoCaptureSnapshots.Enabled = true;
                     }
 
                     snapshotResolutionsCombo.SelectedIndex = snapshotResolutionIndex;                   
@@ -1479,20 +1512,37 @@ namespace iSpyApplication
                     videoInputsCombo.Enabled = true;
                     videoInputsCombo.SelectedIndex = videoInputIndex+1;
                 }
-                
+
+                if (!_loaded)
+                {
+                    precfg = NV("capturemode");
+                    if (precfg == "snapshots" && snapshotResolutionsCombo.Enabled)
+                        rdoCaptureSnapshots.Checked = true;
+                    rdoCaptureVideo.Checked = !rdoCaptureSnapshots.Checked;
+                }
+                else
+                {
+                    rdoCaptureVideo.Checked = rdoCaptureVideo.Enabled;
+                    rdoCaptureSnapshots.Checked = !rdoCaptureVideo.Checked;
+                }
+
             }
             finally
             {
                 this.Cursor = Cursors.Default;
             }
+
+            
         }
 
         private void videoResolutionsCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            rdoCaptureVideo.Checked = true;
         }
 
         private void videoInputsCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            
         }
 
 
@@ -1550,7 +1600,7 @@ namespace iSpyApplication
 
         private void snapshotResolutionsCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            rdoCaptureSnapshots.Checked = true;
         }
 
         private void chkKinectSkeletal_CheckedChanged(object sender, EventArgs e)

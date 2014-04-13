@@ -786,45 +786,6 @@
       <Command Name="Switch OFF">command=95</Command>
     </ExtendedCommands>
   </Camera>
-  <Camera id="23">
-    <Makes>
-      <Make Name="Airlink" Model="101" />
-    </Makes>
-    <CommandURL>/decoder_control.cgi</CommandURL>
-    <Commands>
-      <Center>command=25</Center>
-      <Left>command=6</Left>
-      <Right>command=4</Right>
-      <Up>command=2</Up>
-      <Down>command=0</Down>
-      <Stop>command=1</Stop>
-      <ZoomIn />
-      <ZoomOut />
-    </Commands>
-    <ExtendedCommands>
-      <Command Name="Stop">command=1</Command>
-      <Command Name="Start H Patrol">command=28</Command>
-      <Command Name="Stop H Patrol">command=29</Command>
-      <Command Name="Switch ON">command=94</Command>
-      <Command Name="Switch OFF">command=95</Command>
-      <Command Name="GO Preset 1">command=31</Command>
-      <Command Name="GO Preset 2">command=33</Command>
-      <Command Name="GO Preset 3">command=35</Command>
-      <Command Name="GO Preset 4">command=37</Command>
-      <Command Name="GO Preset 5">command=39</Command>
-      <Command Name="GO Preset 6">command=41</Command>
-      <Command Name="GO Preset 7">command=43</Command>
-      <Command Name="GO Preset 8">command=45</Command>
-      <Command Name="Set Preset 1">command=30</Command>
-      <Command Name="Set Preset 2">command=32</Command>
-      <Command Name="Set Preset 3">command=34</Command>
-      <Command Name="Set Preset 4">command=36</Command>
-      <Command Name="Set Preset 5">command=38</Command>
-      <Command Name="Set Preset 6">command=40</Command>
-      <Command Name="Set Preset 7">command=42</Command>
-      <Command Name="Set Preset 8">command=44</Command>
-    </ExtendedCommands>
-  </Camera>
   <Camera id="24">
     <Makes>
       <Make Name="Ovislink" Model="OD-600HD" />
@@ -4102,11 +4063,8 @@
     <Commands>
       <Center>command=25</Center>
       <Left>command=4</Left>
-      <LeftStop>command=5</LeftStop>
       <LeftUp>command=90</LeftUp>
-      <LeftDown>command=92</LeftDown>
       <Right>command=6</Right>
-      <RightStop>command=7</RightStop>
       <RightUp>command=91</RightUp>
       <Up>command=0</Up>
       <Down>command=2</Down>
@@ -4152,7 +4110,6 @@
       <Center>move=home</Center>
       <Left>move=left</Left>
       <LeftUp>move=upleft</LeftUp>
-      <LeftDown>move=downleft</LeftDown>
       <Right>move=right</Right>
       <RightUp>move=upright</RightUp>
       <Up>move=up</Up>
@@ -4416,7 +4373,6 @@
       <Stop>jcpcmd=ptz%20-chn%201/D1%20-cmd%202%20-step%200%20-speed%2043</Stop>
       <ZoomIn>jcpcmd=ptz%20-chn%201/D1%20-cmd%2019%20-step%200%20-speed%2043</ZoomIn>
       <ZoomOut>jcpcmd=ptz%20-chn%201/D1%20-cmd%2021%20-step%200%20-speed%2043</ZoomOut>
-      <stop>jcpcmd=ptz%20-chn%201/D1%20-cmd%202%20-step%200%20-speed%2043</stop>
     </Commands>
     <ExtendedCommands>
     </ExtendedCommands>
@@ -4717,11 +4673,11 @@
     <Commands>
       <Center>decoder_control.cgi?command=25</Center>
       <Left>decoder_control.cgi?command=4</Left>
+      <LeftUp>decoder_control.cgi?command=90</LeftUp>
       <Right>decoder_control.cgi?command=6</Right>
+      <RightUp>decoder_control.cgi?command=91</RightUp>
       <Up>decoder_control.cgi?command=0</Up>
       <Down>decoder_control.cgi?command=2</Down>
-      <LeftUp>decoder_control.cgi?command=90</LeftUp>
-      <RightUp>decoder_control.cgi?command=91</RightUp>
       <LeftDown>decoder_control.cgi?command=92</LeftDown>
       <RightDown>decoder_control.cgi?command=93</RightDown>
       <Stop>decoder_control.cgi?command=1</Stop>
@@ -4817,11 +4773,11 @@
     <Commands>
       <Center>command=25</Center>
       <Left>command=4&amp;onestep=0</Left>
+      <LeftUp>command=90&amp;onestep=0</LeftUp>
       <Right>command=6&amp;onestep=0</Right>
+      <RightUp>command=91&amp;onestep=0</RightUp>
       <Up>command=0&amp;onestep=0</Up>
       <Down>command=2&amp;onestep=0</Down>
-      <LeftUp>command=90&amp;onestep=0</LeftUp>
-      <RightUp>command=91&amp;onestep=0</RightUp>
       <LeftDown>command=92&amp;onestep=0</LeftDown>
       <RightDown>command=93&amp;onestep=0</RightDown>
       <Stop>command=1&amp;onestep=0</Stop>
@@ -4942,7 +4898,39 @@
       <ZoomOut>
       </ZoomOut>
     </Commands>
-    <ExtendedCommands></ExtendedCommands>
+    <ExtendedCommands>
+      <Command Name="Stop">cmd=ptzStopRun</Command>
+      <!--	the next 5 positions are fixed in the camera software -->
+      <Command Name="Go Center">cmd=ptzReset</Command>
+      <Command Name="Go TopMost">cmd=ptzGotoPresetPoint&amp;name=TopMost</Command>
+      <Command Name="Go BottomMost">cmd=ptzGotoPresetPoint&amp;name=BottomMost</Command>
+      <Command Name="Go LeftMost">cmd=ptzGotoPresetPoint&amp;name=LeftMost</Command>
+      <Command Name="Go RightMost">cmd=ptzGotoPresetPoint&amp;name=RightMost</Command>
+      <!--	a preset, once added cannot be changed but must be deleted and added again
+copy or delete as much lines as you need.
+the names (preset 1 etc.) can be changed e.g. in accordance with names already entered 
+in the camera's web interface-->
+      <Command Name="Go Preset 1">cmd=ptzGotoPresetPoint&amp;name=Preset 1</Command>
+      <Command Name="Go Preset 2">cmd=ptzGotoPresetPoint&amp;name=Preset 2</Command>
+      <Command Name="Go Preset 3">cmd=ptzGotoPresetPoint&amp;name=Preset 3</Command>
+      <Command Name="Add Preset 1">cmd=ptzAddPresetPoint&amp;name=Preset 1</Command>
+      <Command Name="Add Preset 2">cmd=ptzAddPresetPoint&amp;name=Preset 2</Command>
+      <Command Name="Add Preset 3">cmd=ptzAddPresetPoint&amp;name=Preset 3</Command>
+      <Command Name="Del Preset 1">cmd=ptzDeletePresetPoint&amp;name=Preset 1</Command>
+      <Command Name="Del Preset 2">cmd=ptzDeletePresetPoint&amp;name=Preset 2</Command>
+      <Command Name="Del Preset 3">cmd=ptzDeletePresetPoint&amp;name=Preset 3</Command>
+      <!--	cruise paths must be entered (and named) in the camera's web interface
+change names in the following lines accordingly
+copy or delete as many lines as you need.-->
+      <Command Name="Cruise 1">cmd=ptzStartCruise&amp;name=Cruise 1</Command>
+      <Command Name="Cruise 2">cmd=ptzStartCruise&amp;name=Cruise 2</Command>
+      <Command Name="Cruise 3">cmd=ptzStartCruise&amp;name=Cruise 3</Command>
+      <Command Name="Stop Cruise">cmd=ptzStopCruise</Command>
+      <Command Name="Set IR Auto">cmd=ptzsetInfraLedConfig&amp;mode=0</Command>
+      <Command Name="Set IR Manual">cmd=ptzsetInfraLedConfig&amp;mode=1</Command>
+      <Command Name="IR on">cmd=openInfraLed</Command>
+      <Command Name="IR off">cmd=closeInfraLed</Command>
+    </ExtendedCommands>
   </Camera>
   <Camera id="188">
     <Makes>
@@ -5058,6 +5046,116 @@
       <Command Name="Horizontal patrol">-act=hscan</Command>
       <Command Name="Vertical patrol">-act=vscan</Command>
       <Command Name="Stop">-act=stop</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="193">
+    <Makes>
+      <Make Name="Aztech" Model="WIPC402" />
+    </Makes>
+    <CommandURL>/web/cgi-bin/hi3510/ptzctrl.cgi</CommandURL>
+    <Commands>
+      <Left>-step=0&amp;-act=left</Left>
+      <Right>-step=0&amp;-act=right</Right>
+      <Up>-step=0&amp;-act=up</Up>
+      <Down>-step=0&amp;-act=down</Down>
+      <Stop>-step=0&amp;-act=stop</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">-step=0&amp;-act=stop</Command>
+      <Command Name="Home">-step=0&amp;-act=home</Command>
+      <Command Name="Pan Left Right">-step=0&amp;-act=hscan</Command>
+      <Command Name="Pan Up Down">-step=0&amp;-act=vscan</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="194">
+    <Makes>
+      <Make Name="WansView" Model="NCB 541W" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=6</Left>
+      <LeftUp>command=93</LeftUp>
+      <Right>command=4</Right>
+      <RightUp>command=92</RightUp>
+      <Up>command=2</Up>
+      <Down>command=0</Down>
+      <LeftDown>command=91</LeftDown>
+      <RightDown>command=90</RightDown>
+      <Stop>command=1</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="Horizon patrol">command=28</Command>
+      <Command Name="Stop horizon patrol">command=29</Command>
+      <Command Name="Vertical patrol">command=26</Command>
+      <Command Name="Stop vertical patrol">command=27</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="195" AppendAuth="loginuse=[USERNAME]&amp;loginpas=[PASSWORD]">
+    <Makes>
+      <Make Name="IPCC" Model="NCB 7210W" />
+    </Makes>
+    <CommandURL>/decoder_control.cgi</CommandURL>
+    <Commands>
+      <Center>command=25</Center>
+      <Left>command=6</Left>
+      <LeftUp>command=93</LeftUp>
+      <Right>command=4</Right>
+      <RightUp>command=92</RightUp>
+      <Up>command=2</Up>
+      <Down>command=0</Down>
+      <LeftDown>command=91</LeftDown>
+      <RightDown>command=90</RightDown>
+      <Stop>command=1</Stop>
+      <ZoomIn>/camera_control.cgi?param=17&amp;value=1</ZoomIn>
+      <ZoomOut>/camera_control.cgi?param=18&amp;value=1</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Stop">command=1</Command>
+      <Command Name="Horizon patrol">command=28</Command>
+      <Command Name="Stop horizon patrol">command=29</Command>
+      <Command Name="Vertical patrol">command=26</Command>
+      <Command Name="Stop vertical patrol">command=27</Command>
+      <Command Name="Go Preset 0">command=31</Command>
+      <Command Name="Go Preset 1">command=33</Command>
+      <Command Name="Go Preset 2">command=35</Command>
+      <Command Name="Go Preset 3">command=37</Command>
+      <Command Name="Go Preset 4">command=39</Command>
+      <Command Name="Go Preset 5">command=41</Command>
+      <Command Name="Go Preset 6">command=43</Command>
+      <Command Name="Go Preset 7">command=45</Command>
+      <Command Name="Go Preset 8">command=47</Command>
+      <Command Name="Go Preset 9">command=49</Command>
+      <Command Name="Set Preset 0">command=30</Command>
+      <Command Name="Set Preset 1">command=32</Command>
+      <Command Name="Set Preset 2">command=34</Command>
+      <Command Name="Set Preset 3">command=36</Command>
+      <Command Name="Set Preset 4">command=38</Command>
+      <Command Name="Set Preset 5">command=40</Command>
+      <Command Name="Set Preset 6">command=42</Command>
+      <Command Name="Set Preset 7">command=44</Command>
+      <Command Name="Set Preset 8">command=46</Command>
+      <Command Name="Set Preset 9">command=48</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="196">
+    <Makes>
+      <Make Name="DLink" Model="DCS-942L" />
+      <Make Name="DLink" Model="DCS-932L" />
+    </Makes>
+    <CommandURL>/nightmodecontrol.cgi</CommandURL>
+    <ExtendedCommands>
+      <Command Name="IR LED ON ">IRLed=1</Command>
+      <Command Name="IR LED OFF">IRLed=0</Command>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>

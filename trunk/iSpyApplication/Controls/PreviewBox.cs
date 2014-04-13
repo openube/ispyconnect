@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using iSpyApplication.Properties;
 using iSpyApplication.Video;
@@ -19,6 +20,39 @@ namespace iSpyApplication.Controls
         public int Duration;
         private bool _linkPlay, _linkHover;
         public bool ShowThumb = true;
+        public int Otid,Oid;
+        public MainForm MainClass;
+        public bool IsMerged;
+
+        public PreviewBox(int otid, int oid, MainForm mainForm)
+        {
+            Otid = otid;
+            Oid = oid;
+            MainClass = mainForm;
+        }
+
+        public FilesFile FileData
+        {
+            get
+            {
+                string fn = FileName.Substring(FileName.LastIndexOf("\\", StringComparison.Ordinal) + 1);
+
+                switch (Otid)
+                {
+                    case 1:
+                        var vl = MainClass.GetVolumeLevel(Oid);
+                        if (vl != null)
+                            return vl.FileList.FirstOrDefault(p => p.Filename == fn);
+                        return null;
+                    case 2:
+                        var cw = MainClass.GetCameraWindow(Oid);
+                        if (cw != null)
+                            return cw.FileList.FirstOrDefault(p => p.Filename == fn);
+                        return null;
+                }
+                return null;
+            }
+        }
 
         protected override void Dispose(bool disposing)
         {
@@ -38,6 +72,11 @@ namespace iSpyApplication.Controls
 
             if (ShowThumb)
             {
+                if (IsMerged)
+                {
+                    g.DrawImage(Resources.merged,Width-Resources.merged.Width-2,Height-22-Resources.merged.Height,Resources.merged.Width,Resources.merged.Height);
+                }
+
                 if (_linkPlay)
                 {
                     g.FillRectangle(_bPlay, 0, 0, Width, Height - 20);
@@ -59,6 +98,7 @@ namespace iSpyApplication.Controls
                     g.DrawString(">", MainForm.DrawfontBig, Brushes.White, Width/2 - 10, 20);
                 }
 
+                
                 g.DrawString(
                     CreatedDate.Hour + ":" + ZeroPad(CreatedDate.Minute) + ":" + ZeroPad(CreatedDate.Second) + " (" +
                     RecordTime(Duration) + ")", MainForm.Drawfont, Brushes.White, 0, Height - 18);
@@ -103,7 +143,7 @@ namespace iSpyApplication.Controls
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
-            PlayMedia(MainForm.Conf.PlaybackMode);
+            PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
         }
 
         protected override void  OnMouseClick(MouseEventArgs e)
@@ -128,67 +168,41 @@ namespace iSpyApplication.Controls
                 }
                 else
                 {
-                    PlayMedia(MainForm.Conf.PlaybackMode);
+                    PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
                     
                 }
             }
         }
-        public void Upload(bool Public)
-        {
-            if (!MainForm.Conf.Subscribed)
-            {
-                MessageBox.Show(this, LocRm.GetString("SubscribersOnly"));
-                return;
-            }
 
-            if (FileName.EndsWith(".mp4"))
-            {
-                string[] parts = FileName.Split('\\');
-                string fn = parts[parts.Length - 1];
-                int id = Convert.ToInt32(fn.Substring(0, fn.IndexOf('_')));
-
-                MessageBox.Show(this, YouTubeUploader.AddUpload(id, parts[parts.Length-1], Public, "", ""));
-            }
-            else
-            {
-                MessageBox.Show(this, LocRm.GetString("OnlyUploadMP4Files"));
-
-            }
-        }
-        public void PlayMedia(int mode)
+        public void PlayMedia(Enums.PlaybackMode mode)
         {
             if (mode < 0)
                 MainForm.Conf.PlaybackMode = 0;
-            if (!VlcHelper.VlcInstalled && mode == 1)
+            if (!VlcHelper.VlcInstalled && mode == Enums.PlaybackMode.iSpy)
             {
                 MessageBox.Show(this, LocRm.GetString("VLCNotInstalled"));
-                MainForm.Conf.PlaybackMode = mode = 0;
+                MainForm.Conf.PlaybackMode = 0;
+                mode = Enums.PlaybackMode.Website;
             }
 
            
             string movie = FileName;
-            int j = mode;
-            if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
-            {
-                j = 1;
-            }
-            if (movie.EndsWith(".mp3") || movie.EndsWith(".wav"))
-            {
-                if (j!=3 && j!=1)
-                    j = 2;
-            }
             if (!File.Exists(movie))
             {
                 MessageBox.Show(this, LocRm.GetString("FileNotFound"));
                 return;                
             }
+            if (MainForm.Conf.PlaybackMode == 0 && movie.EndsWith(".avi"))
+            {
+                mode = Enums.PlaybackMode.iSpy;
+            }
+
             string[] parts = FileName.Split('\\');
             string fn = parts[parts.Length - 1];
-            string id = fn.Substring(0, fn.IndexOf('_'));
-            switch(j)
+            switch (mode)
             {
-                case 0:
-                    string url = MainForm.Webserver + "/MediaViewer.aspx?oid=" + id + "&ot=2&fn=" + fn + "&port=" + MainForm.Conf.ServerPort;
+                case Enums.PlaybackMode.Website:
+                    string url = MainForm.Webserver + "/MediaViewer.aspx?oid=" + Oid + "&ot=2&fn=" + fn + "&port=" + MainForm.Conf.ServerPort;
                     if (WsWrapper.WebsiteLive && MainForm.Conf.ServicesEnabled)
                     {
                         MainForm.OpenUrl(url);
@@ -206,12 +220,11 @@ namespace iSpyApplication.Controls
                         }
                     }
                     break;
-                case 1:
-                case 3:
+                case Enums.PlaybackMode.iSpy:
                     if (TopLevelControl != null)
-                        ((MainForm)TopLevelControl).Play(movie, Convert.ToInt32(id), DisplayName);
+                        ((MainForm)TopLevelControl).Play(movie, Oid, DisplayName);
                     break;
-                case 2:
+                case Enums.PlaybackMode.Default:
                     try
                     {
                         Process.Start(movie);

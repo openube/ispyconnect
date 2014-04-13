@@ -284,6 +284,16 @@ public partial class configuration {
     
     private bool sSLEnabledField;
     
+    private string googleDriveConfigField;
+    
+    private string dropBoxConfigField;
+    
+    private bool openGrabsField;
+    
+    private string textSentencesField;
+    
+    private configurationServer[] fTPServersField;
+    
     private configurationGrid[] gridViewsField;
     
     private configurationJoystick joystickField;
@@ -350,6 +360,10 @@ public partial class configuration {
         this.sSLIgnoreErrorsField = true;
         this.sSLCheckRevocationField = true;
         this.sSLEnabledField = false;
+        this.googleDriveConfigField = "";
+        this.dropBoxConfigField = "";
+        this.openGrabsField = true;
+        this.textSentencesField = "";
     }
     
     /// <remarks/>
@@ -1653,6 +1667,57 @@ public partial class configuration {
     }
     
     /// <remarks/>
+    public string GoogleDriveConfig {
+        get {
+            return this.googleDriveConfigField;
+        }
+        set {
+            this.googleDriveConfigField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string DropBoxConfig {
+        get {
+            return this.dropBoxConfigField;
+        }
+        set {
+            this.dropBoxConfigField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public bool OpenGrabs {
+        get {
+            return this.openGrabsField;
+        }
+        set {
+            this.openGrabsField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string TextSentences {
+        get {
+            return this.textSentencesField;
+        }
+        set {
+            this.textSentencesField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlArrayItemAttribute("Server", IsNullable=false)]
+    public configurationServer[] FTPServers {
+        get {
+            return this.fTPServersField;
+        }
+        set {
+            this.fTPServersField = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("Grid", IsNullable=false)]
     public configurationGrid[] GridViews {
         get {
@@ -1681,6 +1746,158 @@ public partial class configuration {
         }
         set {
             this.mediaDirectoriesField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
+public partial class configurationServer {
+    
+    private string nameField;
+    
+    private string serverField;
+    
+    private string usernameField;
+    
+    private string passwordField;
+    
+    private int portField;
+    
+    private bool portFieldSpecified;
+    
+    private bool usepassiveField;
+    
+    private bool usepassiveFieldSpecified;
+    
+    private bool renameField;
+    
+    private bool renameFieldSpecified;
+    
+    private string identField;
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string name {
+        get {
+            return this.nameField;
+        }
+        set {
+            this.nameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string server {
+        get {
+            return this.serverField;
+        }
+        set {
+            this.serverField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string username {
+        get {
+            return this.usernameField;
+        }
+        set {
+            this.usernameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string password {
+        get {
+            return this.passwordField;
+        }
+        set {
+            this.passwordField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public int port {
+        get {
+            return this.portField;
+        }
+        set {
+            this.portField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool portSpecified {
+        get {
+            return this.portFieldSpecified;
+        }
+        set {
+            this.portFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public bool usepassive {
+        get {
+            return this.usepassiveField;
+        }
+        set {
+            this.usepassiveField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool usepassiveSpecified {
+        get {
+            return this.usepassiveFieldSpecified;
+        }
+        set {
+            this.usepassiveFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public bool rename {
+        get {
+            return this.renameField;
+        }
+        set {
+            this.renameField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIgnoreAttribute()]
+    public bool renameSpecified {
+        get {
+            return this.renameFieldSpecified;
+        }
+        set {
+            this.renameFieldSpecified = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    public string ident {
+        get {
+            return this.identField;
+        }
+        set {
+            this.identField = value;
         }
     }
 }

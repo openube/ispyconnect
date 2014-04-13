@@ -64,7 +64,7 @@ namespace iSpyApplication
         {
             LastConfig.PromptSave = false;
             _vlc = VlcHelper.VlcInstalled;
-            llblDownloadVLC.Text = LocRm.GetString("DownloadVLC") + " v" + VlcHelper.VMin + " or greater";
+            llblDownloadVLC.Text = LocRm.GetString("DownloadVLC");
             llblDownloadVLC.Visible = !_vlc;
             btnBack.Enabled = false;
             RenderResources();
@@ -160,12 +160,11 @@ namespace iSpyApplication
             LocRm.SetString(label7, "OrFindYourDevice");
             LocRm.SetString(label8, "Adaptor");
             LocRm.SetString(label6, "PortsHTTPOnly");
-            LocRm.SetString(button1, "ScanNetwork");
             LocRm.SetString(label5, "ClickScan");
             LocRm.SetString(label9, "TryTheseURLs");
             LocRm.SetString(llblFilter, "CheckAndFilterResults");
             LocRm.SetString(llblScan, "ScanCameraForMore");
-            LocRm.SetString(llblDownloadVLC, "InstallVLCForOptions");
+            LocRm.SetString(llblDownloadVLC, "DownloadVLC");
             tsddScanner.Text = LocRm.GetString("Scanner");
 
         }
@@ -1291,7 +1290,11 @@ namespace iSpyApplication
 
         private void llblDownloadVLC_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MainForm.OpenUrl("http://www.videolan.org/vlc/download-windows.html");
+            MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
+            if (Program.Platform == "x64")
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]",Environment.NewLine+Program.AppPath+"VLC64"+Environment.NewLine));
+            else
+                MessageBox.Show(this, LocRm.GetString("InstallVLCx86"));
         }
 
         private void ddlModel_SelectedIndexChanged(object sender, EventArgs e)

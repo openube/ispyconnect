@@ -58,7 +58,7 @@ namespace iSpyApplication
                     }
                 }
 
-                if (attach != null)
+                if (attach != null && attach.Length>0)
                 {
                     var attachFile = new Attachment(new MemoryStream(attach), "Screenshot.jpg");
 
@@ -66,11 +66,12 @@ namespace iSpyApplication
                 }
 
                 var emailClient = new SmtpClient(MainForm.Conf.SMTPServer, MainForm.Conf.SMTPPort)
-                {
-                    UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(MainForm.Conf.SMTPUsername, MainForm.Conf.SMTPPassword)
-                };
-                emailClient.EnableSsl = MainForm.Conf.SMTPSSL;
+                                  {
+                                      UseDefaultCredentials = false,
+                                      Credentials =
+                                          new NetworkCredential(MainForm.Conf.SMTPUsername, MainForm.Conf.SMTPPassword),
+                                      EnableSsl = MainForm.Conf.SMTPSSL
+                                  };
 
                 emailClient.Send(myMessage);
 

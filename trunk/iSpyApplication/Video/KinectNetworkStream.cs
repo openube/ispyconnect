@@ -13,7 +13,18 @@ using ReasonToFinishPlaying = AForge.Video.ReasonToFinishPlaying;
 
 namespace iSpyApplication.Video
 {
-
+    /// <summary>
+    /// iSpyKinect provider stream for video and audio from an iSpyKinect network instance
+    /// </summary>
+    /// <remarks>
+    /// Main Integration Points:
+    /// KinectNetworkStream:
+    /// CameraWindow - OpenVideoSource
+    /// CameraWindow - Enable
+    /// CameraWindow - Disable
+    /// Camera - Plugin
+    /// Camera - RunPlugin
+    /// </remarks>
     public class KinectNetworkStream : IVideoSource, IAudioSource, ISupportsAudio
     {
         private string _source;
@@ -112,6 +123,7 @@ namespace iSpyApplication.Video
         #endregion
 
         #region Alerts Stuff
+        // The alert handler lets us pass events from the kinect stream to the camera window for processing
         public event AlertEventHandler AlertHandler;
         #endregion
 
@@ -174,7 +186,7 @@ namespace iSpyApplication.Video
         /// Video source.
         /// </summary>
         /// 
-        /// <remarks>URL, which provides MJPEG stream.</remarks>
+        /// <remarks>URL, which provides iSpyKinect network stream.</remarks>
         /// 
         public string Source
         {
@@ -192,7 +204,7 @@ namespace iSpyApplication.Video
         /// Login value.
         /// </summary>
         /// 
-        /// <remarks>Login required to access video source.</remarks>
+        /// <remarks>Login required to access video source (unused).</remarks>
         /// 
         public string Login
         {
@@ -204,7 +216,7 @@ namespace iSpyApplication.Video
         /// Password value.
         /// </summary>
         /// 
-        /// <remarks>Password required to access video source.</remarks>
+        /// <remarks>Password required to access video source (unused).</remarks>
         /// 
         public string Password
         {
@@ -323,13 +335,13 @@ namespace iSpyApplication.Video
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MJPEGStream"/> class.
+        /// Initializes a new instance of the <see cref="KinectNetworkStream"/> class.
         /// </summary>
         /// 
         public KinectNetworkStream() { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MJPEGStream"/> class.
+        /// Initializes a new instance of the <see cref="KinectNetworkStream"/> class.
         /// </summary>
         /// 
         /// <param name="source">URL, which provides MJPEG stream.</param>
@@ -338,8 +350,6 @@ namespace iSpyApplication.Video
         {
             _source = source;
         }
-
-        public string DecodeKey;
 
         /// <summary>
         /// Start video source.
@@ -572,12 +582,11 @@ namespace iSpyApplication.Video
                                 switch (s)
                                 {
                                     case "image/jpeg":
-                                        Bitmap bitmap;
                                         try
                                         {
                                             using (var ms = new MemoryStream(buffer, br + 4, endPacket - br - 8))
                                             {
-                                                bitmap = (Bitmap) Image.FromStream(ms);
+                                                var bitmap = (Bitmap) Image.FromStream(ms);
                                                 // notify client
                                                 NewFrame(this, new NewFrameEventArgs(bitmap));
                                                 // release the image
@@ -596,6 +605,7 @@ namespace iSpyApplication.Video
                                         if (!hasaudio)
                                         {
                                             hasaudio = true;
+                                            //fixed 16khz 1 channel format
                                             RecordingFormat = new WaveFormat(16000, 16, 1);
 
                                             _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };

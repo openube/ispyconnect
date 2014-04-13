@@ -201,6 +201,13 @@ namespace iSpyApplication.Video
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                         _mPlayer.Events.TimeChanged += EventsTimeChanged;
+                        var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
+                        _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
+                        var ac = new AudioCallbacks { SoundCallback = SoundCallback };
+                        _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
+                        _mPlayer.CustomRenderer.SetCallback(FrameCallback);
+                        _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
+                        _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
                     }
 
 
@@ -223,26 +230,13 @@ namespace iSpyApplication.Video
 
                     _mMedia.Events.DurationChanged -= EventsDurationChanged;
                     _mMedia.Events.StateChanged -= EventsStateChanged;
-
                     _mMedia.Events.DurationChanged += EventsDurationChanged;
                     _mMedia.Events.StateChanged += EventsStateChanged;
-                    //_mMedia.Events.ParsedChanged += Events_ParsedChanged;
-                    _mPlayer.Open(_mMedia);
-
-                    _needsSetup = true;
-                    if (init)
-                    {
-                        var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
-                        _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
-                        var ac = new AudioCallbacks {SoundCallback = SoundCallback};
-                        _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
-                        _mPlayer.CustomRenderer.SetCallback(FrameCallback);
-
-                        _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
-                        _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
-                    }
+                    
+                    _needsSetup = true;                  
                     _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
 
+                    _mPlayer.Open(_mMedia);
                     _mMedia.Parse(true);
 
                     _framesReceived = 0;
@@ -264,11 +258,6 @@ namespace iSpyApplication.Video
                 }
             }
         }
-
-        //void Events_ParsedChanged(object sender, MediaParseChange e)
-        //{
-        //    Console.WriteLine(e.Parsed);
-        //}
 
         void Handler(Exception ex)
         {

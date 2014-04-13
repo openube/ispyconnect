@@ -121,4 +121,9 @@
   <SSLIgnoreErrors>true</SSLIgnoreErrors>
   <SSLCheckRevocation>false</SSLCheckRevocation>
   <SSLEnabled>false</SSLEnabled>
+  <GoogleDriveConfig></GoogleDriveConfig>
+  <DropBoxConfig></DropBoxConfig>
+  <FTPServers></FTPServers>
+  <OpenGrabs>true</OpenGrabs>
+  <TextSentences></TextSentences>
 </configuration>

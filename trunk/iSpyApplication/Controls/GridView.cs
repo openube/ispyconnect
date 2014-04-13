@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
 using PictureBox = AForge.Controls.PictureBox;
@@ -11,7 +10,7 @@ using Timer = System.Timers.Timer;
 namespace iSpyApplication.Controls
 {
     /// <summary>
-    /// Summary description for CameraWindow.
+    /// Summary description for GridView.
     /// </summary>
     public sealed class GridView : PictureBox
     {
@@ -26,6 +25,8 @@ namespace iSpyApplication.Controls
         public Brush Lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
         internal MainForm MainClass;
+        private readonly DateTime _lastRun = Helper.Now;
+        private Timer _tmrUpdateList;
 
         private const int Itempadding = 5;
         private int _maxItems = 36;
@@ -53,7 +54,6 @@ namespace iSpyApplication.Controls
         }
         
         public configurationGrid Cg;
-
         private int _cols = 1, _rows = 1;
         private GridViewConfig _maximised;
 
@@ -69,23 +69,18 @@ namespace iSpyApplication.Controls
         #endregion
 
 
-        public GridView(ref configurationGrid cg)
+        public GridView(MainForm main, ref configurationGrid cg)
         {
             Cg = cg;
             InitializeComponent();
-            SetStyle(
-                ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer |
-                ControlStyles.UserPaint, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 5, 5);
             BorderStyle = BorderStyle.None;
             BackColor = MainForm.Conf.BackColor.ToColor();
-
+            MainClass = main;
             Init();
         }
-
-
-        private Timer _tmrUpdateList, _tmrRefresh;
 
 
         public void Init()
@@ -97,13 +92,7 @@ namespace iSpyApplication.Controls
                 _tmrUpdateList.Dispose();
                 _tmrUpdateList = null;
             }
-            if (_tmrRefresh != null)
-            {
-                _tmrRefresh.Elapsed -= TmrRefreshElapsed;
-                _tmrRefresh.Stop();
-                _tmrRefresh.Dispose();
-                _tmrRefresh = null;
-            }
+
             _maxItems = 36;
             if (_controls!=null)
                 _controls.Clear();
@@ -125,15 +114,38 @@ namespace iSpyApplication.Controls
                 case 1:
                 case 2:
                     _cols = _rows = 1;
+
+                    if (!String.IsNullOrEmpty(Cg.ModeConfig))
+                    {
+                        //add default camera
+                        string[] cfg = Cg.ModeConfig.Split(',');
+                        if (cfg.Length > 1)
+                        {
+                            if (cfg[1] != "")
+                            {
+                                var gvi = new GridViewItem("", Convert.ToInt32(cfg[1]), 2, this);
+                                _controls[0] =
+                                    new GridViewConfig(
+                                        new List<GridViewItem> { gvi  }, 1000) {Hold = true};
+                            }
+                        }
+
+                    }
+
                     _tmrUpdateList = new Timer(1000);
                     _tmrUpdateList.Elapsed += TmrUpdateLayoutElapsed;
                     _tmrUpdateList.Start();
                     break;
             }
+            Program.AppIdle.ApplicationLoopDoWork += HandlerApplicationLoopDoWork;
+        }
 
-            _tmrRefresh = new Timer(1000d / Cg.Framerate);
-            _tmrRefresh.Elapsed += TmrRefreshElapsed;
-            _tmrRefresh.Start();
+        
+
+        void HandlerApplicationLoopDoWork(object sender, EventArgs e)
+        {
+            if ((Helper.Now-_lastRun).TotalMilliseconds> (1000d/Cg.Framerate))
+                Invalidate();
         }
 
         void AddItems()
@@ -147,7 +159,7 @@ namespace iSpyApplication.Controls
                 {
                     if (o.GridIndex < _controls.Count)
                     {
-                        var li = o.Item.Select(c => new GridItem("", c.ObjectID, c.TypeID)).ToList();
+                        var li = o.Item.Select(c => new GridViewItem("", c.ObjectID, c.TypeID, this)).ToList();
 
                         if (li.Count == 0)
                             _controls[o.GridIndex] = null;
@@ -175,7 +187,10 @@ namespace iSpyApplication.Controls
                     if (c != null)
                     {
                         if (!c.Hold)
+                        {
+                            _controls[k].ObjectIDs[0].DeInit();
                             _controls[k] = null;
+                        }
                     }
                 }
 
@@ -196,11 +211,13 @@ namespace iSpyApplication.Controls
                         }
                         if (add)
                         {
-                            _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", cam.id, 2)}, 1000);
-                            i++;
+                            while (_controls[i] != null && i < _maxItems)
+                                i++;
                             if (i == _maxItems)
                                 break;
-                        }
+                            _controls[i] = new GridViewConfig(new List<GridViewItem> { new GridViewItem("", cam.id, 2,this) }, 1000);
+                            
+                        }                           
                     }
                 }
                 if (i < _maxItems)
@@ -225,31 +242,17 @@ namespace iSpyApplication.Controls
                                 }
                                 if (add)
                                 {
-                                    _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", mic.id, 1)},
-                                        1000);
-                                    i++;
+                                    while (_controls[i] != null && i < _maxItems)
+                                        i++;
                                     if (i == _maxItems)
                                         break;
+                                    _controls[i] = new GridViewConfig(new List<GridViewItem> { new GridViewItem("", mic.id, 1, this) },1000);
                                 }
                             }
                         }
                     }
                 }
 
-                if (i == 0 && !String.IsNullOrEmpty(Cg.ModeConfig))
-                {
-                    //add default camera
-                    string[] cfg = Cg.ModeConfig.Split(',');
-                    if (cfg.Length > 1)
-                    {
-                        if (cfg[1] != "")
-                        {
-                            _controls[i] = new GridViewConfig(new List<GridItem> {new GridItem("", Convert.ToInt32(cfg[1]), 2)}, 1000);
-                            i++;
-                        }
-                    }
-
-                }
                 
                 if (i == 0)
                 {
@@ -265,21 +268,11 @@ namespace iSpyApplication.Controls
 
         }
 
-        void TmrRefreshElapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            Invalidate();
-            //Invoke(new Action(Update));
-
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _tmrRefresh.Stop();
-                _tmrRefresh.Close();
-                Invalidate();
-
+                Program.AppIdle.ApplicationLoopDoWork -= HandlerApplicationLoopDoWork;
             }
 
             _pAlert.Dispose();
@@ -446,8 +439,11 @@ namespace iSpyApplication.Controls
                                             gGrid.FillRectangle(Lgb, rFeed.X + 2, rFeed.Y + 2 + m * bh + (m * 2), drawW - 4, bh);
 
                                         }
-                                        var mx = rFeed.X+ (float)((Convert.ToDouble(rFeed.Width) / 100.00) * Convert.ToDouble(vl.Micobject.detector.sensitivity));
-                                        gGrid.DrawLine(_vline, mx, rFeed.Y+1, mx, rFeed.Y + rFeed.Height-2);
+                                        var d =  ((Convert.ToDouble(rFeed.Width - 4)/100.00));
+                                        var mx1 = rFeed.X + (float) (d*Convert.ToDouble(vl.Micobject.detector.minsensitivity));
+                                        var mx2 = rFeed.X + (float)(d * Convert.ToDouble(vl.Micobject.detector.maxsensitivity));
+                                        gGrid.DrawLine(_vline, mx1, rFeed.Y+1, mx1, rFeed.Y + rFeed.Height-2);
+                                        gGrid.DrawLine(_vline, mx2, rFeed.Y + 1, mx2, rFeed.Y + rFeed.Height - 2);
 
                                         if (vl.Recording)
                                         {
@@ -468,7 +464,8 @@ namespace iSpyApplication.Controls
                                     
                                     if (vl.IsEnabled && (vl.AudioSourceErrorState || vl.Levels == null))
                                     {
-                                        gGrid.DrawImage(Properties.Resources.connecting, x + _itemwidth - 89, y + 2, 87, 15);
+                                        var img = Properties.Resources.connecting;
+                                        gGrid.DrawImage(img, x + _itemwidth - img.Width - 2, y + 2, img.Width, img.Height);
                                     }
 
                                 }
@@ -486,7 +483,7 @@ namespace iSpyApplication.Controls
                                     {
                                         if (cw.Camera != null && cw.GotImage)
                                         {
-                                            var bmp = cw.LastFrame;
+                                            var bmp = obj.LastFrame;
                                             if (bmp != null)
                                             {
                                                 if (!Cg.Fill)
@@ -496,7 +493,6 @@ namespace iSpyApplication.Controls
                                                 gGrid.CompositingMode = CompositingMode.SourceCopy;
                                                 gGrid.DrawImage(bmp, rFeed);
                                                 gGrid.CompositingMode = CompositingMode.SourceOver;
-                                                bmp.Dispose();
                                             }
                                             
 
@@ -524,7 +520,8 @@ namespace iSpyApplication.Controls
 
                                     if (cw.IsEnabled && (cw.VideoSourceErrorState || !cw.GotImage))
                                     {
-                                        gGrid.DrawImage(Properties.Resources.connecting, x + _itemwidth - 89, y + 2, 87, 15);
+                                        var img = Properties.Resources.connecting;
+                                        gGrid.DrawImage(img, x+ _itemwidth - img.Width - 2, y + 2, img.Width, img.Height);
                                     }
                                 }
                                 else
@@ -631,9 +628,7 @@ namespace iSpyApplication.Controls
                     rSrc = (modeIndex == 0) ? MainForm.RAdd : MainForm.RAddOff;
                     break;
                 case 1:
-                    rSrc = (gvc.ObjectIDs.Count > 1)
-                        ? (gvc.Hold ? MainForm.RHoldOn : MainForm.RHold)
-                        : MainForm.RHoldOff;
+                    rSrc = gvc.Hold ? MainForm.RHoldOn : MainForm.RHold;
                     break;
                 case 2:
                     rSrc = (gvc.ObjectIDs.Count > 1) ? MainForm.RNext : MainForm.RNextOff;
@@ -642,7 +637,7 @@ namespace iSpyApplication.Controls
                     rSrc = MainForm.REdit;
                     break;
                 case 6://web
-                    rSrc = Helper.HasFeature(Enums.Features.Access_Media) ? MainForm.RCloud : MainForm.RCloudOff;
+                    rSrc = Helper.HasFeature(Enums.Features.Access_Media) ? MainForm.RWeb : MainForm.RWebOff;
                     break;
             }
             if (ctrl != null)
@@ -669,7 +664,7 @@ namespace iSpyApplication.Controls
                             : MainForm.RListenOff;
                         break;
                     case 10: //files
-                        rSrc = ctrl.HasFiles ? MainForm.RFiles : MainForm.RFilesOff;
+                        rSrc = ctrl.HasFiles ? MainForm.RFolder : MainForm.RFolderOff;
                         break;
 
                 }
@@ -829,7 +824,7 @@ namespace iSpyApplication.Controls
 
                 if (cgv == null)
                 {
-                    if (bpi==0)
+                    if (bpi==0 && Cg.ModeIndex==0)
                         List(cgv, io);
                     return;
                 }
@@ -890,7 +885,7 @@ namespace iSpyApplication.Controls
                         if (ctrl.CanGrab && ctrl.IsEnabled)
                         {
                             string fn = ctrl.SaveFrame();
-                            if (fn != "")
+                            if (fn != "" && MainForm.Conf.OpenGrabs)
                                 MainForm.OpenUrl(fn);
                         }
                         break;
@@ -971,15 +966,6 @@ namespace iSpyApplication.Controls
                 cgv = _maximised;
                 row = 0;
                 col = 0;
-                //int j = 0;
-                //foreach (var obj in _controls)
-                //{
-                //    if (obj != null && obj.Equals(cgv))
-                //    {
-                //        break;
-                //    }
-                //    j++;
-                //}
             }
             else
             {
@@ -1073,10 +1059,14 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                gvc.SelectedIDs = new List<GridItem>();
+                gvc.SelectedIDs = new List<GridViewItem>();
             }
             if (gvc.ShowDialog(this) == DialogResult.OK)
             {
+                foreach (var gvi in gvc.SelectedIDs)
+                {
+                    gvi.Init(this);
+                }
                 cgv = gvc.SelectedIDs.Count > 0 ? new GridViewConfig(gvc.SelectedIDs, gvc.Delay) : null;
 
                 if (Cg != null)
@@ -1089,6 +1079,7 @@ namespace iSpyApplication.Controls
                         lgi.Add(gi);
                         Cg.GridItem = lgi.ToArray();
                     }
+                    
 
                     gi.CycleDelay = gvc.Delay;
 
@@ -1120,11 +1111,13 @@ namespace iSpyApplication.Controls
         private class GridViewConfig
         {
             public readonly int Delay;
-            public readonly List<GridItem> ObjectIDs;
+            public readonly List<GridViewItem> ObjectIDs;
             public DateTime LastCycle;
             public int CurrentIndex;
             public bool Hold;
-            public GridViewConfig(List<GridItem> objectIDs, int delay)
+
+
+            public GridViewConfig(List<GridViewItem> objectIDs, int delay)
             {
                 ObjectIDs = objectIDs;
                 Delay = delay;
@@ -1132,6 +1125,8 @@ namespace iSpyApplication.Controls
                 Hold = false;
             }
         }
+
+
    }
 
 

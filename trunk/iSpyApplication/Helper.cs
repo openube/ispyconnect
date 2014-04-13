@@ -178,6 +178,14 @@ namespace iSpyApplication
             return MainForm.Conf.MediaDirectories[0].Entry;
         }
 
+        public static string GetFullPath(int ot, int oid)
+        {
+            string d = GetMediaDirectory(ot, oid);
+            if (!d.EndsWith("\\"))
+                d += "\\";
+            return  d+ (ot==1?"audio":"video")+"\\"+GetDirectory(ot, oid) + "\\";
+        }
+
         public static string GetDirectory(int objectTypeId, int objectId)
         {
             if (objectTypeId == 1)
@@ -269,6 +277,44 @@ namespace iSpyApplication
             var d2 = new DateTime(ticks);
             var ts = new TimeSpan(d2.Ticks - d1.Ticks);
             return ts.TotalMilliseconds;
+        }
+
+
+        public static bool CanAlert(string groupname, int resetInterval)
+        {
+            string gn = groupname.ToLower().Trim();
+            if (String.IsNullOrEmpty(gn) || resetInterval == 0)
+                return true;
+
+            var ag = AlertGroups.FirstOrDefault(p => p.Name == gn);
+            if (ag == null)
+            {
+                ag = new AlertGroup(gn);
+                AlertGroups.Add(ag);
+                return true;
+            }
+            if ((Now - ag.LastReset).TotalSeconds >= resetInterval)
+            {
+                ag.LastReset = Now;
+                return true;
+            }
+            ag.LastReset = Now;
+            return false;
+
+        }
+
+        public static readonly List<AlertGroup> AlertGroups = new List<AlertGroup>();
+
+        public class AlertGroup
+        {
+            public DateTime LastReset;
+            public readonly String Name;
+
+            public AlertGroup(string name)
+            {
+                LastReset = Now;
+                Name = name;
+            }
         }
     }
 }

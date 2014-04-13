@@ -126,7 +126,10 @@ namespace iSpyApplication.Video
             {
 
                 SaveSelection(true);
-
+            }
+            if (e.KeyCode == Keys.Escape)
+            {
+                Close();
             }
 
         }

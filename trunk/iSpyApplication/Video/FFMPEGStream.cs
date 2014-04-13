@@ -424,7 +424,7 @@ namespace iSpyApplication.Video
                 _vfr.Seek(_initialSeek);
             try
             {
-                while (!_stopEvent.WaitOne(5) && !MainForm.Reallyclose && NewFrame!=null)
+                while (!_stopEvent.WaitOne(0) && !MainForm.Reallyclose && NewFrame!=null)
                 {
 
                     _bufferFull = !_realtime && (_videoframes.Count > MAXBuffer || _audioframes.Count > MAXBuffer);
@@ -479,9 +479,7 @@ namespace iSpyApplication.Video
                     _waveProvider.ClearBuffer();
             }
             
-            Console.WriteLine("shutting down");
             ShutDown(errmsg);
-            Console.WriteLine("finished");
         }
 
         private void ShutDown(string errmsg)
@@ -608,8 +606,6 @@ namespace iSpyApplication.Video
                                 maxdrift = 0;
                                 dtAnalyse = Helper.Now.AddSeconds(analyseInterval);
                             }
-
-                            //Console.WriteLine("delay: " + _delay + " firstmaxdrift: "+firstmaxdrift+" drift: " + drift + " maxdrift: " + maxdrift + " buffer: " + _videoframes.Count);
 
                         }
 
