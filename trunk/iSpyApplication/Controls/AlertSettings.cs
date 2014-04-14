@@ -30,13 +30,13 @@ namespace iSpyApplication.Controls
             {
                 CamalertSettings.minimuminterval = (int) numDistinctInterval.Value;
                 CamalertSettings.resetinterval = (int)numResetInterval.Value;
-                CamalertSettings.groupname = cmbGroup.Text;
+                CamalertSettings.groupname = cmbGroup.Text.Trim().ToLower();
             }
             if (MicalertSettings != null)
             {
                 MicalertSettings.minimuminterval = (int)numDistinctInterval.Value;
                 MicalertSettings.resetinterval = (int)numResetInterval.Value;
-                MicalertSettings.groupname = cmbGroup.Text;
+                MicalertSettings.groupname = cmbGroup.Text.Trim().ToLower();
             }
             Close();
         }

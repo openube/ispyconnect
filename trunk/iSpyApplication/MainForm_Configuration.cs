@@ -1167,7 +1167,13 @@ namespace iSpyApplication
 
 
                 if (bAlertVlc)
-                    MessageBox.Show(LocRm.GetString("CamerasNotLoadedVLC"), LocRm.GetString("Message"));
+                {
+                    if (Program.Platform == "x64")
+                        MessageBox.Show(LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
+                    else
+                        MessageBox.Show(LocRm.GetString("InstallVLCx86"));
+                    OpenUrl(Program.Platform == "x64" ? VLCx64 : VLCx86);
+                }
 
                 NeedsSync = true;
                 LogMessageToFile("Loaded " + _cameras.Count + " cameras, " + _microphones.Count + " mics and " + _floorplans.Count + " floorplans");

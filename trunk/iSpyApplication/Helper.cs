@@ -282,14 +282,13 @@ namespace iSpyApplication
 
         public static bool CanAlert(string groupname, int resetInterval)
         {
-            string gn = groupname.ToLower().Trim();
-            if (String.IsNullOrEmpty(gn) || resetInterval == 0)
+            if (String.IsNullOrEmpty(groupname) || resetInterval == 0)
                 return true;
 
-            var ag = AlertGroups.FirstOrDefault(p => p.Name == gn);
+            var ag = AlertGroups.FirstOrDefault(p => p.Name == groupname);
             if (ag == null)
             {
-                ag = new AlertGroup(gn);
+                ag = new AlertGroup(groupname);
                 AlertGroups.Add(ag);
                 return true;
             }

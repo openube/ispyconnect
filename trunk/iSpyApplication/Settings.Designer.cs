@@ -1725,8 +1725,8 @@ namespace iSpyApplication
             this.tableLayoutPanel6.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 2;
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel6.Size = new System.Drawing.Size(710, 100);
             this.tableLayoutPanel6.TabIndex = 0;
             // 
@@ -1753,7 +1753,7 @@ namespace iSpyApplication
             // chkSpeechRecognition
             // 
             this.chkSpeechRecognition.AutoSize = true;
-            this.chkSpeechRecognition.Location = new System.Drawing.Point(129, 56);
+            this.chkSpeechRecognition.Location = new System.Drawing.Point(129, 37);
             this.chkSpeechRecognition.Margin = new System.Windows.Forms.Padding(6);
             this.chkSpeechRecognition.Name = "chkSpeechRecognition";
             this.chkSpeechRecognition.Size = new System.Drawing.Size(159, 17);

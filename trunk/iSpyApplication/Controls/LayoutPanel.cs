@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace iSpyApplication.Controls
@@ -39,12 +38,6 @@ namespace iSpyApplication.Controls
             }
             
             base.OnPaint(pe);
-        }
-
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            //Invalidate();
-            base.OnSizeChanged(e);
         }
    }
 }

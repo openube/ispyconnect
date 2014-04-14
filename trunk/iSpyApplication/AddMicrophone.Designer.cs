@@ -64,6 +64,7 @@ namespace iSpyApplication
             this.label48 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
+            this.intervalConfig1 = new iSpyApplication.Controls.IntervalConfig();
             this.panel2 = new System.Windows.Forms.Panel();
             this.chkSound = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -150,7 +151,6 @@ namespace iSpyApplication
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.tmrUpdateSourceDetails = new System.Windows.Forms.Timer(this.components);
-            this.button10 = new System.Windows.Forms.Button();
             this.tcMicrophone.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -514,7 +514,7 @@ namespace iSpyApplication
             this.tableLayoutPanel2.Controls.Add(this.label48, 3, 0);
             this.tableLayoutPanel2.Controls.Add(this.label16, 3, 1);
             this.tableLayoutPanel2.Controls.Add(this.label15, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.button10, 1, 2);
+            this.tableLayoutPanel2.Controls.Add(this.intervalConfig1, 1, 2);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
@@ -616,6 +616,15 @@ namespace iSpyApplication
             this.label15.Size = new System.Drawing.Size(113, 23);
             this.label15.TabIndex = 47;
             this.label15.Text = "Intervals";
+            // 
+            // intervalConfig1
+            // 
+            this.tableLayoutPanel2.SetColumnSpan(this.intervalConfig1, 3);
+            this.intervalConfig1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.intervalConfig1.Location = new System.Drawing.Point(128, 65);
+            this.intervalConfig1.Name = "intervalConfig1";
+            this.intervalConfig1.Size = new System.Drawing.Size(514, 29);
+            this.intervalConfig1.TabIndex = 78;
             // 
             // panel2
             // 
@@ -1817,17 +1826,6 @@ namespace iSpyApplication
             this.tmrUpdateSourceDetails.Interval = 2000;
             this.tmrUpdateSourceDetails.Tick += new System.EventHandler(this.tmrUpdateSourceDetails_Tick);
             // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(131, 68);
-            this.button10.Margin = new System.Windows.Forms.Padding(6);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(23, 23);
-            this.button10.TabIndex = 81;
-            this.button10.Text = "...";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
-            // 
             // AddMicrophone
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -2026,6 +2024,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkArchive;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private Controls.Ranger ranger1;
-        private System.Windows.Forms.Button button10;
+        private Controls.IntervalConfig intervalConfig1;
     }
 }

@@ -162,9 +162,6 @@ internal static class Program
             if (IntPtr.Size == 8)
                 Platform = "x64";
 
-            if (VlcHelper.VlcInstalled)
-                VlcHelper.AddVlcToPath();
-
             File.WriteAllText(AppDataPath + "external_command.txt", "");
 
             // in case our https certificate ever expires or there is some other issue
