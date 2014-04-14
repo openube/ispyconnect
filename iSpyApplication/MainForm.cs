@@ -892,6 +892,8 @@ namespace iSpyApplication
                 d.StopSavingFlag = false;
             }
 
+            if (VlcHelper.VlcInstalled)
+                VlcHelper.AddVlcToPath();
 
             if (!Directory.Exists(Conf.MediaDirectories[0].Entry))
             {

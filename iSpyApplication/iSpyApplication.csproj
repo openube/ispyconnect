@@ -420,6 +420,12 @@
     </Compile>
     <Compile Include="Controls\AppLoop.cs" />
     <Compile Include="Controls\GridViewItem.cs" />
+    <Compile Include="Controls\IntervalConfig.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\IntervalConfig.Designer.cs">
+      <DependentUpon>IntervalConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ServerEventRow.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -1186,6 +1192,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\AlertSettings.resx">
       <DependentUpon>AlertSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\IntervalConfig.resx">
+      <DependentUpon>IntervalConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ServerEventRow.resx">
       <DependentUpon>ServerEventRow.cs</DependentUpon>

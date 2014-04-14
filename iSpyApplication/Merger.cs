@@ -121,14 +121,14 @@ namespace iSpyApplication
                 {
                     var startInfo = new ProcessStartInfo
                                     {
-                                        FileName = Program.AppPath + "ffmpeg.exe",
+                                        FileName = "\""+Program.AppPath + "ffmpeg.exe\"",
                                         Arguments =
                                             "-f concat -i \"" + Program.AppDataPath + "concat.txt" +
                                             "\" -codec copy \"" + _dir + _outfile + "\"",
-                                        RedirectStandardOutput = true,
-                                        RedirectStandardError = true,
+                                        RedirectStandardOutput = false,
+                                        RedirectStandardError = false,
                                         UseShellExecute = false,
-                                        CreateNoWindow = true
+                                        CreateNoWindow = false
                                     };
                     MainForm.LogMessageToFile("Merge: " + startInfo.FileName + " " + startInfo.Arguments);
                     _ffmpegProcess = new Process {StartInfo = startInfo, EnableRaisingEvents = true};

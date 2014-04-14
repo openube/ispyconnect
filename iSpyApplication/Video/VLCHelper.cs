@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using iSpyApplication.Pelco;
 using Microsoft.Win32;
 
 namespace iSpyApplication.Video
@@ -11,7 +12,7 @@ namespace iSpyApplication.Video
     /// </summary>
     public static class VlcHelper
     {
-        private static string _vlcInstallationFolder;
+        private static string _vlcInstallationFolder="";
 
         public static readonly Version  VMin = new Version(2,0,0);
 
@@ -55,26 +56,9 @@ namespace iSpyApplication.Video
         {
             get
             {
-                if (_vlcInstallationFolder == null)
-                {
-
-
-                    if (Program.Platform == "x64")
-                    {
-                        _vlcInstallationFolder = Program.AppPath + "VLC64";
-                    }
-                    else
-                    {
-                        RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC", false);
-                        if (vlcKey != null)
-                        {
-                            _vlcInstallationFolder = (string)vlcKey.GetValue("InstallDir")
-                                                     + Path.DirectorySeparatorChar;
-                            vlcKey.Close();
-                        }
-                    }
-                }
-                return _vlcInstallationFolder;
+                if (VlcInstalled)
+                    return _vlcInstallationFolder;
+                return "";
             }
         }
 
@@ -89,19 +73,49 @@ namespace iSpyApplication.Video
         {
             get
             {
-                if (Program.Platform == "x64")
-                    return File.Exists(Program.AppPath + "VLC64\\libvlc.dll");
+
+                if (_vlcInstallationFolder != "")
+                    return true;
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);
                     if (vlcKey != null)
                     {
                         var v = Version.Parse(vlcKey.GetValue("Version").ToString());
-                        return (v.CompareTo(VMin) >= 0);
+                        _vlcInstallationFolder = (string) vlcKey.GetValue("InstallDir")
+                                                    + Path.DirectorySeparatorChar;
+                        if (v.CompareTo(VMin) >= 0)
+                        {
+                            MainForm.LogMessageToFile("Using VLC from " + _vlcInstallationFolder);
+                            return true;
+                        }
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                if (Program.Platform == "x64")
+                {
+                    try
+                    {
+                        if (File.Exists(@"C:\Program Files\VideoLAN\VLC\libvlc.dll"))
+                        {
+                            _vlcInstallationFolder = @"C:\Program Files\VideoLAN\VLC\";
+                            MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder);
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                        
+                    }
+                    if (File.Exists(Program.AppPath + "VLC64\\libvlc.dll"))
+                    {
+                        _vlcInstallationFolder = Program.AppPath + "VLC64\\";
+                        MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder);
+                        return true;
+                    }
                 }
                 return false;
             }

@@ -978,11 +978,11 @@ namespace iSpyApplication
 
         private void LinkLabel3LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
             if (Program.Platform == "x64")
                 MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
             else
                 MessageBox.Show(this, LocRm.GetString("InstallVLCx86"));
+            MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
         }
 
         private void pnlVLC_Paint(object sender, PaintEventArgs e)

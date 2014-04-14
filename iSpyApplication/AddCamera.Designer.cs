@@ -129,7 +129,6 @@ namespace iSpyApplication
             this.rdoMotion = new System.Windows.Forms.RadioButton();
             this.rdoTrigger = new System.Windows.Forms.RadioButton();
             this.label15 = new System.Windows.Forms.Label();
-            this.button10 = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
             this.chkMovement = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -408,6 +407,7 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.intervalConfig1 = new iSpyApplication.Controls.IntervalConfig();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -1670,7 +1670,7 @@ namespace iSpyApplication
             this.tableLayoutPanel7.Controls.Add(this.button3, 2, 0);
             this.tableLayoutPanel7.Controls.Add(this.flowLayoutPanel5, 1, 1);
             this.tableLayoutPanel7.Controls.Add(this.label15, 0, 2);
-            this.tableLayoutPanel7.Controls.Add(this.button10, 1, 2);
+            this.tableLayoutPanel7.Controls.Add(this.intervalConfig1, 1, 2);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
@@ -1788,17 +1788,6 @@ namespace iSpyApplication
             this.label15.Size = new System.Drawing.Size(47, 13);
             this.label15.TabIndex = 57;
             this.label15.Text = "Intervals";
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(65, 68);
-            this.button10.Margin = new System.Windows.Forms.Padding(6);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(23, 23);
-            this.button10.TabIndex = 80;
-            this.button10.Text = "...";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
             // panel4
             // 
@@ -5380,6 +5369,15 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Size = new System.Drawing.Size(437, 41);
             this.flowLayoutPanel3.TabIndex = 48;
             // 
+            // intervalConfig1
+            // 
+            this.tableLayoutPanel7.SetColumnSpan(this.intervalConfig1, 3);
+            this.intervalConfig1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.intervalConfig1.Location = new System.Drawing.Point(62, 65);
+            this.intervalConfig1.Name = "intervalConfig1";
+            this.intervalConfig1.Size = new System.Drawing.Size(580, 34);
+            this.intervalConfig1.TabIndex = 80;
+            // 
             // AddCamera
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -5963,6 +5961,6 @@ namespace iSpyApplication
         private System.Windows.Forms.ComboBox ddlFTPServer;
         private System.Windows.Forms.LinkLabel linkLabel5;
         private System.Windows.Forms.Button btnAuthorise;
-        private System.Windows.Forms.Button button10;
+        private IntervalConfig intervalConfig1;
     }
 }

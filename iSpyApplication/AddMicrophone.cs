@@ -218,6 +218,7 @@ namespace iSpyApplication
             ranger1.ValueMaxChanged += Ranger1ValueMaxChanged;
             ranger1.SetText();
 
+            intervalConfig1.Init(VolumeLevel);
             _loaded = true;
 
         }

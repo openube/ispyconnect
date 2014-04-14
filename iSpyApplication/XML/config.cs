@@ -292,6 +292,10 @@ public partial class configuration {
     
     private string textSentencesField;
     
+    private string vLC86Field;
+    
+    private string vLC64Field;
+    
     private configurationServer[] fTPServersField;
     
     private configurationGrid[] gridViewsField;
@@ -364,6 +368,8 @@ public partial class configuration {
         this.dropBoxConfigField = "";
         this.openGrabsField = true;
         this.textSentencesField = "";
+        this.vLC86Field = "";
+        this.vLC64Field = "";
     }
     
     /// <remarks/>
@@ -1703,6 +1709,26 @@ public partial class configuration {
         }
         set {
             this.textSentencesField = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string VLC86 {
+        get {
+            return this.vLC86Field;
+        }
+        set {
+            this.vLC86Field = value;
+        }
+    }
+    
+    /// <remarks/>
+    public string VLC64 {
+        get {
+            return this.vLC64Field;
+        }
+        set {
+            this.vLC64Field = value;
         }
     }
     

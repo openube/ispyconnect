@@ -493,6 +493,7 @@ namespace iSpyApplication
                     break;
                 }
             }
+            intervalConfig1.Init(CameraControl);
             _loaded = true;
         }
 
@@ -2908,9 +2909,7 @@ namespace iSpyApplication
 
         private void button10_Click(object sender, EventArgs e)
         {
-            var aset = new AlertSettings {CamalertSettings = CameraControl.Camobject.alerts};
-            aset.ShowDialog(this);
-            aset.Dispose();
+            
         }
 
     }

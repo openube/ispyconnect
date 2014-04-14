@@ -180,7 +180,11 @@ namespace iSpyApplication.Controls
                 MainForm.Conf.PlaybackMode = 0;
             if (!VlcHelper.VlcInstalled && mode == Enums.PlaybackMode.iSpy)
             {
-                MessageBox.Show(this, LocRm.GetString("VLCNotInstalled"));
+                if (Program.Platform == "x64")
+                    MessageBox.Show(this, LocRm.GetString("InstallVLCx64").Replace("[DIR]", Environment.NewLine + Program.AppPath + "VLC64" + Environment.NewLine));
+                else
+                    MessageBox.Show(this, LocRm.GetString("InstallVLCx86"));
+                MainForm.OpenUrl(Program.Platform == "x64" ? MainForm.VLCx64 : MainForm.VLCx86);
                 MainForm.Conf.PlaybackMode = 0;
                 mode = Enums.PlaybackMode.Website;
             }

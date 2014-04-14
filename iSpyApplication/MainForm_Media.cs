@@ -412,8 +412,11 @@ namespace iSpyApplication
 
         internal void MergeMedia()
         {
-            var m = new Merger {MainClass = this};
-            m.ShowDialog(this);
+            using (var m = new Merger {MainClass = this})
+            {
+                m.ShowDialog(this);
+            }
+
         }
     }
 }
