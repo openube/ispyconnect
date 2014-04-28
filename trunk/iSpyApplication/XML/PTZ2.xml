@@ -5149,13 +5149,31 @@ copy or delete as many lines as you need.-->
   </Camera>
   <Camera id="196">
     <Makes>
-      <Make Name="DLink" Model="DCS-942L" />
-      <Make Name="DLink" Model="DCS-932L" />
+      <Make Name="eneo" Model="PLD-2012PTZ" />
+      <Make Name="allnet" Model="ALL2298"/>
+      <Make Name="D-link" Model="DCS-6815"/>
+      <Make Name="D-link" Model="DCS-6817"/>
+      <Make Name="D-link" Model="DCS-6818"/>
     </Makes>
-    <CommandURL>/nightmodecontrol.cgi</CommandURL>
+    <CommandURL>
+    </CommandURL>
+    <Commands>
+      <Center>/cgi-bin/com/ptz.cgi?move=home</Center>
+      <Left>/cgi-bin/com/ptz.cgi?move=left</Left>
+      <Right>/cgi-bin/com/ptz.cgi?move=right</Right>
+      <Up>/cgi-bin/com/ptz.cgi?move=up</Up>
+      <Down>/cgi-bin/com/ptz.cgi?move=down</Down>
+      <ZoomIn>/cgi-bin/ptz.cgi?rzoom=+100</ZoomIn>
+      <ZoomOut>/cgi-bin/com/ptz.cgi?rzoom=-100</ZoomOut>
+    </Commands>
     <ExtendedCommands>
-      <Command Name="IR LED ON ">IRLed=1</Command>
-      <Command Name="IR LED OFF">IRLed=0</Command>
+      <Command Name="Go Preset 1">/cgi-bin/gopreset.cgi?num=1</Command>
+      <Command Name="Go Preset 2">/cgi-bin/gopreset.cgi?num=2</Command>
+      <Command Name="Go Preset 3">/cgi-bin/gopreset.cgi?num=3</Command>
+      <Command Name="Go Preset 4">/cgi-bin/gopreset.cgi?num=4</Command>
+      <Command Name="Go Preset 5">/cgi-bin/gopreset.cgi?num=5</Command>
+      <Command Name="Go Preset 6">/cgi-bin/gopreset.cgi?num=6</Command>
+      <Command Name="Go Preset 7">/cgi-bin/gopreset.cgi?num=7</Command>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>

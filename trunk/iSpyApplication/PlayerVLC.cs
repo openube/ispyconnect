@@ -47,8 +47,8 @@ namespace iSpyApplication
          {
             MF = mf;
             InitializeComponent();
-
-            _mFactory = new MediaPlayerFactory(true);
+            var arguments = new[] { "--file-caching="+MainForm.Conf.VLCFileCache };
+            _mFactory = new MediaPlayerFactory(arguments);
             _mPlayer = _mFactory.CreatePlayer<IDiskPlayer>();
 
             _mPlayer.Events.PlayerPositionChanged += EventsPlayerPositionChanged;
@@ -114,8 +114,7 @@ namespace iSpyApplication
                     try
                     {
                         _mPlayer.Open(_mMedia);
-
-                        _mMedia.Parse(false);
+                        _mMedia.Parse(true);
                     }
                     catch (Exception ex)
                     {

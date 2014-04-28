@@ -161,12 +161,18 @@ namespace iSpyApplication.Video
             _framesReceived = 0;
 
             // create events
+            if (_stopEvent != null)
+            {
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
+            }
             _stopEvent = new ManualResetEvent(false);
 
             // create and start new thread
             
-                _thread = new Thread(FfmpegListener) {Name = "ffmpeg " + _source};
-                _thread.Start();
+            _thread = new Thread(FfmpegListener) {Name = "ffmpeg " + _source};
+            _thread.Start();
 
             Seekable = IsFileSource;
             _initialSeek = -1;
@@ -251,7 +257,6 @@ namespace iSpyApplication.Video
             {
                 
             }
-
         }
 
         private bool EmitFrame(bool first)
@@ -424,9 +429,8 @@ namespace iSpyApplication.Video
                 _vfr.Seek(_initialSeek);
             try
             {
-                while (!_stopEvent.WaitOne(0) && !MainForm.Reallyclose && NewFrame!=null)
+                while (!_stopEvent.WaitOne(5) && !MainForm.Reallyclose && NewFrame!=null)
                 {
-
                     _bufferFull = !_realtime && (_videoframes.Count > MAXBuffer || _audioframes.Count > MAXBuffer);
                     if (!_paused && !_bufferFull)
                     {
@@ -478,7 +482,17 @@ namespace iSpyApplication.Video
                 if (_waveProvider.BufferedBytes > 0)
                     _waveProvider.ClearBuffer();
             }
-            
+
+            if (_tOutput != null)
+            {
+                try
+                {
+                     if (!_thread.Join(TimeSpan.Zero))
+                        _tOutput.Join();
+                }
+                catch {}
+            }
+
             ShutDown(errmsg);
         }
 
@@ -504,31 +518,13 @@ namespace iSpyApplication.Video
                 }
             }
 
-            // release events
-            
-
             if (PlayingFinished != null)
                 PlayingFinished(this, _reasonToStop);
             if (AudioFinished != null)
                 AudioFinished(this, _reasonToStop);
 
-            Free();
-
-        }
-
-        private void Free()
-        {
-            if (_tOutput != null)
-                _tOutput.Join();
-
             ClearBuffer();
 
-            if (_stopEvent != null)
-            {
-                _stopEvent.Close();
-                _stopEvent.Dispose();
-                _stopEvent = null;
-            }
         }
 
         private DateTime _lastFrame = DateTime.MinValue;
@@ -672,12 +668,10 @@ namespace iSpyApplication.Video
         {
             if (_videoframes != null)
             {
-                _videoframes.DisposeAll();
                 _videoframes.Clear();
             }
             if (_audioframes != null)
             {
-                _audioframes.DisposeAll();
                 _audioframes.Clear();
             }
         }
@@ -767,29 +761,21 @@ namespace iSpyApplication.Video
             Stop();
         }
 
-        private bool _stopping;
         /// <summary>
         /// Stop video source.
         /// </summary>
         /// 
         public void Stop()
         {
-            if (IsRunning && !_stopping)
+            if (IsRunning)
             {
-                _stopping = true;
-                if (_stopEvent != null)
-                {
-                    //if stopEvent is null the thread is exiting and stop has been called from a related event //bastard!
-                    _stopEvent.Set();
-                    if (IsRunning)
-                    {
-                        _thread.Join();
-                    }
-                   
-                }
+                // wait for thread stop
+                _stopEvent.Set();
+                _thread.Join();
 
-                Listening = false;
-                _stopping = false;
+                _stopEvent.Close();
+                _stopEvent.Dispose();
+                _stopEvent = null;
             }
         }
         #endregion

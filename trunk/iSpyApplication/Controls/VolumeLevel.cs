@@ -73,7 +73,6 @@ namespace iSpyApplication.Controls
 
         private readonly DateTime _lastScheduleCheck = DateTime.MinValue;
         private List<FilesFile> _filelist = new List<FilesFile>();
-        private readonly AutoResetEvent _newRecordingFrame = new AutoResetEvent(false);
         private Thread _recordingThread;
         private bool _requestRefresh;
         private readonly Pen _vline = new Pen(Color.Green, 2);
@@ -153,7 +152,7 @@ namespace iSpyApplication.Controls
         #endregion
 
         public List<AudioAction> AudioBuffer = new List<AudioAction>();
-        public QueueWithEvents<AudioAction> WriterBuffer = new QueueWithEvents<AudioAction>();
+        public List<AudioAction> WriterBuffer = new List<AudioAction>();
         public bool Alerted;
         public string AudioFileName = "";
         public Enums.AudioStreamMode AudioStreamMode;
@@ -559,7 +558,7 @@ namespace iSpyApplication.Controls
                             case 1:
                                 if (IsEnabled)
                                 {
-                                    RecordSwitch(!Recording);
+                                    RecordSwitch(!(Recording || ForcedRecording));
                                 }
                                 break;
                             case 2:
@@ -779,7 +778,6 @@ namespace iSpyApplication.Controls
             BackgroundColor = MainForm.BackgroundColor;
             Micobject = om;
             MainClass = mainForm;
-            WriterBuffer.Changed += WriterBufferChanged;
             ErrorHandler += VolumeLevel_ErrorHandler;
             _toolTipMic = new ToolTip { AutomaticDelay = 500, AutoPopDelay = 1500 };
         }
@@ -1043,7 +1041,7 @@ namespace iSpyApplication.Controls
                     break;
                 case 1://record
                     if (b && Helper.HasFeature(Enums.Features.Recording))
-                        rSrc = Recording ? MainForm.RRecordOn : MainForm.RRecord;
+                        rSrc = (Recording || ForcedRecording) ? MainForm.RRecordOn : MainForm.RRecord;
                     else
                     {
                         rSrc = MainForm.RRecordOff;
@@ -1162,7 +1160,6 @@ namespace iSpyApplication.Controls
                                     if (entry.recordonstart)
                                     {
                                         ForcedRecording = true;
-                                        StartSaving();
                                     }
                                 }
                                 return true;
@@ -1243,15 +1240,14 @@ namespace iSpyApplication.Controls
             {
                 StartSaving();
             }
-            else
+            
+            if (Recording && !_pairedRecording)
             {
-                if (Recording && !_pairedRecording)
-                {
-                    if (_recordingTime > Micobject.recorder.maxrecordtime || 
-                        ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
-                        StopSaving();
-                }
+                if (_recordingTime > Micobject.recorder.maxrecordtime || 
+                    ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording))
+                    StopSaving();
             }
+            
         }
 
         private bool CheckReconnect()
@@ -1499,7 +1495,7 @@ namespace iSpyApplication.Controls
         private void Record()
         {
             _stopWrite.Reset();
-            DateTime recordingStart = DateTime.MinValue;
+            DateTime recordingStart = Helper.Now;
 
             if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
             {
@@ -1518,19 +1514,16 @@ namespace iSpyApplication.Controls
                         break;
                 }
             }
-
+            ClearWriterBuffer();
             try
             {
                 _pairedRecording = false;
                 if (CameraControl!=null && CameraControl.Camobject.settings.active)
                 {
                     _pairedRecording = true;
-                    CameraControl.StartSaving();
                     CameraControl.ForcedRecording = ForcedRecording;
-                    while (!_stopWrite.WaitOne(0))
-                    {
-                        _newRecordingFrame.WaitOne(200);
-                    }
+                    CameraControl.StartSaving();
+                    _stopWrite.WaitOne();
                 }
                 else
                 {
@@ -1571,11 +1564,13 @@ namespace iSpyApplication.Controls
 
                     double maxlevel = 0;
                     var l = AudioBuffer.OrderBy(p => p.TimeStamp).ToList();
+                    bool first = true;
                     foreach (AudioAction aa in l)
                     {
-                        if (recordingStart == DateTime.MinValue)
+                        if (first)
                         {
                             recordingStart = aa.TimeStamp;
+                            first = false;
                         }
 
                         unsafe
@@ -1595,20 +1590,20 @@ namespace iSpyApplication.Controls
                     
                     ClearAudioBuffer();
 
-                    if (recordingStart == DateTime.MinValue)
+                    if (first)
+                    {
                         recordingStart = Helper.Now;
+                    }
 
                     try
                     {
-                        while (!_stopWrite.WaitOne(0))
+                        while (!_stopWrite.WaitOne(5))
                         {
                             while (WriterBuffer.Count > 0)
                             {
                                 AudioAction b;
-                                lock (_lockobject)
-                                {
-                                    b = WriterBuffer.Dequeue();
-                                }
+                                b = WriterBuffer[0];
+                                WriterBuffer.RemoveAt(0);
                                 unsafe
                                 {
                                     fixed (byte* p = b.Decoded)
@@ -1625,7 +1620,6 @@ namespace iSpyApplication.Controls
                                 b.Nullify();
 
                             }
-                            _newRecordingFrame.WaitOne(200);
                         }
 
 
@@ -1733,18 +1727,7 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private void ClearWriterBuffer()
-        {
-            while (WriterBuffer.Count > 0)
-            {
-                WriterBuffer.Dequeue().Nullify();
-            }            
-        }
-
-        void WriterBufferChanged(object sender, EventArgs e)
-        {
-            _newRecordingFrame.Set();
-        }
+       
 
         protected override void Dispose(bool disposing)
         {
@@ -1766,10 +1749,25 @@ namespace iSpyApplication.Controls
 
         public void ClearAudioBuffer()
         {
-            while (AudioBuffer.Count > 0)
+            lock (_lockobject)
             {
-                AudioBuffer[0].Nullify();
-                AudioBuffer.RemoveAt(0);
+                while (AudioBuffer.Count > 0)
+                {
+                    AudioBuffer[0].Nullify();
+                    AudioBuffer.RemoveAt(0);
+                }
+            }
+        }
+
+        private void ClearWriterBuffer()
+        {
+            lock (_lockobject)
+            {
+                while (WriterBuffer.Count > 0)
+                {
+                    WriterBuffer[0].Nullify();
+                    WriterBuffer.RemoveAt(0);
+                }
             }
         }
 
@@ -2086,24 +2084,26 @@ namespace iSpyApplication.Controls
                 return;
             try
             {
-                if (!Recording)
+                lock (_lockobject)
                 {
-                    if (Micobject.settings.buffer > 0)
+                    if (!Recording)
                     {
-                        var dt = Helper.Now.AddSeconds(0 - Micobject.settings.buffer);
-                        while (AudioBuffer.Count > 0 && AudioBuffer[0].TimeStamp < dt)
+                        if (Micobject.settings.buffer > 0)
                         {
-                            AudioBuffer[0].Nullify();
-                            AudioBuffer.RemoveAt(0);
+                            var dt = Helper.Now.AddSeconds(0 - Micobject.settings.buffer);
+                            while (AudioBuffer.Count > 0 && AudioBuffer[0].TimeStamp < dt)
+                            {
+                                AudioBuffer[0].Nullify();
+                                AudioBuffer.RemoveAt(0);
+                            }
+                            AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
                         }
-                        AudioBuffer.Add(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
+                    }
+                    else
+                    {
+                        WriterBuffer.Add(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
                     }
                 }
-                else
-                {
-                    WriterBuffer.Enqueue(new AudioAction(e.RawData, Levels.Max(), Helper.Now));
-                }
-
 
                 if (Micobject.settings.needsupdate)
                 {
@@ -2379,7 +2379,7 @@ namespace iSpyApplication.Controls
                                 {
                                     case "1":
                                         VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        if (vl != null && vl != this)
+                                        if (vl != null && vl != this) //prevent recursion
                                             vl.MicrophoneAlarm(this, EventArgs.Empty);
                                         break;
                                     case "2":
@@ -2401,7 +2401,7 @@ namespace iSpyApplication.Controls
                                     case "1":
                                         VolumeLevel vl =
                                             ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                                        if (vl != null && vl != this)
+                                        if (vl != null)
                                             vl.Enable();
                                         break;
                                     case "2":
@@ -2409,6 +2409,29 @@ namespace iSpyApplication.Controls
                                             ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
                                         if (cw != null)
                                             cw.Enable();
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case "SOF":
+                        {
+                            if (TopLevelControl != null)
+                            {
+                                string[] tid = param1.Split(',');
+                                switch (tid[0])
+                                {
+                                    case "1":
+                                        VolumeLevel vl =
+                                            ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                                        if (vl != null)
+                                            vl.Disable();
+                                        break;
+                                    case "2":
+                                        CameraWindow cw =
+                                            ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                                        if (cw != null)
+                                            cw.Disable();
                                         break;
                                 }
                             }
@@ -2650,7 +2673,7 @@ namespace iSpyApplication.Controls
                     Enable();
                 }
                 ForcedRecording = true;
-                StartSaving();
+                _requestRefresh = true;
                 return "recording," + LocRm.GetString("RecordingStarted");
             }
 
@@ -2661,12 +2684,9 @@ namespace iSpyApplication.Controls
                 var cc = CameraControl;
                 if (cc != null && cc.Recording)
                     cc.RecordSwitch(false);
-                StopSaving();
             }
-            else
-            {
-                StopSaving();
-            }
+            StopSaving();
+            _requestRefresh = true;
             
             return "notrecording," + LocRm.GetString("RecordingStopped");
         }
@@ -2753,7 +2773,6 @@ namespace iSpyApplication.Controls
                     if (mostrecent.recordonstart)
                     {
                         ForcedRecording = true;
-                        StartSaving();
                     }
                 }
                 else

@@ -75,6 +75,21 @@ namespace iSpyApplication
                 //do nothing
             }
         }
+        internal static void LogErrorToFile(String message, string message2)
+        {
+            if (!_logging)
+                return;
+
+            try
+            {
+                LogFile.Append("<tr><td style=\"color:red\" valign=\"top\">Error</td><td valign=\"top\">" +
+                               DateTime.Now.ToLongTimeString() + "</td><td valign=\"top\">" + message + ", "+message2+"</td></tr>");
+            }
+            catch
+            {
+                //do nothing
+            }
+        }
 
         internal static void LogWarningToFile(String message)
         {

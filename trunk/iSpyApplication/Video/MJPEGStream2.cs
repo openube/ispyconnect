@@ -58,7 +58,7 @@ namespace iSpyApplication.Video
         // use separate HTTP connection group or use default
         private bool _useSeparateConnectionGroup = true;
         // timeout value for web request
-        private int _requestTimeout = 10000;
+        private int _requestTimeout = 5000;
         // if we should use basic authentication when connecting to the video source
         private bool _forceBasicAuthentication;
         private string _cookies = "";
@@ -395,8 +395,7 @@ namespace iSpyApplication.Video
             {
                 // wait for thread stop
                 _stopEvent.Set();
-                _thread.Join(MainForm.ThreadKillDelay);
-                if (_thread != null && !_thread.Join(TimeSpan.Zero))
+                if (_thread != null && !_thread.Join(MainForm.ThreadKillDelay))
                     _thread.Abort();
                 Free();
             }
@@ -461,11 +460,11 @@ namespace iSpyApplication.Video
 
                 // HTTP web request
                 HttpWebRequest request = null;
-                // web responce
+                // web response
                 WebResponse response = null;
                 // stream for MJPEG downloading
                 Stream stream = null;
-                // boundary betweeen images (string and binary versions)
+                // boundary between images (string and binary versions)
                 byte[] boundary;
                 string boudaryStr = null;
                 // length of boundary
@@ -638,7 +637,6 @@ namespace iSpyApplication.Video
                                 // image at stop
                                 if ((NewFrame != null) && (!_stopEvent.WaitOne(0, false)))
                                 {
-                                    Bitmap bitmap;
                                     if (!String.IsNullOrEmpty(DecodeKey))
                                     {
                                         byte[] marker = Encoding.ASCII.GetBytes(DecodeKey);
@@ -662,25 +660,22 @@ namespace iSpyApplication.Video
                                             ms.WriteByte(jpegMagic[1]);
                                             ms.WriteByte(jpegMagic[2]);
                                             ms.Seek(0, SeekOrigin.Begin);
-                                            bitmap = (Bitmap) Image.FromStream(ms);
-                                            NewFrame(this, new NewFrameEventArgs(bitmap));
-                                            
+                                            using (var bitmap = (Bitmap) Image.FromStream(ms))  {
+                                                NewFrame(this, new NewFrameEventArgs(bitmap));
+                                            }
                                         }
                                     }
                                     else
                                     {
                                         using (var ms = new MemoryStream(buffer, start, stop - start))
                                         {
-                                            bitmap = (Bitmap) Image.FromStream(ms);
-                                            NewFrame(this, new NewFrameEventArgs(bitmap));
+                                            using (var bitmap = (Bitmap) Image.FromStream(ms))
+                                            {
+                                                NewFrame(this, new NewFrameEventArgs(bitmap));
+                                            }
                                         }
                                     }
                                         
-                                    // notify client
-                                    
-                                    // release the image
-                                    bitmap.Dispose();
-                                    bitmap = null;
                                     if (_needsPrivacyEnabled && _needsPrivacyEnabledTarget < Helper.Now)
                                     {
                                         if (EnablePrivacy(request))

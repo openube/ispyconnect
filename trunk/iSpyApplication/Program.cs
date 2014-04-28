@@ -18,6 +18,7 @@ internal static class Program
     //public static Mutex Mutex;
     private static string _apppath = "", _appdatapath = "";
     public static string Platform = "x86";
+    public static int GridViews = 0;
     private static uint _previousExecutionState;
     public static WinFormsAppIdleHandler AppIdle;
     public static string AppPath
@@ -177,7 +178,7 @@ internal static class Program
 
             _previousExecutionState = NativeCalls.SetThreadExecutionState(NativeCalls.ES_CONTINUOUS | NativeCalls.ES_SYSTEM_REQUIRED);
             
-            AppIdle = new WinFormsAppIdleHandler {Enabled = true};
+            AppIdle = new WinFormsAppIdleHandler {Enabled = false};
             var mf = new MainForm(silentstartup, command);
             Application.Run(mf);
             WriterMutex.Close();

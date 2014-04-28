@@ -129,6 +129,7 @@ namespace iSpyApplication
             this.rdoMotion = new System.Windows.Forms.RadioButton();
             this.rdoTrigger = new System.Windows.Forms.RadioButton();
             this.label15 = new System.Windows.Forms.Label();
+            this.intervalConfig1 = new iSpyApplication.Controls.IntervalConfig();
             this.panel4 = new System.Windows.Forms.Panel();
             this.chkMovement = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -178,47 +179,10 @@ namespace iSpyApplication
             this.rdoRecordAlert = new System.Windows.Forms.RadioButton();
             this.tabPage8 = new System.Windows.Forms.TabPage();
             this.pnlPTZControls = new System.Windows.Forms.Panel();
-            this.panel11 = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel20 = new System.Windows.Forms.TableLayoutPanel();
-            this.pnlPTZSchedule = new System.Windows.Forms.Panel();
-            this.lbPTZSchedule = new System.Windows.Forms.ListBox();
-            this.panel13 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel27 = new System.Windows.Forms.FlowLayoutPanel();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
-            this.btnDeletePTZ = new System.Windows.Forms.Button();
-            this.panel14 = new System.Windows.Forms.Panel();
-            this.flowPTZSchedule = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkSuspendOnMovement = new System.Windows.Forms.CheckBox();
-            this.ddlScheduleCommand = new System.Windows.Forms.ComboBox();
-            this.dtpSchedulePTZ = new System.Windows.Forms.DateTimePicker();
-            this.button6 = new System.Windows.Forms.Button();
-            this.panel15 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel28 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkSchedulePTZ = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel12 = new System.Windows.Forms.TableLayoutPanel();
             this.pnlPTZ = new System.Windows.Forms.Panel();
-            this.pnlTrack = new System.Windows.Forms.Panel();
-            this.tableLayoutPanel13 = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanel21 = new System.Windows.Forms.FlowLayoutPanel();
-            this.rdoAny = new System.Windows.Forms.RadioButton();
-            this.rdoVert = new System.Windows.Forms.RadioButton();
-            this.rdoHor = new System.Windows.Forms.RadioButton();
-            this.chkReverseTracking = new System.Windows.Forms.CheckBox();
-            this.flowLayoutPanel22 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkAutoHome = new System.Windows.Forms.CheckBox();
-            this.label59 = new System.Windows.Forms.Label();
-            this.ddlHomeCommand = new System.Windows.Forms.ComboBox();
-            this.label87 = new System.Windows.Forms.Label();
-            this.numTTH = new System.Windows.Forms.NumericUpDown();
-            this.label5 = new System.Windows.Forms.Label();
-            this.numAutoHomeDelay = new System.Windows.Forms.NumericUpDown();
             this.panel5 = new System.Windows.Forms.Panel();
             this.lbExtended = new System.Windows.Forms.ListBox();
-            this.flowLayoutPanel11 = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkPTZFlipX = new System.Windows.Forms.CheckBox();
-            this.chkPTZFlipY = new System.Windows.Forms.CheckBox();
-            this.chkPTZRotate90 = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel18 = new System.Windows.Forms.FlowLayoutPanel();
             this.label18 = new System.Windows.Forms.Label();
             this.txtPTZURL = new System.Windows.Forms.TextBox();
@@ -230,10 +194,16 @@ namespace iSpyApplication
             this.txtPTZChannel = new System.Windows.Forms.TextBox();
             this.btnConfigurePelco = new System.Windows.Forms.Button();
             this.label16 = new System.Windows.Forms.Label();
-            this.chkTrack = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel31 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAddPreset = new System.Windows.Forms.Button();
             this.btnDeletePreset = new System.Windows.Forms.Button();
+            this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnPTZTrack = new System.Windows.Forms.Button();
+            this.btnPTZSchedule = new System.Windows.Forms.Button();
+            this.flowLayoutPanel11 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkPTZFlipX = new System.Windows.Forms.CheckBox();
+            this.chkPTZFlipY = new System.Windows.Forms.CheckBox();
+            this.chkPTZRotate90 = new System.Windows.Forms.CheckBox();
             this.label75 = new System.Windows.Forms.Label();
             this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
             this.label73 = new System.Windows.Forms.Label();
@@ -407,7 +377,6 @@ namespace iSpyApplication
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
-            this.intervalConfig1 = new iSpyApplication.Controls.IntervalConfig();
             this.tcCamera.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox8.SuspendLayout();
@@ -458,26 +427,12 @@ namespace iSpyApplication
             this.flowLayoutPanel10.SuspendLayout();
             this.tabPage8.SuspendLayout();
             this.pnlPTZControls.SuspendLayout();
-            this.panel11.SuspendLayout();
-            this.tableLayoutPanel20.SuspendLayout();
-            this.pnlPTZSchedule.SuspendLayout();
-            this.panel13.SuspendLayout();
-            this.flowLayoutPanel27.SuspendLayout();
-            this.panel14.SuspendLayout();
-            this.flowPTZSchedule.SuspendLayout();
-            this.panel15.SuspendLayout();
-            this.flowLayoutPanel28.SuspendLayout();
             this.tableLayoutPanel12.SuspendLayout();
-            this.pnlTrack.SuspendLayout();
-            this.tableLayoutPanel13.SuspendLayout();
-            this.flowLayoutPanel21.SuspendLayout();
-            this.flowLayoutPanel22.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numTTH)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAutoHomeDelay)).BeginInit();
             this.panel5.SuspendLayout();
-            this.flowLayoutPanel11.SuspendLayout();
             this.flowLayoutPanel18.SuspendLayout();
             this.flowLayoutPanel31.SuspendLayout();
+            this.flowLayoutPanel7.SuspendLayout();
+            this.flowLayoutPanel11.SuspendLayout();
             this.tableLayoutPanel11.SuspendLayout();
             this.flowLayoutPanel23.SuspendLayout();
             this.tabPage10.SuspendLayout();
@@ -1789,6 +1744,15 @@ namespace iSpyApplication
             this.label15.TabIndex = 57;
             this.label15.Text = "Intervals";
             // 
+            // intervalConfig1
+            // 
+            this.tableLayoutPanel7.SetColumnSpan(this.intervalConfig1, 3);
+            this.intervalConfig1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.intervalConfig1.Location = new System.Drawing.Point(62, 65);
+            this.intervalConfig1.Name = "intervalConfig1";
+            this.intervalConfig1.Size = new System.Drawing.Size(580, 34);
+            this.intervalConfig1.TabIndex = 80;
+            // 
             // panel4
             // 
             this.panel4.Controls.Add(this.chkMovement);
@@ -2427,6 +2391,7 @@ namespace iSpyApplication
             // 
             this.tabPage8.AutoScroll = true;
             this.tabPage8.Controls.Add(this.pnlPTZControls);
+            this.tabPage8.Controls.Add(this.flowLayoutPanel11);
             this.tabPage8.Controls.Add(this.tableLayoutPanel11);
             this.tabPage8.Location = new System.Drawing.Point(4, 22);
             this.tabPage8.Margin = new System.Windows.Forms.Padding(6);
@@ -2439,211 +2404,14 @@ namespace iSpyApplication
             // 
             // pnlPTZControls
             // 
-            this.pnlPTZControls.Controls.Add(this.panel11);
             this.pnlPTZControls.Controls.Add(this.tableLayoutPanel12);
             this.pnlPTZControls.Controls.Add(this.label75);
-            this.pnlPTZControls.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlPTZControls.Location = new System.Drawing.Point(6, 48);
+            this.pnlPTZControls.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlPTZControls.Location = new System.Drawing.Point(6, 87);
             this.pnlPTZControls.Margin = new System.Windows.Forms.Padding(6);
             this.pnlPTZControls.Name = "pnlPTZControls";
-            this.pnlPTZControls.Size = new System.Drawing.Size(645, 574);
+            this.pnlPTZControls.Size = new System.Drawing.Size(645, 353);
             this.pnlPTZControls.TabIndex = 79;
-            // 
-            // panel11
-            // 
-            this.panel11.Controls.Add(this.tableLayoutPanel20);
-            this.panel11.Controls.Add(this.panel15);
-            this.panel11.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel11.Location = new System.Drawing.Point(0, 409);
-            this.panel11.Name = "panel11";
-            this.panel11.Size = new System.Drawing.Size(645, 165);
-            this.panel11.TabIndex = 82;
-            // 
-            // tableLayoutPanel20
-            // 
-            this.tableLayoutPanel20.ColumnCount = 2;
-            this.tableLayoutPanel20.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel20.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel20.Controls.Add(this.pnlPTZSchedule, 1, 0);
-            this.tableLayoutPanel20.Controls.Add(this.panel14, 0, 0);
-            this.tableLayoutPanel20.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel20.Location = new System.Drawing.Point(0, 31);
-            this.tableLayoutPanel20.Name = "tableLayoutPanel20";
-            this.tableLayoutPanel20.RowCount = 1;
-            this.tableLayoutPanel20.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel20.Size = new System.Drawing.Size(645, 114);
-            this.tableLayoutPanel20.TabIndex = 0;
-            // 
-            // pnlPTZSchedule
-            // 
-            this.pnlPTZSchedule.Controls.Add(this.lbPTZSchedule);
-            this.pnlPTZSchedule.Controls.Add(this.panel13);
-            this.pnlPTZSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlPTZSchedule.Location = new System.Drawing.Point(325, 3);
-            this.pnlPTZSchedule.Name = "pnlPTZSchedule";
-            this.pnlPTZSchedule.Size = new System.Drawing.Size(317, 108);
-            this.pnlPTZSchedule.TabIndex = 1;
-            // 
-            // lbPTZSchedule
-            // 
-            this.lbPTZSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbPTZSchedule.FormattingEnabled = true;
-            this.lbPTZSchedule.Location = new System.Drawing.Point(0, 0);
-            this.lbPTZSchedule.Name = "lbPTZSchedule";
-            this.lbPTZSchedule.Size = new System.Drawing.Size(317, 77);
-            this.lbPTZSchedule.TabIndex = 0;
-            // 
-            // panel13
-            // 
-            this.panel13.Controls.Add(this.flowLayoutPanel27);
-            this.panel13.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel13.Location = new System.Drawing.Point(0, 77);
-            this.panel13.Name = "panel13";
-            this.panel13.Size = new System.Drawing.Size(317, 31);
-            this.panel13.TabIndex = 1;
-            // 
-            // flowLayoutPanel27
-            // 
-            this.flowLayoutPanel27.Controls.Add(this.button7);
-            this.flowLayoutPanel27.Controls.Add(this.button8);
-            this.flowLayoutPanel27.Controls.Add(this.btnDeletePTZ);
-            this.flowLayoutPanel27.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel27.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel27.Name = "flowLayoutPanel27";
-            this.flowLayoutPanel27.Size = new System.Drawing.Size(317, 31);
-            this.flowLayoutPanel27.TabIndex = 3;
-            // 
-            // button7
-            // 
-            this.button7.AutoSize = true;
-            this.button7.Location = new System.Drawing.Point(3, 3);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(64, 23);
-            this.button7.TabIndex = 1;
-            this.button7.Text = "Repeat";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
-            // 
-            // button8
-            // 
-            this.button8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button8.AutoSize = true;
-            this.button8.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button8.Location = new System.Drawing.Point(73, 3);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(62, 23);
-            this.button8.TabIndex = 2;
-            this.button8.Text = "Delete All";
-            this.button8.UseVisualStyleBackColor = true;
-            this.button8.Click += new System.EventHandler(this.button8_Click);
-            // 
-            // btnDeletePTZ
-            // 
-            this.btnDeletePTZ.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeletePTZ.AutoSize = true;
-            this.btnDeletePTZ.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnDeletePTZ.Location = new System.Drawing.Point(141, 3);
-            this.btnDeletePTZ.Name = "btnDeletePTZ";
-            this.btnDeletePTZ.Size = new System.Drawing.Size(48, 23);
-            this.btnDeletePTZ.TabIndex = 0;
-            this.btnDeletePTZ.Text = "Delete";
-            this.btnDeletePTZ.UseVisualStyleBackColor = true;
-            this.btnDeletePTZ.Click += new System.EventHandler(this.btnDeletePTZ_Click);
-            // 
-            // panel14
-            // 
-            this.panel14.Controls.Add(this.flowPTZSchedule);
-            this.panel14.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel14.Location = new System.Drawing.Point(0, 0);
-            this.panel14.Margin = new System.Windows.Forms.Padding(0);
-            this.panel14.Name = "panel14";
-            this.panel14.Size = new System.Drawing.Size(322, 114);
-            this.panel14.TabIndex = 2;
-            // 
-            // flowPTZSchedule
-            // 
-            this.flowPTZSchedule.Controls.Add(this.chkSuspendOnMovement);
-            this.flowPTZSchedule.Controls.Add(this.ddlScheduleCommand);
-            this.flowPTZSchedule.Controls.Add(this.dtpSchedulePTZ);
-            this.flowPTZSchedule.Controls.Add(this.button6);
-            this.flowPTZSchedule.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowPTZSchedule.Location = new System.Drawing.Point(0, 0);
-            this.flowPTZSchedule.Margin = new System.Windows.Forms.Padding(0);
-            this.flowPTZSchedule.Name = "flowPTZSchedule";
-            this.flowPTZSchedule.Size = new System.Drawing.Size(322, 114);
-            this.flowPTZSchedule.TabIndex = 6;
-            // 
-            // chkSuspendOnMovement
-            // 
-            this.chkSuspendOnMovement.AutoSize = true;
-            this.chkSuspendOnMovement.Location = new System.Drawing.Point(3, 3);
-            this.chkSuspendOnMovement.Name = "chkSuspendOnMovement";
-            this.chkSuspendOnMovement.Padding = new System.Windows.Forms.Padding(3);
-            this.chkSuspendOnMovement.Size = new System.Drawing.Size(191, 23);
-            this.chkSuspendOnMovement.TabIndex = 6;
-            this.chkSuspendOnMovement.Text = "Suspend on Movement Detection";
-            this.chkSuspendOnMovement.UseVisualStyleBackColor = true;
-            // 
-            // ddlScheduleCommand
-            // 
-            this.ddlScheduleCommand.Dock = System.Windows.Forms.DockStyle.Top;
-            this.ddlScheduleCommand.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlScheduleCommand.FormattingEnabled = true;
-            this.ddlScheduleCommand.Location = new System.Drawing.Point(3, 32);
-            this.ddlScheduleCommand.Name = "ddlScheduleCommand";
-            this.ddlScheduleCommand.Size = new System.Drawing.Size(290, 21);
-            this.ddlScheduleCommand.TabIndex = 3;
-            // 
-            // dtpSchedulePTZ
-            // 
-            this.dtpSchedulePTZ.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.dtpSchedulePTZ.Location = new System.Drawing.Point(3, 59);
-            this.dtpSchedulePTZ.Name = "dtpSchedulePTZ";
-            this.dtpSchedulePTZ.ShowUpDown = true;
-            this.dtpSchedulePTZ.Size = new System.Drawing.Size(109, 20);
-            this.dtpSchedulePTZ.TabIndex = 4;
-            // 
-            // button6
-            // 
-            this.button6.AutoSize = true;
-            this.button6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button6.Location = new System.Drawing.Point(118, 59);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(36, 23);
-            this.button6.TabIndex = 5;
-            this.button6.Text = "Add";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
-            // 
-            // panel15
-            // 
-            this.panel15.Controls.Add(this.flowLayoutPanel28);
-            this.panel15.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel15.Location = new System.Drawing.Point(0, 0);
-            this.panel15.Name = "panel15";
-            this.panel15.Size = new System.Drawing.Size(645, 31);
-            this.panel15.TabIndex = 2;
-            // 
-            // flowLayoutPanel28
-            // 
-            this.flowLayoutPanel28.Controls.Add(this.chkSchedulePTZ);
-            this.flowLayoutPanel28.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel28.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel28.Name = "flowLayoutPanel28";
-            this.flowLayoutPanel28.Size = new System.Drawing.Size(645, 31);
-            this.flowLayoutPanel28.TabIndex = 1;
-            // 
-            // chkSchedulePTZ
-            // 
-            this.chkSchedulePTZ.AutoSize = true;
-            this.chkSchedulePTZ.Location = new System.Drawing.Point(3, 3);
-            this.chkSchedulePTZ.Name = "chkSchedulePTZ";
-            this.chkSchedulePTZ.Padding = new System.Windows.Forms.Padding(3);
-            this.chkSchedulePTZ.Size = new System.Drawing.Size(101, 23);
-            this.chkSchedulePTZ.TabIndex = 0;
-            this.chkSchedulePTZ.Text = "Schedule PTZ";
-            this.chkSchedulePTZ.UseVisualStyleBackColor = true;
-            this.chkSchedulePTZ.CheckedChanged += new System.EventHandler(this.chkSchedulePTZ_CheckedChanged);
             // 
             // tableLayoutPanel12
             // 
@@ -2651,22 +2419,20 @@ namespace iSpyApplication
             this.tableLayoutPanel12.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 241F));
             this.tableLayoutPanel12.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel12.Controls.Add(this.pnlPTZ, 0, 1);
-            this.tableLayoutPanel12.Controls.Add(this.pnlTrack, 0, 4);
             this.tableLayoutPanel12.Controls.Add(this.panel5, 1, 1);
             this.tableLayoutPanel12.Controls.Add(this.flowLayoutPanel18, 0, 0);
             this.tableLayoutPanel12.Controls.Add(this.label16, 0, 2);
-            this.tableLayoutPanel12.Controls.Add(this.chkTrack, 0, 3);
             this.tableLayoutPanel12.Controls.Add(this.flowLayoutPanel31, 1, 2);
+            this.tableLayoutPanel12.Controls.Add(this.flowLayoutPanel7, 0, 3);
             this.tableLayoutPanel12.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel12.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel12.Name = "tableLayoutPanel12";
-            this.tableLayoutPanel12.RowCount = 5;
+            this.tableLayoutPanel12.RowCount = 4;
             this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
             this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 182F));
             this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 41F));
-            this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
-            this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 9F));
-            this.tableLayoutPanel12.Size = new System.Drawing.Size(645, 409);
+            this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel12.Size = new System.Drawing.Size(645, 314);
             this.tableLayoutPanel12.TabIndex = 81;
             // 
             // pnlPTZ
@@ -2685,213 +2451,9 @@ namespace iSpyApplication
             this.pnlPTZ.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PnlPtzMouseMove);
             this.pnlPTZ.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PnlPtzMouseUp);
             // 
-            // pnlTrack
-            // 
-            this.tableLayoutPanel12.SetColumnSpan(this.pnlTrack, 2);
-            this.pnlTrack.Controls.Add(this.tableLayoutPanel13);
-            this.pnlTrack.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlTrack.Location = new System.Drawing.Point(6, 302);
-            this.pnlTrack.Margin = new System.Windows.Forms.Padding(6);
-            this.pnlTrack.Name = "pnlTrack";
-            this.pnlTrack.Size = new System.Drawing.Size(633, 101);
-            this.pnlTrack.TabIndex = 80;
-            // 
-            // tableLayoutPanel13
-            // 
-            this.tableLayoutPanel13.ColumnCount = 2;
-            this.tableLayoutPanel13.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel13.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel13.Controls.Add(this.flowLayoutPanel21, 1, 0);
-            this.tableLayoutPanel13.Controls.Add(this.flowLayoutPanel22, 1, 1);
-            this.tableLayoutPanel13.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel13.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel13.Name = "tableLayoutPanel13";
-            this.tableLayoutPanel13.RowCount = 2;
-            this.tableLayoutPanel13.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel13.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel13.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel13.Size = new System.Drawing.Size(633, 101);
-            this.tableLayoutPanel13.TabIndex = 79;
-            // 
-            // flowLayoutPanel21
-            // 
-            this.flowLayoutPanel21.Controls.Add(this.rdoAny);
-            this.flowLayoutPanel21.Controls.Add(this.rdoVert);
-            this.flowLayoutPanel21.Controls.Add(this.rdoHor);
-            this.flowLayoutPanel21.Controls.Add(this.chkReverseTracking);
-            this.flowLayoutPanel21.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel21.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel21.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel21.Name = "flowLayoutPanel21";
-            this.flowLayoutPanel21.Size = new System.Drawing.Size(633, 35);
-            this.flowLayoutPanel21.TabIndex = 8;
-            // 
-            // rdoAny
-            // 
-            this.rdoAny.AutoSize = true;
-            this.rdoAny.Location = new System.Drawing.Point(6, 6);
-            this.rdoAny.Margin = new System.Windows.Forms.Padding(6);
-            this.rdoAny.Name = "rdoAny";
-            this.rdoAny.Size = new System.Drawing.Size(88, 17);
-            this.rdoAny.TabIndex = 0;
-            this.rdoAny.TabStop = true;
-            this.rdoAny.Text = "Any Direction";
-            this.rdoAny.UseVisualStyleBackColor = true;
-            // 
-            // rdoVert
-            // 
-            this.rdoVert.AutoSize = true;
-            this.rdoVert.Location = new System.Drawing.Point(106, 6);
-            this.rdoVert.Margin = new System.Windows.Forms.Padding(6);
-            this.rdoVert.Name = "rdoVert";
-            this.rdoVert.Size = new System.Drawing.Size(84, 17);
-            this.rdoVert.TabIndex = 2;
-            this.rdoVert.TabStop = true;
-            this.rdoVert.Text = "Vertical Only";
-            this.rdoVert.UseVisualStyleBackColor = true;
-            // 
-            // rdoHor
-            // 
-            this.rdoHor.AutoSize = true;
-            this.rdoHor.Location = new System.Drawing.Point(202, 6);
-            this.rdoHor.Margin = new System.Windows.Forms.Padding(6);
-            this.rdoHor.Name = "rdoHor";
-            this.rdoHor.Size = new System.Drawing.Size(96, 17);
-            this.rdoHor.TabIndex = 1;
-            this.rdoHor.TabStop = true;
-            this.rdoHor.Text = "Horizontal Only";
-            this.rdoHor.UseVisualStyleBackColor = true;
-            // 
-            // chkReverseTracking
-            // 
-            this.chkReverseTracking.AutoSize = true;
-            this.chkReverseTracking.Location = new System.Drawing.Point(310, 6);
-            this.chkReverseTracking.Margin = new System.Windows.Forms.Padding(6);
-            this.chkReverseTracking.Name = "chkReverseTracking";
-            this.chkReverseTracking.Size = new System.Drawing.Size(66, 17);
-            this.chkReverseTracking.TabIndex = 3;
-            this.chkReverseTracking.Text = "Reverse";
-            this.chkReverseTracking.UseVisualStyleBackColor = true;
-            this.chkReverseTracking.CheckedChanged += new System.EventHandler(this.chkReverseTracking_CheckedChanged);
-            // 
-            // flowLayoutPanel22
-            // 
-            this.flowLayoutPanel22.Controls.Add(this.chkAutoHome);
-            this.flowLayoutPanel22.Controls.Add(this.label59);
-            this.flowLayoutPanel22.Controls.Add(this.ddlHomeCommand);
-            this.flowLayoutPanel22.Controls.Add(this.label87);
-            this.flowLayoutPanel22.Controls.Add(this.numTTH);
-            this.flowLayoutPanel22.Controls.Add(this.label5);
-            this.flowLayoutPanel22.Controls.Add(this.numAutoHomeDelay);
-            this.flowLayoutPanel22.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel22.Location = new System.Drawing.Point(0, 35);
-            this.flowLayoutPanel22.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel22.Name = "flowLayoutPanel22";
-            this.flowLayoutPanel22.Size = new System.Drawing.Size(633, 66);
-            this.flowLayoutPanel22.TabIndex = 9;
-            // 
-            // chkAutoHome
-            // 
-            this.chkAutoHome.AutoSize = true;
-            this.chkAutoHome.Location = new System.Drawing.Point(6, 6);
-            this.chkAutoHome.Margin = new System.Windows.Forms.Padding(6);
-            this.chkAutoHome.Name = "chkAutoHome";
-            this.chkAutoHome.Size = new System.Drawing.Size(79, 17);
-            this.chkAutoHome.TabIndex = 3;
-            this.chkAutoHome.Text = "Auto Home";
-            this.chkAutoHome.UseVisualStyleBackColor = true;
-            // 
-            // label59
-            // 
-            this.label59.AutoSize = true;
-            this.label59.Location = new System.Drawing.Point(97, 8);
-            this.label59.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label59.Name = "label59";
-            this.label59.Size = new System.Drawing.Size(54, 13);
-            this.label59.TabIndex = 8;
-            this.label59.Text = "Command";
-            // 
-            // ddlHomeCommand
-            // 
-            this.ddlHomeCommand.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlHomeCommand.FormattingEnabled = true;
-            this.ddlHomeCommand.Location = new System.Drawing.Point(163, 6);
-            this.ddlHomeCommand.Margin = new System.Windows.Forms.Padding(6);
-            this.ddlHomeCommand.Name = "ddlHomeCommand";
-            this.ddlHomeCommand.Size = new System.Drawing.Size(110, 21);
-            this.ddlHomeCommand.TabIndex = 9;
-            this.ddlHomeCommand.SelectedIndexChanged += new System.EventHandler(this.ddlHomeCommand_SelectedIndexChanged);
-            // 
-            // label87
-            // 
-            this.label87.AutoSize = true;
-            this.label87.Location = new System.Drawing.Point(285, 8);
-            this.label87.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label87.Name = "label87";
-            this.label87.Size = new System.Drawing.Size(77, 13);
-            this.label87.TabIndex = 5;
-            this.label87.Text = "Time To Home";
-            // 
-            // numTTH
-            // 
-            this.numTTH.Location = new System.Drawing.Point(374, 6);
-            this.numTTH.Margin = new System.Windows.Forms.Padding(6);
-            this.numTTH.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numTTH.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numTTH.Name = "numTTH";
-            this.numTTH.Size = new System.Drawing.Size(40, 20);
-            this.numTTH.TabIndex = 4;
-            this.numTTH.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(426, 8);
-            this.label5.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(65, 13);
-            this.label5.TabIndex = 7;
-            this.label5.Text = "Home Delay";
-            // 
-            // numAutoHomeDelay
-            // 
-            this.numAutoHomeDelay.Location = new System.Drawing.Point(503, 6);
-            this.numAutoHomeDelay.Margin = new System.Windows.Forms.Padding(6);
-            this.numAutoHomeDelay.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numAutoHomeDelay.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numAutoHomeDelay.Name = "numAutoHomeDelay";
-            this.numAutoHomeDelay.Size = new System.Drawing.Size(39, 20);
-            this.numAutoHomeDelay.TabIndex = 6;
-            this.numAutoHomeDelay.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
             // panel5
             // 
             this.panel5.Controls.Add(this.lbExtended);
-            this.panel5.Controls.Add(this.flowLayoutPanel11);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel5.Location = new System.Drawing.Point(244, 43);
             this.panel5.Name = "panel5";
@@ -2902,60 +2464,13 @@ namespace iSpyApplication
             // 
             this.lbExtended.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lbExtended.FormattingEnabled = true;
-            this.lbExtended.Location = new System.Drawing.Point(0, 39);
+            this.lbExtended.Location = new System.Drawing.Point(0, 0);
             this.lbExtended.Margin = new System.Windows.Forms.Padding(6);
             this.lbExtended.Name = "lbExtended";
-            this.lbExtended.Size = new System.Drawing.Size(398, 137);
+            this.lbExtended.Size = new System.Drawing.Size(398, 176);
             this.lbExtended.TabIndex = 7;
             this.lbExtended.Click += new System.EventHandler(this.LbExtendedClick);
             this.lbExtended.SelectedIndexChanged += new System.EventHandler(this.LbExtendedSelectedIndexChanged);
-            // 
-            // flowLayoutPanel11
-            // 
-            this.flowLayoutPanel11.Controls.Add(this.chkPTZFlipX);
-            this.flowLayoutPanel11.Controls.Add(this.chkPTZFlipY);
-            this.flowLayoutPanel11.Controls.Add(this.chkPTZRotate90);
-            this.flowLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Top;
-            this.flowLayoutPanel11.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel11.Name = "flowLayoutPanel11";
-            this.flowLayoutPanel11.Size = new System.Drawing.Size(398, 39);
-            this.flowLayoutPanel11.TabIndex = 78;
-            // 
-            // chkPTZFlipX
-            // 
-            this.chkPTZFlipX.AutoSize = true;
-            this.chkPTZFlipX.Location = new System.Drawing.Point(6, 6);
-            this.chkPTZFlipX.Margin = new System.Windows.Forms.Padding(6);
-            this.chkPTZFlipX.Name = "chkPTZFlipX";
-            this.chkPTZFlipX.Size = new System.Drawing.Size(52, 17);
-            this.chkPTZFlipX.TabIndex = 73;
-            this.chkPTZFlipX.Text = "Flip-X";
-            this.chkPTZFlipX.UseVisualStyleBackColor = true;
-            this.chkPTZFlipX.CheckedChanged += new System.EventHandler(this.chkPTZFlipX_CheckedChanged);
-            // 
-            // chkPTZFlipY
-            // 
-            this.chkPTZFlipY.AutoSize = true;
-            this.chkPTZFlipY.Location = new System.Drawing.Point(70, 6);
-            this.chkPTZFlipY.Margin = new System.Windows.Forms.Padding(6);
-            this.chkPTZFlipY.Name = "chkPTZFlipY";
-            this.chkPTZFlipY.Size = new System.Drawing.Size(52, 17);
-            this.chkPTZFlipY.TabIndex = 74;
-            this.chkPTZFlipY.Text = "Flip-Y";
-            this.chkPTZFlipY.UseVisualStyleBackColor = true;
-            this.chkPTZFlipY.CheckedChanged += new System.EventHandler(this.chkPTZFlipY_CheckedChanged);
-            // 
-            // chkPTZRotate90
-            // 
-            this.chkPTZRotate90.AutoSize = true;
-            this.chkPTZRotate90.Location = new System.Drawing.Point(134, 6);
-            this.chkPTZRotate90.Margin = new System.Windows.Forms.Padding(6);
-            this.chkPTZRotate90.Name = "chkPTZRotate90";
-            this.chkPTZRotate90.Size = new System.Drawing.Size(73, 17);
-            this.chkPTZRotate90.TabIndex = 75;
-            this.chkPTZRotate90.Text = "Rotate 90";
-            this.chkPTZRotate90.UseVisualStyleBackColor = true;
-            this.chkPTZRotate90.CheckedChanged += new System.EventHandler(this.chkPTZRotate90_CheckedChanged);
             // 
             // flowLayoutPanel18
             // 
@@ -3071,19 +2586,6 @@ namespace iSpyApplication
     "e button.";
             this.label16.Click += new System.EventHandler(this.label16_Click);
             // 
-            // chkTrack
-            // 
-            this.chkTrack.AutoSize = true;
-            this.tableLayoutPanel12.SetColumnSpan(this.chkTrack, 2);
-            this.chkTrack.Location = new System.Drawing.Point(6, 269);
-            this.chkTrack.Margin = new System.Windows.Forms.Padding(6);
-            this.chkTrack.Name = "chkTrack";
-            this.chkTrack.Size = new System.Drawing.Size(396, 17);
-            this.chkTrack.TabIndex = 78;
-            this.chkTrack.Text = "Track Objects (Requires Object Tracking display style on motion detection tab)";
-            this.chkTrack.UseVisualStyleBackColor = true;
-            this.chkTrack.CheckedChanged += new System.EventHandler(this.chkTrack_CheckedChanged);
-            // 
             // flowLayoutPanel31
             // 
             this.flowLayoutPanel31.Controls.Add(this.btnAddPreset);
@@ -3114,6 +2616,84 @@ namespace iSpyApplication
             this.btnDeletePreset.Text = "- preset";
             this.btnDeletePreset.UseVisualStyleBackColor = true;
             this.btnDeletePreset.Click += new System.EventHandler(this.btnDeletePreset_Click);
+            // 
+            // flowLayoutPanel7
+            // 
+            this.tableLayoutPanel12.SetColumnSpan(this.flowLayoutPanel7, 2);
+            this.flowLayoutPanel7.Controls.Add(this.btnPTZTrack);
+            this.flowLayoutPanel7.Controls.Add(this.btnPTZSchedule);
+            this.flowLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel7.Location = new System.Drawing.Point(3, 266);
+            this.flowLayoutPanel7.Name = "flowLayoutPanel7";
+            this.flowLayoutPanel7.Size = new System.Drawing.Size(639, 45);
+            this.flowLayoutPanel7.TabIndex = 83;
+            // 
+            // btnPTZTrack
+            // 
+            this.btnPTZTrack.Location = new System.Drawing.Point(3, 3);
+            this.btnPTZTrack.Name = "btnPTZTrack";
+            this.btnPTZTrack.Size = new System.Drawing.Size(145, 23);
+            this.btnPTZTrack.TabIndex = 0;
+            this.btnPTZTrack.Text = "Track Objects";
+            this.btnPTZTrack.UseVisualStyleBackColor = true;
+            this.btnPTZTrack.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // btnPTZSchedule
+            // 
+            this.btnPTZSchedule.Location = new System.Drawing.Point(154, 3);
+            this.btnPTZSchedule.Name = "btnPTZSchedule";
+            this.btnPTZSchedule.Size = new System.Drawing.Size(145, 23);
+            this.btnPTZSchedule.TabIndex = 1;
+            this.btnPTZSchedule.Text = "Schedule PTZ";
+            this.btnPTZSchedule.UseVisualStyleBackColor = true;
+            this.btnPTZSchedule.Click += new System.EventHandler(this.btnPTZSchedule_Click);
+            // 
+            // flowLayoutPanel11
+            // 
+            this.flowLayoutPanel11.Controls.Add(this.chkPTZFlipX);
+            this.flowLayoutPanel11.Controls.Add(this.chkPTZFlipY);
+            this.flowLayoutPanel11.Controls.Add(this.chkPTZRotate90);
+            this.flowLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Top;
+            this.flowLayoutPanel11.Location = new System.Drawing.Point(6, 48);
+            this.flowLayoutPanel11.Name = "flowLayoutPanel11";
+            this.flowLayoutPanel11.Size = new System.Drawing.Size(645, 39);
+            this.flowLayoutPanel11.TabIndex = 78;
+            // 
+            // chkPTZFlipX
+            // 
+            this.chkPTZFlipX.AutoSize = true;
+            this.chkPTZFlipX.Location = new System.Drawing.Point(6, 6);
+            this.chkPTZFlipX.Margin = new System.Windows.Forms.Padding(6);
+            this.chkPTZFlipX.Name = "chkPTZFlipX";
+            this.chkPTZFlipX.Size = new System.Drawing.Size(52, 17);
+            this.chkPTZFlipX.TabIndex = 73;
+            this.chkPTZFlipX.Text = "Flip-X";
+            this.chkPTZFlipX.UseVisualStyleBackColor = true;
+            this.chkPTZFlipX.CheckedChanged += new System.EventHandler(this.chkPTZFlipX_CheckedChanged);
+            // 
+            // chkPTZFlipY
+            // 
+            this.chkPTZFlipY.AutoSize = true;
+            this.chkPTZFlipY.Location = new System.Drawing.Point(70, 6);
+            this.chkPTZFlipY.Margin = new System.Windows.Forms.Padding(6);
+            this.chkPTZFlipY.Name = "chkPTZFlipY";
+            this.chkPTZFlipY.Size = new System.Drawing.Size(52, 17);
+            this.chkPTZFlipY.TabIndex = 74;
+            this.chkPTZFlipY.Text = "Flip-Y";
+            this.chkPTZFlipY.UseVisualStyleBackColor = true;
+            this.chkPTZFlipY.CheckedChanged += new System.EventHandler(this.chkPTZFlipY_CheckedChanged);
+            // 
+            // chkPTZRotate90
+            // 
+            this.chkPTZRotate90.AutoSize = true;
+            this.chkPTZRotate90.Location = new System.Drawing.Point(134, 6);
+            this.chkPTZRotate90.Margin = new System.Windows.Forms.Padding(6);
+            this.chkPTZRotate90.Name = "chkPTZRotate90";
+            this.chkPTZRotate90.Size = new System.Drawing.Size(73, 17);
+            this.chkPTZRotate90.TabIndex = 75;
+            this.chkPTZRotate90.Text = "Rotate 90";
+            this.chkPTZRotate90.UseVisualStyleBackColor = true;
+            this.chkPTZRotate90.CheckedChanged += new System.EventHandler(this.chkPTZRotate90_CheckedChanged);
             // 
             // label75
             // 
@@ -5369,15 +4949,6 @@ namespace iSpyApplication
             this.flowLayoutPanel3.Size = new System.Drawing.Size(437, 41);
             this.flowLayoutPanel3.TabIndex = 48;
             // 
-            // intervalConfig1
-            // 
-            this.tableLayoutPanel7.SetColumnSpan(this.intervalConfig1, 3);
-            this.intervalConfig1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.intervalConfig1.Location = new System.Drawing.Point(62, 65);
-            this.intervalConfig1.Name = "intervalConfig1";
-            this.intervalConfig1.Size = new System.Drawing.Size(580, 34);
-            this.intervalConfig1.TabIndex = 80;
-            // 
             // AddCamera
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -5467,34 +5038,14 @@ namespace iSpyApplication
             this.tabPage8.ResumeLayout(false);
             this.pnlPTZControls.ResumeLayout(false);
             this.pnlPTZControls.PerformLayout();
-            this.panel11.ResumeLayout(false);
-            this.tableLayoutPanel20.ResumeLayout(false);
-            this.pnlPTZSchedule.ResumeLayout(false);
-            this.panel13.ResumeLayout(false);
-            this.flowLayoutPanel27.ResumeLayout(false);
-            this.flowLayoutPanel27.PerformLayout();
-            this.panel14.ResumeLayout(false);
-            this.flowPTZSchedule.ResumeLayout(false);
-            this.flowPTZSchedule.PerformLayout();
-            this.panel15.ResumeLayout(false);
-            this.flowLayoutPanel28.ResumeLayout(false);
-            this.flowLayoutPanel28.PerformLayout();
             this.tableLayoutPanel12.ResumeLayout(false);
-            this.tableLayoutPanel12.PerformLayout();
-            this.pnlTrack.ResumeLayout(false);
-            this.tableLayoutPanel13.ResumeLayout(false);
-            this.flowLayoutPanel21.ResumeLayout(false);
-            this.flowLayoutPanel21.PerformLayout();
-            this.flowLayoutPanel22.ResumeLayout(false);
-            this.flowLayoutPanel22.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numTTH)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAutoHomeDelay)).EndInit();
             this.panel5.ResumeLayout(false);
-            this.flowLayoutPanel11.ResumeLayout(false);
-            this.flowLayoutPanel11.PerformLayout();
             this.flowLayoutPanel18.ResumeLayout(false);
             this.flowLayoutPanel18.PerformLayout();
             this.flowLayoutPanel31.ResumeLayout(false);
+            this.flowLayoutPanel7.ResumeLayout(false);
+            this.flowLayoutPanel11.ResumeLayout(false);
+            this.flowLayoutPanel11.PerformLayout();
             this.tableLayoutPanel11.ResumeLayout(false);
             this.flowLayoutPanel23.ResumeLayout(false);
             this.flowLayoutPanel23.PerformLayout();
@@ -5730,7 +5281,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkPTZFlipX;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox txtPTZURL;
-        private System.Windows.Forms.CheckBox chkTrack;
         private System.Windows.Forms.NumericUpDown numMaxFR;
         private System.Windows.Forms.Label label43;
         private System.Windows.Forms.Button button4;
@@ -5741,10 +5291,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.CheckBox chkColourProcessing;
         private System.Windows.Forms.LinkLabel llblHelp;
-        private System.Windows.Forms.Panel pnlTrack;
-        private System.Windows.Forms.RadioButton rdoVert;
-        private System.Windows.Forms.RadioButton rdoHor;
-        private System.Windows.Forms.RadioButton rdoAny;
         private System.Windows.Forms.TextBox txtAccessGroups;
         private System.Windows.Forms.Label label74;
         private System.Windows.Forms.TextBox txtDirectory;
@@ -5779,7 +5325,6 @@ namespace iSpyApplication
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel11;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel12;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel13;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel11;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel14;
@@ -5801,20 +5346,6 @@ namespace iSpyApplication
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel19;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel20;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel21;
-        private System.Windows.Forms.Panel panel11;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel20;
-        private System.Windows.Forms.Panel pnlPTZSchedule;
-        private System.Windows.Forms.ListBox lbPTZSchedule;
-        private System.Windows.Forms.Panel panel13;
-        private System.Windows.Forms.Button btnDeletePTZ;
-        private System.Windows.Forms.Panel panel14;
-        private System.Windows.Forms.FlowLayoutPanel flowPTZSchedule;
-        private System.Windows.Forms.ComboBox ddlScheduleCommand;
-        private System.Windows.Forms.DateTimePicker dtpSchedulePTZ;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Panel panel15;
-        private System.Windows.Forms.CheckBox chkSchedulePTZ;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.TextBox txtPTZUsername;
         private System.Windows.Forms.Label label42;
@@ -5862,17 +5393,11 @@ namespace iSpyApplication
         private System.Windows.Forms.LinkLabel linkLabel13;
         private System.Windows.Forms.Label label90;
         private System.Windows.Forms.ComboBox ddlTriggerRecording;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.CheckBox chkSuspendOnMovement;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel27;
-        private System.Windows.Forms.Button button8;
         private System.Windows.Forms.LinkLabel linkLabel14;
-        private System.Windows.Forms.CheckBox chkReverseTracking;
         private System.Windows.Forms.Label label91;
         private System.Windows.Forms.TextBox txtPTZChannel;
         private Ranger ranger1;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel28;
         private System.Windows.Forms.Label label93;
         private System.Windows.Forms.NumericUpDown numMaxCounter;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel29;
@@ -5883,14 +5408,6 @@ namespace iSpyApplication
         private System.Windows.Forms.CheckBox chkIgnoreAudio;
         private System.Windows.Forms.LinkLabel llblClearAll;
         private System.Windows.Forms.Button btnConfigurePelco;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel22;
-        private System.Windows.Forms.CheckBox chkAutoHome;
-        private System.Windows.Forms.Label label59;
-        private System.Windows.Forms.ComboBox ddlHomeCommand;
-        private System.Windows.Forms.Label label87;
-        private System.Windows.Forms.NumericUpDown numTTH;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.NumericUpDown numAutoHomeDelay;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel31;
         private System.Windows.Forms.Button btnAddPreset;
         private System.Windows.Forms.Button btnDeletePreset;
@@ -5962,5 +5479,8 @@ namespace iSpyApplication
         private System.Windows.Forms.LinkLabel linkLabel5;
         private System.Windows.Forms.Button btnAuthorise;
         private IntervalConfig intervalConfig1;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel7;
+        private System.Windows.Forms.Button btnPTZTrack;
+        private System.Windows.Forms.Button btnPTZSchedule;
     }
 }

@@ -1170,8 +1170,7 @@ namespace iSpyApplication
 
                         if (vw != null)
                         {
-                            bool sw = !vw.Recording;
-                            resp = vw.RecordSwitch(sw) + ",OK";
+                            resp = vw.RecordSwitch(!(vw.Recording || vw.ForcedRecording)) + ",OK";
                         }
                         else
                             resp = "stopped,Microphone not found,OK";
@@ -1182,8 +1181,7 @@ namespace iSpyApplication
 
                         if (cw != null)
                         {
-                            bool sw = !cw.Recording;
-                            resp = cw.RecordSwitch(sw) + ",OK";
+                            resp = cw.RecordSwitch(!(cw.Recording || cw.ForcedRecording)) + ",OK";
                         }
                         else
                             resp = "stopped,Camera not found,OK";
@@ -1682,7 +1680,7 @@ namespace iSpyApplication
                     resp = "OK";
                     break;
                 case "uploadyoutube":
-                    resp = YouTubeUploader.Upload(oid, fn) + ",OK";
+                    resp = YouTubeUploader.Upload(oid, Helper.GetFullPath(otid, oid) + fn) + ",OK";
                     break;
                 case "uploadcloud":
                     resp = CloudGateway.Upload(otid, oid, Helper.GetFullPath(otid, oid) + fn) + ",OK";

@@ -177,7 +177,7 @@ namespace iSpyApplication.Controls
         public void PlayMedia(Enums.PlaybackMode mode)
         {
             if (mode < 0)
-                MainForm.Conf.PlaybackMode = 0;
+                mode = 0;
             if (!VlcHelper.VlcInstalled && mode == Enums.PlaybackMode.iSpy)
             {
                 if (Program.Platform == "x64")

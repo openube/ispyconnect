@@ -66,8 +66,7 @@ namespace iSpyApplication
             }
             else
             {
-                DialogResult = DialogResult.Cancel;
-                Close();
+                MessageBox.Show(this, LocRm.GetString("Validate_SelectCamera"));
             }
         }
 

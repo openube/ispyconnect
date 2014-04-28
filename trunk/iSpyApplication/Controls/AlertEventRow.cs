@@ -95,6 +95,27 @@ namespace iSpyApplication.Controls
                         t = LocRm.GetString("SwitchObjectOn")+" " + n;
                     }
                     break;
+                case "SOF":
+                    {
+                        string[] op = param1.Split(',');
+                        string n = "[removed]";
+                        int id = Convert.ToInt32(op[1]);
+                        switch (op[0])
+                        {
+                            case "1":
+                                var om = MainForm.Microphones.FirstOrDefault(p => p.id == id);
+                                if (om != null)
+                                    n = om.name;
+                                break;
+                            case "2":
+                                var oc = MainForm.Cameras.FirstOrDefault(p => p.id == id);
+                                if (oc != null)
+                                    n = oc.name;
+                                break;
+                        }
+                        t = LocRm.GetString("SwitchObjectOff") + " " + n;
+                    }
+                    break;
                 case "E":
                     t = LocRm.GetString("SendEmail")+": " + param1;
                     if (param2!="" && Convert.ToBoolean(param2))
