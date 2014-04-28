@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using iSpyApplication.Pelco;
+using Microsoft.Kinect;
 using Microsoft.Win32;
 
 namespace iSpyApplication.Video
@@ -14,7 +14,9 @@ namespace iSpyApplication.Video
     {
         private static string _vlcInstallationFolder="";
 
+        private static bool _failed;
         public static readonly Version  VMin = new Version(2,0,0);
+        private static Version _versionVLC = new Version(0,0,0);
 
         #region AddVlcToPath method
 
@@ -76,6 +78,9 @@ namespace iSpyApplication.Video
 
                 if (_vlcInstallationFolder != "")
                     return true;
+                if (_failed)
+                    return false;
+
                 try
                 {
                     RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);
@@ -86,7 +91,8 @@ namespace iSpyApplication.Video
                                                     + Path.DirectorySeparatorChar;
                         if (v.CompareTo(VMin) >= 0)
                         {
-                            MainForm.LogMessageToFile("Using VLC from " + _vlcInstallationFolder);
+                            MainForm.LogMessageToFile("Using VLC from " + _vlcInstallationFolder+" (v"+v+")");
+                            _versionVLC = Version.Parse(vlcKey.GetValue("Version").ToString());
                             return true;
                         }
                     }
@@ -97,28 +103,50 @@ namespace iSpyApplication.Video
                 }
                 if (Program.Platform == "x64")
                 {
-                    try
+                    bool b = CheckFolder64(@"C:\Program Files\VideoLAN\VLC\");
+                    if (!b)
                     {
-                        if (File.Exists(@"C:\Program Files\VideoLAN\VLC\libvlc.dll"))
-                        {
-                            _vlcInstallationFolder = @"C:\Program Files\VideoLAN\VLC\";
-                            MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder);
-                            return true;
-                        }
+                        b = CheckFolder64(Program.AppPath + @"VLC64\");
                     }
-                    catch
-                    {
-                        
-                    }
-                    if (File.Exists(Program.AppPath + "VLC64\\libvlc.dll"))
-                    {
-                        _vlcInstallationFolder = Program.AppPath + "VLC64\\";
-                        MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder);
+                    if (b)
                         return true;
-                    }
                 }
+                _failed = true;
                 return false;
             }
+        }
+
+        private static bool CheckFolder64(string folder)
+        {
+            try
+            {
+                if (File.Exists(folder+"libvlc.dll"))
+                {
+                    if (Helper.UnmanagedDllIs64Bit(folder + "libvlc.dll"))
+                    {
+                        // Get the file version for the notepad.
+                        FileVersionInfo myFileVersionInfo = FileVersionInfo.GetVersionInfo(folder + "libvlc.dll");
+
+                        var v = Version.Parse(myFileVersionInfo.FileVersion);
+                        if (v.CompareTo(VMin) >= 0)
+                        {
+
+                            _vlcInstallationFolder = folder;
+                            _versionVLC = v;
+                            MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder + " (v" + _versionVLC + ")");
+                            return true;
+                        }
+                        MainForm.LogMessageToFile("VLC in " + folder + " is 64 bit but below minimum version. Please update with the latest version of VLC.");
+                    }
+                    else
+                        MainForm.LogMessageToFile("VLC in " + folder + " is not 64 bit. You need to replace it with the 64 bit version of VLC.");
+                }
+            }
+            catch
+            {
+
+            }
+            return false;
         }
 
         #endregion
@@ -132,21 +160,7 @@ namespace iSpyApplication.Video
         {
             get
             {
-                if (Program.Platform == "x64")
-                    return new Version(2,1,3);
-                try
-                {
-                    RegistryKey vlcKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\VideoLAN\VLC\", false);
-                    if (vlcKey != null)
-                    {
-                        var v = Version.Parse(vlcKey.GetValue("Version").ToString());
-                        return v;
-                    }
-                }
-                catch
-                {
-                }
-                return new Version(0,0);
+                return _versionVLC;
             }
         }
 

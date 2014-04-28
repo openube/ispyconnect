@@ -945,6 +945,13 @@ namespace iSpyApplication
                         }
                     }
 
+                    if (cam.detector.minsensitivity > cam.detector.maxsensitivity)
+                    {
+                        //reset
+                        cam.detector.maxsensitivity = 100;
+                        cam.detector.minsensitivity = 20;
+                    }
+
                     if (!Directory.Exists(path2))
                     {
                         try
@@ -1048,6 +1055,12 @@ namespace iSpyApplication
                     {
                         mic.detector.minsensitivity = mic.detector.sensitivity;
                         mic.detector.maxsensitivity = 100;
+                    }
+                    if (mic.detector.minsensitivity > mic.detector.maxsensitivity)
+                    {
+                        //reset
+                        mic.detector.maxsensitivity = 100;
+                        mic.detector.minsensitivity = 20;
                     }
 
                     if (Conf.MediaDirectories.FirstOrDefault(p => p.ID == mic.settings.directoryIndex) == null)
@@ -2351,7 +2364,7 @@ namespace iSpyApplication
             oc.settings.directoryIndex = Conf.MediaDirectories.First().ID;
 
             if (VlcHelper.VlcInstalled)
-                oc.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config" + NL + "--rtsp-caching 100";
+                oc.settings.vlcargs ="--rtsp-caching=100";
             else
                 oc.settings.vlcargs = "";
 
@@ -3095,8 +3108,7 @@ namespace iSpyApplication
                 case MouseButtons.Right:
                     ContextTarget = cameraControl;
                     pluginCommandsToolStripMenuItem.Visible = false;
-                    _setInactiveToolStripMenuItem.Visible = false;
-                    _activateToolStripMenuItem.Visible = false;
+                    
                     _recordNowToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = false;
                     _recordNowToolStripMenuItem.Visible = false;
@@ -3107,9 +3119,21 @@ namespace iSpyApplication
                     _resetRecordingCounterToolStripMenuItem.Text = LocRm.GetString("ResetRecordingCounter") + " (" +
                                                                    cameraControl.Camobject.newrecordingcount + ")";
                     pTZToolStripMenuItem.Visible = false;
+
+                    //switches
+                    switchToolStripMenuItem.Visible = true;
+
+                    onToolStripMenuItem.Visible = !cameraControl.Camobject.settings.active;
+                    offToolStripMenuItem.Visible = cameraControl.Camobject.settings.active;
+
+                    alertsOnToolStripMenuItem1.Visible = !cameraControl.Camobject.alerts.active;
+                    alertsOffToolStripMenuItem.Visible = cameraControl.Camobject.alerts.active;
+
+                    scheduleOnToolStripMenuItem.Visible = !cameraControl.Camobject.schedule.active;
+                    scheduleOffToolStripMenuItem.Visible = cameraControl.Camobject.schedule.active;
+
                     if (cameraControl.Camobject.settings.active)
                     {
-                        _setInactiveToolStripMenuItem.Visible = true;
                         if (Helper.HasFeature(Enums.Features.Recording))
                         {
                             _recordNowToolStripMenuItem.Visible = true;
@@ -3117,6 +3141,8 @@ namespace iSpyApplication
                         }
                         if (Helper.HasFeature(Enums.Features.Save_Frames))
                             _takePhotoToolStripMenuItem.Visible = true;
+
+                        
 
                         if (cameraControl.Camobject.ptz > -1)
                         {
@@ -3168,10 +3194,6 @@ namespace iSpyApplication
                             }
                         }
 
-                    }
-                    else
-                    {
-                        _activateToolStripMenuItem.Visible = true;
                     }
                     _recordNowToolStripMenuItem.Text =
                         LocRm.GetString(cameraControl.Recording ? "StopRecording" : "StartRecording");
@@ -3294,8 +3316,6 @@ namespace iSpyApplication
                 case MouseButtons.Right:
                     ContextTarget = volumeControl;
                     pluginCommandsToolStripMenuItem.Visible = false;
-                    _setInactiveToolStripMenuItem.Visible = false;
-                    _activateToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = true;
                     _takePhotoToolStripMenuItem.Visible = false;
                     _resetRecordingCounterToolStripMenuItem.Visible = true;
@@ -3316,9 +3336,22 @@ namespace iSpyApplication
                         _listenToolStripMenuItem.Image = Resources.listen2;
                     }
                     _recordNowToolStripMenuItem.Visible = false;
+
+                    //switches
+                    switchToolStripMenuItem.Visible = true;
+
+                    onToolStripMenuItem.Visible = !volumeControl.Micobject.settings.active;
+                    offToolStripMenuItem.Visible = volumeControl.Micobject.settings.active;
+
+                    alertsOnToolStripMenuItem1.Visible = !volumeControl.Micobject.alerts.active;
+                    alertsOffToolStripMenuItem.Visible = volumeControl.Micobject.alerts.active;
+
+                    scheduleOnToolStripMenuItem.Visible = !volumeControl.Micobject.schedule.active;
+                    scheduleOffToolStripMenuItem.Visible = volumeControl.Micobject.schedule.active;
+
+
                     if (volumeControl.Micobject.settings.active)
                     {
-                        _setInactiveToolStripMenuItem.Visible = true;
                         if (Helper.HasFeature(Enums.Features.Recording))
                         {
                             _recordNowToolStripMenuItem.Visible = true;
@@ -3328,7 +3361,6 @@ namespace iSpyApplication
                     }
                     else
                     {
-                        _activateToolStripMenuItem.Visible = true;
                         _listenToolStripMenuItem.Enabled = false;
                     }
                     _recordNowToolStripMenuItem.Text =
@@ -3393,9 +3425,8 @@ namespace iSpyApplication
                 {
                     ContextTarget = fpc;
                     pluginCommandsToolStripMenuItem.Visible = false;
-                    _setInactiveToolStripMenuItem.Visible = false;
+                    switchToolStripMenuItem.Visible = false;
                     _listenToolStripMenuItem.Visible = false;
-                    _activateToolStripMenuItem.Visible = false;
                     _resetRecordingCounterToolStripMenuItem.Visible = false;
                     _recordNowToolStripMenuItem.Visible = false;
                     _takePhotoToolStripMenuItem.Visible = false;
@@ -3571,6 +3602,23 @@ namespace iSpyApplication
             internal readonly int Value;
 
             public ListItem2(string name, int value)
+            {
+                _name = name;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return _name;
+            }
+        }
+
+        public struct ListItem3
+        {
+            private readonly string _name;
+            internal readonly string Value;
+
+            public ListItem3(string name, string value)
             {
                 _name = name;
                 Value = value;

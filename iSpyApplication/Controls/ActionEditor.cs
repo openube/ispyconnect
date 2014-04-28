@@ -21,6 +21,7 @@ namespace iSpyApplication.Controls
                 "B|Beep",
                 "M|Maximise",
                 "SOO|SwitchObjectOn",
+                "SOF|SwitchObjectOff",
                 "TA|TriggerAlertOn",
                 "E|SendEmail[1]",
                 "SMS|SendSMS[SUBSCRIBER]",
@@ -181,6 +182,7 @@ namespace iSpyApplication.Controls
                     config = new [] {"","","",""};
                     break;
                 case "TA":
+                case "SOF":
                 case "SOO":
                     config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("Object")+"|Object", param1Val);
                     break;

@@ -28,7 +28,10 @@ namespace iSpyApplication.Controls
             set
             {
                 if (value)
+                {
+                    Application.Idle -= ApplicationIdle;
                     Application.Idle += ApplicationIdle;
+                }
                 else
                     Application.Idle -= ApplicationIdle;
 

@@ -25,7 +25,7 @@ namespace iSpyApplication.Controls
         public Brush Lgb = new SolidBrush(MainForm.VolumeLevelColor);
 
         internal MainForm MainClass;
-        private readonly DateTime _lastRun = Helper.Now;
+        private DateTime _lastRun = Helper.Now;
         private Timer _tmrUpdateList;
 
         private const int Itempadding = 5;
@@ -144,8 +144,11 @@ namespace iSpyApplication.Controls
 
         void HandlerApplicationLoopDoWork(object sender, EventArgs e)
         {
-            if ((Helper.Now-_lastRun).TotalMilliseconds> (1000d/Cg.Framerate))
+            if ((Helper.Now - _lastRun).TotalMilliseconds > (1000d/Cg.Framerate))
+            {
+                _lastRun = Helper.Now;
                 Invalidate();
+            }
         }
 
         void AddItems()
@@ -353,7 +356,7 @@ namespace iSpyApplication.Controls
                     var gvc = _controls[ind];
                     if (_maximised!=null)
                         gvc = _maximised;
-
+                    bool alerted = false;
 
                     var rect = new Rectangle(r.X, r.Y + r.Height - 20, r.Width, 20);
                     if (gvc == null || gvc.ObjectIDs.Count == 0)
@@ -414,6 +417,7 @@ namespace iSpyApplication.Controls
                         var obj = gvc.ObjectIDs[gvc.CurrentIndex];
                         
                         var rFeed = r;
+                        
                         switch (obj.TypeID)
                         {
                             case 1:
@@ -451,7 +455,7 @@ namespace iSpyApplication.Controls
                                         }
                                         gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rect);
                                         gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
-                                    
+                                        alerted = vl.Alerted;
                                     }
                                     else
                                     {
@@ -494,12 +498,9 @@ namespace iSpyApplication.Controls
                                                 gGrid.DrawImage(bmp, rFeed);
                                                 gGrid.CompositingMode = CompositingMode.SourceOver;
                                             }
-                                            
 
-                                            if (cw.Alerted)
-                                            {
-                                                gGrid.DrawRectangle(_pAlert, rFeed);
-                                            }
+
+                                            alerted = cw.Alerted;
                                             if (cw.Recording)
                                                 gGrid.FillEllipse(RecordBrush,
                                                     new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
@@ -594,6 +595,14 @@ namespace iSpyApplication.Controls
                     {
                         j = 0;
                         k++;
+                    }
+
+                    if (alerted)
+                    {
+                        var ra = new Rectangle(r.X,r.Y,r.Width,r.Height);
+                        ra.X += 1;
+                        ra.Y += 1;
+                        gGrid.DrawRectangle(_pAlert, ra);
                     }
                 }
             }
@@ -824,7 +833,7 @@ namespace iSpyApplication.Controls
 
                 if (cgv == null)
                 {
-                    if (bpi==0 && Cg.ModeIndex==0)
+                    if (Cg.ModeIndex==0)
                         List(cgv, io);
                     return;
                 }

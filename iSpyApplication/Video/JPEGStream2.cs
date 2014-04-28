@@ -547,13 +547,13 @@ namespace iSpyApplication.Video
 						// provide new image to clients
 						if ( NewFrame != null )
 						{
-                            var bitmap = (Bitmap)Image.FromStream(new MemoryStream(buffer, 0, total));
-                            // notify client
-                            NewFrame(this, new NewFrameEventArgs(bitmap));
-                            // release the image
-                            bitmap.Dispose();
-                            bitmap = null;
-                            //var decoder = new JpegBitmapDecoder(new MemoryStream(buffer, 0, total), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+						    using (var bitmap = (Bitmap) Image.FromStream(new MemoryStream(buffer, 0, total)))
+						    {
+						        // notify client
+						        NewFrame(this, new NewFrameEventArgs(bitmap));
+						        // release the image
+						    }
+						    //var decoder = new JpegBitmapDecoder(new MemoryStream(buffer, 0, total), BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
                             //BitmapSource frame = decoder.Frames[0];
                             //Bitmap bmp = BitmapFromSource(frame);
                             

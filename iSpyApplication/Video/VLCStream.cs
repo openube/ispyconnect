@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -197,7 +198,17 @@ namespace iSpyApplication.Video
                     bool init = _mFactory == null;
                     if (init)
                     {
-                        _mFactory = new MediaPlayerFactory();
+                        var args = new List<string>
+                        {
+                            "-I", 
+                            "dumy",  
+		                    "--ignore-config", 
+                            "--no-osd",
+                            "--disable-screensaver",
+		                    "--plugin-path=./plugins",
+                            "--file-caching=3000"
+                        };
+                        _mFactory = new MediaPlayerFactory(args.ToArray());
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                         _mPlayer.Events.TimeChanged += EventsTimeChanged;
@@ -224,9 +235,11 @@ namespace iSpyApplication.Video
 
                     }
                     if (file)
-                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
+                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source);
                     else
-                        _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+                        _mMedia = _mFactory.CreateMedia<IMedia>(_source);
+
+                    _mMedia.AddOptions(_arguments);
 
                     _mMedia.Events.DurationChanged -= EventsDurationChanged;
                     _mMedia.Events.StateChanged -= EventsStateChanged;

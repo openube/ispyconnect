@@ -460,7 +460,7 @@ namespace iSpyApplication
                     LoginFailed = (r == "Webservices_LoginFailed");
                     if (r != "OK")
                     {
-                        MainForm.LogErrorToFile("Webservices: " + r[0]);
+                        MainForm.LogErrorToFile("Webservices: " + r);
                         return LocRm.GetString(r);
                     }
                     return r;

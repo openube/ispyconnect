@@ -426,6 +426,18 @@
     <Compile Include="Controls\IntervalConfig.Designer.cs">
       <DependentUpon>IntervalConfig.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PTZScheduler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PTZScheduler.Designer.cs">
+      <DependentUpon>PTZScheduler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PTZTracking.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PTZTracking.Designer.cs">
+      <DependentUpon>PTZTracking.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ServerEventRow.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -742,12 +754,6 @@
     <Compile Include="Pelco\PelcoConfig.Designer.cs">
       <DependentUpon>PelcoConfig.cs</DependentUpon>
     </Compile>
-    <Compile Include="Player.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Player.Designer.cs">
-      <DependentUpon>Player.cs</DependentUpon>
-    </Compile>
     <Compile Include="PlayerVLC.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1044,6 +1050,7 @@
     <None Include="Resources\icon_tick.png" />
     <None Include="Resources\media_icons.png" />
     <None Include="Resources\merged.png" />
+    <None Include="Resources\switch.png" />
     <Content Include="sounds\alsationxsiberian_bark.wav" />
     <Content Include="sounds\alsation_bark.mp3" />
     <Content Include="sounds\alsation_bark.wav" />
@@ -1196,6 +1203,12 @@
     <EmbeddedResource Include="Controls\IntervalConfig.resx">
       <DependentUpon>IntervalConfig.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PTZScheduler.resx">
+      <DependentUpon>PTZScheduler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PTZTracking.resx">
+      <DependentUpon>PTZTracking.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ServerEventRow.resx">
       <DependentUpon>ServerEventRow.cs</DependentUpon>
     </EmbeddedResource>
@@ -1319,9 +1332,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Pelco\PelcoConfig.resx">
       <DependentUpon>PelcoConfig.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Player.resx">
-      <DependentUpon>Player.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PlayerVLC.resx">
       <DependentUpon>PlayerVLC.cs</DependentUpon>

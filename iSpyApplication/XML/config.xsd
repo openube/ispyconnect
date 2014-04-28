@@ -137,6 +137,7 @@
         <xs:element name="DropBoxConfig" type="xs:string" default=""/>
         <xs:element name="OpenGrabs" type="xs:boolean" default="true"/>
         <xs:element name="TextSentences" type="xs:string" default=""/>
+        <xs:element name="VLCFileCache" type="xs:int" default="3000"/>
         <xs:element name="FTPServers">
           <xs:complexType>
             <xs:sequence>
@@ -158,7 +159,7 @@
                       </xs:restriction>
                     </xs:simpleType>
                   </xs:attribute>
-                  <xs:attribute name="port" type="xs:int" />
+                  <xs:attribute name="port" type="xs:int" default="21"/>
                   <xs:attribute name="usepassive" type="xs:boolean"/>
                   <xs:attribute name="rename" type="xs:boolean"/>
                   <xs:attribute name="ident" type="xs:string"/>

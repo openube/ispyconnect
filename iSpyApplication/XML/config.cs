@@ -292,9 +292,7 @@ public partial class configuration {
     
     private string textSentencesField;
     
-    private string vLC86Field;
-    
-    private string vLC64Field;
+    private int vLCFileCacheField;
     
     private configurationServer[] fTPServersField;
     
@@ -368,8 +366,7 @@ public partial class configuration {
         this.dropBoxConfigField = "";
         this.openGrabsField = true;
         this.textSentencesField = "";
-        this.vLC86Field = "";
-        this.vLC64Field = "";
+        this.vLCFileCacheField = 3000;
     }
     
     /// <remarks/>
@@ -1713,22 +1710,12 @@ public partial class configuration {
     }
     
     /// <remarks/>
-    public string VLC86 {
+    public int VLCFileCache {
         get {
-            return this.vLC86Field;
+            return this.vLCFileCacheField;
         }
         set {
-            this.vLC86Field = value;
-        }
-    }
-    
-    /// <remarks/>
-    public string VLC64 {
-        get {
-            return this.vLC64Field;
-        }
-        set {
-            this.vLC64Field = value;
+            this.vLCFileCacheField = value;
         }
     }
     
@@ -1794,8 +1781,6 @@ public partial class configurationServer {
     
     private int portField;
     
-    private bool portFieldSpecified;
-    
     private bool usepassiveField;
     
     private bool usepassiveFieldSpecified;
@@ -1805,6 +1790,10 @@ public partial class configurationServer {
     private bool renameFieldSpecified;
     
     private string identField;
+    
+    public configurationServer() {
+        this.portField = 21;
+    }
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -1852,23 +1841,13 @@ public partial class configurationServer {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(21)]
     public int port {
         get {
             return this.portField;
         }
         set {
             this.portField = value;
-        }
-    }
-    
-    /// <remarks/>
-    [System.Xml.Serialization.XmlIgnoreAttribute()]
-    public bool portSpecified {
-        get {
-            return this.portFieldSpecified;
-        }
-        set {
-            this.portFieldSpecified = value;
         }
     }
     

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AForge.Imaging;
-using Declarations;
-using Declarations.Events;
 using NAudio.Wave;
 using iSpyApplication.Controls;
 using iSpyApplication.Video;

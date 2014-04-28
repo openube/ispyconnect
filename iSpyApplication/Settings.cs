@@ -161,6 +161,7 @@ namespace iSpyApplication
             MainForm.Conf.MailAlertSubject = txtAlertSubject.Text;
             MainForm.Conf.MailAlertBody = txtAlertBody.Text;
             MainForm.Conf.SMSAlert = txtSMSBody.Text;
+            MainForm.Conf.VLCFileCache = (int)numFileCache.Value;
             SaveSMTPSettings();
 
             MainForm.Conf.Archive = txtArchive.Text.Trim();
@@ -555,6 +556,7 @@ namespace iSpyApplication
 
             ftpEditor1.Init(MainForm.Conf.FTPServers);
             chkOpenGrabs.Checked = MainForm.Conf.OpenGrabs;
+            numFileCache.Value = MainForm.Conf.VLCFileCache;
             
             _loaded = true;
         }
@@ -627,6 +629,7 @@ namespace iSpyApplication
             label11.Text = LocRm.GetString("ArchiveDirectory");
             label48.Text = LocRm.GetString("DisconnectionNotificationDelay");
             label41.Text = LocRm.GetString("MJPEGFrameInterval");
+            label20.Text = LocRm.GetString("VLCFileCache");
 
             LocRm.SetString(lblMicrophone, "Microphone");
             LocRm.SetString(chkBigButtons, "BigButtons");
@@ -1330,6 +1333,11 @@ namespace iSpyApplication
             {
                 lblSSLCert.Text = MainForm.Conf.SSLCertificate;
             }
+
+        }
+
+        private void ddlPlayback_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }

@@ -107,8 +107,8 @@ namespace iSpyApplication.Cloud
             v.Private = !us.CameraData.settings.youtube.@public;
             v.Author = "iSpyConnect.com - Camera Security Software (open source)";
 
-            string contentType = MediaFileSource.GetContentTypeForFileName(us.AbsoluteFilePath);
-            v.YouTubeEntry.MediaSource = new MediaFileSource(us.AbsoluteFilePath, contentType);
+            string contentType = MediaFileSource.GetContentTypeForFileName(us.Filename);
+            v.YouTubeEntry.MediaSource = new MediaFileSource(us.Filename, contentType);
 
             // add the upload uri to it
             //var link =
@@ -148,7 +148,7 @@ namespace iSpyApplication.Cloud
                     msg += " (public)";
                 MainForm.LogMessageToFile(msg);
 
-                MainForm.Conf.UploadedVideos += "," + us.AbsoluteFilePath + "|" + vCreated.VideoId;
+                MainForm.Conf.UploadedVideos += "," + us.Filename + "|" + vCreated.VideoId;
                 if (MainForm.Conf.UploadedVideos.Length > 1000)
                     MainForm.Conf.UploadedVideos = "";
             }
@@ -169,15 +169,6 @@ namespace iSpyApplication.Cloud
                 CurrentPosition = 0;
                 RetryCounter = 0;
                 Filename = filename;
-            }
-
-            internal string AbsoluteFilePath
-            {
-                get
-                {
-                    return Helper.GetMediaDirectory(2, _objectid) + "video\\" + CameraData.directory + "\\" +
-                           Filename;
-                }
             }
 
             internal objectsCamera CameraData

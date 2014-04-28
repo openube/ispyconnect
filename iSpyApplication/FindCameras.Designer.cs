@@ -314,7 +314,7 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(6, 267);
+            this.linkLabel1.Location = new System.Drawing.Point(243, 6);
             this.linkLabel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 0);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(56, 13);
@@ -342,7 +342,7 @@
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tbl2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tbl2.Size = new System.Drawing.Size(1, 1);
+            this.tbl2.Size = new System.Drawing.Size(477, 163);
             this.tbl2.TabIndex = 0;
             // 
             // label13
@@ -419,13 +419,13 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(100, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(1, 280);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(377, 261);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 288);
+            this.label11.Location = new System.Drawing.Point(3, 269);
             this.label11.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(36, 13);
@@ -436,9 +436,9 @@
             // 
             this.ddlModel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlModel.FormattingEnabled = true;
-            this.ddlModel.Location = new System.Drawing.Point(103, 283);
+            this.ddlModel.Location = new System.Drawing.Point(103, 264);
             this.ddlModel.Name = "ddlModel";
-            this.ddlModel.Size = new System.Drawing.Size(1, 21);
+            this.ddlModel.Size = new System.Drawing.Size(231, 21);
             this.ddlModel.TabIndex = 8;
             this.ddlModel.SelectedIndexChanged += new System.EventHandler(this.ddlModel_SelectedIndexChanged);
             // 
@@ -545,7 +545,7 @@
             this.pnlConfig.Controls.Add(this.tableLayoutPanel4);
             this.pnlConfig.Location = new System.Drawing.Point(38, 30);
             this.pnlConfig.Name = "pnlConfig";
-            this.pnlConfig.Size = new System.Drawing.Size(135, 101);
+            this.pnlConfig.Size = new System.Drawing.Size(633, 475);
             this.pnlConfig.TabIndex = 6;
             // 
             // tableLayoutPanel4
@@ -563,7 +563,7 @@
             this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 306F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(135, 101);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(633, 475);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // rdoUnlisted
@@ -571,7 +571,7 @@
             this.rdoUnlisted.AutoSize = true;
             this.rdoUnlisted.Location = new System.Drawing.Point(3, 309);
             this.rdoUnlisted.Name = "rdoUnlisted";
-            this.rdoUnlisted.Size = new System.Drawing.Size(95, 1);
+            this.rdoUnlisted.Size = new System.Drawing.Size(95, 17);
             this.rdoUnlisted.TabIndex = 15;
             this.rdoUnlisted.TabStop = true;
             this.rdoUnlisted.Text = "Unlisted (scan)";
@@ -605,7 +605,7 @@
             this.tbl1.RowCount = 2;
             this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tbl1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tbl1.Size = new System.Drawing.Size(1, 300);
+            this.tbl1.Size = new System.Drawing.Size(477, 300);
             this.tbl1.TabIndex = 14;
             // 
             // pnlNetwork
@@ -685,7 +685,7 @@
             // 
             this.pnlConnect.Controls.Add(this.pnlOptions);
             this.pnlConnect.Controls.Add(this.panel4);
-            this.pnlConnect.Location = new System.Drawing.Point(88, 272);
+            this.pnlConnect.Location = new System.Drawing.Point(51, 491);
             this.pnlConnect.Name = "pnlConnect";
             this.pnlConnect.Size = new System.Drawing.Size(335, 269);
             this.pnlConnect.TabIndex = 9;

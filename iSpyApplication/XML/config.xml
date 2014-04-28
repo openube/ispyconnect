@@ -92,7 +92,7 @@
   <ScreensaverWakeup>false</ScreensaverWakeup>
   <Vendor></Vendor>
   <TalkMic></TalkMic>
-  <PlaybackMode>1</PlaybackMode>
+  <PlaybackMode>0</PlaybackMode>
   <JPEGQuality>90</JPEGQuality>
   <StopSavingOnStorageLimit>false</StopSavingOnStorageLimit>
   <ViewController>false</ViewController>
@@ -126,4 +126,5 @@
   <FTPServers></FTPServers>
   <OpenGrabs>true</OpenGrabs>
   <TextSentences></TextSentences>
+  <VLCFileCache>3000</VLCFileCache>
 </configuration>

@@ -36,14 +36,17 @@
             this.label64 = new System.Windows.Forms.Label();
             this.txtServerName = new System.Windows.Forms.TextBox();
             this.chkUsePassive = new System.Windows.Forms.CheckBox();
-            this.btnSaveFTP = new System.Windows.Forms.Button();
             this.chkFTPRename = new System.Windows.Forms.CheckBox();
             this.label65 = new System.Windows.Forms.Label();
             this.txtFTPPassword = new System.Windows.Forms.TextBox();
             this.label66 = new System.Windows.Forms.Label();
             this.txtFTPPort = new System.Windows.Forms.NumericUpDown();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnTest = new System.Windows.Forms.Button();
+            this.btnSaveFTP = new System.Windows.Forms.Button();
             this.tableLayoutPanel14.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtFTPPort)).BeginInit();
+            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel14
@@ -58,12 +61,12 @@
             this.tableLayoutPanel14.Controls.Add(this.label64, 0, 0);
             this.tableLayoutPanel14.Controls.Add(this.txtServerName, 1, 0);
             this.tableLayoutPanel14.Controls.Add(this.chkUsePassive, 1, 5);
-            this.tableLayoutPanel14.Controls.Add(this.btnSaveFTP, 1, 7);
             this.tableLayoutPanel14.Controls.Add(this.chkFTPRename, 1, 6);
             this.tableLayoutPanel14.Controls.Add(this.label65, 0, 4);
             this.tableLayoutPanel14.Controls.Add(this.txtFTPPassword, 1, 4);
             this.tableLayoutPanel14.Controls.Add(this.label66, 0, 2);
             this.tableLayoutPanel14.Controls.Add(this.txtFTPPort, 1, 2);
+            this.tableLayoutPanel14.Controls.Add(this.flowLayoutPanel1, 1, 7);
             this.tableLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel14.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel14.Name = "tableLayoutPanel14";
@@ -144,19 +147,6 @@
             this.chkUsePassive.Text = "Passive Mode";
             this.chkUsePassive.UseVisualStyleBackColor = true;
             // 
-            // btnSaveFTP
-            // 
-            this.btnSaveFTP.AutoSize = true;
-            this.btnSaveFTP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnSaveFTP.Location = new System.Drawing.Point(73, 223);
-            this.btnSaveFTP.Margin = new System.Windows.Forms.Padding(6);
-            this.btnSaveFTP.Name = "btnSaveFTP";
-            this.btnSaveFTP.Size = new System.Drawing.Size(32, 23);
-            this.btnSaveFTP.TabIndex = 12;
-            this.btnSaveFTP.Text = "OK";
-            this.btnSaveFTP.UseVisualStyleBackColor = true;
-            this.btnSaveFTP.Click += new System.EventHandler(this.btnSaveFTP_Click);
-            // 
             // chkFTPRename
             // 
             this.chkFTPRename.AutoSize = true;
@@ -210,6 +200,43 @@
             this.txtFTPPort.Size = new System.Drawing.Size(57, 20);
             this.txtFTPPort.TabIndex = 23;
             // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Controls.Add(this.btnTest);
+            this.flowLayoutPanel1.Controls.Add(this.btnSaveFTP);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(67, 217);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(245, 48);
+            this.flowLayoutPanel1.TabIndex = 40;
+            // 
+            // btnTest
+            // 
+            this.btnTest.AutoSize = true;
+            this.btnTest.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnTest.Location = new System.Drawing.Point(6, 6);
+            this.btnTest.Margin = new System.Windows.Forms.Padding(6);
+            this.btnTest.Name = "btnTest";
+            this.btnTest.Size = new System.Drawing.Size(38, 23);
+            this.btnTest.TabIndex = 39;
+            this.btnTest.Text = "Test";
+            this.btnTest.UseVisualStyleBackColor = true;
+            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            // 
+            // btnSaveFTP
+            // 
+            this.btnSaveFTP.AutoSize = true;
+            this.btnSaveFTP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnSaveFTP.Location = new System.Drawing.Point(56, 6);
+            this.btnSaveFTP.Margin = new System.Windows.Forms.Padding(6);
+            this.btnSaveFTP.Name = "btnSaveFTP";
+            this.btnSaveFTP.Size = new System.Drawing.Size(32, 23);
+            this.btnSaveFTP.TabIndex = 12;
+            this.btnSaveFTP.Text = "OK";
+            this.btnSaveFTP.UseVisualStyleBackColor = true;
+            this.btnSaveFTP.Click += new System.EventHandler(this.btnSaveFTP_Click);
+            // 
             // FTPConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -224,6 +251,8 @@
             this.tableLayoutPanel14.ResumeLayout(false);
             this.tableLayoutPanel14.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtFTPPort)).EndInit();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -244,5 +273,7 @@
         private System.Windows.Forms.CheckBox chkFTPRename;
         private System.Windows.Forms.Label label64;
         private System.Windows.Forms.TextBox txtServerName;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.Button btnTest;
     }
 }

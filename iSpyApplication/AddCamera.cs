@@ -289,28 +289,23 @@ namespace iSpyApplication
             ddlRotateFlip.SelectedIndex = ind;
             
 
-            chkTrack.Checked = CameraControl.Camobject.settings.ptzautotrack;
+            
             chkColourProcessing.Checked = CameraControl.Camobject.detector.colourprocessingenabled;
             numMaxFR.Value = CameraControl.Camobject.settings.maxframerate;
             numMaxFRRecording.Value = CameraControl.Camobject.settings.maxframeraterecord;
             
             txtDirectory.Text = CameraControl.Camobject.directory;
-
-            chkAutoHome.Checked = CameraControl.Camobject.settings.ptzautohome;
-            //chkCRF.Checked = CameraControl.Camobject.recorder.crf;
-            numTTH.Value = CameraControl.Camobject.settings.ptztimetohome;
+            
             rdoContinuous.Checked = CameraControl.Camobject.alerts.processmode == "continuous";
             rdoMotion.Checked = CameraControl.Camobject.alerts.processmode == "motion";
             rdoTrigger.Checked = CameraControl.Camobject.alerts.processmode == "trigger";
             tbFTPQuality.Value = CameraControl.Camobject.ftp.quality;
             tbSaveQuality.Value = CameraControl.Camobject.savelocal.quality;
-            chkSchedulePTZ.Checked = CameraControl.Camobject.ptzschedule.active;
-            chkSuspendOnMovement.Checked = CameraControl.Camobject.ptzschedule.suspend;
+           
             txtLocalFilename.Text = CameraControl.Camobject.savelocal.filename;
 
             
             txtPTZChannel.Text = CameraControl.Camobject.settings.ptzchannel;
-            chkReverseTracking.Checked = CameraControl.Camobject.settings.ptzautotrackreverse;
             
             ShowSchedule(-1);
 
@@ -387,19 +382,15 @@ namespace iSpyApplication
             txtUploadEvery.Enabled = rdoFTPInterval.Checked;
             numSaveInterval.Enabled = rdoSaveInterval.Checked;
 
-            pnlTrack.Enabled = chkTrack.Checked;
-
-            rdoAny.Checked = CameraControl.Camobject.settings.ptzautotrackmode == 0;
-            rdoVert.Checked = CameraControl.Camobject.settings.ptzautotrackmode == 1;
-            rdoHor.Checked = CameraControl.Camobject.settings.ptzautotrackmode == 2;
+            
             
             LoadPTZs();
             txtPTZURL.Text = CameraControl.Camobject.settings.ptzurlbase;
 
             txtAccessGroups.Text = CameraControl.Camobject.settings.accessgroups;
-            numAutoHomeDelay.Value = CameraControl.Camobject.settings.ptzautohomedelay;
+            
 
-            ShowPTZSchedule();
+            
 
 
             ddlCopyFrom.Items.Clear();
@@ -460,7 +451,6 @@ namespace iSpyApplication
                 ddlTriggerRecording.SelectedIndex = 0;
 
 
-            dtpSchedulePTZ.Value = new DateTime(2012,1,1,0,0,0,0);
             numMaxCounter.Value = CameraControl.Camobject.ftp.countermax;
             numSaveCounter.Value = CameraControl.Camobject.savelocal.countermax;
 
@@ -568,36 +558,31 @@ namespace iSpyApplication
 
         void Ranger1ValueMinChanged()
         {
-            CameraControl.Camobject.detector.minsensitivity = ranger1.ValueMin;
-            if (CameraControl.Camera != null)
+            if (_loaded)
             {
-                CameraControl.Camera.AlarmLevel = Helper.CalculateTrigger(ranger1.ValueMin);
+                CameraControl.Camobject.detector.minsensitivity = ranger1.ValueMin;
+                if (CameraControl.Camera != null)
+                {
+                    CameraControl.Camera.AlarmLevel = Helper.CalculateTrigger(ranger1.ValueMin);
+                }
             }
-        
+
         }
 
         void Ranger1ValueMaxChanged()
         {
-            CameraControl.Camobject.detector.maxsensitivity = ranger1.ValueMax;
-            if (CameraControl.Camera != null)
+            if (_loaded)
             {
-                CameraControl.Camera.AlarmLevelMax = Helper.CalculateTrigger(ranger1.ValueMax);
-            }
-
-        }
-
-
-        private void ShowPTZSchedule()
-        {
-            tableLayoutPanel20.Enabled = chkSchedulePTZ.Checked;
-
-            lbPTZSchedule.Items.Clear();
-            var s = CameraControl.Camobject.ptzschedule.entries.ToList().OrderBy(p => p.time).ToList();
-            foreach (var ptzs in s)
-            {
-                lbPTZSchedule.Items.Add(ptzs.time.ToString("HH:mm:ss tt")+" " + ptzs.command);
+                CameraControl.Camobject.detector.maxsensitivity = ranger1.ValueMax;
+                if (CameraControl.Camera != null)
+                {
+                    CameraControl.Camera.AlarmLevelMax = Helper.CalculateTrigger(ranger1.ValueMax);
+                }
             }
         }
+
+
+        
 
         private void RenderResources()
         {
@@ -616,9 +601,7 @@ namespace iSpyApplication
             chkFTP.Text = LocRm.GetString("FtpEnabled");
             label22.Text = LocRm.GetString("Username");
             label42.Text = LocRm.GetString("Password");
-            button6.Text = LocRm.GetString("Add");
-            btnDeletePTZ.Text = LocRm.GetString("Delete");
-            chkSchedulePTZ.Text = LocRm.GetString("Scheduler");
+            
             chkschedPTZ.Text = LocRm.GetString("SchedulePTZ");
             rdoMotion.Text = LocRm.GetString("WhenMotionDetected");
             rdoContinuous.Text = LocRm.GetString("Continuous");
@@ -749,18 +732,15 @@ namespace iSpyApplication
             label43.Text = LocRm.GetString("MaxFramerate");
             label47.Text = LocRm.GetString("WhenRecording");
             label74.Text = LocRm.GetString("Directory");
-            chkAutoHome.Text = LocRm.GetString("AutoHome");
-            label87.Text = LocRm.GetString("TimeToHome");
+            
             llblHelp.Text = LocRm.GetString("help");
-            label5.Text = LocRm.GetString("homedelay");
+            
             chkSchedFTPEnabled.Text = LocRm.GetString("FtpEnabled");
             chkSchedSaveLocalEnabled.Text = LocRm.GetString("LocalSavingEnabled");
 
             chkColourProcessing.Text = LocRm.GetString("Apply");
             Text = LocRm.GetString("AddCamera");
-            rdoAny.Text = LocRm.GetString("AnyDirection");
-            rdoVert.Text = LocRm.GetString("VertOnly");
-            rdoHor.Text = LocRm.GetString("HorOnly");
+            
             lblAccessGroups.Text = LocRm.GetString("AccessGroups");
             groupBox6.Text = LocRm.GetString("RecordingMode");
             llblEditPTZ.Text = LocRm.GetString("Edit");
@@ -769,9 +749,8 @@ namespace iSpyApplication
             lblSaveEvery.Text = LocRm.GetString("SaveEvery");
             label61.Text = LocRm.GetString("Profile");
             label62.Text = LocRm.GetString("Framerate");
-            label59.Text = LocRm.GetString("Command");
             linkLabel3.Text = LocRm.GetString("Plugins");
-            chkTrack.Text = LocRm.GetString("TrackObjects");
+            
             linkLabel10.Text = LocRm.GetString("Reload");
             btnCrossbar.Text = LocRm.GetString("Inputs");
             label72.Text = LocRm.GetString("AutoOff");
@@ -801,9 +780,7 @@ namespace iSpyApplication
             LocRm.SetString(label21, "Port");
             LocRm.SetString(label66, "Username");
             LocRm.SetString(label88, "Password");
-            LocRm.SetString(button8, "Delete All");
-            LocRm.SetString(button7, "Repeat");
-            LocRm.SetString(chkSuspendOnMovement, "SuspendOnMovement");
+            
             LocRm.SetString(label81,"FTPFileTip");
             LocRm.SetString(label102, "FTPFileTip");
             LocRm.SetString(label93, "CounterMax");
@@ -813,6 +790,8 @@ namespace iSpyApplication
             LocRm.SetString(button9,"Options");
             LocRm.SetString(label52, "Server");
             LocRm.SetString(linkLabel5, "Servers");
+            LocRm.SetString(btnPTZTrack, "TrackObjects");
+            LocRm.SetString(btnPTZSchedule, "Scheduler");
 
 
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Motion_Detection));
@@ -1081,12 +1060,11 @@ namespace iSpyApplication
 
                 CameraControl.Camobject.settings.ignoreaudio = chkIgnoreAudio.Checked;
                 CameraControl.Camobject.alerts.active = chkMovement.Checked;
-                CameraControl.Camobject.settings.ptzautohomedelay = (int)numAutoHomeDelay.Value;
+                
                 CameraControl.Camobject.settings.ptzusername = txtPTZUsername.Text;
                 CameraControl.Camobject.settings.ptzpassword = txtPTZPassword.Text;
                 CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
-                CameraControl.Camobject.ptzschedule.active = chkSchedulePTZ.Checked;
-                CameraControl.Camobject.ptzschedule.suspend = chkSuspendOnMovement.Checked;
+                
                 CameraControl.Camobject.recorder.quality = tbQuality.Value;
                 CameraControl.Camobject.recorder.timelapsesave = (int)numTimelapseSave.Value;
                 CameraControl.Camobject.recorder.timelapseframerate = (int)numFramerate.Value;
@@ -1201,17 +1179,6 @@ namespace iSpyApplication
                 if (rdoFTPInterval.Checked)
                     ftpmode = 2;
                 CameraControl.Camobject.ftp.mode = ftpmode;
-
-                CameraControl.Camobject.settings.ptzautotrack = chkTrack.Checked;
-                CameraControl.Camobject.settings.ptzautohome = chkAutoHome.Checked;
-                CameraControl.Camobject.settings.ptzautotrackmode = 0;
-
-                if (rdoVert.Checked)
-                    CameraControl.Camobject.settings.ptzautotrackmode = 1;
-                if (rdoHor.Checked)
-                    CameraControl.Camobject.settings.ptzautotrackmode = 2;
-
-                CameraControl.Camobject.settings.ptztimetohome = Convert.ToInt32(numTTH.Value);
 
                 CameraControl.Camobject.recorder.timelapseframes = timelapseframes;
                 CameraControl.Camobject.recorder.timelapse = timelapsemovie;
@@ -1779,11 +1746,9 @@ namespace iSpyApplication
             }
 
             lbExtended.Items.Clear();
-            ddlScheduleCommand.Items.Clear();
-            ddlHomeCommand.Items.Clear();
             btnAddPreset.Visible = btnDeletePreset.Visible = false;
 
-            ddlHomeCommand.Items.Add(new ListItem("Center", "Center"));
+
 
             if (CameraControl.Camobject.ptz > -1)
             {
@@ -1794,12 +1759,6 @@ namespace iSpyApplication
                     foreach (var extcmd in ptz.ExtendedCommands.Command)
                     {
                         lbExtended.Items.Add(new ListItem(extcmd.Name, extcmd.Value));
-                        ddlScheduleCommand.Items.Add(new ListItem(extcmd.Name, extcmd.Value));
-                        ddlHomeCommand.Items.Add(new ListItem(extcmd.Name, extcmd.Value));
-                        if (CameraControl.Camobject.settings.ptzautohomecommand == extcmd.Value)
-                        {
-                            ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
-                        }
                     }
                 }
                 if (_loaded)    
@@ -1810,12 +1769,6 @@ namespace iSpyApplication
                 foreach(string cmd in PTZController.PelcoCommands)
                 {
                     lbExtended.Items.Add(new ListItem(cmd, cmd));
-                    ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
-                    ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
-                    if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
-                    {
-                        ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
-                    }
                 }
                 
             }
@@ -1824,17 +1777,7 @@ namespace iSpyApplication
             {
                 PopOnvifPresets();
             }
-            if (ddlScheduleCommand.Items.Count > 0)
-                ddlScheduleCommand.SelectedIndex = 0;
-
-            if (ddlHomeCommand.SelectedIndex==-1 && ddlHomeCommand.Items.Count>0)
-            {
-                ddlHomeCommand.SelectedIndex = 0;
-            }
-
-            pnlPTZControls.Enabled = CameraControl.Camobject.ptz != -1;   
-            if (!pnlPTZControls.Enabled)
-                chkTrack.Checked = false;
+            flowLayoutPanel7.Enabled = CameraControl.Camobject.ptz != -1;   
 
             bool bPelco = CameraControl.Camobject.ptz == -3 || CameraControl.Camobject.ptz == -4;
             bool bConfig = CameraControl.Camobject.ptz >= 0;
@@ -1848,18 +1791,10 @@ namespace iSpyApplication
         private void PopOnvifPresets()
         {
             lbExtended.Items.Clear();
-            ddlScheduleCommand.Items.Clear();
-            ddlHomeCommand.Items.Clear();
             btnAddPreset.Visible = btnDeletePreset.Visible = true;
             foreach (string cmd in CameraControl.PTZ.ONVIFPresets)
             {
                 lbExtended.Items.Add(new ListItem(cmd, cmd));
-                ddlScheduleCommand.Items.Add(new ListItem(cmd, cmd));
-                ddlHomeCommand.Items.Add(new ListItem(cmd, cmd));
-                if (CameraControl.Camobject.settings.ptzautohomecommand == cmd)
-                {
-                    ddlHomeCommand.SelectedIndex = ddlHomeCommand.Items.Count - 1;
-                }
             }
         }
 
@@ -2270,19 +2205,6 @@ namespace iSpyApplication
             cp.Dispose();
         }
 
-        private void chkTrack_CheckedChanged(object sender, EventArgs e)
-        {
-            pnlTrack.Enabled = chkTrack.Checked;
-            if (chkTrack.Checked)
-            {
-                ddlMotionDetector.SelectedIndex = 0;
-                ddlProcessor.SelectedIndex = 1;
-                CameraControl.Camobject.settings.ptzautotrack = true;
-                CameraControl.Camobject.detector.highlight = false;
-                SetDetector();
-            }
-        }
-
         private void button5_Click(object sender, EventArgs e)
         {
             ConfigFilter();
@@ -2431,40 +2353,6 @@ namespace iSpyApplication
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            if (ddlScheduleCommand.SelectedIndex>-1)
-            {
-                if (ddlScheduleCommand.SelectedIndex > -1)
-                {
-                    var cmd = ddlScheduleCommand.SelectedItem.ToString();
-                    var time = dtpSchedulePTZ.Value;
-                    var s = new objectsCameraPtzscheduleEntry {command = cmd, time = time};
-                    List<objectsCameraPtzscheduleEntry> scheds = CameraControl.Camobject.ptzschedule.entries.ToList();
-                    scheds.Add(s);
-                    CameraControl.Camobject.ptzschedule.entries = scheds.ToArray();
-                    ShowPTZSchedule();
-                }
-            }
-        }
-
-        private void chkSchedulePTZ_CheckedChanged(object sender, EventArgs e)
-        {
-            tableLayoutPanel20.Enabled = chkSchedulePTZ.Checked;
-        }
-
-        private void btnDeletePTZ_Click(object sender, EventArgs e)
-        {
-            int i = lbPTZSchedule.SelectedIndex;
-            if (i>-1)
-            {
-                var s = CameraControl.Camobject.ptzschedule.entries.ToList().OrderBy(p => p.time).ToList();
-                s.RemoveAt(i);
-                CameraControl.Camobject.ptzschedule.entries = s.ToArray();
-                ShowPTZSchedule();
-            }
-        }
-
         private void llblEditPTZ_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("Notepad.exe", Program.AppDataPath + @"XML\PTZ2.xml");
@@ -2494,15 +2382,6 @@ namespace iSpyApplication
                 Directory.CreateDirectory(path);
             }
             Process.Start(path);
-        }
-
-        private void ddlHomeCommand_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (ddlHomeCommand.SelectedIndex > -1)
-            {
-                var li = ((ListItem) ddlHomeCommand.SelectedItem);
-                CameraControl.Camobject.settings.ptzautohomecommand = li.Value;
-            }
         }
 
         private void ddlProfile_SelectedIndexChanged(object sender, EventArgs e)
@@ -2592,48 +2471,9 @@ namespace iSpyApplication
                 RenderResources();
         }
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-            int i = lbPTZSchedule.SelectedIndex;
-            if (i > -1)
-            {
-                var s = CameraControl.Camobject.ptzschedule.entries.ToList().OrderBy(p => p.time).ToList();
-                var si = s[i];
-                var cr = new ConfigureRepeat {Interval = 60, Until = si.time};
-                if (cr.ShowDialog(this)== DialogResult.OK)
-                {
-                    var dtUntil = cr.Until;
-                    var dtCurrent = si.time.AddSeconds(cr.Interval);
-                    while (dtCurrent.TimeOfDay < dtUntil.TimeOfDay)
-                    {
-                        s.Add(new objectsCameraPtzscheduleEntry { command = si.command, time = dtCurrent });
-                        dtCurrent = dtCurrent.AddSeconds(cr.Interval);
-                    }
-                }
-                cr.Dispose();
-                CameraControl.Camobject.ptzschedule.entries = s.ToArray();
-                ShowPTZSchedule();
-            }
-            else
-            {
-                MessageBox.Show(this, LocRm.GetString("SelectPTZRepeat"));
-            }
-        }
-
-        private void button8_Click(object sender, EventArgs e)
-        {
-            CameraControl.Camobject.ptzschedule.entries = new objectsCameraPtzscheduleEntry[0];
-            ShowPTZSchedule();
-        }
-
         private void linkLabel14_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             MainForm.OpenUrl(MainForm.Website + "/userguide-grant-access.aspx");
-        }
-
-        private void chkReverseTracking_CheckedChanged(object sender, EventArgs e)
-        {
-            CameraControl.Camobject.settings.ptzautotrackreverse = chkReverseTracking.Checked;
         }
 
         private void txtPTZPassword_TextChanged(object sender, EventArgs e)
@@ -2731,11 +2571,6 @@ namespace iSpyApplication
         private void chkStorageManagement_CheckedChanged(object sender, EventArgs e)
         {
             tblStorage.Enabled = chkStorageManagement.Checked;
-
-        }
-
-        private void chkUsePassive_CheckedChanged(object sender, EventArgs e)
-        {
 
         }
 
@@ -2893,11 +2728,11 @@ namespace iSpyApplication
             switch (ddlCloudProviders.SelectedItem.ToString())
             {
                 case "Google Drive":
-                    //Cloud.Drive.Authorise();
+                    Cloud.Drive.Authorise();
                     MessageBox.Show(this, "OK");
                     return;
                 case "Dropbox":
-                    //Cloud.Dropbox.Authorise();
+                    Cloud.Dropbox.Authorise();
                     return;
             }
         }
@@ -2907,9 +2742,25 @@ namespace iSpyApplication
             btnAuthorise.Enabled = ddlCloudProviders.SelectedIndex > 0;
         }
 
-        private void button10_Click(object sender, EventArgs e)
+        private void button6_Click(object sender, EventArgs e)
         {
-            
+            var t = new PTZTracking {CameraControl = CameraControl};
+            t.ShowDialog(this);
+            if (CameraControl.Camobject.settings.ptzautotrack)
+            {
+                ddlMotionDetector.SelectedIndex = 0;
+                ddlProcessor.SelectedIndex = 1;
+                SetDetector();
+            }
+            t.Dispose();
+
+        }
+
+        private void btnPTZSchedule_Click(object sender, EventArgs e)
+        {
+            var s = new PTZScheduler {CameraControl = CameraControl};
+            s.ShowDialog(this);
+            s.Dispose();
         }
 
     }
