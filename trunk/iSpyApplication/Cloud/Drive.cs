@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -71,6 +72,8 @@ namespace iSpyApplication.Cloud
             }
         }
 
+        private static CancellationTokenSource _tCancel;
+
         public static bool Authorise()
         {
             if (_service != null)
@@ -81,25 +84,39 @@ namespace iSpyApplication.Cloud
 
             try
             {
-                UserCredential credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                if (_tCancel != null)
+                    _tCancel.Cancel(true);
+
+                _tCancel = new CancellationTokenSource();
+                var t = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     new ClientSecrets
                     {
                         ClientId = "648753488389.apps.googleusercontent.com",
                         ClientSecret = "Guvru7Ug8DrGcOupqEs6fTB1"
                     },
-                    new[] { DriveService.Scope.Drive },
-                    "user",
-                    CancellationToken.None).Result;
+                    new[] {DriveService.Scope.Drive},
+                    "user", _tCancel.Token);
 
-                _service = new DriveService(new BaseClientService.Initializer
-                                            {
-                                                HttpClientInitializer = credential,
-                                                ApplicationName = "iSpy",
-                                            });
+                t.ContinueWith(p =>
+                               {
+                                   if (!p.IsCompleted || p.IsCanceled || p.IsFaulted) return;
+                                   var credential = t.Result;
 
-                MainForm.Conf.GoogleDriveConfig = _refreshToken = credential.Token.RefreshToken;
-                _lookups = new List<LookupPair>();
-                _upload = new List<UploadEntry>();
+                                   _service = new DriveService(new BaseClientService.Initializer
+                                                               {
+                                                                   HttpClientInitializer = credential,
+                                                                   ApplicationName = "iSpy",
+                                                               });
+                                   if (credential != null && credential.Token != null &&
+                                       credential.Token.RefreshToken != null)
+                                   {
+
+                                       MainForm.Conf.GoogleDriveConfig =
+                                           _refreshToken = credential.Token.RefreshToken;
+                                   }
+                                   _lookups = new List<LookupPair>();
+                                   _upload = new List<UploadEntry>();
+                               });
             }
             catch (Exception ex)
             {
@@ -294,7 +311,12 @@ namespace iSpyApplication.Cloud
                     MainForm.LogMessageToFile("Uploaded file to google drive");
                     break;
                 case UploadStatus.Failed:
-                    MainForm.LogErrorToFile("Uploaded to google drive failed");
+                    if (obj.Exception!=null)
+                        MainForm.LogErrorToFile("Upload to google drive failed ("+obj.Exception.Message+")");
+                    else
+                    {
+                        MainForm.LogErrorToFile("Upload to google drive failed");
+                    }
                     break;
             }
 

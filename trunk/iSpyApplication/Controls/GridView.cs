@@ -94,14 +94,9 @@ namespace iSpyApplication.Controls
             }
 
             _maxItems = 36;
-            if (_controls!=null)
-                _controls.Clear();
-            _controls = new List<GridViewConfig>(_maxItems);
             
-            for (int i = 0; i < _maxItems; i++)
-                _controls.Add(null);           
             Text = Cg.name;
-
+            _controls = new List<GridViewConfig>();
             switch (Cg.ModeIndex)
             {
                 case 0:
@@ -128,6 +123,10 @@ namespace iSpyApplication.Controls
                                     new GridViewConfig(
                                         new List<GridViewItem> { gvi  }, 1000) {Hold = true};
                             }
+                            if (cfg.Length > 2)
+                            {
+                                _maxItems = Convert.ToInt32(cfg[2]);
+                            }
                         }
 
                     }
@@ -137,6 +136,12 @@ namespace iSpyApplication.Controls
                     _tmrUpdateList.Start();
                     break;
             }
+            if (_controls != null)
+                _controls.Clear();
+
+            for (int i = 0; i < _maxItems; i++)
+                _controls.Add(null);           
+
             Program.AppIdle.ApplicationLoopDoWork += HandlerApplicationLoopDoWork;
         }
 
@@ -453,8 +458,12 @@ namespace iSpyApplication.Controls
                                         {
                                             gGrid.FillEllipse(RecordBrush, new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                         }
-                                        gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rect);
-                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
+                                        if (Cg.Overlays)
+                                        {
+                                            gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rect);
+                                            gGrid.DrawString(txt, Drawfont, OverlayBrush,
+                                                new PointF(rect.X + 5, rect.Y + 2));
+                                        }
                                         alerted = vl.Alerted;
                                     }
                                     else
@@ -506,9 +515,13 @@ namespace iSpyApplication.Controls
                                                     new Rectangle(rFeed.X + rFeed.Width - 12, rFeed.Y + 4, 8, 8));
                                         }
 
-                                        gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rect);
-                                        gGrid.DrawString(txt, Drawfont, OverlayBrush, new PointF(rect.X + 5, rect.Y + 2));
-                                        
+                                        if (Cg.Overlays)
+                                        {
+                                            gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rect);
+                                            gGrid.DrawString(txt, Drawfont, OverlayBrush,
+                                                new PointF(rect.X + 5, rect.Y + 2));
+                                        }
+
                                     }
                                     else
                                     {
@@ -544,7 +557,11 @@ namespace iSpyApplication.Controls
                                         if (bmp != null)
                                         {
                                             gGrid.DrawImage(bmp, rFeed);
-                                            gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, r.X, r.Y + r.Height - 20, r.Width, 20);
+                                        }
+                                        if (Cg.Overlays)
+                                        {
+                                            gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, r.X,
+                                                r.Y + r.Height - 20, r.Width, 20);
                                             gGrid.DrawString(fp.Fpobject.name, Drawfont, OverlayBrush,
                                                 r.X + 5,
                                                 r.Y + r.Height - 16);
@@ -571,21 +588,16 @@ namespace iSpyApplication.Controls
                         rBp.Y = r.Y + r.Height - 20 - rBp.Height;
                         if (rBp.Width > _itemwidth)
                             rBp.Width = _itemwidth;
-                        gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rBp);
+                        
 
                         if (gvc != null && gvc.ObjectIDs.Count != 0)
                         {
+                            gGrid.FillRectangle(MainForm.OverlayBackgroundBrush, rBp);
                             var c = gvc.ObjectIDs[gvc.CurrentIndex];
                             var ctrl = MainClass.GetISpyControl(c.TypeID, c.ObjectID);
                             for (int b = 0; b < ButtonCount; b++)
                                 DrawButton(gGrid, b, ctrl, Cg.ModeIndex,gvc,rBp.X,rBp.Y);
                         }
-                        else
-                        {
-                            DrawButton(gGrid, 0, null, Cg.ModeIndex, gvc, rBp.X, rBp.Y);
-                        }
-
-                        
                     }
 
 
@@ -831,11 +843,13 @@ namespace iSpyApplication.Controls
 
                 int bpi = GetButtonIndexByLocation(new Point(ox, oy));
 
-                if (cgv == null)
+                if (Cg.ModeIndex == 0)
                 {
-                    if (Cg.ModeIndex==0)
+                    if (cgv == null || cgv.ObjectIDs.Count == 0)
+                    {
                         List(cgv, io);
-                    return;
+                        return;
+                    }
                 }
 
                 var gv = cgv.ObjectIDs[cgv.CurrentIndex];

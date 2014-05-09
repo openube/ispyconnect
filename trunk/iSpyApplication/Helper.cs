@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
 
@@ -24,13 +25,44 @@ namespace iSpyApplication
 
         public static bool HasFeature(Enums.Features feature)
         {
-            return ((1 & MainForm.Conf.FeatureSet) != 0) || (((int)feature & MainForm.Conf.FeatureSet) != 0);
+            return ((1 & FeatureSet) != 0) || (((int)feature & FeatureSet) != 0);
+        }
+
+        private static int FeatureSet
+        {
+            get
+            {
+                var o = MainForm.Conf.Permissions.FirstOrDefault(p => p.name == MainForm.Group);
+                if (o == null)
+                    return 1; //group missing - assign all permissions
+                return o.featureset;
+            }
         }
         public static string ZeroPad(int i)
         {
             if (i < 10)
                 return "0" + i;
             return i.ToString(CultureInfo.InvariantCulture);
+        }
+
+        static public void CopyFolder(string sourceFolder, string destFolder)
+        {
+            if (!Directory.Exists(destFolder))
+                Directory.CreateDirectory(destFolder);
+            string[] files = Directory.GetFiles(sourceFolder);
+            foreach (string file in files)
+            {
+                string name = Path.GetFileName(file);
+                string dest = Path.Combine(destFolder, name);
+                File.Copy(file, dest,true);
+            }
+            string[] folders = Directory.GetDirectories(sourceFolder);
+            foreach (string folder in folders)
+            {
+                string name = Path.GetFileName(folder);
+                string dest = Path.Combine(destFolder, name);
+                CopyFolder(folder, dest);
+            }
         }
 
         public static void SetTitle(Form f)

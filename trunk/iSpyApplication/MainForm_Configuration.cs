@@ -281,7 +281,23 @@ namespace iSpyApplication
                 {
                     _conf.IPv6Disabled = !(Socket.OSSupportsIPv6);
                 }
+                
+                if (String.IsNullOrEmpty(_conf.EncryptCode))
+                {
+                    _conf.EncryptCode = Guid.NewGuid().ToString();
+                }
 
+                if (_conf.Permissions == null)
+                {
+                    _conf.Permissions = new []
+                                        {
+                                            new configurationGroup {featureset = 1, name="Admin", password = EncDec.EncryptData(_conf.Password_Protect_Password,_conf.EncryptCode)}
+                                        };
+                    //lets get rid of the old one..
+                    _conf.Password_Protect_Password = "";
+                }
+                
+                Group = _conf.Permissions.First().name;
                 return _conf;
             }
         }
@@ -873,6 +889,8 @@ namespace iSpyApplication
                         }
                     }
 
+                    cam.detector.type = cam.detector.type.Replace("Modelling", "Modeling");//fix typo
+
                     if (cam.recorder.quality == 0)
                         cam.recorder.quality = 8;
                     if (cam.recorder.timelapseframerate == 0)
@@ -1024,6 +1042,10 @@ namespace iSpyApplication
                         {
                             cam.rotateMode = RotateFlipType.RotateNoneFlipXY.ToString();
                         }
+                    }
+                    if (cam.settings.pip == null)
+                    {
+                        cam.settings.pip = new objectsCameraSettingsPip {enabled = false, config = ""};
                     }
                 }
                 int micid = 0;
@@ -2233,7 +2255,7 @@ namespace iSpyApplication
                 notifications = new objectsCameraNotifications(),
                 recorder = new objectsCameraRecorder(),
                 schedule = new objectsCameraSchedule { entries = new objectsCameraScheduleEntry[0] },
-                settings = new objectsCameraSettings(),
+                settings = new objectsCameraSettings { pip = new objectsCameraSettingsPip { enabled = false, config = ""}},
                 ftp = new objectsCameraFtp(),
                 savelocal = new objectsCameraSavelocal(),
                 id = -1,
@@ -2500,7 +2522,7 @@ namespace iSpyApplication
             om.settings.notifyondisconnect = false;
             om.settings.directoryIndex = Conf.MediaDirectories.First().ID;
             if (VlcHelper.VlcInstalled)
-                om.settings.vlcargs = "-I" + NL + "dummy" + NL + "--ignore-config";
+                om.settings.vlcargs = "--rtsp-caching=100";
             else
                 om.settings.vlcargs = "";
 
@@ -3132,6 +3154,9 @@ namespace iSpyApplication
                     scheduleOnToolStripMenuItem.Visible = !cameraControl.Camobject.schedule.active;
                     scheduleOffToolStripMenuItem.Visible = cameraControl.Camobject.schedule.active;
 
+                    pTZScheduleOnToolStripMenuItem.Visible = !cameraControl.Camobject.ptzschedule.active;
+                    pTZScheduleOffToolStripMenuItem.Visible = cameraControl.Camobject.ptzschedule.active;
+
                     if (cameraControl.Camobject.settings.active)
                     {
                         if (Helper.HasFeature(Enums.Features.Recording))
@@ -3349,6 +3374,8 @@ namespace iSpyApplication
                     scheduleOnToolStripMenuItem.Visible = !volumeControl.Micobject.schedule.active;
                     scheduleOffToolStripMenuItem.Visible = volumeControl.Micobject.schedule.active;
 
+                    pTZScheduleOnToolStripMenuItem.Visible = pTZScheduleOffToolStripMenuItem.Visible = false;
+
 
                     if (volumeControl.Micobject.settings.active)
                     {
@@ -3432,7 +3459,7 @@ namespace iSpyApplication
                     _takePhotoToolStripMenuItem.Visible = false;
                     _applyScheduleToolStripMenuItem1.Visible = false;
                     pTZToolStripMenuItem.Visible = false;
-
+                    pTZScheduleOnToolStripMenuItem.Visible = pTZScheduleOffToolStripMenuItem.Visible = false;
                     ctxtMnu.Show(fpc, new Point(e.X, e.Y));
                 }
             }

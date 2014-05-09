@@ -12,6 +12,7 @@
         <xs:element name="Enable_Update_Check" type="xs:boolean" />
         <xs:element name="Password_Protect_Password" type="xs:string" />
         <xs:element name="Enable_Password_Protect" type="xs:boolean" />
+        <xs:element name="Password_Protect_Startup" type="xs:boolean" />
         <xs:element name="MJPEGURL" type="xs:string" />
         <xs:element name="AVIFileName" type="xs:string" />
         <xs:element name="RecentJPGList" type="xs:string" />
@@ -123,7 +124,6 @@
         <xs:element name="SMTPPort" type="xs:int" default="25"/>
         <xs:element name="UseSMTP" type="xs:boolean" default="false"/>
         <xs:element name="SMTPSSL" type="xs:boolean" default="false"/>
-        <xs:element name="PasswordProtectSettings" type="xs:boolean" default="false"/>
         <xs:element name="DefaultRecordOnAlert" type="xs:boolean" default="false"/>
         <xs:element name="DefaultRecordOnDetect" type="xs:boolean" default="true"/>
         <xs:element name="FirstRun" type="xs:boolean" default="true"/>
@@ -138,6 +138,8 @@
         <xs:element name="OpenGrabs" type="xs:boolean" default="true"/>
         <xs:element name="TextSentences" type="xs:string" default=""/>
         <xs:element name="VLCFileCache" type="xs:int" default="3000"/>
+        <xs:element name="Referers" type="xs:string" default=""/>
+        <xs:element name="EncryptCode" type="xs:string" default=""/>
         <xs:element name="FTPServers">
           <xs:complexType>
             <xs:sequence>
@@ -160,9 +162,9 @@
                     </xs:simpleType>
                   </xs:attribute>
                   <xs:attribute name="port" type="xs:int" default="21"/>
-                  <xs:attribute name="usepassive" type="xs:boolean"/>
-                  <xs:attribute name="rename" type="xs:boolean"/>
-                  <xs:attribute name="ident" type="xs:string"/>
+                  <xs:attribute name="usepassive" type="xs:boolean" default="false"/>
+                  <xs:attribute name="rename" type="xs:boolean" default="false"/>
+                  <xs:attribute name="ident" type="xs:string" default=""/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -195,11 +197,12 @@
                   <xs:attribute name="FullScreen" type="xs:boolean" default="true"/>
                   <xs:attribute name="AlwaysOnTop" type="xs:boolean" default="false"/>
                   <xs:attribute name="Framerate" type="xs:int" default="5"/>
-                  <xs:attribute name="Display" type="xs:string" />
+                  <xs:attribute name="Display" type="xs:string" default=""/>
                   <xs:attribute name="ModeIndex" type="xs:int" default="0" />
                   <xs:attribute name="ModeConfig" type="xs:string" default="" />
                   <xs:attribute name="Fill" type="xs:boolean" default="true" />
                   <xs:attribute name="ShowAtStartup" type="xs:boolean" default="false" />
+                  <xs:attribute name="Overlays" type="xs:boolean" default="true" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -246,6 +249,19 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xsd:element name="Permissions">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element maxOccurs="unbounded" name="group">
+                <xsd:complexType>
+                  <xsd:attribute name="name" type="xsd:string" use="required" />
+                  <xsd:attribute name="featureset" type="xsd:int" use="required" />
+                  <xsd:attribute name="password" type="xsd:string" use="required" />
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

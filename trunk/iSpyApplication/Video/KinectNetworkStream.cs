@@ -696,19 +696,40 @@ namespace iSpyApplication.Video
                     // abort request
                     if (request != null)
                     {
-                        request.Abort();
+                        try
+                        {
+                            request.Abort();
+                        }
+                        catch
+                        {
+                            
+                        }
                         request = null;
                     }
                     // close response stream
                     if (stream != null)
                     {
-                        stream.Close();
+                        try
+                        {
+                            stream.Close();
+                        }
+                        catch
+                        {
+                            
+                        }
                         stream = null;
                     }
                     // close response
                     if (response != null)
                     {
-                        response.Close();
+                        try
+                        {
+                            response.Close();
+                        }
+                        catch
+                        {
+                            
+                        }
                         response = null;
                     }
                 }

@@ -48,6 +48,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(206, 20);
             this.textBox1.TabIndex = 2;
+            this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             // 
             // Prompt
             // 
@@ -61,6 +62,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Prompt";
             this.Load += new System.EventHandler(this.Prompt_Load);
+            this.Shown += new System.EventHandler(this.Prompt_Shown);
             this.ResumeLayout(false);
             this.PerformLayout();
 

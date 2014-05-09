@@ -25,6 +25,7 @@ using AForge.Video.Ximea;
 using AForge.Vision.Motion;
 using iSpyApplication.Audio;
 using iSpyApplication.Cloud;
+using iSpyApplication.Server;
 using iSpyApplication.Video;
 using xiApi.NET;
 using Encoder = System.Drawing.Imaging.Encoder;
@@ -117,6 +118,8 @@ namespace iSpyApplication.Controls
 
         internal bool Ptzneedsstop;
         internal bool IsClone;
+        internal bool HasClones;
+
         private VideoFileWriter _writer;
         private bool _minimised;
         internal bool LoadedFiles;
@@ -1574,7 +1577,7 @@ namespace iSpyApplication.Controls
                             }
                             break;
                         case "nomovement":
-                            if ((Helper.Now - LastMovementDetected).TotalSeconds > Camobject.detector.nomovementintervalnew)
+                            if (LastMovementDetected > DateTime.MinValue && (Helper.Now - LastMovementDetected).TotalSeconds > Camobject.detector.nomovementintervalnew)
                             {
                                 if (Helper.CanAlert(Camobject.alerts.groupname,Camobject.alerts.resetinterval))
                                 {
@@ -1901,7 +1904,7 @@ namespace iSpyApplication.Controls
                     CalibrateCount = 0;
                 }
             }
-            LastMovementDetected = DateTime.MinValue;
+            LastMovementDetected = Helper.Now;
         }
 
         private Bitmap ResizeBitmap(Bitmap frame)
@@ -2348,6 +2351,8 @@ namespace iSpyApplication.Controls
                 }
                 GotImage = value != null;
                 Invalidate();
+                //not sure about this...
+                //BeginInvoke((Action)(Update));
             }
         }
 
@@ -2717,16 +2722,17 @@ namespace iSpyApplication.Controls
             }
             else
             {
-                if (Camera.ZFactor > 1)
-                {
-                    var d =
-                        (Math.Sqrt(Math.Pow(PTZReference.X - _mouseLoc.X, 2) +
-                                   Math.Pow(PTZReference.Y - _mouseLoc.Y, 2))) / 5;
+                var d =
+                    (Math.Sqrt(Math.Pow(PTZReference.X - _mouseLoc.X, 2) +
+                                Math.Pow(PTZReference.Y - _mouseLoc.Y, 2))) / 5;
 
-                    Camera.ZPoint.X -= Convert.ToInt32(d * Math.Cos(angle));
-                    Camera.ZPoint.Y -= Convert.ToInt32(d * Math.Sin(angle));
-                    gCam.DrawString(LocRm.GetString("DIGITAL"), MainForm.Drawfont, MainForm.CameraDrawBrush, PTZReference.X - 21, PTZReference.Y - 25);
-                }
+                var p = Camera.ZPoint;
+                p.X -= Convert.ToInt32(d * Math.Cos(angle));
+                p.Y -= Convert.ToInt32(d * Math.Sin(angle));
+                Camera.ZPoint = p;
+
+                gCam.DrawString(LocRm.GetString("DIGITAL"), MainForm.Drawfont, MainForm.CameraDrawBrush, PTZReference.X - 21, PTZReference.Y - 25);
+                
             }
         }
 
@@ -2929,6 +2935,7 @@ namespace iSpyApplication.Controls
                 bool error = false;
                 double maxAlarm = 0;
                 long framecount = 0;
+                long _lastvideopts = -1, _lastaudiopts=-1;
                 //LogPluginMessage("record", videopath);
                 try
                 {
@@ -2986,10 +2993,11 @@ namespace iSpyApplication.Controls
                                     }
                                     var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
                                     //Debug.WriteLine("video:"+pts);
-                                    if (pts >= 0)
+                                    if (pts > _lastvideopts)
                                     {
                                         _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
                                         framecount++;
+                                        _lastvideopts = pts;
                                     }
                                 }
 
@@ -3023,9 +3031,10 @@ namespace iSpyApplication.Controls
                                 fixed (byte* p = aa.Decoded)
                                 {
                                     var pts = (long)(aa.TimeStamp - recordingStart).TotalMilliseconds;
-                                    if (pts >= 0)
+                                    if (pts >= _lastaudiopts)
                                     {
                                         _writer.WriteAudio(p, aa.Decoded.Length, pts);
+                                        _lastaudiopts = pts;
                                     }
                                 }
                             }
@@ -3050,19 +3059,11 @@ namespace iSpyApplication.Controls
                                     using (var bmp = (Bitmap) Image.FromStream(ms))
                                     {
                                         var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
-                                        if (pts >= 0)
+                                        if (pts > _lastvideopts)
                                         {
-                                            try
-                                            {
-                                                _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
-                                                framecount++;
-                                            }
-                                            catch
-                                            {
-                                                MainForm.LogMessageToFile("failed in main loop - pts: " + pts +
-                                                                          ", frame size: " + ms.Length + ", framecount: " + framecount);
-                                                throw;
-                                            }   
+                                            _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
+                                            framecount++;                                            
+                                            _lastvideopts = pts;
                                         }
 
                                     }
@@ -3099,8 +3100,11 @@ namespace iSpyApplication.Controls
                                     fixed (byte* p = b.Decoded)
                                     {
                                         var pts = (long)(b.TimeStamp - recordingStart).TotalMilliseconds;
-                                        if (pts >= 0)
+                                        if (pts > _lastaudiopts)
+                                        {
                                             _writer.WriteAudio(p, b.Decoded.Length, pts);
+                                            _lastaudiopts = pts;
+                                        }
                                     }
                                 }
                                 b.Nullify();
@@ -3683,6 +3687,9 @@ namespace iSpyApplication.Controls
                             if (ErrorHandler != null)
                                 ErrorHandler(ex.Message);
                         }
+                        break;
+                    case "ATC":
+                        AudioSynth.Play(param1, this);
                         break;
                     case "SW":
                         RemoteCommand(this, new ThreadSafeCommand("show"));
@@ -4402,14 +4409,14 @@ namespace iSpyApplication.Controls
 
                     switch (Camobject.detector.type)
                     {
-                        case "Two Frames":
+                        default:
                             motionDetector = new TwoFramesDifferenceDetector(Camobject.settings.suppressnoise);
                             break;
                         case "Custom Frame":
                             motionDetector = new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,
                                 Camobject.detector.keepobjectedges);
                             break;
-                        case "Background Modelling"://hate typos :(
+                        case "Background Modeling":
                             motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,
                                 Camobject.detector.keepobjectedges);
                             break;
@@ -4491,6 +4498,8 @@ namespace iSpyApplication.Controls
                         Camera.MotionDetector = null;
                     }
 
+                    LastMovementDetected = Helper.Now;
+
                     if (!Camera.IsRunning)
                     {
                         Calibrating = true;
@@ -4552,7 +4561,7 @@ namespace iSpyApplication.Controls
                 MainForm.NeedsSync = true;
                 ReconnectCount = 0;
                 _dtPTZLastCheck = DateTime.Now;
-                LastMovementDetected = Helper.Now;
+                
                 _firstFrame = true;
                 _autoofftimer = 0;
 
@@ -4561,7 +4570,6 @@ namespace iSpyApplication.Controls
                 if (Camera != null)
                 {
                     Camera.ZFactor = 1;
-                    Camera.ZPoint = Point.Empty;
                 }
                 _requestRefresh = true;
 
@@ -4738,6 +4746,7 @@ namespace iSpyApplication.Controls
             cw.CloneCameraDisabled += CWCameraDisabled;
             cw.CloneCameraReConnected += CWCameraReconnected;
             cw.CloneCameraEnabled += CWCameraEnabled;
+            cw.HasClones = true;
 
             bool opened = false;
             if (cw.Camera != null)
@@ -4930,7 +4939,6 @@ namespace iSpyApplication.Controls
             }
 
             Camera = new Camera(source);
-
             Camera.NewFrame -= CameraNewFrame;
             Camera.PlayingFinished -= VideoDeviceVideoFinished;
             Camera.Alarm -= CameraAlarm;
@@ -4947,9 +4955,27 @@ namespace iSpyApplication.Controls
             {
                 Camera.RotateFlipType = rft;
             }
-
+            Camera.PiPConfig = Camobject.settings.pip.config;
 
             SetVideoSourceProperties();
+        }
+
+        public void ConfigurePlugin()
+        {
+            if (Camera != null)
+            {
+                Type o = Camera.Plugin.GetType();
+                //update plugin with latest list of groups
+                string groups = MainForm.Conf.Permissions.Aggregate("", (current, g) => current + (g.name + ",")).Trim(',');
+
+                if (o.GetProperty("Groups") != null)
+                    o.GetProperty("Groups").SetValue(Camera.Plugin, groups, null);
+                if (o.GetProperty("Group") != null)
+                    o.GetProperty("Group").SetValue(Camera.Plugin, MainForm.Group, null);
+
+                var config = (string) o.GetMethod("Configure").Invoke(Camera.Plugin, null);
+                Camobject.alerts.pluginconfig = config;
+            }
         }
 
         public List<string> PluginCommands
@@ -5011,6 +5037,7 @@ namespace iSpyApplication.Controls
             }
         }
 
+        //ispykinect: this processes commands from the plugin
         void CameraWindow_AlertHandler(object sender, AlertEventArgs eventArgs)
         {
             if (Camera.Plugin != null)
@@ -5030,6 +5057,12 @@ namespace iSpyApplication.Controls
                                     break;
                                 case "flash":
                                     FlashCounter = Helper.Now.AddSeconds(10);
+                                    break;
+                                case "record":
+                                    RecordSwitch(true);
+                                    break;
+                                case "stoprecord":
+                                    RecordSwitch(false);
                                     break;
                                 default:
                                     if (action.StartsWith("border:") && action.Length > 7)

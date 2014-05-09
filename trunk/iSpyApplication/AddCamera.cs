@@ -28,7 +28,7 @@ namespace iSpyApplication
     {
         private readonly string[] _alertmodes = {"movement", "nomovement", "objectcount"};
 
-        private readonly object[] _detectortypes = { "Two Frames", "Custom Frame", "Background Modelling", "Two Frames (Color)", "Custom Frame (Color)", "Background Modelling (Color)", "None" };
+        private readonly object[] _detectortypes = { "Two Frames", "Custom Frame", "Background Modeling", "Two Frames (Color)", "Custom Frame (Color)", "Background Modeling (Color)", "None" };
 
         private readonly object[] _processortypes = {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
@@ -40,6 +40,7 @@ namespace iSpyApplication
         private HSLFilteringForm _filterForm;
         private bool _loaded;
         private ConfigureTripWires _ctw;
+        private PiPConfig _pip;
         public MainForm MainClass;
 
 
@@ -196,6 +197,7 @@ namespace iSpyApplication
                 MainForm.Cameras.Add(CameraControl.Camobject);
             }
             _loaded = false;
+            CameraControl.NewFrame -= CameraNewFrame;
             CameraControl.NewFrame += CameraNewFrame;
             CameraControl.IsEdit = true;
             if (CameraControl.VolumeControl != null)
@@ -792,6 +794,7 @@ namespace iSpyApplication
             LocRm.SetString(linkLabel5, "Servers");
             LocRm.SetString(btnPTZTrack, "TrackObjects");
             LocRm.SetString(btnPTZSchedule, "Scheduler");
+            LocRm.SetString(label5, "PictureInPicture");
 
 
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Motion_Detection));
@@ -800,7 +803,7 @@ namespace iSpyApplication
             HideTab(tabPage8, Helper.HasFeature(Enums.Features.PTZ));
             HideTab(tabPage7, Helper.HasFeature(Enums.Features.Save_Frames));
             HideTab(tabPage10, Helper.HasFeature(Enums.Features.Save_Frames));
-            HideTab(tabPage9, Helper.HasFeature(Enums.Features.YouTube) && Helper.HasFeature(Enums.Features.Web_Settings));
+            HideTab(tabPage9, Helper.HasFeature(Enums.Features.Cloud) && Helper.HasFeature(Enums.Features.Web_Settings));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Scheduling));
             HideTab(tabPage6, Helper.HasFeature(Enums.Features.Storage));
 
@@ -823,6 +826,7 @@ namespace iSpyApplication
         private void LoadPTZs()
         {
             ddlPTZ.Items.Clear();
+            ddlPTZ.Items.Add(new ListItem(":: NONE", "-6"));
             ddlPTZ.Items.Add(new ListItem(":: DIGITAL", "-1"));
             ddlPTZ.Items.Add(new ListItem(":: IAM-CONTROL", "-2"));
             ddlPTZ.Items.Add(new ListItem(":: ONVIF", "-5"));
@@ -909,13 +913,24 @@ namespace iSpyApplication
 
         private void CameraNewFrame(object sender, NewFrameEventArgs e)
         {
-            AreaControl.LastFrame = (Bitmap) e.Frame.Clone();
-            if (_filterForm != null)
-                _filterForm.ImageProcess = (Bitmap)e.Frame.Clone();
-
-            if (_ctw != null && _ctw.TripWireEditor1 != null)
+            AreaControl.LastFrame = e.Frame;
+            try
             {
-                _ctw.TripWireEditor1.LastFrame = (Bitmap)e.Frame.Clone();
+                if (_filterForm != null)
+                    _filterForm.ImageProcess = (Bitmap) e.Frame.Clone();
+
+                if (_ctw != null && _ctw.TripWireEditor1 != null)
+                {
+                    _ctw.TripWireEditor1.LastFrame = e.Frame;
+                }
+                if (_pip != null && _pip.areaSelector1 != null)
+                {
+                    _pip.areaSelector1.LastFrame = e.Frame;
+                }
+            }
+            catch(Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
             }
         }
 
@@ -1082,25 +1097,24 @@ namespace iSpyApplication
                 var md = (ListItem)ddlMediaDirectory.SelectedItem;
                 var newind = Convert.ToInt32(md.Value);
 
-                bool needsFileRefresh = (CameraControl.Camobject.directory != txtDirectory.Text ||
-                                         CameraControl.Camobject.settings.directoryIndex != newind);
 
+                string olddir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + CameraControl.Camobject.directory + "\\";
+
+                bool needsFileRefresh = (CameraControl.Camobject.directory != txtDirectory.Text || CameraControl.Camobject.settings.directoryIndex != newind);
+                
+                int tempidx = CameraControl.Camobject.settings.directoryIndex;
                 CameraControl.Camobject.settings.directoryIndex = newind;
 
+                
+                string newdir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + txtDirectory.Text + "\\";
 
-
-                if (CameraControl.Camobject.directory != txtDirectory.Text || IsNew)
+                if (IsNew)
                 {
-                    var dir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id);
-                    string path = dir + "video\\" + txtDirectory.Text + "\\";
                     try
                     {
-                        if (!Directory.Exists(path))
+                        if (!Directory.Exists(newdir))
                         {
-                            if (IsNew)
-                                Directory.CreateDirectory(path);
-                            else
-                                Directory.Move(dir + "video\\" + CameraControl.Camobject.directory, path);
+                            Directory.CreateDirectory(newdir);
                         }
                         else
                         {
@@ -1110,11 +1124,11 @@ namespace iSpyApplication
                                     LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
                             {
                                 case DialogResult.Yes:
-                                    Directory.Delete(path,true);
-                                    Directory.Move(dir + "video\\" + CameraControl.Camobject.directory, path);
+                                    Directory.Delete(newdir, true);
+                                    Directory.CreateDirectory(newdir);
                                     break;
                                 case DialogResult.Cancel:
-                                    tcCamera.SelectedIndex = 0;
+                                    CameraControl.Camobject.settings.directoryIndex = tempidx;
                                     return;
                                 case DialogResult.No:
                                     break;
@@ -1123,20 +1137,72 @@ namespace iSpyApplication
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this,LocRm.GetString("Validate_Directory_String")+Environment.NewLine+ex.Message);
-                        tcCamera.SelectedIndex = 0;
+                        MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                        CameraControl.Camobject.settings.directoryIndex = tempidx;
                         return;
                     }
-                    if (!Directory.Exists(path + "thumbs\\"))
+                }
+                else
+                {
+                    if (newdir != olddir)
                     {
-                        Directory.CreateDirectory(path + "thumbs\\");
-                    }
-                    if (!Directory.Exists(path + "grabs\\"))
-                    {
-                        Directory.CreateDirectory(path + "grabs\\");
+                        try
+                        {
+                            if (!Directory.Exists(newdir))
+                            {
+                                if (Directory.Exists(olddir))
+                                {
+                                    Helper.CopyFolder(olddir, newdir);
+                                }
+                                else
+                                {
+                                    Directory.CreateDirectory(newdir);
+                                }
+                            }
+                            else
+                            {
+                                switch (
+                                    MessageBox.Show(this,
+                                        LocRm.GetString("Validate_Directory_Exists"),
+                                        LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
+                                {
+                                    case DialogResult.Yes:
+                                        if (Directory.Exists(olddir))
+                                        {
+                                            Helper.CopyFolder(olddir,newdir);
+                                        }
+                                        else
+                                        {
+                                            Directory.Delete(newdir, true);
+                                            Directory.CreateDirectory(newdir);
+                                        }
+                                        break;
+                                    case DialogResult.Cancel:
+                                        CameraControl.Camobject.settings.directoryIndex = tempidx;
+                                        return;
+                                    case DialogResult.No:
+                                        break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                            CameraControl.Camobject.settings.directoryIndex = tempidx;
+                            return;
+                        }
                     }
                 }
 
+                if (!Directory.Exists(newdir + "thumbs\\"))
+                {
+                    Directory.CreateDirectory(newdir + "thumbs\\");
+                }
+                if (!Directory.Exists(newdir + "grabs\\"))
+                {
+                    Directory.CreateDirectory(newdir + "grabs\\");
+                }
+                
                 CameraControl.Camobject.directory = txtDirectory.Text;
                 
 
@@ -1380,7 +1446,7 @@ namespace iSpyApplication
                                                               CameraControl.Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
-                case "Background Modelling":
+                case "Background Modeling":
                     CameraControl.Camera.MotionDetector =
                         new MotionDetector(
                             new SimpleBackgroundModelingDetector(CameraControl.Camobject.settings.suppressnoise,
@@ -1400,7 +1466,7 @@ namespace iSpyApplication
                                                               CameraControl.Camobject.detector.keepobjectedges));
                     SetProcessor();
                     break;
-                case "Background Modelling (Color)":
+                case "Background Modeling (Color)":
                     CameraControl.Camera.MotionDetector =
                         new MotionDetector(
                             new SimpleColorBackgroundModelingDetector(CameraControl.Camobject.settings.suppressnoise,
@@ -1777,7 +1843,18 @@ namespace iSpyApplication
             {
                 PopOnvifPresets();
             }
-            flowLayoutPanel7.Enabled = CameraControl.Camobject.ptz != -1;   
+            switch (CameraControl.Camobject.ptz)
+            {
+                case -1:
+                case -6:
+                    tableLayoutPanel12.Enabled = false;
+                    break;
+                default:
+                    tableLayoutPanel12.Enabled = true;
+                    break;
+
+            }
+            
 
             bool bPelco = CameraControl.Camobject.ptz == -3 || CameraControl.Camobject.ptz == -4;
             bool bConfig = CameraControl.Camobject.ptz >= 0;
@@ -2075,14 +2152,12 @@ namespace iSpyApplication
                             CameraControl.Camobject.alerts.pluginconfig);
                     }
                     _ctw.Dispose();
+                    _ctw = null;
                     break;
                 default:
                     if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
                     {
-                        var o = CameraControl.Camera.Plugin.GetType();
-                        var config = (string) o.GetMethod("Configure").Invoke(CameraControl.Camera.Plugin, null);
-
-                        CameraControl.Camobject.alerts.pluginconfig = config;
+                        CameraControl.ConfigurePlugin();
                     }
                     else
                     {
@@ -2386,7 +2461,8 @@ namespace iSpyApplication
 
         private void ddlProfile_SelectedIndexChanged(object sender, EventArgs e)
         {
-            numMaxFRRecording.Enabled = ddlProfile.SelectedIndex < 3;
+            //not sure why i was doing this, must have been a reason...
+            //numMaxFRRecording.Enabled = ddlProfile.SelectedIndex < 3;
         }
 
         private void btnAdvanced_Click(object sender, EventArgs e)
@@ -2502,8 +2578,9 @@ namespace iSpyApplication
             AreaControl.ClearRectangles();
             if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
             {
-                CameraControl.Camera.ClearMotionZones();
+                CameraControl.Camera.SetMotionZones(AreaControl.MotionZones);
             }
+            CameraControl.Camobject.detector.motionzones = AreaControl.MotionZones;
             AreaControl.Invalidate();
         }
 
@@ -2761,6 +2838,14 @@ namespace iSpyApplication
             var s = new PTZScheduler {CameraControl = CameraControl};
             s.ShowDialog(this);
             s.Dispose();
+        }
+
+        private void btnPiP_Click(object sender, EventArgs e)
+        {
+            _pip = new PiPConfig {pip = CameraControl.Camobject.settings.pip, CW = CameraControl};
+            _pip.ShowDialog(this);
+            _pip.Dispose();
+            _pip = null;
         }
 
     }

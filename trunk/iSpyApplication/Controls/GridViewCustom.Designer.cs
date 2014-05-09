@@ -47,6 +47,7 @@
             this.chkFill = new System.Windows.Forms.CheckBox();
             this.btnConfigure = new System.Windows.Forms.Button();
             this.chkShowOnLoad = new System.Windows.Forms.CheckBox();
+            this.chkOverlays = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRows)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCols)).BeginInit();
@@ -66,21 +67,22 @@
             this.tableLayoutPanel1.Controls.Add(this.txtName, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.chkFullScreen, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 10);
-            this.tableLayoutPanel1.Controls.Add(this.label4, 0, 8);
-            this.tableLayoutPanel1.Controls.Add(this.cmbDisplay, 1, 8);
+            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 11);
+            this.tableLayoutPanel1.Controls.Add(this.label4, 0, 9);
+            this.tableLayoutPanel1.Controls.Add(this.cmbDisplay, 1, 9);
             this.tableLayoutPanel1.Controls.Add(this.chkAlwaysOnTop, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.numFramerate, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.numFramerate, 1, 8);
             this.tableLayoutPanel1.Controls.Add(this.label6, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.chkFill, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.btnConfigure, 2, 1);
-            this.tableLayoutPanel1.Controls.Add(this.chkShowOnLoad, 1, 9);
+            this.tableLayoutPanel1.Controls.Add(this.chkShowOnLoad, 1, 10);
+            this.tableLayoutPanel1.Controls.Add(this.chkOverlays, 1, 7);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 11;
+            this.tableLayoutPanel1.RowCount = 12;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -92,7 +94,8 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(263, 291);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(263, 321);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // numRows
@@ -193,7 +196,7 @@
             // button1
             // 
             this.button1.AutoSize = true;
-            this.button1.Location = new System.Drawing.Point(69, 255);
+            this.button1.Location = new System.Drawing.Point(69, 278);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -204,7 +207,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 208);
+            this.label4.Location = new System.Drawing.Point(6, 231);
             this.label4.Margin = new System.Windows.Forms.Padding(6);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(41, 13);
@@ -215,7 +218,7 @@
             // 
             this.cmbDisplay.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDisplay.FormattingEnabled = true;
-            this.cmbDisplay.Location = new System.Drawing.Point(69, 205);
+            this.cmbDisplay.Location = new System.Drawing.Point(69, 228);
             this.cmbDisplay.Name = "cmbDisplay";
             this.cmbDisplay.Size = new System.Drawing.Size(115, 21);
             this.cmbDisplay.TabIndex = 9;
@@ -233,7 +236,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 182);
+            this.label5.Location = new System.Drawing.Point(6, 205);
             this.label5.Margin = new System.Windows.Forms.Padding(6);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(54, 13);
@@ -242,7 +245,7 @@
             // 
             // numFramerate
             // 
-            this.numFramerate.Location = new System.Drawing.Point(69, 179);
+            this.numFramerate.Location = new System.Drawing.Point(69, 202);
             this.numFramerate.Maximum = new decimal(new int[] {
             50,
             0,
@@ -305,18 +308,28 @@
             // chkShowOnLoad
             // 
             this.chkShowOnLoad.AutoSize = true;
-            this.chkShowOnLoad.Location = new System.Drawing.Point(69, 232);
+            this.chkShowOnLoad.Location = new System.Drawing.Point(69, 255);
             this.chkShowOnLoad.Name = "chkShowOnLoad";
             this.chkShowOnLoad.Size = new System.Drawing.Size(95, 17);
             this.chkShowOnLoad.TabIndex = 18;
             this.chkShowOnLoad.Text = "Show on Load";
             this.chkShowOnLoad.UseVisualStyleBackColor = true;
             // 
+            // chkOverlays
+            // 
+            this.chkOverlays.AutoSize = true;
+            this.chkOverlays.Location = new System.Drawing.Point(69, 179);
+            this.chkOverlays.Name = "chkOverlays";
+            this.chkOverlays.Size = new System.Drawing.Size(67, 17);
+            this.chkOverlays.TabIndex = 19;
+            this.chkOverlays.Text = "Overlays";
+            this.chkOverlays.UseVisualStyleBackColor = true;
+            // 
             // GridViewCustom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(263, 291);
+            this.ClientSize = new System.Drawing.Size(263, 321);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "GridViewCustom";
@@ -353,5 +366,6 @@
         private System.Windows.Forms.CheckBox chkFill;
         private System.Windows.Forms.Button btnConfigure;
         private System.Windows.Forms.CheckBox chkShowOnLoad;
+        private System.Windows.Forms.CheckBox chkOverlays;
     }
 }

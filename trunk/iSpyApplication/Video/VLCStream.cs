@@ -49,6 +49,16 @@ namespace iSpyApplication.Video
 
         #endregion
 
+        private Int64 _lastFrame = DateTime.MinValue.Ticks;
+
+        public DateTime LastFrame
+        {
+            get { return new DateTime(_lastFrame); }
+            set { Interlocked.Exchange(ref _lastFrame, value.Ticks); }
+        }
+
+        public int TimeOut = 8000;
+
         // URL for VLCstream
         private string _source;
 
@@ -196,6 +206,20 @@ namespace iSpyApplication.Video
                         throw new ArgumentException("Video source is not specified.");
 
                     bool init = _mFactory == null;
+
+                    bool file = false;
+                    try
+                    {
+                        if (File.Exists(_source))
+                        {
+                            file = true;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+
                     if (init)
                     {
                         var args = new List<string>
@@ -205,9 +229,11 @@ namespace iSpyApplication.Video
 		                    "--ignore-config", 
                             "--no-osd",
                             "--disable-screensaver",
-		                    "--plugin-path=./plugins",
-                            "--file-caching=3000"
+		                    "--plugin-path=./plugins"
                         };
+                        if (file)
+                            args.Add("--file-caching=3000");
+
                         _mFactory = new MediaPlayerFactory(args.ToArray());
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
@@ -222,18 +248,7 @@ namespace iSpyApplication.Video
                     }
 
 
-                    bool file = false;
-                    try
-                    {
-                        if (File.Exists(_source))
-                        {
-                            file = true;
-                        }
-                    }
-                    catch
-                    {
-
-                    }
+                    
                     if (file)
                         _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source);
                     else
@@ -254,7 +269,7 @@ namespace iSpyApplication.Video
 
                     _framesReceived = 0;
                     Duration = Time = 0;
-                    _timestamp = _lastframetimestamp = DateTime.MinValue;
+                    LastFrame = DateTime.MinValue;
                     _mPlayer.Play();
 
                     //check if file source (isseekable in _mPlayer is not reliable)
@@ -318,18 +333,12 @@ namespace iSpyApplication.Video
             }
         }
 
-        private DateTime _timestamp = DateTime.MinValue;
-        private DateTime _lastframetimestamp = DateTime.MinValue;
-        
-        public int TimeOut = 8000;
-
         public void CheckTimestamp()
         {
             //some feeds keep returning frames even when the connection is lost
             //this detects that by comparing timestamps from the eventstimechanged event
             //and signals an error if more than 8 seconds ago
-            bool q = _timestamp > DateTime.MinValue && (Helper.Now - _timestamp).TotalMilliseconds > TimeOut;
-            q = q || (_lastframetimestamp > DateTime.MinValue && (Helper.Now - _lastframetimestamp).TotalMilliseconds > TimeOut);
+            bool q = LastFrame > DateTime.MinValue && (Helper.Now - LastFrame).TotalMilliseconds > TimeOut;
 
             if (q)
             {
@@ -381,7 +390,7 @@ namespace iSpyApplication.Video
         void EventsTimeChanged(object sender, MediaPlayerTimeChanged e)
         {
             Time = e.NewTime;
-            _timestamp = Helper.Now;
+            LastFrame = Helper.Now;
         }
 
         #region Audio Stuff
@@ -523,7 +532,6 @@ namespace iSpyApplication.Video
         private void FrameCallback(Bitmap frame)
         {
             _framesReceived++;
-            _lastframetimestamp = Helper.Now;
             if (NewFrame != null && _isrunning)
             {
                 NewFrame(this, new NewFrameEventArgs(frame));

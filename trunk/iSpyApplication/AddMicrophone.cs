@@ -424,35 +424,36 @@ namespace iSpyApplication
                 var md = (ListItem)ddlMediaDirectory.SelectedItem;
                 var newind = Convert.ToInt32(md.Value);
 
-                bool needsFileRefresh = (VolumeLevel.Micobject.directory != txtDirectory.Text ||
-                                         VolumeLevel.Micobject.settings.directoryIndex != newind);
+                string olddir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + VolumeLevel.Micobject.directory + "\\";
 
+                bool needsFileRefresh = (VolumeLevel.Micobject.directory != txtDirectory.Text || VolumeLevel.Micobject.settings.directoryIndex != newind);
+
+                int tempidx = VolumeLevel.Micobject.settings.directoryIndex;
                 VolumeLevel.Micobject.settings.directoryIndex = newind;
+                
+                string newdir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + txtDirectory.Text + "\\";
 
-                if (VolumeLevel.Micobject.directory != txtDirectory.Text || IsNew)
+                if (IsNew)
                 {
-                    var dir = Helper.GetMediaDirectory(2, VolumeLevel.Micobject.id);
-                    string path = dir + "audio\\" + txtDirectory.Text + "\\";
                     try
                     {
-
-                        if (!Directory.Exists(path))
+                        if (!Directory.Exists(newdir))
                         {
-                            if (IsNew)
-                                Directory.CreateDirectory(path);
-                            else
-                                Directory.Move(dir + "audio\\" + VolumeLevel.Micobject.directory, path);
+                            Directory.CreateDirectory(newdir);
                         }
                         else
                         {
-                            switch (MessageBox.Show(this, LocRm.GetString("Validate_Directory_Exists"), LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
+                            switch (
+                                MessageBox.Show(this,
+                                    LocRm.GetString("Validate_Directory_Exists"),
+                                    LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
                             {
                                 case DialogResult.Yes:
-                                    Directory.Delete(path, true);
-                                    Directory.Move(dir + "audio\\" + VolumeLevel.Micobject.directory, path);
+                                    Directory.Delete(newdir, true);
+                                    Directory.CreateDirectory(newdir);
                                     break;
                                 case DialogResult.Cancel:
-                                    tcMicrophone.SelectedIndex = 0;
+                                    VolumeLevel.Micobject.settings.directoryIndex = tempidx;
                                     return;
                                 case DialogResult.No:
                                     break;
@@ -461,9 +462,60 @@ namespace iSpyApplication
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, LocRm.GetString("Validate_Directory_String")+ Environment.NewLine + ex.Message);
-                        tcMicrophone.SelectedIndex = 0;
+                        MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                        VolumeLevel.Micobject.settings.directoryIndex = tempidx;
                         return;
+                    }
+                }
+                else
+                {
+                    if (newdir != olddir)
+                    {
+                        try
+                        {
+                            if (!Directory.Exists(newdir))
+                            {
+                                if (Directory.Exists(olddir))
+                                {
+                                    Helper.CopyFolder(olddir, newdir);
+                                }
+                                else
+                                {
+                                    Directory.CreateDirectory(newdir);
+                                }
+                            }
+                            else
+                            {
+                                switch (
+                                    MessageBox.Show(this,
+                                        LocRm.GetString("Validate_Directory_Exists"),
+                                        LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
+                                {
+                                    case DialogResult.Yes:
+                                        if (Directory.Exists(olddir))
+                                        {
+                                            Helper.CopyFolder(olddir, newdir);
+                                        }
+                                        else
+                                        {
+                                            Directory.Delete(newdir, true);
+                                            Directory.CreateDirectory(newdir);
+                                        }
+                                        break;
+                                    case DialogResult.Cancel:
+                                        VolumeLevel.Micobject.settings.directoryIndex = tempidx;
+                                        return;
+                                    case DialogResult.No:
+                                        break;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                            VolumeLevel.Micobject.settings.directoryIndex = tempidx;
+                            return;
+                        }
                     }
                 }
 

@@ -180,18 +180,22 @@ namespace iSpyApplication
                     angle += (2*Math.PI);
                 }
             }
-
-            if (_cameraControl.Camobject.settings.ptzflipx)
+            if (_cameraControl.Camobject.ptz!=-1)
             {
-                if (angle <= 0)
-                    angle = -Math.PI - angle;
-                else
-                    angle = Math.PI - angle;
+                //don't flip digital controls
+                if (_cameraControl.Camobject.settings.ptzflipx)
+                {
+                    if (angle <= 0)
+                        angle = -Math.PI - angle;
+                    else
+                        angle = Math.PI - angle;
+                }
+                if (_cameraControl.Camobject.settings.ptzflipy)
+                {
+                    angle = angle * -1;
+                }
             }
-            if (_cameraControl.Camobject.settings.ptzflipy)
-            {
-                angle = angle*-1;
-            }
+            
            
 
             if (PTZSettings == null)
@@ -233,11 +237,12 @@ namespace iSpyApplication
                 switch (_cameraControl.Camobject.ptz)
                 {
                     default:
-                        _cameraControl.Camera.ZPoint.X -= Convert.ToInt32(15 * Math.Cos(angle));
-                        _cameraControl.Camera.ZPoint.Y -= Convert.ToInt32(15 * Math.Sin(angle));
+                        var p = _cameraControl.Camera.ZPoint;
+                        p.X -= Convert.ToInt32(15 * Math.Cos(angle));
+                        p.Y -= Convert.ToInt32(15 * Math.Sin(angle));
+                        _cameraControl.Camera.ZPoint = p;
                         break;
                     case -2://IAM
-
                         ProcessIAM(cmd);
                         return;
                     case -3://PELCO-P
@@ -248,6 +253,9 @@ namespace iSpyApplication
                         return;
                     case -5://ONVIF
                         ProcessOnvif(cmd);
+                        break;
+                    case -6:
+                        //none - ignore
                         break;
                 }               
                 return;
@@ -296,7 +304,7 @@ namespace iSpyApplication
                 diag = "leftdown";
             }
 
-            if (String.IsNullOrEmpty(command)) //some PTZ cameras dont have diagonal controls, this fixes that
+            if (String.IsNullOrEmpty(command)) //some PTZ cameras don't have diagonal controls, this fixes that
             {
                 switch (diag)
                 {
@@ -343,6 +351,7 @@ namespace iSpyApplication
                     case -3:
                     case -4:
                     case -5:
+                    case -6:
                         return false;
                     default:
                     {
@@ -367,6 +376,7 @@ namespace iSpyApplication
         {
             if (_cameraControl.Camera == null)
                 return;
+
 
             PTZSettings2Camera ptz = null;
             switch (_cameraControl.Camobject.ptz)
@@ -505,6 +515,8 @@ namespace iSpyApplication
                             break;
                     }
                     return;
+                case -6:
+                    return;
                 default: //IP CAMERA
                     ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);
                     break;
@@ -574,10 +586,6 @@ namespace iSpyApplication
                 Rectangle r = _cameraControl.Camera.ViewRectangle;
                 if (r != Rectangle.Empty)
                 {
-                    if (command == Enums.PtzCommand.ZoomOut || command == Enums.PtzCommand.ZoomIn)
-                    {
-                        _cameraControl.Camera.ZPoint = new Point(r.Left + r.Width/2, r.Top + r.Height/2);
-                    }
                     double angle = 0;
                     bool isangle = true;
                     switch (command)
@@ -629,8 +637,10 @@ namespace iSpyApplication
                     }
                     if (isangle)
                     {
-                        _cameraControl.Camera.ZPoint.X -= Convert.ToInt32(15 * Math.Cos(angle));
-                        _cameraControl.Camera.ZPoint.Y -= Convert.ToInt32(15 * Math.Sin(angle));
+                        var p = _cameraControl.Camera.ZPoint;
+                        p.X -= Convert.ToInt32(15 * Math.Cos(angle));
+                        p.Y -= Convert.ToInt32(15 * Math.Sin(angle));
+                        _cameraControl.Camera.ZPoint = p;
                     }   
 
                 }
@@ -1426,6 +1436,8 @@ namespace iSpyApplication
                     return;
                 case -5://ONVIF
                     ProcessOnvifCommand(cmd);
+                    return;
+                case -6://NONE
                     return;
                 default: //IP CAMERA
                     ptz = MainForm.PTZs.SingleOrDefault(q => q.id == _cameraControl.Camobject.ptz);

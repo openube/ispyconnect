@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace iSpyApplication
@@ -18,22 +19,28 @@ namespace iSpyApplication
 
         private void DoCheckPassword()
         {
-            string p = MainForm.Conf.Password_Protect_Password;
-            if (txtPassword.Text == p)
+            foreach (var g in MainForm.Conf.Permissions)
             {
-                DialogResult = DialogResult.OK;
+                if (txtPassword.Text == EncDec.DecryptData(g.password, MainForm.Conf.EncryptCode))
+                {
+                    if (MainForm.Group != g.name)
+                        MainForm.NeedsResourceUpdate = true;
+                    MainForm.Group = g.name;
+                    DialogResult = DialogResult.OK;
+                    Close();
+                    return;
+                }
             }
-            else
-            {
-                DialogResult = DialogResult.Cancel;
-                MessageBox.Show(LocRm.GetString("PasswordIncorrect"), LocRm.GetString("Note"));
-            }
+            
+            DialogResult = DialogResult.Cancel;
+            MessageBox.Show(LocRm.GetString("PasswordIncorrect"), LocRm.GetString("Note"));
+            
             Close();
         }
 
         private void CheckPasswordLoad(object sender, EventArgs e)
         {
-            
+            txtPassword.Focus();
         }
 
         private void RenderResources() {
@@ -50,6 +57,11 @@ namespace iSpyApplication
             {
                 DoCheckPassword();
             }
+        }
+
+        private void CheckPassword_Shown(object sender, EventArgs e)
+        {
+            this.Activate();
         }
     }
 }

@@ -199,14 +199,12 @@ namespace iSpyApplication.Audio.streams
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                         _mPlayer.Events.TimeChanged += EventsTimeChanged;
+                        var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
+                        _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
+                        var ac = new AudioCallbacks { SoundCallback = SoundCallback };
+                        _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
+                        _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
                     }
-
-
-                    _mFactory = new MediaPlayerFactory();
-
-                    _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
-                    _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
-                    _mPlayer.Events.TimeChanged += EventsTimeChanged;
 
                     bool file = false;
                     try
@@ -221,36 +219,24 @@ namespace iSpyApplication.Audio.streams
 
                     }
                     if (file)
-                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source, _arguments);
+                        _mMedia = _mFactory.CreateMedia<IMediaFromFile>(_source);
                     else
-                        _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+                        _mMedia = _mFactory.CreateMedia<IMedia>(_source);
 
-
-                    _mMedia = _mFactory.CreateMedia<IMedia>(_source, _arguments);
+                    _mMedia.AddOptions(_arguments);
 
                     _mMedia.Events.DurationChanged -= EventsDurationChanged;
                     _mMedia.Events.StateChanged -= EventsStateChanged;
-
                     _mMedia.Events.DurationChanged += EventsDurationChanged;
                     _mMedia.Events.StateChanged += EventsStateChanged;
 
-                    _mPlayer.Open(_mMedia);
-
-
                     _needsSetup = true;
-                    if (init)
-                    {
-                        var fc = new Func<SoundFormat, SoundFormat>(SoundFormatCallback);
-                        _mPlayer.CustomAudioRenderer.SetFormatCallback(fc);
-                        var ac = new AudioCallbacks {SoundCallback = SoundCallback};
-                        _mPlayer.CustomAudioRenderer.SetCallbacks(ac);
-                        _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
-                    }
-
+                    
+                    _mPlayer.Open(_mMedia);
                     _mMedia.Parse(true);
                     _framesReceived = 0;
                     Duration = Time = 0;
-                    _timestamp = _lastframetimestamp = DateTime.MinValue;
+                    LastFrame = DateTime.MinValue;
                     _mPlayer.Play();
 
                     //check if file source (isseekable in _mPlayer is not reliable)
@@ -310,8 +296,13 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
-        private DateTime _timestamp = DateTime.MinValue;
-        private DateTime _lastframetimestamp = DateTime.MinValue;
+        private Int64 _lastFrame = DateTime.MinValue.Ticks;
+
+        public DateTime LastFrame
+        {
+            get { return new DateTime(_lastFrame); }
+            set { Interlocked.Exchange(ref _lastFrame, value.Ticks); }
+        }
 
         public int TimeOut = 8000;
 
@@ -320,8 +311,7 @@ namespace iSpyApplication.Audio.streams
             //some feeds keep returning frames even when the connection is lost
             //this detects that by comparing timestamps from the eventstimechanged event
             //and signals an error if more than 8 seconds ago
-            bool q = _timestamp > DateTime.MinValue && (Helper.Now - _timestamp).TotalMilliseconds > TimeOut;
-            q = q || (_lastframetimestamp > DateTime.MinValue && (Helper.Now - _lastframetimestamp).TotalMilliseconds > TimeOut);
+            bool q = LastFrame > DateTime.MinValue && (Helper.Now - LastFrame).TotalMilliseconds > TimeOut;
 
             if (q)
             {
@@ -352,7 +342,7 @@ namespace iSpyApplication.Audio.streams
         void EventsTimeChanged(object sender, MediaPlayerTimeChanged e)
         {
             Time = e.NewTime;
-            _timestamp = Helper.Now;
+            LastFrame = Helper.Now;
         }
 
         #region Audio Stuff

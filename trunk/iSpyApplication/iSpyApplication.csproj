@@ -189,7 +189,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Vision, Version=2.2.3.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
+    <Reference Include="AForge.Vision, Version=2.5.4.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Vision.dll</HintPath>
     </Reference>
@@ -388,6 +388,7 @@
     <Compile Include="AddFloorPlan.Designer.cs">
       <DependentUpon>AddFloorPlan.cs</DependentUpon>
     </Compile>
+    <Compile Include="Audio\AudioSynth.cs" />
     <Compile Include="Audio\MP3\ReadFullyStream.cs" />
     <Compile Include="Audio\MP3\WebStream.cs" />
     <Compile Include="Audio\SpeechStreamer.cs" />
@@ -419,12 +420,30 @@
       <DependentUpon>AlertSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\AppLoop.cs" />
+    <Compile Include="Controls\PermissionsForm.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PermissionsForm.Designer.cs">
+      <DependentUpon>PermissionsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PiPSelector.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\PiPSelector.Designer.cs">
+      <DependentUpon>PiPSelector.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\GridViewItem.cs" />
     <Compile Include="Controls\IntervalConfig.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\IntervalConfig.Designer.cs">
       <DependentUpon>IntervalConfig.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\PiPConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\PiPConfig.Designer.cs">
+      <DependentUpon>PiPConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\PTZScheduler.cs">
       <SubType>Form</SubType>
@@ -539,6 +558,7 @@
     <Compile Include="Controls\VideoPlayback.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="EncDec.cs" />
     <Compile Include="GridView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -558,6 +578,12 @@
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
     </Compile>
     <Compile Include="HttpRequest.cs" />
+    <Compile Include="LayoutEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutEditor.Designer.cs">
+      <DependentUpon>LayoutEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="Mailer.cs" />
     <Compile Include="MainForm_Configuration.cs">
       <SubType>Form</SubType>
@@ -700,7 +726,13 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="LayoutItem.cs" />
-    <Compile Include="LocalServer.cs">
+    <Compile Include="PTZTool.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PTZTool.Designer.cs">
+      <DependentUpon>PTZTool.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Server\LocalServer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MainForm_Commands.cs">
@@ -772,12 +804,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="PTZController.cs" />
-    <Compile Include="PTZTool.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PTZTool.Designer.cs">
-      <DependentUpon>PTZTool.cs</DependentUpon>
-    </Compile>
     <Compile Include="RestartableStream.cs" />
     <Compile Include="SerializableFont.cs" />
     <Compile Include="ShareCamera.cs">
@@ -853,12 +879,6 @@
     </Compile>
     <Compile Include="QueueWithEvents.cs" />
     <Compile Include="Screensaver.cs" />
-    <Compile Include="ViewController.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ViewController.Designer.cs">
-      <DependentUpon>ViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\ViewControllerPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -909,12 +929,6 @@
     <Compile Include="extensions.cs" />
     <Compile Include="ftp.cs" />
     <Compile Include="Helper.cs" />
-    <Compile Include="LayoutEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LayoutEditor.Designer.cs">
-      <DependentUpon>LayoutEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="MicrophoneSource.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -933,6 +947,12 @@
     </Compile>
     <Compile Include="RemoteCommands.Designer.cs">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ViewController.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ViewController.Designer.cs">
+      <DependentUpon>ViewController.cs</DependentUpon>
     </Compile>
     <Compile Include="X509.cs" />
     <Compile Include="XML\Translations.cs" />
@@ -1200,8 +1220,18 @@
     <EmbeddedResource Include="Controls\AlertSettings.resx">
       <DependentUpon>AlertSettings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PermissionsForm.resx">
+      <DependentUpon>PermissionsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PiPSelector.resx">
+      <DependentUpon>PiPSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\IntervalConfig.resx">
       <DependentUpon>IntervalConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PiPConfig.resx">
+      <DependentUpon>PiPConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PTZScheduler.resx">
       <DependentUpon>PTZScheduler.cs</DependentUpon>
@@ -1251,17 +1281,20 @@
     <EmbeddedResource Include="Controls\VideoPlayback.resx">
       <DependentUpon>VideoPlayback.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="GridView.resx">
-      <DependentUpon>GridView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\GridViewCustom.resx">
       <DependentUpon>GridViewCustom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridView.resx">
+      <DependentUpon>GridView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GridViewManager.resx">
       <DependentUpon>GridViewManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\GridViewModeConfig.resx">
       <DependentUpon>GridViewModeConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayoutEditor.resx">
+      <DependentUpon>LayoutEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Merger.resx">
       <DependentUpon>Merger.cs</DependentUpon>
@@ -1380,18 +1413,12 @@
     <EmbeddedResource Include="ConfigureSeconds.resx">
       <DependentUpon>ConfigureSeconds.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LayoutEditor.resx">
-      <DependentUpon>LayoutEditor.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MicrophoneSource.resx">
       <DependentUpon>MicrophoneSource.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="RemoteCommands.resx">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ViewController.resx">
-      <DependentUpon>ViewController.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VideoSource.resx">
       <DependentUpon>VideoSource.cs</DependentUpon>
@@ -1404,6 +1431,9 @@
     <EmbeddedResource Include="Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ViewController.resx">
+      <DependentUpon>ViewController.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VirtualDeviceManager.resx">
       <DependentUpon>VirtualDeviceManager.cs</DependentUpon>

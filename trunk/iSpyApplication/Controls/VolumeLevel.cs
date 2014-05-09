@@ -18,6 +18,7 @@ using AForge.Video;
 using iSpyApplication.Audio;
 using iSpyApplication.Audio.streams;
 using iSpyApplication.MP3Stream;
+using iSpyApplication.Server;
 using NAudio.Wave;
 using iSpy.Video.FFMPEG;
 using utils;
@@ -2357,6 +2358,10 @@ namespace iSpyApplication.Controls
                                 ErrorHandler(ex.Message);
                         }
                         break;
+                    case "ATC":
+                        if (CameraControl!=null)
+                            AudioSynth.Play(param1, CameraControl);
+                        break;
                     case "SW":
                         RemoteCommand(this, new ThreadSafeCommand("show"));
                         break;
@@ -2510,8 +2515,6 @@ namespace iSpyApplication.Controls
             
             Levels = null;
 
-            if (!ShuttingDown)
-                _requestRefresh = true;
         }
 
         private void SetErrorState(string reason)
@@ -2530,6 +2533,7 @@ namespace iSpyApplication.Controls
                 if (_errorTime == DateTime.MinValue)
                     _errorTime = Helper.Now;
             }
+            _requestRefresh = true;
         }
 
         private void UpdateFloorplans(bool isAlert)
