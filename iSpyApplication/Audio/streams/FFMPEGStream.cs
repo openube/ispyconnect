@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Windows.Forms;
 using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -15,6 +14,13 @@ namespace iSpyApplication.Audio.streams
         private float _gain;
         private ManualResetEvent _stopEvent;
         private AudioFileReader _afr;
+        private Int64 _lastFrame = DateTime.MinValue.Ticks;
+
+        public DateTime LastFrame
+        {
+            get { return new DateTime(_lastFrame); }
+            set { Interlocked.Exchange(ref _lastFrame, value.Ticks); }
+        }
 
         private Thread _thread;
 
@@ -251,7 +257,7 @@ namespace iSpyApplication.Audio.streams
 
             int mult = _afr.BitsPerSample / 8;
             double btrg = Convert.ToDouble(_afr.SampleRate * mult * _afr.Channels);
-            DateTime lastPacket = Helper.Now;
+            LastFrame = Helper.Now;
             bool realTime = !IsFileSource;
 
             try
@@ -269,7 +275,7 @@ namespace iSpyApplication.Audio.streams
                     }
                     if (data!=null && data.Length > 0)
                     {
-                        lastPacket = Helper.Now;
+                        LastFrame = Helper.Now;
                         var da = DataAvailable;
                         if (da != null)
                         {
@@ -309,7 +315,7 @@ namespace iSpyApplication.Audio.streams
                     }
                     else
                     {
-                        if ((Helper.Now - lastPacket).TotalMilliseconds > 5000)
+                        if ((Helper.Now - LastFrame).TotalMilliseconds > Timeout)
                         {
                             throw new Exception("Audio source timeout");
                         }

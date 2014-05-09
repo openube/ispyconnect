@@ -64,12 +64,15 @@ namespace iSpyApplication
             Recording=          262144,
             PTZ  =              524288,
             Save_Frames =       1048576,
-            YouTube =           2097152,
+            Cloud =             2097152,
             Scheduling =        4194304,
             Alerts =            8388608,
             Source_ONVIF =      16777216,
             Source_Clone =      33554432,
-            Storage =           67108864
+            Storage =           67108864,
+            Settings =          134217728,
+            Grid_Views =        268435456
+                                
         }
 
     }

@@ -73,11 +73,16 @@ namespace iSpyApplication
                                 }
                                 pnlController.Enabled = true;
                                 break;
+                            case -6:
+                                ddlExtended.Items.Add(new ListItem(LocRm.GetString("None"), ""));
+                                pnlController.Enabled = false;
+                                break;
                         }
                     }
                     Text = "PTZ: "+CameraControl.Camobject.name;
                     
-                    ddlExtended.SelectedIndex = 0;
+                    if (ddlExtended.Items.Count>0)
+                        ddlExtended.SelectedIndex = 0;
                 }
                 _loaded = true;
             }

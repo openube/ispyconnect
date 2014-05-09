@@ -36,6 +36,14 @@ namespace iSpyApplication.Video
         public BufferedWaveProvider WaveOutProvider { get; set; }
         public VolumeWaveProvider16New VolumeProvider { get; set; }
         #endregion
+
+        private Int64 _lastFrame = DateTime.MinValue.Ticks;
+
+        public DateTime LastFrame
+        {
+            get { return new DateTime(_lastFrame); }
+            set { Interlocked.Exchange(ref _lastFrame, value.Ticks); }
+        }
         
 
         /// <summary>
@@ -423,7 +431,7 @@ namespace iSpyApplication.Video
             double maxdrift = 0, firstmaxdrift = 0;
             const int analyseInterval = 10;
             DateTime dtAnalyse = DateTime.MinValue;
-            _lastFrame = Helper.Now;
+            //LastFrame = Helper.Now;
 
             if (_initialSeek>-1)
                 _vfr.Seek(_initialSeek);
@@ -527,8 +535,6 @@ namespace iSpyApplication.Video
 
         }
 
-        private DateTime _lastFrame = DateTime.MinValue;
-
         private bool DecodeFrame(int analyseInterval, bool hasaudio, ref double firstmaxdrift, ref double maxdrift,
                                  ref DateTime dtAnalyse)
         {
@@ -550,11 +556,11 @@ namespace iSpyApplication.Video
                         }
                         return true;
                     }
-                    if ((Helper.Now - _lastFrame).TotalMilliseconds > Timeout)
+                    if ((Helper.Now - LastFrame).TotalMilliseconds > Timeout)
                         throw new TimeoutException("Timeout reading from video stream");
                     break;
                 case 1:
-                    _lastFrame = Helper.Now;
+                    LastFrame = Helper.Now;
                     if (hasaudio)
                     {
                         var data = frame as byte[];
@@ -569,7 +575,7 @@ namespace iSpyApplication.Video
                     }
                     break;
                 case 2:
-                    _lastFrame = Helper.Now;
+                    LastFrame = Helper.Now;
                     
                     if (frame != null)
                     {

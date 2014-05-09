@@ -17,6 +17,7 @@ namespace iSpyApplication.Controls
                 "URL|CallURL",
                 "NM|NetworkMessage",
                 "S|PlaySound",
+                "ATC|SoundThroughCamera",
                 "SW|ShowWindow",
                 "B|Beep",
                 "M|Maximise",
@@ -174,6 +175,7 @@ namespace iSpyApplication.Controls
                                             param2Val, "Port|Numeric:0,65535", param3Val, LocRm.GetString("Message"), param4Val);
                     break;
                 case "S":
+                case "ATC":
                     config = GetParamConfig(GetName(t), out cancel, LocRm.GetString("File") + "|FBD:*.wav", param1Val);
                     break;
                 case "SW":

@@ -13,7 +13,6 @@ namespace iSpyApplication.Video
     public static class VlcHelper
     {
         private static string _vlcInstallationFolder="";
-
         private static bool _failed;
         public static readonly Version  VMin = new Version(2,0,0);
         private static Version _versionVLC = new Version(0,0,0);
@@ -27,7 +26,7 @@ namespace iSpyApplication.Video
         /// depends on, without needing to copy them all to the folder where 
         /// your application is.
         /// </summary>
-        public static void AddVlcToPath()
+        private static void AddVlcToPath()
         {
             // Get the current value of the PATH environment variable
             string currentPath = Environment.GetEnvironmentVariable("PATH");
@@ -93,12 +92,14 @@ namespace iSpyApplication.Video
                         {
                             MainForm.LogMessageToFile("Using VLC from " + _vlcInstallationFolder+" (v"+v+")");
                             _versionVLC = Version.Parse(vlcKey.GetValue("Version").ToString());
+                            AddVlcToPath();
                             return true;
                         }
                     }
                 }
                 catch(Exception ex)
                 {
+                    _failed = true;
                     MainForm.LogExceptionToFile(ex);
                 }
                 if (Program.Platform == "x64")
@@ -111,7 +112,6 @@ namespace iSpyApplication.Video
                     if (b)
                         return true;
                 }
-                _failed = true;
                 return false;
             }
         }
@@ -134,6 +134,7 @@ namespace iSpyApplication.Video
                             _vlcInstallationFolder = folder;
                             _versionVLC = v;
                             MainForm.LogMessageToFile("Using VLC (x64) from " + _vlcInstallationFolder + " (v" + _versionVLC + ")");
+                            AddVlcToPath();
                             return true;
                         }
                         MainForm.LogMessageToFile("VLC in " + folder + " is 64 bit but below minimum version. Please update with the latest version of VLC.");

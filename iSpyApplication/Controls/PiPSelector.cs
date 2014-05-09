@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using System.Threading;
+using Google.GData.Extensions.Apps;
+using RestSharp.Extensions;
 
 namespace iSpyApplication.Controls
 {
-    public sealed partial class AreaSelector : Panel
+    public sealed partial class PiPSelector : Panel
     {
         private Point _rectStart = Point.Empty;
         private Point _rectStop = Point.Empty;
         private Point _hoverPoint = Point.Empty;
 
+        public int CurrentCameraID = -1;
+
         private bool _bMouseDown;
-        private List<Rectangle> _motionZonesRectangles = new List<Rectangle>();
+        private List<pipconfig> _configs = new List<pipconfig>();
 
         private Bitmap _lastFrame;
         private readonly object _lockobject = new object();
@@ -47,10 +52,6 @@ namespace iSpyApplication.Controls
             }
         }
 
-        public void ClearRectangles()
-        {
-            _motionZonesRectangles = new List<Rectangle>();
-        }
 
         private int _rectIndex = -1;
         private Rectangle _rectOrig;
@@ -75,23 +76,22 @@ namespace iSpyApplication.Controls
                 startY = 100;
 
             int i = 0;
-            foreach(var r in _motionZonesRectangles)
+            foreach (var r in _configs)
             {
-                if (startX>r.X && startX<r.X+r.Width && startY>r.Y && startY<r.Y+r.Height)
+                if (startX > r.Rect.X && startX < r.Rect.X + r.Rect.Width && startY > r.Rect.Y && startY < r.Rect.Y + r.Rect.Height)
                 {
                     _rectIndex = i;
-                    _rectOrig = new Rectangle(r.X,r.Y,r.Width,r.Height);
+                    _rectOrig = new Rectangle(r.Rect.X, r.Rect.Y, r.Rect.Width, r.Rect.Height);
                     _rectStart = new Point(startX, startY);
                     return;
                 }
                 i++;
             }
             _rectIndex = -1;
-            
+
             _rectStop = new Point(startX, startY);
             _rectStart = new Point(startX, startY);
             OnBoundsChanged();
-            
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
@@ -108,7 +108,7 @@ namespace iSpyApplication.Controls
                 _rectStop = Point.Empty;
                 if (endX>100 || endY>100 || endX<0 || endY<0)
                 {
-                    _motionZonesRectangles.RemoveAt(_rectIndex);
+                    _configs.RemoveAt(_rectIndex);
                 }
                 _rectIndex = -1;
                 OnBoundsChanged();
@@ -120,28 +120,43 @@ namespace iSpyApplication.Controls
                 endY = 100;
             if (Math.Sqrt(Math.Pow(endX - _rectStart.X, 2) + Math.Pow(endY - _rectStart.Y, 2)) < 5)
             {
-                _rectStart = new Point(0, 0);
-                _rectStop = new Point(100, 100);
+                //ignore
+                _rectStart = Point.Empty;
+                _rectStop = Point.Empty;
+                return;
             }
             var start = new Point();
             var stop = new Point();
-            
+
             start.X = _rectStart.X;
-            if (_rectStop.X<_rectStart.X)
+            if (_rectStop.X < _rectStart.X)
                 start.X = _rectStop.X;
             start.Y = _rectStart.Y;
-            if (_rectStop.Y<_rectStart.Y)
+            if (_rectStop.Y < _rectStart.Y)
                 start.Y = _rectStop.Y;
 
             stop.X = _rectStop.X;
-            if (_rectStop.X<_rectStart.X)
+            if (_rectStop.X < _rectStart.X)
                 stop.X = _rectStart.X;
             stop.Y = _rectStop.Y;
-            if (_rectStop.Y<_rectStart.Y)
+            if (_rectStop.Y < _rectStart.Y)
                 stop.Y = _rectStart.Y;
 
-            var size = new Size(stop.X-start.X,stop.Y-start.Y);
-            _motionZonesRectangles.Add(new Rectangle(start, size));
+            var size = new Size(stop.X - start.X, stop.Y - start.Y);
+            if (CurrentCameraID > -1)
+            {
+                var m = _configs.FirstOrDefault(p => p.CameraID == CurrentCameraID);
+                if (m == null)
+                {
+                    m = new pipconfig {CameraID = CurrentCameraID, Rect = new Rectangle(start, size)};
+                    _configs.Add(m);
+                }
+                else
+                {
+                    m.Rect = new Rectangle(start, size);
+                }
+
+            }
             _rectStart = Point.Empty;
             _rectStop = Point.Empty;
             OnBoundsChanged();
@@ -160,33 +175,33 @@ namespace iSpyApplication.Controls
             {
                 if (_hoverPoint!=Point.Empty)
                 {
-                    var r = _motionZonesRectangles[_rectIndex];
+                    var r = _configs[_rectIndex];
 
                     Rectangle rnew = Rectangle.Empty;
-                    if (_hoverPoint.X==r.Left)
+                    if (_hoverPoint.X==r.Rect.Left)
                     {
-                        if (_hoverPoint.Y == r.Top)
+                        if (_hoverPoint.Y == r.Rect.Top)
                         {
-                            rnew = NormRect(new Point(p.X, p.Y), new Point(r.Right, r.Bottom));
+                            rnew = NormRect(new Point(p.X, p.Y), new Point(r.Rect.Right, r.Rect.Bottom));
                         }
                         else
                         {
-                            rnew = NormRect(new Point(p.X, r.Top), new Point(r.Right, p.Y));
+                            rnew = NormRect(new Point(p.X, r.Rect.Top), new Point(r.Rect.Right, p.Y));
                         }
                     }
-                    if (_hoverPoint.X==r.Right)
+                    if (_hoverPoint.X == r.Rect.Right)
                     {
-                        if (_hoverPoint.Y == r.Top)
+                        if (_hoverPoint.Y == r.Rect.Top)
                         {
-                            rnew = NormRect(new Point(r.X, p.Y), new Point(p.X, r.Bottom));
+                            rnew = NormRect(new Point(r.Rect.X, p.Y), new Point(p.X, r.Rect.Bottom));
                         }
                         else
                         {
-                            rnew = NormRect(new Point(r.X, r.Y), new Point(p.X, p.Y));
+                            rnew = NormRect(new Point(r.Rect.X, r.Rect.Y), new Point(p.X, p.Y));
                         }                        
                     }
                     _hoverPoint = new Point(p.X,p.Y);
-                    _motionZonesRectangles[_rectIndex] = rnew;
+                    _configs[_rectIndex] = new pipconfig {CameraID = r.CameraID, Rect = rnew};
                     Invalidate();
                     return;
                 }
@@ -200,40 +215,40 @@ namespace iSpyApplication.Controls
                 _rectStop = new Point(endX, endY);
                 if (_rectIndex>-1)
                 {
-                    var mz = _motionZonesRectangles[_rectIndex];
-                    mz.X = _rectOrig.X + (_rectStop.X - _rectStart.X);
-                    mz.Y = _rectOrig.Y + (_rectStop.Y - _rectStart.Y);
-                    _motionZonesRectangles[_rectIndex] = mz;
+                    var mz = _configs[_rectIndex];
+                    mz.Rect.X = _rectOrig.X + (_rectStop.X - _rectStart.X);
+                    mz.Rect.Y = _rectOrig.Y + (_rectStop.Y - _rectStart.Y);
+                    _configs[_rectIndex] = mz;
                 }
             }
             else
             {
-                _hoverPoint = Point.Empty;               
+                _hoverPoint = Point.Empty;
 
-                for(int i=0;i<_motionZonesRectangles.Count;i++)
+                for (int i = 0; i < _configs.Count; i++)
                 {
-                    var r = _motionZonesRectangles[i];
-                    if (CalcDist(r.Left,r.Top, p)<5)
+                    var r = _configs[i];
+                    if (CalcDist(r.Rect.Left, r.Rect.Top, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Left,r.Top);
+                        _hoverPoint = new Point(r.Rect.Left, r.Rect.Top);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist( r.Right,r.Top, p) < 5)
+                    if (CalcDist(r.Rect.Right, r.Rect.Top, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Right,r.Top);
+                        _hoverPoint = new Point(r.Rect.Right, r.Rect.Top);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist(r.Right,r.Bottom,  p) < 5)
+                    if (CalcDist(r.Rect.Right, r.Rect.Bottom, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Right, r.Bottom);
+                        _hoverPoint = new Point(r.Rect.Right, r.Rect.Bottom);
                         _rectIndex = i;
                         break;
                     }
-                    if (CalcDist(r.Left,r.Bottom,  p) < 5)
+                    if (CalcDist(r.Rect.Left, r.Rect.Bottom, p) < 5)
                     {
-                        _hoverPoint = new Point(r.Left, r.Bottom );
+                        _hoverPoint = new Point(r.Rect.Left, r.Rect.Bottom);
                         _rectIndex = i;
                         break;
                     }
@@ -267,7 +282,7 @@ namespace iSpyApplication.Controls
             _bMouseDown = false;
         }
 
-        public AreaSelector()
+        public PiPSelector()
         {
             InitializeComponent();
             SetStyle(
@@ -275,35 +290,44 @@ namespace iSpyApplication.Controls
                 ControlStyles.UserPaint, true);
             Margin = new Padding(0, 0, 0, 0);
             Padding = new Padding(0, 0, 3, 3);
-            _motionZonesRectangles = new List<Rectangle>();
+            _configs = new List<pipconfig>();
             BackgroundImageLayout = ImageLayout.Stretch;
         }
-        public objectsCameraDetectorZone[] MotionZones
+        public string Areas
         {
             get
             {
-                var ocdzs = new List<objectsCameraDetectorZone>();
-                for (int index = 0; index < _motionZonesRectangles.Count; index++)
-                {
-                    Rectangle r = _motionZonesRectangles[index];
-                    var ocdz = new objectsCameraDetectorZone
-                                   {
-                                       left = r.Left,
-                                       top = r.Top,
-                                       width = r.Width,
-                                       height = r.Height
-                                   };
-                    ocdzs.Add(ocdz);
-                }
-                return ocdzs.ToArray();
+                string r = _configs.Aggregate("", (current, rect) => current + (rect.CameraID + "," + rect.Rect.Left + "," + rect.Rect.Top + "," + rect.Rect.Width + "," + rect.Rect.Height + "|"));
+                return r.Trim('|');
             }
             set
             {
-                _motionZonesRectangles = new List<Rectangle>();
-                if (value == null) return;
-                foreach (var r in value)
-                    _motionZonesRectangles.Add(new Rectangle(r.left, r.top, r.width, r.height));
+                _configs = new List<pipconfig>();
+                var cfg = value.Split('|');
+                foreach (var s in cfg)
+                {
+                    if (s != "")
+                    {
+                        var t = s.Split(',');
+                        if (t.Length == 5)
+                        {
+                            int cid,x, y, w, h;
+                            if (int.TryParse(t[0], out cid) && int.TryParse(t[1], out x) && int.TryParse(t[2], out y) && int.TryParse(t[3], out w) &&
+                                int.TryParse(t[4], out h))
+                            {
+                                _configs.Add(new pipconfig {CameraID = cid, Rect = new Rectangle(x, y, w, h)});
+                            }
+                        }
+                    }
+                }
             }
+        }
+
+        private class pipconfig
+        {
+            public int CameraID;
+            public Rectangle Rect;
+
         }
 
         protected override void OnPaint(PaintEventArgs pe)
@@ -322,25 +346,39 @@ namespace iSpyApplication.Controls
                 double wmulti = Convert.ToDouble(Width) / Convert.ToDouble(100);
                 double hmulti = Convert.ToDouble(Height) / Convert.ToDouble(100);
 
-                if (_motionZonesRectangles.Count > 0)
+                if (_configs.Count > 0)
                 {
-                    foreach (var r in _motionZonesRectangles)
+                    foreach (var r in _configs)
                     {
-                        var rMod = new Rectangle(Convert.ToInt32(r.X * wmulti), Convert.ToInt32(r.Y * hmulti), Convert.ToInt32(r.Width * wmulti), Convert.ToInt32(r.Height * hmulti));
+                        var rMod = new Rectangle(Convert.ToInt32(r.Rect.X * wmulti), Convert.ToInt32(r.Rect.Y * hmulti), Convert.ToInt32(r.Rect.Width * wmulti), Convert.ToInt32(r.Rect.Height * hmulti));
                         g.FillRectangle(h, rMod);
                         g.DrawRectangle(p, rMod);
+
+                        var n = MainForm.Cameras.FirstOrDefault(q => q.id == r.CameraID);
+                        if (n != null)
+                            g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush, Convert.ToInt32(r.Rect.X * wmulti) + 2,
+                             Convert.ToInt32(r.Rect.Y * hmulti) + 2);
                     }
                 }
 
-                if (_rectIndex == -1)
+                if (_rectIndex == -1 && _bMouseDown)
                 {
-                    var p1 = new Point(Convert.ToInt32(_rectStart.X*wmulti), Convert.ToInt32(_rectStart.Y*hmulti));
-                    var p2 = new Point(Convert.ToInt32(_rectStop.X*wmulti), Convert.ToInt32(_rectStop.Y*hmulti));
+                    var p1 = new Point(Convert.ToInt32(_rectStart.X * wmulti), Convert.ToInt32(_rectStart.Y * hmulti));
+                    var p2 = new Point(Convert.ToInt32(_rectStop.X * wmulti), Convert.ToInt32(_rectStop.Y * hmulti));
 
-                    var ps = new[] {p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1};
+                    var ps = new[] { p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1 };
                     g.FillPolygon(h, ps);
                     g.DrawPolygon(p, ps);
+
+                    
+                    var n = MainForm.Cameras.FirstOrDefault(q => q.id == CurrentCameraID);
+                    if (n != null)
+                        g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush,
+                            Convert.ToInt32(_rectStart.X*wmulti) + 2,
+                            Convert.ToInt32(_rectStart.Y*hmulti) + 2);
+                    
                 }
+
                 if (_hoverPoint!=Point.Empty)
                     g.FillEllipse(Brushes.DeepSkyBlue,Convert.ToInt32(_hoverPoint.X * wmulti)-5,Convert.ToInt32(_hoverPoint.Y*hmulti)-5,10,10);
 

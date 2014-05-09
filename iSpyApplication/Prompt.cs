@@ -13,22 +13,15 @@ namespace iSpyApplication
 
         }
 
-        public Prompt(string label, string prefill)
+        public Prompt(string label, string prefill="", bool isPassword=false)
         {
             InitializeComponent();
             Text = label;
             textBox1.Text = prefill;
-        }
-
-        public Prompt(string label, string prefill, bool isPassword)
-        {
-            InitializeComponent();
-            Text = label;
             if (isPassword)
                 textBox1.PasswordChar = '*';
-            textBox1.Text = prefill;
-            
         }
+
 
         public override sealed string Text
         {
@@ -38,6 +31,11 @@ namespace iSpyApplication
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Go();
+        }
+
+        private void Go()
+        {
             DialogResult = DialogResult.OK;
             Val = textBox1.Text;
             Close();
@@ -46,6 +44,20 @@ namespace iSpyApplication
         private void Prompt_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void Prompt_Shown(object sender, EventArgs e)
+        {
+            this.Activate();
+            textBox1.Focus();
+        }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                Go();
+            }
         }
     }
 }

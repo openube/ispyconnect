@@ -127,4 +127,9 @@
   <OpenGrabs>true</OpenGrabs>
   <TextSentences></TextSentences>
   <VLCFileCache>3000</VLCFileCache>
+  <Referers></Referers>
+  <EncryptCode></EncryptCode>
+  <Permissions>
+    <group name="Admin" featureset="1" password=""/>
+  </Permissions>
 </configuration>

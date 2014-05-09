@@ -9,6 +9,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Google.GData.Client;
 using Google.GData.YouTube;
+using iSpyApplication.Server;
 using Microsoft.Win32;
 using NAudio.Wave;
 using iSpyApplication.Controls;
@@ -57,32 +58,6 @@ namespace iSpyApplication
 
         private void Button1Click(object sender, EventArgs e)
         {
-            string password = txtPassword.Text;
-            if (chkPasswordProtect.Checked || chkPasswordProtectSettings.Checked)
-            {
-                if (password.Length < 3)
-                {
-                    MessageBox.Show(LocRm.GetString("Validate_Password"), LocRm.GetString("Note"));
-                    return;
-                }
-            }
-            if (password != MainForm.Conf.Password_Protect_Password)
-            {
-                var p = new Prompt(LocRm.GetString("ConfirmPassword"), "", true);
-                if (p.ShowDialog(this) == DialogResult.OK)
-                {
-                    var v = p.Val;
-                    if (v != txtPassword.Text)
-                    {
-                        MessageBox.Show(this, LocRm.GetString("PasswordMismatch"));
-                        tcTabs.SelectedIndex = 0;
-                        p.Dispose();
-                        return;
-                    }
-                }
-                p.Dispose();
-            }
-
             string err = "";
 
             foreach (var s in mediaDirectoryEditor1.Directories)
@@ -104,11 +79,9 @@ namespace iSpyApplication
             {
                 MainForm.EncoderParams.Param[0] = new EncoderParameter(Encoder.Quality, (int) numJPEGQuality.Value);
             }
-            MainForm.Conf.PasswordProtectSettings = chkPasswordProtectSettings.Checked;
             MainForm.Conf.Enable_Error_Reporting = chkErrorReporting.Checked;
             MainForm.Conf.Enable_Update_Check = chkCheckForUpdates.Checked;
             MainForm.Conf.Enable_Password_Protect = chkPasswordProtect.Checked;
-            MainForm.Conf.Password_Protect_Password = password;
 
             MainForm.Conf.NoActivityColor = btnNoDetectColor.BackColor.ToRGBString();
             MainForm.Conf.ActivityColor = btnDetectColor.BackColor.ToRGBString();
@@ -157,11 +130,11 @@ namespace iSpyApplication
             MainForm.Conf.MediaDirectories = l.ToArray();
             var l2 = ftpEditor1.Servers.ToList();
             MainForm.Conf.FTPServers = l2.ToArray();
-
             MainForm.Conf.MailAlertSubject = txtAlertSubject.Text;
             MainForm.Conf.MailAlertBody = txtAlertBody.Text;
             MainForm.Conf.SMSAlert = txtSMSBody.Text;
             MainForm.Conf.VLCFileCache = (int)numFileCache.Value;
+            MainForm.Conf.Password_Protect_Startup = chkPasswordProtectOnStart.Checked;
             SaveSMTPSettings();
 
             MainForm.Conf.Archive = txtArchive.Text.Trim();
@@ -195,6 +168,13 @@ namespace iSpyApplication
             var t = ips.Select(ip => ip.Trim()).Where(ip2 => ip2 != "").Aggregate("", (current, ip2) => current + (ip2 + ","));
             MainForm.Conf.AllowedIPList = t.Trim(',');
             LocalServer.AllowedIPs = null;
+
+            var refs = rtbReferrers.Text.Trim().Split(',');
+            var t2 = refs.Select(ip => ip.Trim()).Where(ip2 => ip2 != "").Aggregate("", (current, ip2) => current + (ip2 + ","));
+            MainForm.Conf.Referers = t2.Trim(',');
+            LocalServer.AllowedReferers = null;
+
+            
             MainForm.Conf.ShowOverlayControls = chkOverlay.Checked;
 
             string lang = ((ListItem) ddlLanguage.SelectedItem).Value[0];
@@ -315,17 +295,19 @@ namespace iSpyApplication
 
         private void SettingsLoad(object sender, EventArgs e)
         {
-            if (MainForm.Conf.PasswordProtectSettings)
+            if (!Helper.HasFeature(Enums.Features.Settings))
             {
                 using (var cp = new CheckPassword())
                 {
                     cp.ShowDialog(this);
-                    if (cp.DialogResult != DialogResult.OK)
-                    {
-                        Close();
-                        return;
-                    }
                 }
+            }
+
+            if (!Helper.HasFeature(Enums.Features.Settings))
+            {
+                MessageBox.Show(this, LocRm.GetString("AccessDenied"));
+                Close();
+                return;
             }
 
             UISync.Init(this);
@@ -334,7 +316,6 @@ namespace iSpyApplication
             chkCheckForUpdates.Checked = MainForm.Conf.Enable_Update_Check;
             
             chkShowGettingStarted.Checked = MainForm.Conf.Enabled_ShowGettingStarted;
-            txtPassword.Text = MainForm.Conf.Password_Protect_Password;
             _rkApp = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", false);
             chkStartup.Checked = (_rkApp != null && _rkApp.GetValue("iSpy") != null);
 
@@ -360,7 +341,6 @@ namespace iSpyApplication
             chkMinimise.Checked = MainForm.Conf.MinimiseOnClose;
             chkSpeechRecognition.Checked = MainForm.Conf.SpeechRecognition;
             chkMinimiseToTray.Checked = MainForm.Conf.TrayOnMinimise;
-            chkPasswordProtectSettings.Checked = MainForm.Conf.PasswordProtectSettings;
 
             if (chkMonitor.Checked && !MainForm.Conf.Monitor)
             {
@@ -397,7 +377,6 @@ namespace iSpyApplication
             chkEnableIPv6.Checked = !MainForm.Conf.IPv6Disabled;
             chkRecycle.Checked = MainForm.Conf.DeleteToRecycleBin;
             txtAppendLinkText.Text = MainForm.Conf.AppendLinkText;
-            lblFeatureSet.Text = MainForm.Conf.FeatureSet.ToString(CultureInfo.InvariantCulture);
             numMJPEGStreamInterval.Value = MainForm.Conf.MJPEGStreamInterval;
             txtAlertOnDisconnect.Text = MainForm.Conf.AlertOnDisconnect;
             txtAlertOnReconnect.Text = MainForm.Conf.AlertOnReconnect;
@@ -557,6 +536,8 @@ namespace iSpyApplication
             ftpEditor1.Init(MainForm.Conf.FTPServers);
             chkOpenGrabs.Checked = MainForm.Conf.OpenGrabs;
             numFileCache.Value = MainForm.Conf.VLCFileCache;
+            rtbReferrers.Text = MainForm.Conf.Referers;
+            chkPasswordProtectOnStart.Checked = MainForm.Conf.Password_Protect_Startup;
             
             _loaded = true;
         }
@@ -588,8 +569,8 @@ namespace iSpyApplication
             chkPasswordProtect.Text = LocRm.GetString("PasswordProtectWhenMinimi");
             chkShowGettingStarted.Text = LocRm.GetString("ShowGettingStarted");
             chkStartup.Text = LocRm.GetString("RunOnStartupthisUserOnly");
-            label1.Text = LocRm.GetString("Password");
             chkAutoSchedule.Text = LocRm.GetString("AutoApplySchedule");
+            chkPasswordProtectOnStart.Text = LocRm.GetString("PasswordProtectOnStart");
             
             label14.Text = LocRm.GetString("IspyServerName");
             label16.Text = LocRm.GetString("ispyOpacitymayNotW");
@@ -623,13 +604,13 @@ namespace iSpyApplication
             label17.Text = LocRm.GetString("IPAccessExplainer");
             chkMonitor.Text = LocRm.GetString("RestartIfCrashed");
             chkGZip.Text = LocRm.GetString("Enable GZip");
-            chkPasswordProtectSettings.Text = LocRm.GetString("PasswordProtectSettings");
-            label40.Text = LocRm.GetString("FeatureSet");
+            label40.Text = LocRm.GetString("Permissions");
             label24.Text = LocRm.GetString("MediaPanelItems");
             label11.Text = LocRm.GetString("ArchiveDirectory");
             label48.Text = LocRm.GetString("DisconnectionNotificationDelay");
             label41.Text = LocRm.GetString("MJPEGFrameInterval");
             label20.Text = LocRm.GetString("VLCFileCache");
+            label64.Text = LocRm.GetString("HTTPReferrersAllowed");
 
             LocRm.SetString(lblMicrophone, "Microphone");
             LocRm.SetString(chkBigButtons, "BigButtons");
@@ -1099,9 +1080,7 @@ namespace iSpyApplication
         private void CenterAxes()
         {
             MainForm.Conf.Joystick.CenterXAxis = jaxis1.ID > 0 ? _jst.Axis[jaxis1.ID - 1] : 0;
-
             MainForm.Conf.Joystick.CenterYAxis = jaxis2.ID > 0 ? _jst.Axis[jaxis2.ID - 1] : 0;
-
             MainForm.Conf.Joystick.CenterZAxis = jaxis3.ID > 0 ? _jst.Axis[jaxis3.ID - 1] : 0;
         }
 
@@ -1112,10 +1091,25 @@ namespace iSpyApplication
 
         private void btnFeatureSet_Click(object sender, EventArgs e)
         {
+            if (MainForm.Group != "Admin")
+            {
+                var ap = EncDec.DecryptData(MainForm.Conf.Permissions.First(q => q.name == "Admin").password,MainForm.Conf.EncryptCode);
+
+                var p = new Prompt(LocRm.GetString("AdminPassword"), "", true);
+                p.ShowDialog(this);
+                string pwd = p.Val;
+                p.Dispose();
+                if (pwd != ap)
+                {
+                    MessageBox.Show(this, LocRm.GetString("PasswordIncorrect"));
+                    return;
+                }
+                
+               
+            }
             var f = new Features();
             f.ShowDialog(this);
             f.Dispose();
-            lblFeatureSet.Text = MainForm.Conf.FeatureSet.ToString(CultureInfo.InvariantCulture);
             MainClass.RenderResources();
         }
 

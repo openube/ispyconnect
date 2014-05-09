@@ -100,6 +100,7 @@ namespace iSpyApplication
             this.Text = "Application has been locked.";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.CheckPasswordLoad);
+            this.Shown += new System.EventHandler(this.CheckPassword_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

@@ -604,20 +604,41 @@ namespace iSpyApplication.Video
 					// abort request
 					if ( request != null)
 					{
-                        request.Abort( );
-                        request = null;
+					    try
+					    {
+					        request.Abort();
+					    }
+					    catch
+					    {
+					        
+					    }
+					    request = null;
 					}
 					// close response stream
 					if ( stream != null )
 					{
-						stream.Close( );
-						stream = null;
+					    try
+					    {
+					        stream.Close();
+					    }
+					    catch
+					    {
+					        //somehow can be disposed already?
+					    }
+					    stream = null;
 					}
 					// close response
 					if ( response != null )
 					{
-                        response.Close( );
-                        response = null;
+					    try
+					    {
+					        response.Close();
+					    }
+					    catch
+					    {
+					        
+					    }
+					    response = null;
 					}
 				}
 

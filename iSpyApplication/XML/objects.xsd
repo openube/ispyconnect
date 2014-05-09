@@ -144,6 +144,14 @@
                                                           </xs:sequence>
                                                         </xs:complexType>
                                                     </xs:element>
+                                                    <xs:element name="pip">
+                                                      <xs:complexType>
+                                                        <xs:sequence>
+                                                          <xs:element name="enabled" type="xs:boolean" default="false"/>
+                                                          <xs:element name="config" type="xs:string" />
+                                                        </xs:sequence>
+                                                      </xs:complexType>
+                                                    </xs:element>
                                                 </xs:sequence>
                                                 <xs:attribute name="desktopresizewidth" type="xs:int" use="required"/>
                                                 <xs:attribute name="desktopresizeheight" type="xs:int" use="required"/>

@@ -340,7 +340,7 @@ namespace iSpyApplication
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            Go(1);
+            Go(-1);
 
         }
 
@@ -376,7 +376,7 @@ namespace iSpyApplication
 
         private void btnPrevious_Click(object sender, EventArgs e)
         {
-            Go(-1);
+            Go(1);
         }
 
         private void chkRepeatAll_CheckedChanged(object sender, EventArgs e)

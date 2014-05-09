@@ -34,8 +34,11 @@
             this.ddlDefault = new System.Windows.Forms.ComboBox();
             this.numRemoveDelay = new System.Windows.Forms.NumericUpDown();
             this.button1 = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.numMaxItems = new System.Windows.Forms.NumericUpDown();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRemoveDelay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxItems)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -47,15 +50,18 @@
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.ddlDefault, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.numRemoveDelay, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.numMaxItems, 1, 2);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowCount = 4;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 91);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 120);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -103,7 +109,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(95, 56);
+            this.button1.Location = new System.Drawing.Point(95, 82);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -111,11 +117,33 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 59);
+            this.label3.Margin = new System.Windows.Forms.Padding(6);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(55, 13);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Max Items";
+            // 
+            // numMaxItems
+            // 
+            this.numMaxItems.Location = new System.Drawing.Point(95, 56);
+            this.numMaxItems.Maximum = new decimal(new int[] {
+            99999999,
+            0,
+            0,
+            0});
+            this.numMaxItems.Name = "numMaxItems";
+            this.numMaxItems.Size = new System.Drawing.Size(120, 20);
+            this.numMaxItems.TabIndex = 6;
+            // 
             // GridViewModeConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(236, 91);
+            this.ClientSize = new System.Drawing.Size(236, 120);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "GridViewModeConfig";
@@ -126,6 +154,7 @@
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRemoveDelay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaxItems)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -138,5 +167,7 @@
         private System.Windows.Forms.ComboBox ddlDefault;
         private System.Windows.Forms.NumericUpDown numRemoveDelay;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown numMaxItems;
     }
 }

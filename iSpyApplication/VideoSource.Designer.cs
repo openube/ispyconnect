@@ -267,7 +267,7 @@ namespace iSpyApplication
             this.cmbJPEGURL.FormattingEnabled = true;
             this.cmbJPEGURL.Location = new System.Drawing.Point(83, 55);
             this.cmbJPEGURL.Name = "cmbJPEGURL";
-            this.cmbJPEGURL.Size = new System.Drawing.Size(234, 21);
+            this.cmbJPEGURL.Size = new System.Drawing.Size(435, 21);
             this.cmbJPEGURL.TabIndex = 11;
             this.cmbJPEGURL.SelectedIndexChanged += new System.EventHandler(this.cmbJPEGURL_SelectedIndexChanged);
             this.cmbJPEGURL.Click += new System.EventHandler(this.cmbJPEGURL_Click);
@@ -297,7 +297,7 @@ namespace iSpyApplication
             this.cmbMJPEGURL.FormattingEnabled = true;
             this.cmbMJPEGURL.Location = new System.Drawing.Point(77, 55);
             this.cmbMJPEGURL.Name = "cmbMJPEGURL";
-            this.cmbMJPEGURL.Size = new System.Drawing.Size(223, 21);
+            this.cmbMJPEGURL.Size = new System.Drawing.Size(465, 21);
             this.cmbMJPEGURL.TabIndex = 13;
             this.cmbMJPEGURL.SelectedIndexChanged += new System.EventHandler(this.cmbMJPEGURL_SelectedIndexChanged);
             this.cmbMJPEGURL.Click += new System.EventHandler(this.cmbMJPEGURL_Click);
@@ -2031,7 +2031,7 @@ namespace iSpyApplication
             this.ddlCloneCamera.FormattingEnabled = true;
             this.ddlCloneCamera.Location = new System.Drawing.Point(86, 3);
             this.ddlCloneCamera.Name = "ddlCloneCamera";
-            this.ddlCloneCamera.Size = new System.Drawing.Size(121, 21);
+            this.ddlCloneCamera.Size = new System.Drawing.Size(385, 21);
             this.ddlCloneCamera.TabIndex = 1;
             // 
             // llblHelp

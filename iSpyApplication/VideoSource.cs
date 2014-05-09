@@ -1537,7 +1537,8 @@ namespace iSpyApplication
 
         private void videoResolutionsCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            rdoCaptureVideo.Checked = true;
+            if (_loaded)
+                rdoCaptureVideo.Checked = true;
         }
 
         private void videoInputsCombo_SelectedIndexChanged(object sender, EventArgs e)
@@ -1600,7 +1601,8 @@ namespace iSpyApplication
 
         private void snapshotResolutionsCombo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            rdoCaptureSnapshots.Checked = true;
+            if (_loaded) 
+                rdoCaptureSnapshots.Checked = true;
         }
 
         private void chkKinectSkeletal_CheckedChanged(object sender, EventArgs e)

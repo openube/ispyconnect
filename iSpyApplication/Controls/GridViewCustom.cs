@@ -10,6 +10,7 @@ namespace iSpyApplication.Controls
         public int Rows = 1;
         public string GridName;
         public bool FullScreen = false;
+        public bool Overlays = true;
         public bool AlwaysOnTop = false;
         public string Display;
         public int Framerate = 5;
@@ -36,6 +37,7 @@ namespace iSpyApplication.Controls
             Cols = (int)numCols.Value;
             GridName = txtName.Text.Trim();
             FullScreen = chkFullScreen.Checked;
+            Overlays = chkOverlays.Checked;
             AlwaysOnTop = chkAlwaysOnTop.Checked;
             Display = cmbDisplay.Text;
             Framerate = (int)numFramerate.Value;
@@ -58,6 +60,7 @@ namespace iSpyApplication.Controls
             chkFullScreen.Checked = FullScreen;
             chkAlwaysOnTop.Checked = AlwaysOnTop;
             cmbDisplay.Text = Display;
+            chkOverlays.Checked = Overlays;
             numFramerate.Value = Framerate;
             ddlMode.SelectedIndex = Mode;
             chkFill.Checked = Fill;
@@ -95,6 +98,7 @@ namespace iSpyApplication.Controls
             LocRm.SetString(label5, "Framerate");
             LocRm.SetString(label4, "Display");
             LocRm.SetString(chkShowOnLoad, "ShowOnLoad");
+            LocRm.SetString(chkOverlays,"Overlays");
             LocRm.SetString(button1,"OK");
 
         }

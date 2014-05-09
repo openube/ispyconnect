@@ -41,6 +41,9 @@ namespace iSpyApplication.Controls
                 case "S":
                     t = LocRm.GetString("PlaySound")+": " + param1;
                     break;
+                case "ATC":
+                    t = LocRm.GetString("SoundThroughCamera") + ": " + param1;
+                    break;
                 case "SW":
                     t = LocRm.GetString("ShowWindow");
                     pbEdit.Visible = false;
