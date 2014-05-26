@@ -33,6 +33,8 @@ namespace iSpyApplication
             NotInList = 1
         } ;
 
+        public enum FrameType {Video,Audio}
+
         public enum AudioStreamMode
         {
             //PCM,

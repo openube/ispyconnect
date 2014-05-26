@@ -59,6 +59,11 @@ namespace iSpyApplication
             VolumeLevel.Micobject.detector.maxsensitivity = ranger1.ValueMax;
         }
 
+        void Ranger1GainChanged()
+        {
+            VolumeLevel.Micobject.detector.gain = ranger1.Gain;
+        }
+
         private void AddMicrophoneLoad(object sender, EventArgs e)
         {
             if (VolumeLevel.Micobject.id == -1)
@@ -142,6 +147,7 @@ namespace iSpyApplication
             tblStorage.Enabled = chkStorageManagement.Checked = VolumeLevel.Micobject.settings.storagemanagement.enabled;
             numMaxAge.Value = VolumeLevel.Micobject.settings.storagemanagement.maxage;
             numMaxFolderSize.Value = VolumeLevel.Micobject.settings.storagemanagement.maxsize;
+            numMinRecord.Value = VolumeLevel.Micobject.recorder.minrecordtime;
 
             ddlCopyFrom.Items.Clear();
             ddlCopyFrom.Items.Add(new ListItem(LocRm.GetString("CopyFrom"), "-1"));
@@ -214,8 +220,10 @@ namespace iSpyApplication
             ranger1.Minimum = 0.001;
             ranger1.ValueMin = VolumeLevel.Micobject.detector.minsensitivity;
             ranger1.ValueMax = VolumeLevel.Micobject.detector.maxsensitivity;
+            ranger1.Gain = VolumeLevel.Micobject.detector.gain;
             ranger1.ValueMinChanged += Ranger1ValueMinChanged;
             ranger1.ValueMaxChanged += Ranger1ValueMaxChanged;
+            ranger1.GainChanged += Ranger1GainChanged;
             ranger1.SetText();
 
             intervalConfig1.Init(VolumeLevel);
@@ -261,6 +269,8 @@ namespace iSpyApplication
             label1.Text = LocRm.GetString("Name");
             label10.Text = label18.Text = ":";
             label12.Text = LocRm.GetString("MaxRecordTime");
+            label6.Text = LocRm.GetString("MinRecordTime");
+            label13.Text = LocRm.GetString("Seconds");
             label14.Text = LocRm.GetString("Seconds");
             label15.Text = LocRm.GetString("DistinctAlertInterval");
             label16.Text = LocRm.GetString("Seconds");
@@ -314,6 +324,7 @@ namespace iSpyApplication
             HideTab(tabPage4, Helper.HasFeature(Enums.Features.Recording));
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Scheduling));
             HideTab(tabPage5, Helper.HasFeature(Enums.Features.Storage));
+            LocRm.SetString(linkLabel4, "CopyTo");
 
 
         }
@@ -367,79 +378,132 @@ namespace iSpyApplication
 
         private void BtnFinishClick(object sender, EventArgs e)
         {
-            //validate page 0
-            if (CheckStep1())
+            if (Save())
             {
-                string err = "";
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+        }
+
+        private bool Save()
+        {
+            if (!CheckStep1())
+                return false;
+
+            string err = "";
                 
-                int nosoundinterval;
-                if (!int.TryParse(txtNoSound.Text, out nosoundinterval))
-                    err += LocRm.GetString("Validate_Microphone_NoSound") + Environment.NewLine;
-                int soundinterval;
-                if (!int.TryParse(txtSound.Text, out soundinterval))
-                    err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
+            int nosoundinterval;
+            if (!int.TryParse(txtNoSound.Text, out nosoundinterval))
+                err += LocRm.GetString("Validate_Microphone_NoSound") + Environment.NewLine;
+            int soundinterval;
+            if (!int.TryParse(txtSound.Text, out soundinterval))
+                err += LocRm.GetString("Validate_Microphone_Sound") + Environment.NewLine;
 
 
-                if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
-                    txtMaxRecordTime.Text.Length < 1)
+            if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
+                txtMaxRecordTime.Text.Length < 1)
+            {
+                err += LocRm.GetString("Validate_Camera_RecordingSettings") + Environment.NewLine;
+            }
+
+            if (err != "")
+            {
+                MessageBox.Show(err, LocRm.GetString("Error"));
+                return false;
+            }
+
+
+            VolumeLevel.Micobject.settings.buffer = Convert.ToInt32(txtBuffer.Value);
+            VolumeLevel.Micobject.recorder.inactiverecord = Convert.ToInt32(txtInactiveRecord.Value);
+            VolumeLevel.Micobject.recorder.maxrecordtime = Convert.ToInt32(txtMaxRecordTime.Value);
+
+            VolumeLevel.Micobject.name = txtMicrophoneName.Text.Trim();
+
+            VolumeLevel.Micobject.alerts.active = chkSound.Checked;
+                
+            VolumeLevel.Micobject.alerts.mode = "sound";
+            if (rdoNoMovement.Checked)
+                VolumeLevel.Micobject.alerts.mode = "nosound";
+            VolumeLevel.Micobject.detector.nosoundinterval = nosoundinterval;
+            VolumeLevel.Micobject.detector.soundinterval = soundinterval;
+                
+            VolumeLevel.Micobject.schedule.active = chkSchedule.Checked;
+            VolumeLevel.Micobject.width = VolumeLevel.Width;
+            VolumeLevel.Micobject.height = VolumeLevel.Height;
+
+            VolumeLevel.Micobject.settings.active = chkActive.Checked;
+            VolumeLevel.Micobject.detector.recordondetect = rdoRecordDetect.Checked;
+            VolumeLevel.Micobject.detector.recordonalert = rdoRecordAlert.Checked;
+            VolumeLevel.Micobject.recorder.minrecordtime = (int)numMinRecord.Value;
+                
+            VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
+
+
+            if (txtDirectory.Text.Trim() == "")
+                txtDirectory.Text = MainForm.RandomString(5);
+
+            var md = (ListItem)ddlMediaDirectory.SelectedItem;
+            var newind = Convert.ToInt32(md.Value);
+
+            string olddir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + VolumeLevel.Micobject.directory + "\\";
+
+            bool needsFileRefresh = (VolumeLevel.Micobject.directory != txtDirectory.Text || VolumeLevel.Micobject.settings.directoryIndex != newind);
+
+            int tempidx = VolumeLevel.Micobject.settings.directoryIndex;
+            VolumeLevel.Micobject.settings.directoryIndex = newind;
+                
+            string newdir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + txtDirectory.Text + "\\";
+
+            if (IsNew)
+            {
+                try
                 {
-                    err += LocRm.GetString("Validate_Camera_RecordingSettings") + Environment.NewLine;
+                    if (!Directory.Exists(newdir))
+                    {
+                        Directory.CreateDirectory(newdir);
+                    }
+                    else
+                    {
+                        switch (
+                            MessageBox.Show(this,
+                                LocRm.GetString("Validate_Directory_Exists"),
+                                LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
+                        {
+                            case DialogResult.Yes:
+                                Directory.Delete(newdir, true);
+                                Directory.CreateDirectory(newdir);
+                                break;
+                            case DialogResult.Cancel:
+                                VolumeLevel.Micobject.settings.directoryIndex = tempidx;
+                                return false;
+                            case DialogResult.No:
+                                break;
+                        }
+                    }
                 }
-
-                if (err != "")
+                catch (Exception ex)
                 {
-                    MessageBox.Show(err, LocRm.GetString("Error"));
-                    return;
+                    MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                    VolumeLevel.Micobject.settings.directoryIndex = tempidx;
+                    return false;
                 }
-
-
-                VolumeLevel.Micobject.settings.buffer = Convert.ToInt32(txtBuffer.Value);
-                VolumeLevel.Micobject.recorder.inactiverecord = Convert.ToInt32(txtInactiveRecord.Value);
-                VolumeLevel.Micobject.recorder.maxrecordtime = Convert.ToInt32(txtMaxRecordTime.Value);
-
-                VolumeLevel.Micobject.name = txtMicrophoneName.Text.Trim();
-
-                VolumeLevel.Micobject.alerts.active = chkSound.Checked;
-                
-                VolumeLevel.Micobject.alerts.mode = "sound";
-                if (rdoNoMovement.Checked)
-                    VolumeLevel.Micobject.alerts.mode = "nosound";
-                VolumeLevel.Micobject.detector.nosoundinterval = nosoundinterval;
-                VolumeLevel.Micobject.detector.soundinterval = soundinterval;
-                
-                VolumeLevel.Micobject.schedule.active = chkSchedule.Checked;
-                VolumeLevel.Micobject.width = VolumeLevel.Width;
-                VolumeLevel.Micobject.height = VolumeLevel.Height;
-
-                VolumeLevel.Micobject.settings.active = chkActive.Checked;
-                VolumeLevel.Micobject.detector.recordondetect = rdoRecordDetect.Checked;
-                VolumeLevel.Micobject.detector.recordonalert = rdoRecordAlert.Checked;
-                
-                VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
-
-
-                if (txtDirectory.Text.Trim() == "")
-                    txtDirectory.Text = MainForm.RandomString(5);
-
-                var md = (ListItem)ddlMediaDirectory.SelectedItem;
-                var newind = Convert.ToInt32(md.Value);
-
-                string olddir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + VolumeLevel.Micobject.directory + "\\";
-
-                bool needsFileRefresh = (VolumeLevel.Micobject.directory != txtDirectory.Text || VolumeLevel.Micobject.settings.directoryIndex != newind);
-
-                int tempidx = VolumeLevel.Micobject.settings.directoryIndex;
-                VolumeLevel.Micobject.settings.directoryIndex = newind;
-                
-                string newdir = Helper.GetMediaDirectory(1, VolumeLevel.Micobject.id) + "video\\" + txtDirectory.Text + "\\";
-
-                if (IsNew)
+            }
+            else
+            {
+                if (newdir != olddir)
                 {
                     try
                     {
                         if (!Directory.Exists(newdir))
                         {
-                            Directory.CreateDirectory(newdir);
+                            if (Directory.Exists(olddir))
+                            {
+                                Helper.CopyFolder(olddir, newdir);
+                            }
+                            else
+                            {
+                                Directory.CreateDirectory(newdir);
+                            }
                         }
                         else
                         {
@@ -449,12 +513,19 @@ namespace iSpyApplication
                                     LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
                             {
                                 case DialogResult.Yes:
-                                    Directory.Delete(newdir, true);
-                                    Directory.CreateDirectory(newdir);
+                                    if (Directory.Exists(olddir))
+                                    {
+                                        Helper.CopyFolder(olddir, newdir);
+                                    }
+                                    else
+                                    {
+                                        Directory.Delete(newdir, true);
+                                        Directory.CreateDirectory(newdir);
+                                    }
                                     break;
                                 case DialogResult.Cancel:
                                     VolumeLevel.Micobject.settings.directoryIndex = tempidx;
-                                    return;
+                                    return false;
                                 case DialogResult.No:
                                     break;
                             }
@@ -464,78 +535,27 @@ namespace iSpyApplication
                     {
                         MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
                         VolumeLevel.Micobject.settings.directoryIndex = tempidx;
-                        return;
+                        return false;
                     }
                 }
-                else
-                {
-                    if (newdir != olddir)
-                    {
-                        try
-                        {
-                            if (!Directory.Exists(newdir))
-                            {
-                                if (Directory.Exists(olddir))
-                                {
-                                    Helper.CopyFolder(olddir, newdir);
-                                }
-                                else
-                                {
-                                    Directory.CreateDirectory(newdir);
-                                }
-                            }
-                            else
-                            {
-                                switch (
-                                    MessageBox.Show(this,
-                                        LocRm.GetString("Validate_Directory_Exists"),
-                                        LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
-                                {
-                                    case DialogResult.Yes:
-                                        if (Directory.Exists(olddir))
-                                        {
-                                            Helper.CopyFolder(olddir, newdir);
-                                        }
-                                        else
-                                        {
-                                            Directory.Delete(newdir, true);
-                                            Directory.CreateDirectory(newdir);
-                                        }
-                                        break;
-                                    case DialogResult.Cancel:
-                                        VolumeLevel.Micobject.settings.directoryIndex = tempidx;
-                                        return;
-                                    case DialogResult.No:
-                                        break;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
-                            VolumeLevel.Micobject.settings.directoryIndex = tempidx;
-                            return;
-                        }
-                    }
-                }
+            }
 
                 
-                VolumeLevel.Micobject.directory = txtDirectory.Text;
-                VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
+            VolumeLevel.Micobject.directory = txtDirectory.Text;
+            VolumeLevel.Micobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
 
-                SetStorageManagement();
+            SetStorageManagement();
 
-                DialogResult = DialogResult.OK;
-                MainForm.NeedsSync = true;
+            MainForm.NeedsSync = true;
 
-                if (needsFileRefresh)
-                {
-                    VolumeLevel.GenerateFileList();
-                    MainForm.NeedsMediaRebuild = true;
-                    MainForm.NeedsMediaRefresh = Helper.Now;
-                }
-                Close();
+            if (needsFileRefresh)
+            {
+                VolumeLevel.GenerateFileList();
+                MainForm.NeedsMediaRebuild = true;
+                MainForm.NeedsMediaRefresh = Helper.Now;
             }
+            return true;
+            
         }
 
         public bool IsNumeric(string numberString)
@@ -966,6 +986,17 @@ namespace iSpyApplication
             var aset = new AlertSettings { MicalertSettings = VolumeLevel.Micobject.alerts };
             aset.ShowDialog(this);
             aset.Dispose();
+        }
+
+        private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (Save())
+            {
+                using (var ct = new CopyTo { OM = VolumeLevel.Micobject})
+                {
+                    ct.ShowDialog(this);
+                }
+            }
         }
     }
 }

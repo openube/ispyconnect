@@ -53,7 +53,7 @@ internal static class Program
 
     public static string ExecutableDirectory = "";
    
-    public static Mutex WriterMutex;
+    public static Mutex FFMPEGMutex;
     private static int _reportedExceptionCount;
     private static ErrorReporting _er;
 
@@ -168,8 +168,9 @@ internal static class Program
             // in case our https certificate ever expires or there is some other issue
             ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             ServicePointManager.Expect100Continue = false;
+
+            FFMPEGMutex = new Mutex();
             
-            WriterMutex = new Mutex();
             Application.ThreadException += ApplicationThreadException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
             
@@ -181,7 +182,9 @@ internal static class Program
             AppIdle = new WinFormsAppIdleHandler {Enabled = false};
             var mf = new MainForm(silentstartup, command);
             Application.Run(mf);
-            WriterMutex.Close();
+            FFMPEGMutex.Close();
+
+            GC.KeepAlive(FFMPEGMutex);
             AppIdle.Enabled = false;
             ffmpegSetup.DeInitialise();
             

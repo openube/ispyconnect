@@ -100,11 +100,13 @@ namespace iSpyApplication.Controls
             switch (Cg.ModeIndex)
             {
                 case 0:
-                    AddItems();
+                    
                     _cols = Cg.Columns;
                     _rows = Cg.Rows;
             
                     _maxItems = _cols*_rows;
+                    ClearControls();
+                    AddItems();
                     break;
                 case 1:
                 case 2:
@@ -130,19 +132,26 @@ namespace iSpyApplication.Controls
                         }
 
                     }
-
+                    ClearControls();
                     _tmrUpdateList = new Timer(1000);
                     _tmrUpdateList.Elapsed += TmrUpdateLayoutElapsed;
                     _tmrUpdateList.Start();
                     break;
             }
-            if (_controls != null)
-                _controls.Clear();
-
-            for (int i = 0; i < _maxItems; i++)
-                _controls.Add(null);           
 
             Program.AppIdle.ApplicationLoopDoWork += HandlerApplicationLoopDoWork;
+        }
+
+        private void ClearControls()
+        {
+            if (_controls != null)
+            {
+                _controls.Clear();
+
+                for (int i = 0; i < _maxItems; i++)
+                    _controls.Add(null);
+            }
+
         }
 
         
@@ -441,7 +450,8 @@ namespace iSpyApplication.Controls
                                             float f = 0f;
                                             if (m < vl.Levels.Length)
                                                 f = vl.Levels[m];
-                                            int drawW = Convert.ToInt32(Convert.ToDouble(rFeed.Width-1.0) * f);
+                                            if (f > 1) f = 1;
+                                            int drawW = Convert.ToInt32(Convert.ToDouble(rFeed.Width * f) - 1.0);
                                             if (drawW < 1)
                                                 drawW = 1;
 

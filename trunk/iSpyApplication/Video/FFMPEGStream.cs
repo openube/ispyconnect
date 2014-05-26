@@ -354,7 +354,7 @@ namespace iSpyApplication.Video
             _realtime = !IsFileSource;
             try
             {
-                Program.WriterMutex.WaitOne();
+                Program.FFMPEGMutex.WaitOne();
                 _vfr = new VideoFileReader();
 
                 //ensure http/https is lower case for string compare in ffmpeg library
@@ -380,7 +380,14 @@ namespace iSpyApplication.Video
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();                
+                try
+                {
+                    Program.FFMPEGMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }               
             }
 
             if (_vfr == null || !_vfr.IsOpen || !open)
@@ -401,7 +408,7 @@ namespace iSpyApplication.Video
             {
                 hasaudio = true;
                 RecordingFormat = new WaveFormat(_vfr.SampleRate, 16, _vfr.Channels);
-                _waveProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(2500)};
+                _waveProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500)};
 
                 SampleChannel = new SampleChannel(_waveProvider);
                 SampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;
@@ -495,7 +502,7 @@ namespace iSpyApplication.Video
             {
                 try
                 {
-                     if (!_thread.Join(TimeSpan.Zero))
+                    if (!_tOutput.Join(TimeSpan.Zero))
                         _tOutput.Join();
                 }
                 catch {}
@@ -740,7 +747,7 @@ namespace iSpyApplication.Video
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
 
                 _listening = value;
@@ -777,7 +784,12 @@ namespace iSpyApplication.Video
             {
                 // wait for thread stop
                 _stopEvent.Set();
-                _thread.Join();
+                try
+                {
+                    if (!_thread.Join(TimeSpan.Zero))
+                        _thread.Join();
+                }
+                catch { }
 
                 _stopEvent.Close();
                 _stopEvent.Dispose();

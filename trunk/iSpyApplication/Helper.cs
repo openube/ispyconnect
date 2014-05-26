@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace iSpyApplication
         public static double CalculateTrigger(double percent)
         {
             const double minimum = 0.00000001;
-            const double maximum = 0.1;
+            const double maximum = 1;
             return minimum + ((maximum - minimum)/100)*Convert.ToDouble(percent);
         }
 
@@ -412,5 +413,48 @@ namespace iSpyApplication
                 Name = name;
             }
         }
+
+        #region Nested type: FrameAction
+
+        public struct FrameAction
+        {
+            public byte[] Content;
+            public int DataLength;
+            public readonly double Level;
+            public readonly DateTime TimeStamp;
+            public readonly Enums.FrameType FrameType;
+
+            public FrameAction(Bitmap frame, double level, DateTime timeStamp)
+            {
+                Level = level;
+                TimeStamp = timeStamp;
+                using (var ms = new MemoryStream())
+                {
+                    frame.Save(ms, MainForm.Encoder, MainForm.EncoderParams);
+                    Content = ms.GetBuffer();
+                }
+                FrameType = Enums.FrameType.Video;
+                DataLength = Content.Length;
+            }
+
+            public FrameAction(byte[] frame,  int bytesRecorded, double level, DateTime timeStamp)
+            {
+                Content = frame;
+                Level = level;
+                TimeStamp = timeStamp;
+                FrameType = Enums.FrameType.Audio;
+                DataLength = bytesRecorded;
+            }
+
+            public void Nullify()
+            {
+                Content = null;
+                DataLength = 0;
+            }
+
+        }
+
+       
+        #endregion
     }
 }

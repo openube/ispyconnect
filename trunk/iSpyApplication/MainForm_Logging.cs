@@ -7,9 +7,10 @@ namespace iSpyApplication
 {
     public partial class MainForm
     {
-        private static readonly StringBuilder LogFile = new StringBuilder(100000);
+        private static StringBuilder LogFile = new StringBuilder();
         private static readonly StringBuilder PluginLogFile = new StringBuilder(100000);
-
+        private static DateTime LogStartDateTime = DateTime.Now;
+        
         internal static void LogExceptionToFile(Exception ex, string info)
         {
             ex.HelpLink = info + ": " + ex.Message;
@@ -19,7 +20,7 @@ namespace iSpyApplication
 
         internal static void LogExceptionToFile(Exception ex)
         {
-            if (!_logging)
+            if (!_logging || !Conf.Logging.Enabled)
                 return;
 
             try
@@ -40,7 +41,7 @@ namespace iSpyApplication
         }
         internal static void LogMessageToFile(String message)
         {
-            if (!_logging)
+            if (!_logging || !Conf.Logging.Enabled)
                 return;
 
             try
@@ -62,7 +63,7 @@ namespace iSpyApplication
 
         internal static void LogErrorToFile(String message)
         {
-            if (!_logging)
+            if (!_logging || !Conf.Logging.Enabled)
                 return;
 
             try
@@ -77,7 +78,7 @@ namespace iSpyApplication
         }
         internal static void LogErrorToFile(String message, string message2)
         {
-            if (!_logging)
+            if (!_logging || !Conf.Logging.Enabled)
                 return;
 
             try
@@ -93,7 +94,7 @@ namespace iSpyApplication
 
         internal static void LogWarningToFile(String message)
         {
-            if (!_logging)
+            if (!_logging || !Conf.Logging.Enabled)
                 return;
 
             try
@@ -107,26 +108,37 @@ namespace iSpyApplication
             }
         }
 
+
         private void WriteLogs()
         {
+            if (!Conf.Logging.Enabled)
+                return;
+            if (DateTime.Now.DayOfYear != LogStartDateTime.DayOfYear)
+            {
+                //start new log
+                _logging = true;
+                LogStartDateTime = DateTime.Now;
+                LogFile = new StringBuilder();
+                InitLogging(false);
+                return;
+            }
             if (_logging)
             {
                 try
                 {
-                    if (LogFile.Length > Conf.LogFileSizeKB * 1024)
+                    if (LogFile.Length > Conf.Logging.FileSize * 1024)
                     {
-                        LogFile.Append(
-                            "<tr><td style=\"color:red\" valign=\"top\">Logging Exiting</td><td valign=\"top\">" +
+                        LogFile.Append("<tr><td style=\"color:red\" valign=\"top\">Logging Exiting</td><td valign=\"top\">" +
                             DateTime.Now.ToLongTimeString() +
                             "</td><td valign=\"top\">Logging is being disabled as it has reached the maximum size (" +
-                            Conf.LogFileSizeKB + "kb).</td></tr>");
+                            Conf.Logging.FileSize + "kb).</td></tr>");
                         _logging = false;
                     }
                     if (_lastlog.Length != LogFile.Length)
                     {
-                        string fc = LogTemplate.Replace("<!--CONTENT-->", LogFile.ToString()).Replace("<!--VERSION-->",
-                                                                                                      Application.
-                                                                                                          ProductVersion + " Platform: " + Program.Platform);
+                        string logTemplate = "<html><head><title>iSpy v<!--VERSION--> Log File</title><style type=\"text/css\">body,td,th,div {font-family:Verdana;font-size:10px}</style></head><body><h1>"+Conf.ServerName+": Log Start (v"+Application.
+                                                                                                          ProductVersion + " Platform: " + Program.Platform+"): " + LogStartDateTime + "</h1><p><table cellpadding=\"2px\"><!--CONTENT--></table></p></body></html>";
+                        string fc = logTemplate.Replace("<!--CONTENT-->", LogFile.ToString());
                         File.WriteAllText(Program.AppDataPath + @"log_" + NextLog + ".htm", fc);
                         _lastlog = LogFile.ToString();
                     }
@@ -136,6 +148,7 @@ namespace iSpyApplication
                     _logging = false;
                 }
             }
+            
 
             try
             {
@@ -149,6 +162,39 @@ namespace iSpyApplication
             catch (Exception)
             {
 
+            }
+        }
+
+        private void InitLogging(bool warnonerror = true)
+        {
+            DateTime logdate = DateTime.Now;
+
+            foreach (string s in Directory.GetFiles(Program.AppDataPath, "log_*", SearchOption.TopDirectoryOnly))
+            {
+                var fi = new FileInfo(s);
+                if (fi.CreationTime < Helper.Now.AddDays(0-Conf.Logging.KeepDays))
+                    FileOperations.Delete(s);
+            }
+            NextLog = Zeropad(logdate.Day) + Zeropad(logdate.Month) + logdate.Year;
+            int i = 1;
+            if (File.Exists(Program.AppDataPath + "log_" + NextLog + ".htm"))
+            {
+                while (File.Exists(Program.AppDataPath + "log_" + NextLog + "_" + i + ".htm"))
+                    i++;
+                NextLog += "_" + i;
+            }
+            try
+            {
+                File.WriteAllText(Program.AppDataPath + "log_" + NextLog + ".htm", Helper.Now + Environment.NewLine);
+                _logging = true;
+            }
+            catch (Exception ex)
+            {
+                if (warnonerror && MessageBox.Show(LocRm.GetString("LogStartError").Replace("[MESSAGE]", ex.Message), LocRm.GetString("Warning"), MessageBoxButtons.YesNo) == DialogResult.No)
+                {
+                    Reallyclose = true;
+                    Close();
+                }
             }
         }
     }

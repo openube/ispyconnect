@@ -41,7 +41,7 @@
         <xs:element name="TimestampColor" type="xs:string" />
         <xs:element name="BorderHighlightColor" type="xs:string" />
         <xs:element name="BorderDefaultColor" type="xs:string" />
-        <xs:element name="UseUPNP" type="xs:boolean" />
+        <xs:element name="UseUPNP" type="xs:boolean" default="true"/>
         <xs:element name="YouTubeUsername" type="xs:string" />
         <xs:element name="YouTubePassword" type="xs:string" />
         <xs:element name="YouTubeAccount" type="xs:string" />
@@ -57,7 +57,7 @@
         <xs:element name="IPMode" type="xs:string" />
         <xs:element name="IPv4Address" type="xs:string" />
         <xs:element name="IPv6Address" type="xs:string" />
-        <xs:element name="DHCPReroute" type="xs:boolean" />
+        <xs:element name="DHCPReroute" type="xs:boolean" default="true"/>
         <xs:element name="MediaDirectory" type="xs:string" default="NotSet" />
         <xs:element name="FFMPEG_SingleProcess" type="xs:boolean" />
         <xs:element name="Loopback" type="xs:boolean" />
@@ -140,6 +140,13 @@
         <xs:element name="VLCFileCache" type="xs:int" default="3000"/>
         <xs:element name="Referers" type="xs:string" default=""/>
         <xs:element name="EncryptCode" type="xs:string" default=""/>
+        <xsd:element name="Logging">
+          <xsd:complexType>
+            <xsd:attribute name="FileSize" type="xsd:int" default="100" />
+            <xsd:attribute name="Enabled" type="xsd:boolean" default="true" />
+            <xsd:attribute name="KeepDays" type="xsd:int" default="7" />
+          </xsd:complexType>
+        </xsd:element>
         <xs:element name="FTPServers">
           <xs:complexType>
             <xs:sequence>

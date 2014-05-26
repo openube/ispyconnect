@@ -2154,6 +2154,8 @@ public partial class objectsCameraDetector {
     
     private int autooffField;
     
+    private float gainField;
+    
     public objectsCameraDetector() {
         this.nomovementintervalnewField = -1D;
         this.movementintervalnewField = -1D;
@@ -2165,6 +2167,7 @@ public partial class objectsCameraDetector {
         this.colourprocessingField = "";
         this.colourprocessingenabledField = false;
         this.autooffField = 0;
+        this.gainField = ((float)(10F));
     }
     
     /// <remarks/>
@@ -2418,6 +2421,18 @@ public partial class objectsCameraDetector {
             this.autooffField = value;
         }
     }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(typeof(float), "10")]
+    public float gain {
+        get {
+            return this.gainField;
+        }
+        set {
+            this.gainField = value;
+        }
+    }
 }
 
 /// <remarks/>
@@ -2493,6 +2508,8 @@ public partial class objectsCameraRecorder {
     
     private int inactiverecordField;
     
+    private int minrecordtimeField;
+    
     private int maxrecordtimeField;
     
     private int timelapseField;
@@ -2514,6 +2531,7 @@ public partial class objectsCameraRecorder {
     private string triggerField;
     
     public objectsCameraRecorder() {
+        this.minrecordtimeField = 0;
         this.timelapseenabledField = false;
         this.qualityField = 8;
         this.timelapsesaveField = 60;
@@ -2542,6 +2560,18 @@ public partial class objectsCameraRecorder {
         }
         set {
             this.inactiverecordField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int minrecordtime {
+        get {
+            return this.minrecordtimeField;
+        }
+        set {
+            this.minrecordtimeField = value;
         }
     }
     
@@ -4026,9 +4056,12 @@ public partial class objectsMicrophoneDetector {
     
     private bool recordonalertField;
     
+    private float gainField;
+    
     public objectsMicrophoneDetector() {
         this.maxsensitivityField = 100D;
         this.minsensitivityField = -1D;
+        this.gainField = ((float)(1F));
     }
     
     /// <remarks/>
@@ -4109,6 +4142,18 @@ public partial class objectsMicrophoneDetector {
             this.recordonalertField = value;
         }
     }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(typeof(float), "1")]
+    public float gain {
+        get {
+            return this.gainField;
+        }
+        set {
+            this.gainField = value;
+        }
+    }
 }
 
 /// <remarks/>
@@ -4121,11 +4166,14 @@ public partial class objectsMicrophoneRecorder {
     
     private int inactiverecordField;
     
+    private int minrecordtimeField;
+    
     private int maxrecordtimeField;
     
     private string triggerField;
     
     public objectsMicrophoneRecorder() {
+        this.minrecordtimeField = 0;
         this.triggerField = "";
     }
     
@@ -4137,6 +4185,18 @@ public partial class objectsMicrophoneRecorder {
         }
         set {
             this.inactiverecordField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int minrecordtime {
+        get {
+            return this.minrecordtimeField;
+        }
+        set {
+            this.minrecordtimeField = value;
         }
     }
     

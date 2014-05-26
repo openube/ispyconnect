@@ -189,10 +189,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
     </Reference>
-    <Reference Include="AForge.Vision, Version=2.5.4.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>DLLS\AForge.Vision.dll</HintPath>
-    </Reference>
     <Reference Include="DropNet, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\DropNet.dll</HintPath>
@@ -420,6 +416,18 @@
       <DependentUpon>AlertSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\AppLoop.cs" />
+    <Compile Include="Controls\SelectObjects.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SelectObjects.Designer.cs">
+      <DependentUpon>SelectObjects.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CopyTo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\CopyTo.Designer.cs">
+      <DependentUpon>CopyTo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\PermissionsForm.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -559,6 +567,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="EncDec.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="GridView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1220,6 +1229,12 @@
     <EmbeddedResource Include="Controls\AlertSettings.resx">
       <DependentUpon>AlertSettings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SelectObjects.resx">
+      <DependentUpon>SelectObjects.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CopyTo.resx">
+      <DependentUpon>CopyTo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\PermissionsForm.resx">
       <DependentUpon>PermissionsForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -1652,6 +1667,10 @@
     <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
       <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
       <Name>Video.DirectShow</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\AForge\Sources\Vision\Vision.csproj">
+      <Project>{B99CBE2E-BAAD-45D5-8A84-CAA6A2286C0B}</Project>
+      <Name>Vision</Name>
     </ProjectReference>
     <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
       <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>

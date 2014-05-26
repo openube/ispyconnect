@@ -103,7 +103,7 @@ namespace iSpyApplication.Video
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
 
                 _listening = value;
@@ -251,7 +251,7 @@ namespace iSpyApplication.Video
 
                 RecordingFormat = new WaveFormat(16000, 16, 1);
 
-                _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+                _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
 
 
                 _sampleChannel = new SampleChannel(_waveProvider);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using AForge.Video;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -113,7 +114,7 @@ namespace iSpyApplication.Audio.streams
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500)};
                 }
                 
                 _listening = value;
@@ -207,6 +208,30 @@ namespace iSpyApplication.Audio.streams
             }
         }
 
+        //void WaveInDataAvailable(object sender, WaveInEventArgs e)
+        //{
+        //    _isrunning = true;
+        //    if (DataAvailable != null)
+        //    {
+        //        //forces processing of volume level without piping it out
+        //        if (_sampleChannel != null)
+        //        {
+        //            var sampleBuffer = new float[e.BytesRecorded];
+        //            _sampleChannel.Read(sampleBuffer, 0, e.BytesRecorded);
+                    
+        //            if (Listening && WaveOutProvider!=null)
+        //            {
+        //                WaveOutProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
+        //            }
+        //            var da = new DataAvailableEventArgs((byte[])e.Buffer.Clone(), e.BytesRecorded);
+        //            DataAvailable(this, da);
+        //        }
+        //    }
+        //}
+
+        //private long l = 0;
+        //private DateTime d = DateTime.Now;
+
         void WaveInDataAvailable(object sender, WaveInEventArgs e)
         {
             _isrunning = true;
@@ -217,16 +242,29 @@ namespace iSpyApplication.Audio.streams
                 {
                     var sampleBuffer = new float[e.BytesRecorded];
                     _sampleChannel.Read(sampleBuffer, 0, e.BytesRecorded);
-                    
-                    if (Listening && WaveOutProvider!=null)
+
+                    if (Listening && WaveOutProvider != null)
                     {
-                        WaveOutProvider.AddSamples(e.Buffer, 0,e.Buffer.Length);
+                        //if (l == 0)
+                        //{
+                        //    d = DateTime.Now;
+                        //}
+                        //l += e.BytesRecorded;
+                        WaveOutProvider.AddSamples(e.Buffer, 0, e.BytesRecorded);
+
+                        //double s = (DateTime.Now - d).TotalSeconds;
+                        //Debug.WriteLine(l + " bytes in " + s + " seconds, should be " + RecordingFormat.AverageBytesPerSecond * s);
                     }
-                    var da = new DataAvailableEventArgs((byte[])e.Buffer.Clone());
+                    //if (!Listening && l > 0)
+                    //{
+                    //    l = 0;
+                    //}
+                    var da = new DataAvailableEventArgs((byte[])e.Buffer.Clone(), e.BytesRecorded);
                     DataAvailable(this, da);
                 }
             }
         }
+
 
         void WaveInRecordingStopped(object sender, StoppedEventArgs e)
         {

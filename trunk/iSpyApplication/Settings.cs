@@ -244,6 +244,10 @@ namespace iSpyApplication
             }
             else
                 MainForm.Conf.Joystick.id = "";
+
+            MainForm.Conf.Logging.Enabled = chkEnableLogging.Checked;
+            MainForm.Conf.Logging.FileSize = (int)numMaxLogSize.Value;
+            MainForm.Conf.Logging.KeepDays = (int)numKeepLogs.Value;
           
             DialogResult = DialogResult.OK;
             Close();
@@ -538,6 +542,10 @@ namespace iSpyApplication
             numFileCache.Value = MainForm.Conf.VLCFileCache;
             rtbReferrers.Text = MainForm.Conf.Referers;
             chkPasswordProtectOnStart.Checked = MainForm.Conf.Password_Protect_Startup;
+
+            chkEnableLogging.Checked = MainForm.Conf.Logging.Enabled;
+            numMaxLogSize.Value = MainForm.Conf.Logging.FileSize;
+            numKeepLogs.Value = MainForm.Conf.Logging.KeepDays;
             
             _loaded = true;
         }
@@ -671,6 +679,7 @@ namespace iSpyApplication
             LocRm.SetString(linkLabel4, "RefreshList");
             tabPage10.Text = LocRm.GetString("ConnectionAlerts");
             tabPage11.Text = LocRm.GetString("Plugins");
+            tabPage14.Text = LocRm.GetString("Logging");
             label9.Text = LocRm.GetString("MaximseAndRestore");
             label60.Text = LocRm.GetString("SSLCertificate");
             //future
@@ -678,6 +687,10 @@ namespace iSpyApplication
             groupBox1.Text = LocRm.GetString("YouTube");
             label63.Text = LocRm.GetString("Servers");
             chkOpenGrabs.Text = LocRm.GetString("OpenImagesAfterSaving");
+            chkEnableLogging.Text = LocRm.GetString("Enable");
+            numKeepLogs.Text = LocRm.GetString("KeepLogsForDays");
+            numMaxLogSize.Text = LocRm.GetString("MaxFileSizeKB");
+
         }
 
 

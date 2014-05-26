@@ -1622,9 +1622,12 @@ namespace iSpyApplication
 
         private void button7_Click(object sender, EventArgs e)
         {
+            var s = CameraControl.Camobject.resolution;
             var vsa = new VideoSourceAdvanced {Camobject = CameraControl.Camobject};
             vsa.ShowDialog(this);
             vsa.Dispose();
+            if (s!=CameraControl.Camobject.resolution)
+                CameraControl.NeedSizeUpdate = true;
         }
 
         
@@ -1857,7 +1860,7 @@ namespace iSpyApplication
             string res = "OK";
             try
             {
-                Program.WriterMutex.WaitOne();
+                Program.FFMPEGMutex.WaitOne();
                 string source = cmbFile.Text;
                 var vfr= new VideoFileReader();
 
@@ -1886,7 +1889,14 @@ namespace iSpyApplication
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();
+                try
+                {
+                    Program.FFMPEGMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
             }
 
             MessageBox.Show(res);

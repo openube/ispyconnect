@@ -298,6 +298,8 @@ public partial class configuration {
     
     private string encryptCodeField;
     
+    private configurationLogging loggingField;
+    
     private configurationServer[] fTPServersField;
     
     private configurationGrid[] gridViewsField;
@@ -310,6 +312,8 @@ public partial class configuration {
     
     public configuration() {
         this.maxRecordingThreadsField = 4;
+        this.useUPNPField = true;
+        this.dHCPRerouteField = true;
         this.mediaDirectoryField = "NotSet";
         this.cPUMaxField = 90;
         this.allowedIPListField = "";
@@ -1747,6 +1751,16 @@ public partial class configuration {
     }
     
     /// <remarks/>
+    public configurationLogging Logging {
+        get {
+            return this.loggingField;
+        }
+        set {
+            this.loggingField = value;
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlArrayItemAttribute("Server", IsNullable=false)]
     public configurationServer[] FTPServers {
         get {
@@ -1797,6 +1811,63 @@ public partial class configuration {
         }
         set {
             this.permissionsField = value;
+        }
+    }
+}
+
+/// <remarks/>
+[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+[System.SerializableAttribute()]
+[System.Diagnostics.DebuggerStepThroughAttribute()]
+[System.ComponentModel.DesignerCategoryAttribute("code")]
+[System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
+public partial class configurationLogging {
+    
+    private int fileSizeField;
+    
+    private bool enabledField;
+    
+    private int keepDaysField;
+    
+    public configurationLogging() {
+        this.fileSizeField = 100;
+        this.enabledField = true;
+        this.keepDaysField = 7;
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(100)]
+    public int FileSize {
+        get {
+            return this.fileSizeField;
+        }
+        set {
+            this.fileSizeField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(true)]
+    public bool Enabled {
+        get {
+            return this.enabledField;
+        }
+        set {
+            this.enabledField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(7)]
+    public int KeepDays {
+        get {
+            return this.keepDaysField;
+        }
+        set {
+            this.keepDaysField = value;
         }
     }
 }

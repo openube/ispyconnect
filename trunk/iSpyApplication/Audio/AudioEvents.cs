@@ -48,6 +48,7 @@ namespace iSpyApplication.Audio
     /// 
     public class DataAvailableEventArgs : EventArgs
     {
+        public int BytesRecorded;
         private readonly byte[] _raw;
 
         /// <summary>
@@ -56,6 +57,16 @@ namespace iSpyApplication.Audio
         public DataAvailableEventArgs(byte[] raw)
         {
             _raw = raw;
+            BytesRecorded = raw.Length;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataAvailableEventArgs"/> class.
+        /// </summary>
+        public DataAvailableEventArgs(byte[] raw, int length)
+        {
+            _raw = raw;
+            BytesRecorded = length;
         }
 
         /// <summary>
