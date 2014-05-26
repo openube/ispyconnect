@@ -118,7 +118,7 @@ namespace iSpyApplication.Audio.streams
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) {DiscardOnBufferOverflow = true};
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
                 
                 _listening = value;
@@ -231,7 +231,7 @@ namespace iSpyApplication.Audio.streams
                                     {
                                         WaveOutProvider.AddSamples(data, 0, recbytesize);
                                     }
-                                    var da = new DataAvailableEventArgs((byte[]) data.Clone());
+                                    var da = new DataAvailableEventArgs((byte[]) data.Clone(),recbytesize);
                                     DataAvailable(this, da);
                                 }
                                 
@@ -283,7 +283,12 @@ namespace iSpyApplication.Audio.streams
             if (IsRunning)
             {
                 _stopEvent.Set();
-                _thread.Join();
+                try
+                {
+                    if (!_thread.Join(TimeSpan.Zero))
+                        _thread.Join();
+                }
+                catch { }
 
                 Free();
 

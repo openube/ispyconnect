@@ -31,6 +31,9 @@ namespace iSpyApplication.Controls
             this.txtVal1 = new System.Windows.Forms.TextBox();
             this.txtVal2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.numGain = new System.Windows.Forms.NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)(this.numGain)).BeginInit();
             this.SuspendLayout();
             // 
             // txtVal1
@@ -60,10 +63,43 @@ namespace iSpyApplication.Controls
             this.label1.TabIndex = 2;
             this.label1.Text = "-->";
             // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(225, 37);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Gain";
+            // 
+            // numGain
+            // 
+            this.numGain.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numGain.Cursor = System.Windows.Forms.Cursors.Arrow;
+            this.numGain.DecimalPlaces = 5;
+            this.numGain.Location = new System.Drawing.Point(266, 34);
+            this.numGain.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            327680});
+            this.numGain.Name = "numGain";
+            this.numGain.Size = new System.Drawing.Size(62, 20);
+            this.numGain.TabIndex = 4;
+            this.numGain.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            327680});
+            this.numGain.ValueChanged += new System.EventHandler(this.numGain_ValueChanged);
+            // 
             // Ranger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.numGain);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtVal2);
             this.Controls.Add(this.txtVal1);
@@ -75,6 +111,7 @@ namespace iSpyApplication.Controls
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.RangerMouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.RangerMouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RangerMouseUp);
+            ((System.ComponentModel.ISupportInitialize)(this.numGain)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -85,5 +122,7 @@ namespace iSpyApplication.Controls
         private System.Windows.Forms.TextBox txtVal1;
         private System.Windows.Forms.TextBox txtVal2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown numGain;
     }
 }

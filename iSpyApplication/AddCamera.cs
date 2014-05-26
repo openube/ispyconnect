@@ -265,8 +265,10 @@ namespace iSpyApplication
             ranger1.Minimum = 0.001;
             ranger1.ValueMin = CameraControl.Camobject.detector.minsensitivity;
             ranger1.ValueMax = CameraControl.Camobject.detector.maxsensitivity;
+            ranger1.Gain = CameraControl.Camobject.detector.gain;
             ranger1.ValueMinChanged += Ranger1ValueMinChanged;
             ranger1.ValueMaxChanged += Ranger1ValueMaxChanged;
+            ranger1.GainChanged += Ranger1GainChanged;
             ranger1.SetText();
             
             rdoRecordDetect.Checked = CameraControl.Camobject.detector.recordondetect;
@@ -290,8 +292,7 @@ namespace iSpyApplication
             }
             ddlRotateFlip.SelectedIndex = ind;
             
-
-            
+ 
             chkColourProcessing.Checked = CameraControl.Camobject.detector.colourprocessingenabled;
             numMaxFR.Value = CameraControl.Camobject.settings.maxframerate;
             numMaxFRRecording.Value = CameraControl.Camobject.settings.maxframeraterecord;
@@ -339,10 +340,11 @@ namespace iSpyApplication
             gpbSubscriber2.Enabled = MainForm.Conf.Subscribed;
             linkLabel9.Visible = !(MainForm.Conf.Subscribed);
 
-            txtBuffer.Text = CameraControl.Camobject.recorder.bufferseconds.ToString(CultureInfo.InvariantCulture);
-            txtCalibrationDelay.Text = CameraControl.Camobject.detector.calibrationdelay.ToString(CultureInfo.InvariantCulture);
-            txtInactiveRecord.Text = CameraControl.Camobject.recorder.inactiverecord.ToString(CultureInfo.InvariantCulture);
-            txtMaxRecordTime.Text = CameraControl.Camobject.recorder.maxrecordtime.ToString(CultureInfo.InvariantCulture);
+            txtBuffer.Value = CameraControl.Camobject.recorder.bufferseconds;
+            txtCalibrationDelay.Value = CameraControl.Camobject.detector.calibrationdelay;
+            txtInactiveRecord.Value = CameraControl.Camobject.recorder.inactiverecord;
+            txtMaxRecordTime.Value = CameraControl.Camobject.recorder.maxrecordtime;
+            numMinRecordTime.Value = CameraControl.Camobject.recorder.minrecordtime;
             btnBack.Enabled = false;
 
             ddlHourStart.SelectedIndex =
@@ -583,6 +585,14 @@ namespace iSpyApplication
             }
         }
 
+        void Ranger1GainChanged()
+        {
+            if (_loaded)
+            {
+                CameraControl.Camobject.detector.gain = ranger1.Gain;
+            }
+        }
+
 
         
 
@@ -658,8 +668,10 @@ namespace iSpyApplication
             label31.Text = LocRm.GetString("Seconds");
             label32.Text = LocRm.GetString("InactivityRecord");
             label34.Text = LocRm.GetString("MaxRecordTime");
+            label53.Text = LocRm.GetString("MinRecordTime");
             label35.Text = LocRm.GetString("Seconds");
             label36.Text = LocRm.GetString("Seconds");
+            label33.Text = LocRm.GetString("Seconds");
             label37.Text = rdoFTPInterval.Text = rdoSaveInterval.Text = LocRm.GetString("Interval");
             label38.Text = LocRm.GetString("MaxCalibrationDelay");
             label39.Text = LocRm.GetString("Seconds");
@@ -795,6 +807,7 @@ namespace iSpyApplication
             LocRm.SetString(btnPTZTrack, "TrackObjects");
             LocRm.SetString(btnPTZSchedule, "Scheduler");
             LocRm.SetString(label5, "PictureInPicture");
+            LocRm.SetString(linkLabel4, "CopyTo");
 
 
             HideTab(tabPage3, Helper.HasFeature(Enums.Features.Motion_Detection));
@@ -976,145 +989,194 @@ namespace iSpyApplication
 
         private void BtnFinishClick(object sender, EventArgs e)
         {
-            Finish();
+            if (Save())
+            {
+                DialogResult = DialogResult.OK;
+                Close();
+            }
         }
 
-        private void Finish()
+        private bool Save()
         {
             //validate page 0
-            if (CheckStep1())
+            if (!CheckStep1())
+                return false;
+            string err = "";
+                
+            if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
+                txtCalibrationDelay.Text.Length < 1 || txtMaxRecordTime.Text.Length < 1)
             {
-                string err = "";
-                
-                if (txtBuffer.Text.Length < 1 || txtInactiveRecord.Text.Length < 1 ||
-                    txtCalibrationDelay.Text.Length < 1 || txtMaxRecordTime.Text.Length < 1)
-                {
-                    err += LocRm.GetString("Validate_Camera_RecordingSettings") + Environment.NewLine;
-                }
-                if (err != "")
-                {
-                    MessageBox.Show(err, LocRm.GetString("Error"));
-                    return;
-                }
+                err += LocRm.GetString("Validate_Camera_RecordingSettings") + Environment.NewLine;
+            }
+            if (err != "")
+            {
+                MessageBox.Show(err, LocRm.GetString("Error"));
+                return false;
+            }
 
-                double ftpinterval = Convert.ToDouble(txtUploadEvery.Value);
-                double saveinterval = Convert.ToDouble(numSaveInterval.Value);
-                double ftpmindelay = Convert.ToDouble(numFTPMinimumDelay.Value);
-                double savemindelay = Convert.ToDouble(numSaveDelay.Value);
+            double ftpinterval = Convert.ToDouble(txtUploadEvery.Value);
+            double saveinterval = Convert.ToDouble(numSaveInterval.Value);
+            double ftpmindelay = Convert.ToDouble(numFTPMinimumDelay.Value);
+            double savemindelay = Convert.ToDouble(numSaveDelay.Value);
 
 
-                int timelapseframes = Convert.ToInt32(txtTimeLapseFrames.Value);
-                int timelapsemovie = Convert.ToInt32(txtTimeLapse.Value);
+            int timelapseframes = Convert.ToInt32(txtTimeLapseFrames.Value);
+            int timelapsemovie = Convert.ToInt32(txtTimeLapse.Value);
             
-                string localFilename=txtLocalFilename.Text.Trim();
-                if (localFilename.IndexOf("\\", StringComparison.Ordinal)!=-1)
-                {
-                    MessageBox.Show(LocRm.GetString("Validate_Camera_Local_Filename"));
-                    return;
-                }
+            string localFilename=txtLocalFilename.Text.Trim();
+            if (localFilename.IndexOf("\\", StringComparison.Ordinal)!=-1)
+            {
+                MessageBox.Show(LocRm.GetString("Validate_Camera_Local_Filename"));
+                return false;
+            }
 
-                string audioip = txtAudioOutIP.Text.Trim();
+            string audioip = txtAudioOutIP.Text.Trim();
                 
                 
-                if (!String.IsNullOrEmpty(audioip))
-                {
-                    IPAddress _aip;
-                    if (!IPAddress.TryParse(audioip, out _aip))
-                    {
-                        try
-                        {
-                            IPHostEntry ipE = Dns.GetHostEntry(audioip);
-                            IPAddress[] ipA = ipE.AddressList;
-                            if (ipA==null || ipA.Length == 0)
-                            {
-                                MessageBox.Show(LocRm.GetString("Validate_Camera_Talk_Field"));
-                                return;
-                            }
-                        }
-                        catch(Exception ex)
-                        {
-                            MessageBox.Show(LocRm.GetString("Validate_Camera_Talk_Field")+" ("+ex.Message+")");
-                            return;
-                        }
-                    }
-                }
-
-                CameraControl.Camobject.savelocal.intervalnew = saveinterval;
-                CameraControl.Camobject.savelocal.minimumdelay = savemindelay;
-                CameraControl.Camobject.savelocal.countermax = Convert.ToInt32(numSaveCounter.Value);
-
-                int savemode = 0;
-                if (rdoSaveAlerts.Checked)
-                    savemode = 1;
-                if (rdoSaveInterval.Checked)
-                    savemode = 2;
-                CameraControl.Camobject.savelocal.mode = savemode;
-                CameraControl.Camobject.savelocal.quality = tbSaveQuality.Value;
-                CameraControl.Camobject.savelocal.text = txtSaveOverlay.Text;
-                CameraControl.Camobject.savelocal.filename = txtLocalFilename.Text.Trim();
-                CameraControl.Camobject.savelocal.enabled = chkLocalSaving.Checked;
-
-
-                CameraControl.Camobject.detector.processeveryframe = Convert.ToInt32(ddlProcessFrames.SelectedItem.ToString());
-                CameraControl.Camobject.detector.motionzones = AreaControl.MotionZones;
-                CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
-                CameraControl.Camobject.detector.postprocessor = (string) _processortypes[ddlProcessor.SelectedIndex];
-                CameraControl.Camobject.name = txtCameraName.Text.Trim();
-                //update to plugin if connected and supported
-                if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
+            if (!String.IsNullOrEmpty(audioip))
+            {
+                IPAddress _aip;
+                if (!IPAddress.TryParse(audioip, out _aip))
                 {
                     try
                     {
-                        var plugin = CameraControl.Camera.Plugin;
-                        plugin.GetType().GetProperty("CameraName").SetValue(plugin, CameraControl.Camobject.name, null);
+                        IPHostEntry ipE = Dns.GetHostEntry(audioip);
+                        IPAddress[] ipA = ipE.AddressList;
+                        if (ipA==null || ipA.Length == 0)
+                        {
+                            MessageBox.Show(LocRm.GetString("Validate_Camera_Talk_Field"));
+                            return false;
+                        }
                     }
-                    catch
+                    catch(Exception ex)
                     {
+                        MessageBox.Show(LocRm.GetString("Validate_Camera_Talk_Field")+" ("+ex.Message+")");
+                        return false;
                     }
                 }
+            }
 
-                CameraControl.Camobject.settings.ignoreaudio = chkIgnoreAudio.Checked;
-                CameraControl.Camobject.alerts.active = chkMovement.Checked;
-                
-                CameraControl.Camobject.settings.ptzusername = txtPTZUsername.Text;
-                CameraControl.Camobject.settings.ptzpassword = txtPTZPassword.Text;
-                CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
-                
-                CameraControl.Camobject.recorder.quality = tbQuality.Value;
-                CameraControl.Camobject.recorder.timelapsesave = (int)numTimelapseSave.Value;
-                CameraControl.Camobject.recorder.timelapseframerate = (int)numFramerate.Value;
-                
-                CameraControl.Camobject.ftp.quality = tbFTPQuality.Value;
-                CameraControl.Camobject.ftp.countermax = (int) numMaxCounter.Value;
-                CameraControl.Camobject.ftp.minimumdelay = ftpmindelay;                
-                SetStorageManagement();
+            CameraControl.Camobject.savelocal.intervalnew = saveinterval;
+            CameraControl.Camobject.savelocal.minimumdelay = savemindelay;
+            CameraControl.Camobject.savelocal.countermax = Convert.ToInt32(numSaveCounter.Value);
 
-                CameraControl.Camobject.detector.autooff = (int)numAutoOff.Value;
+            int savemode = 0;
+            if (rdoSaveAlerts.Checked)
+                savemode = 1;
+            if (rdoSaveInterval.Checked)
+                savemode = 2;
+            CameraControl.Camobject.savelocal.mode = savemode;
+            CameraControl.Camobject.savelocal.quality = tbSaveQuality.Value;
+            CameraControl.Camobject.savelocal.text = txtSaveOverlay.Text;
+            CameraControl.Camobject.savelocal.filename = txtLocalFilename.Text.Trim();
+            CameraControl.Camobject.savelocal.enabled = chkLocalSaving.Checked;
+
+
+            CameraControl.Camobject.detector.processeveryframe = Convert.ToInt32(ddlProcessFrames.SelectedItem.ToString());
+            CameraControl.Camobject.detector.motionzones = AreaControl.MotionZones;
+            CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
+            CameraControl.Camobject.detector.postprocessor = (string) _processortypes[ddlProcessor.SelectedIndex];
+            CameraControl.Camobject.name = txtCameraName.Text.Trim();
+            //update to plugin if connected and supported
+            if (CameraControl.Camera != null && CameraControl.Camera.Plugin != null)
+            {
+                try
+                {
+                    var plugin = CameraControl.Camera.Plugin;
+                    plugin.GetType().GetProperty("CameraName").SetValue(plugin, CameraControl.Camobject.name, null);
+                }
+                catch
+                {
+                }
+            }
+
+            CameraControl.Camobject.settings.ignoreaudio = chkIgnoreAudio.Checked;
+            CameraControl.Camobject.alerts.active = chkMovement.Checked;
+                
+            CameraControl.Camobject.settings.ptzusername = txtPTZUsername.Text;
+            CameraControl.Camobject.settings.ptzpassword = txtPTZPassword.Text;
+            CameraControl.Camobject.settings.ptzchannel = txtPTZChannel.Text;
+                
+            CameraControl.Camobject.recorder.quality = tbQuality.Value;
+            CameraControl.Camobject.recorder.timelapsesave = (int)numTimelapseSave.Value;
+            CameraControl.Camobject.recorder.timelapseframerate = (int)numFramerate.Value;
+                
+            CameraControl.Camobject.ftp.quality = tbFTPQuality.Value;
+            CameraControl.Camobject.ftp.countermax = (int) numMaxCounter.Value;
+            CameraControl.Camobject.ftp.minimumdelay = ftpmindelay;                
+            SetStorageManagement();
+
+            CameraControl.Camobject.recorder.minrecordtime = (int)numMinRecordTime.Value;
+
+            CameraControl.Camobject.detector.autooff = (int)numAutoOff.Value;
                                 
-                if (txtDirectory.Text.Trim() == "")
-                    txtDirectory.Text = MainForm.RandomString(5);
+            if (txtDirectory.Text.Trim() == "")
+                txtDirectory.Text = MainForm.RandomString(5);
 
-                var md = (ListItem)ddlMediaDirectory.SelectedItem;
-                var newind = Convert.ToInt32(md.Value);
+            var md = (ListItem)ddlMediaDirectory.SelectedItem;
+            var newind = Convert.ToInt32(md.Value);
 
 
-                string olddir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + CameraControl.Camobject.directory + "\\";
+            string olddir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + CameraControl.Camobject.directory + "\\";
 
-                bool needsFileRefresh = (CameraControl.Camobject.directory != txtDirectory.Text || CameraControl.Camobject.settings.directoryIndex != newind);
+            bool needsFileRefresh = (CameraControl.Camobject.directory != txtDirectory.Text || CameraControl.Camobject.settings.directoryIndex != newind);
                 
-                int tempidx = CameraControl.Camobject.settings.directoryIndex;
-                CameraControl.Camobject.settings.directoryIndex = newind;
+            int tempidx = CameraControl.Camobject.settings.directoryIndex;
+            CameraControl.Camobject.settings.directoryIndex = newind;
 
                 
-                string newdir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + txtDirectory.Text + "\\";
+            string newdir = Helper.GetMediaDirectory(2, CameraControl.Camobject.id) + "video\\" + txtDirectory.Text + "\\";
 
-                if (IsNew)
+            if (IsNew)
+            {
+                try
+                {
+                    if (!Directory.Exists(newdir))
+                    {
+                        Directory.CreateDirectory(newdir);
+                    }
+                    else
+                    {
+                        switch (
+                            MessageBox.Show(this,
+                                LocRm.GetString("Validate_Directory_Exists"),
+                                LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
+                        {
+                            case DialogResult.Yes:
+                                Directory.Delete(newdir, true);
+                                Directory.CreateDirectory(newdir);
+                                break;
+                            case DialogResult.Cancel:
+                                CameraControl.Camobject.settings.directoryIndex = tempidx;
+                                return false;
+                            case DialogResult.No:
+                                break;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
+                    CameraControl.Camobject.settings.directoryIndex = tempidx;
+                    return false;
+                }
+            }
+            else
+            {
+                if (newdir != olddir)
                 {
                     try
                     {
                         if (!Directory.Exists(newdir))
                         {
-                            Directory.CreateDirectory(newdir);
+                            if (Directory.Exists(olddir))
+                            {
+                                Helper.CopyFolder(olddir, newdir);
+                            }
+                            else
+                            {
+                                Directory.CreateDirectory(newdir);
+                            }
                         }
                         else
                         {
@@ -1124,12 +1186,19 @@ namespace iSpyApplication
                                     LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
                             {
                                 case DialogResult.Yes:
-                                    Directory.Delete(newdir, true);
-                                    Directory.CreateDirectory(newdir);
+                                    if (Directory.Exists(olddir))
+                                    {
+                                        Helper.CopyFolder(olddir,newdir);
+                                    }
+                                    else
+                                    {
+                                        Directory.Delete(newdir, true);
+                                        Directory.CreateDirectory(newdir);
+                                    }
                                     break;
                                 case DialogResult.Cancel:
                                     CameraControl.Camobject.settings.directoryIndex = tempidx;
-                                    return;
+                                    return false;
                                 case DialogResult.No:
                                     break;
                             }
@@ -1139,206 +1208,154 @@ namespace iSpyApplication
                     {
                         MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
                         CameraControl.Camobject.settings.directoryIndex = tempidx;
-                        return;
+                        return false;
                     }
                 }
-                else
-                {
-                    if (newdir != olddir)
-                    {
-                        try
-                        {
-                            if (!Directory.Exists(newdir))
-                            {
-                                if (Directory.Exists(olddir))
-                                {
-                                    Helper.CopyFolder(olddir, newdir);
-                                }
-                                else
-                                {
-                                    Directory.CreateDirectory(newdir);
-                                }
-                            }
-                            else
-                            {
-                                switch (
-                                    MessageBox.Show(this,
-                                        LocRm.GetString("Validate_Directory_Exists"),
-                                        LocRm.GetString("Confirm"), MessageBoxButtons.YesNoCancel))
-                                {
-                                    case DialogResult.Yes:
-                                        if (Directory.Exists(olddir))
-                                        {
-                                            Helper.CopyFolder(olddir,newdir);
-                                        }
-                                        else
-                                        {
-                                            Directory.Delete(newdir, true);
-                                            Directory.CreateDirectory(newdir);
-                                        }
-                                        break;
-                                    case DialogResult.Cancel:
-                                        CameraControl.Camobject.settings.directoryIndex = tempidx;
-                                        return;
-                                    case DialogResult.No:
-                                        break;
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(this, LocRm.GetString("Validate_Directory_String") + Environment.NewLine + ex.Message);
-                            CameraControl.Camobject.settings.directoryIndex = tempidx;
-                            return;
-                        }
-                    }
-                }
-
-                if (!Directory.Exists(newdir + "thumbs\\"))
-                {
-                    Directory.CreateDirectory(newdir + "thumbs\\");
-                }
-                if (!Directory.Exists(newdir + "grabs\\"))
-                {
-                    Directory.CreateDirectory(newdir + "grabs\\");
-                }
-                
-                CameraControl.Camobject.directory = txtDirectory.Text;
-                
-
-                CameraControl.Camobject.schedule.active = chkSchedule.Checked;
-                CameraControl.Camobject.settings.active = chkActive.Checked;
-
-                int bufferseconds,
-                    calibrationdelay,
-                    inactiveRecord,
-                    minimuminterval,
-                    maxrecord;
-                int.TryParse(txtBuffer.Text, out bufferseconds);
-                int.TryParse(txtCalibrationDelay.Text, out calibrationdelay);
-                int.TryParse(txtInactiveRecord.Text, out inactiveRecord);
-                int.TryParse(txtMaxRecordTime.Text, out maxrecord);
-
-                CameraControl.Camobject.recorder.bufferseconds = bufferseconds;
-
-                var m = MainForm.Microphones.SingleOrDefault(p => p.id == CameraControl.Camobject.settings.micpair);
-                if (m != null)
-                    m.settings.buffer = CameraControl.Camobject.recorder.bufferseconds;
-
-                CameraControl.Camobject.detector.calibrationdelay = calibrationdelay;
-                CameraControl.Camobject.recorder.inactiverecord = inactiveRecord;
-                CameraControl.Camobject.alerts.processmode = "continuous";
-                if (rdoMotion.Checked)
-                    CameraControl.Camobject.alerts.processmode = "motion";
-                if (rdoTrigger.Checked)
-                    CameraControl.Camobject.alerts.processmode = "trigger";
-                CameraControl.Camobject.recorder.maxrecordtime = maxrecord;
-                CameraControl.Camobject.recorder.timelapseenabled = chkTimelapse.Checked;
-
-                CameraControl.Camobject.ftp.enabled = chkFTP.Checked;
-                CameraControl.Camobject.ftp.intervalnew = ftpinterval;
-                CameraControl.Camobject.ftp.filename = txtFTPFilename.Text;
-                CameraControl.Camobject.ftp.text = txtFTPText.Text;
-                int ftpmode = 0;
-                if (rdoFTPAlerts.Checked)
-                    ftpmode = 1;
-                if (rdoFTPInterval.Checked)
-                    ftpmode = 2;
-                CameraControl.Camobject.ftp.mode = ftpmode;
-
-                CameraControl.Camobject.recorder.timelapseframes = timelapseframes;
-                CameraControl.Camobject.recorder.timelapse = timelapsemovie;
-                CameraControl.Camobject.recorder.profile = ddlProfile.SelectedIndex;
-
-                //CameraControl.Camobject.settings.youtube.autoupload = chkUploadYouTube.Checked;
-                CameraControl.Camobject.settings.youtube.category = ddlCategory.SelectedItem.ToString();
-                CameraControl.Camobject.settings.youtube.@public = chkPublic.Checked;
-                CameraControl.Camobject.settings.youtube.tags = txtTags.Text;
-                CameraControl.Camobject.settings.maxframeraterecord = (int)numMaxFRRecording.Value;
-
-                CameraControl.Camobject.settings.accessgroups = txtAccessGroups.Text;
-                CameraControl.Camobject.detector.recordonalert = rdoRecordAlert.Checked;
-                CameraControl.Camobject.detector.recordondetect = rdoRecordDetect.Checked;
-
-                CameraControl.UpdateFloorplans(false);
-
-                CameraControl.Camobject.settings.audiomodel = ddlTalkModel.SelectedItem.ToString();
-                CameraControl.Camobject.settings.audioport = (int)numTalkPort.Value;
-                CameraControl.Camobject.settings.audioip = txtAudioOutIP.Text.Trim();
-                CameraControl.Camobject.settings.audiousername = txtTalkUsername.Text;
-                CameraControl.Camobject.settings.audiopassword = txtTalkPassword.Text;
-                CameraControl.Camobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
-                
-                CameraControl.SetVideoSize();
-
-                if (ddlFTPServer.Enabled)
-                {
-                    int i = ddlFTPServer.SelectedIndex;
-                    if (i > -1)
-                    {
-                        var ftp = MainForm.Conf.FTPServers[i];
-                        CameraControl.Camobject.ftp.ident = ftp.ident;
-                    }
-                }
-                CameraControl.Camobject.settings.cloudprovider.images = chkUploadGrabs.Checked;
-                CameraControl.Camobject.settings.cloudprovider.recordings = chkUploadRecordings.Checked;
-
-                if (CameraControl != null && CameraControl.Camera != null && CameraControl.Camera.VideoSource != null)
-                {
-                    var vcd = CameraControl.Camera.VideoSource as VideoCaptureDevice;
-                    if (vcd != null && vcd.SupportsProperties)
-                    {
-                        //save extended properties of local device
-                        int b, c, h, s, sh, gam, ce, wb, bc, g;
-                        VideoProcAmpFlags fb, fc, fh, fs, fsh, fgam, fce, fwb, fbc, fg;
-
-                        vcd.GetProperty(VideoProcAmpProperty.Brightness, out b, out fb);
-                        vcd.GetProperty(VideoProcAmpProperty.Contrast, out c, out fc);
-                        vcd.GetProperty(VideoProcAmpProperty.Hue, out h, out fh);
-                        vcd.GetProperty(VideoProcAmpProperty.Saturation, out s, out fs);
-                        vcd.GetProperty(VideoProcAmpProperty.Sharpness, out sh, out fsh);
-                        vcd.GetProperty(VideoProcAmpProperty.Gamma, out gam, out fgam);
-                        vcd.GetProperty(VideoProcAmpProperty.ColorEnable, out ce, out fce);
-                        vcd.GetProperty(VideoProcAmpProperty.WhiteBalance, out wb, out fwb);
-                        vcd.GetProperty(VideoProcAmpProperty.BacklightCompensation, out bc, out fbc);
-                        vcd.GetProperty(VideoProcAmpProperty.Gain, out g, out fg);
-                            
-                        string cfg = "";
-                        cfg += "b=" + b + ",fb=" + (int) fb + ",";
-                        cfg += "c=" + c + ",fc=" + (int) fc + ",";
-                        cfg += "h=" + h + ",fh=" + (int) fh + ",";
-                        cfg += "s=" + s + ",fs=" + (int) fs + ",";
-                        cfg += "sh=" + sh + ",fsh=" + (int) fsh + ",";
-                        cfg += "gam=" + gam + ",fgam=" + (int) fgam + ",";
-                        cfg += "ce=" + ce + ",fce=" + (int) fce + ",";
-                        cfg += "wb=" + wb + ",fwb=" + (int) fwb + ",";
-                        cfg += "bc=" + bc + ",fbc=" + (int) fbc + ",";
-                        cfg += "g=" + g + ",fg=" + (int) fg;
-
-                        CameraControl.Camobject.settings.procAmpConfig = cfg;
-                    }
-                }
-
-                if (ddlCloudProviders.SelectedIndex > 0)
-                    CameraControl.Camobject.settings.cloudprovider.provider = ddlCloudProviders.SelectedItem.ToString();
-                else
-                    CameraControl.Camobject.settings.cloudprovider.provider = "";
-
-                CameraControl.Camobject.settings.cloudprovider.images = chkUploadGrabs.Checked;
-                CameraControl.Camobject.settings.cloudprovider.recordings = chkUploadRecordings.Checked;
-                CameraControl.Camobject.settings.cloudprovider.path = txtCloudPath.Text;
-
-                DialogResult = DialogResult.OK;
-                MainForm.NeedsSync = true;
-                IsNew = false;
-                if (needsFileRefresh)
-                {
-                    CameraControl.GenerateFileList();
-                    MainForm.NeedsMediaRebuild = true;
-                    MainForm.NeedsMediaRefresh = Helper.Now;
-                }
-                Close();
             }
+
+            if (!Directory.Exists(newdir + "thumbs\\"))
+            {
+                Directory.CreateDirectory(newdir + "thumbs\\");
+            }
+            if (!Directory.Exists(newdir + "grabs\\"))
+            {
+                Directory.CreateDirectory(newdir + "grabs\\");
+            }
+                
+            CameraControl.Camobject.directory = txtDirectory.Text;
+                
+
+            CameraControl.Camobject.schedule.active = chkSchedule.Checked;
+            CameraControl.Camobject.settings.active = chkActive.Checked;
+
+            int bufferseconds,
+                calibrationdelay,
+                inactiveRecord,
+                maxrecord;
+            int.TryParse(txtBuffer.Text, out bufferseconds);
+            int.TryParse(txtCalibrationDelay.Text, out calibrationdelay);
+            int.TryParse(txtInactiveRecord.Text, out inactiveRecord);
+            int.TryParse(txtMaxRecordTime.Text, out maxrecord);
+
+            CameraControl.Camobject.recorder.bufferseconds = bufferseconds;
+
+            var m = MainForm.Microphones.SingleOrDefault(p => p.id == CameraControl.Camobject.settings.micpair);
+            if (m != null)
+                m.settings.buffer = CameraControl.Camobject.recorder.bufferseconds;
+
+            CameraControl.Camobject.detector.calibrationdelay = calibrationdelay;
+            CameraControl.Camobject.recorder.inactiverecord = inactiveRecord;
+            CameraControl.Camobject.alerts.processmode = "continuous";
+            if (rdoMotion.Checked)
+                CameraControl.Camobject.alerts.processmode = "motion";
+            if (rdoTrigger.Checked)
+                CameraControl.Camobject.alerts.processmode = "trigger";
+            CameraControl.Camobject.recorder.maxrecordtime = maxrecord;
+            CameraControl.Camobject.recorder.timelapseenabled = chkTimelapse.Checked;
+
+            CameraControl.Camobject.ftp.enabled = chkFTP.Checked;
+            CameraControl.Camobject.ftp.intervalnew = ftpinterval;
+            CameraControl.Camobject.ftp.filename = txtFTPFilename.Text;
+            CameraControl.Camobject.ftp.text = txtFTPText.Text;
+            int ftpmode = 0;
+            if (rdoFTPAlerts.Checked)
+                ftpmode = 1;
+            if (rdoFTPInterval.Checked)
+                ftpmode = 2;
+            CameraControl.Camobject.ftp.mode = ftpmode;
+
+            CameraControl.Camobject.recorder.timelapseframes = timelapseframes;
+            CameraControl.Camobject.recorder.timelapse = timelapsemovie;
+            CameraControl.Camobject.recorder.profile = ddlProfile.SelectedIndex;
+
+            //CameraControl.Camobject.settings.youtube.autoupload = chkUploadYouTube.Checked;
+            CameraControl.Camobject.settings.youtube.category = ddlCategory.SelectedItem.ToString();
+            CameraControl.Camobject.settings.youtube.@public = chkPublic.Checked;
+            CameraControl.Camobject.settings.youtube.tags = txtTags.Text;
+            CameraControl.Camobject.settings.maxframeraterecord = (int)numMaxFRRecording.Value;
+
+            CameraControl.Camobject.settings.accessgroups = txtAccessGroups.Text;
+            CameraControl.Camobject.detector.recordonalert = rdoRecordAlert.Checked;
+            CameraControl.Camobject.detector.recordondetect = rdoRecordDetect.Checked;
+
+            CameraControl.UpdateFloorplans(false);
+
+            CameraControl.Camobject.settings.audiomodel = ddlTalkModel.SelectedItem.ToString();
+            CameraControl.Camobject.settings.audioport = (int)numTalkPort.Value;
+            CameraControl.Camobject.settings.audioip = txtAudioOutIP.Text.Trim();
+            CameraControl.Camobject.settings.audiousername = txtTalkUsername.Text;
+            CameraControl.Camobject.settings.audiopassword = txtTalkPassword.Text;
+            CameraControl.Camobject.recorder.trigger = ((ListItem)ddlTriggerRecording.SelectedItem).Value;
+                
+            CameraControl.SetVideoSize();
+
+            if (ddlFTPServer.Enabled)
+            {
+                int i = ddlFTPServer.SelectedIndex;
+                if (i > -1)
+                {
+                    var ftp = MainForm.Conf.FTPServers[i];
+                    CameraControl.Camobject.ftp.ident = ftp.ident;
+                }
+            }
+            CameraControl.Camobject.settings.cloudprovider.images = chkUploadGrabs.Checked;
+            CameraControl.Camobject.settings.cloudprovider.recordings = chkUploadRecordings.Checked;
+
+            if (CameraControl != null && CameraControl.Camera != null && CameraControl.Camera.VideoSource != null)
+            {
+                var vcd = CameraControl.Camera.VideoSource as VideoCaptureDevice;
+                if (vcd != null && vcd.SupportsProperties)
+                {
+                    //save extended properties of local device
+                    int b, c, h, s, sh, gam, ce, wb, bc, g;
+                    VideoProcAmpFlags fb, fc, fh, fs, fsh, fgam, fce, fwb, fbc, fg;
+
+                    vcd.GetProperty(VideoProcAmpProperty.Brightness, out b, out fb);
+                    vcd.GetProperty(VideoProcAmpProperty.Contrast, out c, out fc);
+                    vcd.GetProperty(VideoProcAmpProperty.Hue, out h, out fh);
+                    vcd.GetProperty(VideoProcAmpProperty.Saturation, out s, out fs);
+                    vcd.GetProperty(VideoProcAmpProperty.Sharpness, out sh, out fsh);
+                    vcd.GetProperty(VideoProcAmpProperty.Gamma, out gam, out fgam);
+                    vcd.GetProperty(VideoProcAmpProperty.ColorEnable, out ce, out fce);
+                    vcd.GetProperty(VideoProcAmpProperty.WhiteBalance, out wb, out fwb);
+                    vcd.GetProperty(VideoProcAmpProperty.BacklightCompensation, out bc, out fbc);
+                    vcd.GetProperty(VideoProcAmpProperty.Gain, out g, out fg);
+                            
+                    string cfg = "";
+                    cfg += "b=" + b + ",fb=" + (int) fb + ",";
+                    cfg += "c=" + c + ",fc=" + (int) fc + ",";
+                    cfg += "h=" + h + ",fh=" + (int) fh + ",";
+                    cfg += "s=" + s + ",fs=" + (int) fs + ",";
+                    cfg += "sh=" + sh + ",fsh=" + (int) fsh + ",";
+                    cfg += "gam=" + gam + ",fgam=" + (int) fgam + ",";
+                    cfg += "ce=" + ce + ",fce=" + (int) fce + ",";
+                    cfg += "wb=" + wb + ",fwb=" + (int) fwb + ",";
+                    cfg += "bc=" + bc + ",fbc=" + (int) fbc + ",";
+                    cfg += "g=" + g + ",fg=" + (int) fg;
+
+                    CameraControl.Camobject.settings.procAmpConfig = cfg;
+                }
+            }
+
+            if (ddlCloudProviders.SelectedIndex > 0)
+                CameraControl.Camobject.settings.cloudprovider.provider = ddlCloudProviders.SelectedItem.ToString();
+            else
+                CameraControl.Camobject.settings.cloudprovider.provider = "";
+
+            CameraControl.Camobject.settings.cloudprovider.images = chkUploadGrabs.Checked;
+            CameraControl.Camobject.settings.cloudprovider.recordings = chkUploadRecordings.Checked;
+            CameraControl.Camobject.settings.cloudprovider.path = txtCloudPath.Text;
+
+            MainForm.NeedsSync = true;
+            IsNew = false;
+            if (needsFileRefresh)
+            {
+                CameraControl.GenerateFileList();
+                MainForm.NeedsMediaRebuild = true;
+                MainForm.NeedsMediaRefresh = Helper.Now;
+            }
+
+            return true;
         }
 
         private void ChkMovementCheckedChanged(object sender, EventArgs e)
@@ -2502,6 +2519,9 @@ namespace iSpyApplication
                               StartPosition = FormStartPosition.CenterParent
                           };
             cms.ShowDialog(this);
+
+            CameraControl.SetVolumeLevel(CameraControl.Camobject.settings.micpair);
+
             if (CameraControl.Camobject.settings.micpair>-1)
             {
                 var m = MainForm.Microphones.SingleOrDefault(p => p.id == CameraControl.Camobject.settings.micpair);
@@ -2517,6 +2537,8 @@ namespace iSpyApplication
             {
                 lblMicSource.Text = LocRm.GetString("None");
             }
+
+            
         }
 
         private void ddlTimestamp_SelectedIndexChanged(object sender, EventArgs e)
@@ -2846,6 +2868,18 @@ namespace iSpyApplication
             _pip.ShowDialog(this);
             _pip.Dispose();
             _pip = null;
+        }
+
+        private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (Save())
+            {
+                using (var ct = new CopyTo {OC = CameraControl.Camobject})
+                {
+                    ct.ShowDialog(this);
+                }
+            }
+
         }
 
     }

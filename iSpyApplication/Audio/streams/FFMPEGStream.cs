@@ -124,7 +124,7 @@ namespace iSpyApplication.Audio.streams
 
                 if (value)
                 {
-                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+                    WaveOutProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
                 }
                 _listening = value;
             }
@@ -214,7 +214,7 @@ namespace iSpyApplication.Audio.streams
             
             try
             {
-                Program.WriterMutex.WaitOne();
+                Program.FFMPEGMutex.WaitOne();
                 _afr = new AudioFileReader();
                 int i = _source.IndexOf("://", StringComparison.Ordinal);
                 if (i>-1)
@@ -234,7 +234,7 @@ namespace iSpyApplication.Audio.streams
             {
                 try
                 {
-                    Program.WriterMutex.ReleaseMutex();
+                    Program.FFMPEGMutex.ReleaseMutex();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -250,7 +250,7 @@ namespace iSpyApplication.Audio.streams
 
 
             RecordingFormat = new WaveFormat(_afr.SampleRate, 16, _afr.Channels);
-            _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true };
+            _waveProvider = new BufferedWaveProvider(RecordingFormat) { DiscardOnBufferOverflow = true, BufferDuration = TimeSpan.FromMilliseconds(500) };
             
             _sampleChannel = new SampleChannel(_waveProvider);
             _sampleChannel.PreVolumeMeter += SampleChannelPreVolumeMeter;

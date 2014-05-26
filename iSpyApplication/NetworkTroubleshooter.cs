@@ -209,9 +209,10 @@ namespace iSpyApplication
                                 int j = 2;
                                 while (!portMapOk && j > 0)
                                 {
-                                    var enumerator = NATControl.Mappings.GetEnumerator();
+                                    int maps = 0;
                                     try
                                     {
+                                        var enumerator = NATControl.Mappings.GetEnumerator();
                                         while (enumerator.MoveNext())
                                         {
                                             var map = (NATUPNPLib.IStaticPortMapping)enumerator.Current;
@@ -252,13 +253,15 @@ namespace iSpyApplication
                                                     }
                                                 }
                                             }
+                                            maps++;
                                         }
                                     }
-                                    catch (Exception)
+                                    catch (Exception ex)
                                     {
                                         UISync.Execute(
-                                            () => rtbOutput.Text += "Port mapping lookup failed. If the connection fails try resetting your router or manually configure port forwarding. " + NL);
-                                        throw;
+                                            () => rtbOutput.Text += "Port mapping lookup failed ("+ex.Message.Trim()+"). If the connection fails try resetting your router or manually configure port forwarding. " + NL);
+                                        if (maps==0)
+                                            throw;
                                     }
                                     if (!portMapOk)
                                     {

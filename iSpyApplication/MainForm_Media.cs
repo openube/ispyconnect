@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Speech.AudioFormat;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Google.GData.YouTube;
 using iSpyApplication.Cloud;
@@ -62,6 +63,9 @@ namespace iSpyApplication
             }
         }
 
+        private Queue<string> _toDelete = new Queue<string>();
+        private Thread _tDelete = null;
+
         internal void MediaDeleteSelected()
         {
             if (InvokeRequired)
@@ -77,12 +81,42 @@ namespace iSpyApplication
                     var pb = flowPreview.Controls[i] as PreviewBox;
                     if (pb!=null && pb.Selected)
                     {
-                        RemovePreviewBox(pb);
+                        DeletePreviewBox(pb);
                         i--;
                     }
                 }
             }
             flowPreview.ResumeLayout(true);
+            if (_tDelete == null || _tDelete.Join(TimeSpan.Zero))
+            {
+                _tDelete = new Thread(DeleteFiles) {IsBackground = true};
+                _tDelete.Start();
+                
+            }
+        }
+
+        private void DeleteFiles()
+        {
+            while (_toDelete.Count > 0)
+            {
+                var s = _toDelete.Dequeue();
+                FileOperations.Delete(s);
+
+                string[] parts = s.Split('\\');
+                string fn = parts[parts.Length - 1];
+                if (!fn.EndsWith(".mp3") && !fn.EndsWith(".wav"))
+                {
+                    //preview
+                    string dir = s.Substring(0, s.LastIndexOf("\\", StringComparison.Ordinal));
+
+                    var lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) +
+                                 "_large.jpg";
+                    FileOperations.Delete(lthumb);
+
+                    lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
+                    FileOperations.Delete(lthumb);
+                }
+            }
         }
 
         public void MediaArchiveSelected()
@@ -113,31 +147,36 @@ namespace iSpyApplication
 
         }
 
-        private void RemovePreviewBox(PreviewBox pb)
+        private void DeletePreviewBox(PreviewBox pb)
         {
+            _toDelete.Enqueue(pb.FileName);
+
             string[] parts = pb.FileName.Split('\\');
             string fn = parts[parts.Length - 1];
-            string id = fn.Substring(0, fn.IndexOf('_'));
 
             try
             {
-                //movie
-                FileOperations.Delete(pb.FileName);
-                var cw = GetCameraWindow(Convert.ToInt32(id));
-                if (cw!=null)
+               
+                switch (pb.Otid)
                 {
-                    cw.RemoveFile(fn);
+                    case 1:
+                        var vl = GetVolumeLevel(pb.Oid);
+                        if (vl != null)
+                        {
+                            vl.RemoveFile(fn);
+                        }
+                        break;
+                    case 2:
+                        var cw = GetCameraWindow(Convert.ToInt32(pb.Oid));
+                        if (cw != null)
+                        {
+                            cw.RemoveFile(fn);
+                        }
+                        break;
                 }
-                
 
-                //preview
-                string dir = pb.FileName.Substring(0, pb.FileName.LastIndexOf("\\", StringComparison.Ordinal));
 
-                var lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + "_large.jpg";
-                FileOperations.Delete(lthumb);
-
-                lthumb = dir + @"\thumbs\" + fn.Substring(0, fn.LastIndexOf(".", StringComparison.Ordinal)) + ".jpg";
-                FileOperations.Delete(lthumb);
+               
             }
             catch (Exception ex)
             {
@@ -305,7 +344,7 @@ namespace iSpyApplication
                     {
                         if (pb.FileName.EndsWith(fn))
                         {
-                            UISync.Execute(() => RemovePreviewBox(pb));
+                            UISync.Execute(() => DeletePreviewBox(pb));
                             return;
                         }
                     }

@@ -173,7 +173,7 @@ namespace iSpyPlugin.Audio.streams
                     {
                         if (_bufferedWaveProvider != null && _bufferedWaveProvider.BufferLength - _bufferedWaveProvider.BufferedBytes < _bufferedWaveProvider.WaveFormat.AverageBytesPerSecond / 4)
                         {
-                            Debug.WriteLine("Buffer getting full, taking a break");
+                            //Debug.WriteLine("Buffer getting full, taking a break");
                             Thread.Sleep(100);
                         }
                         else
@@ -259,7 +259,12 @@ namespace iSpyPlugin.Audio.streams
             if (IsRunning)
             {
                 _stopEvent.Set();
-                _thread.Join();
+                try
+                {
+                    if (!_thread.Join(TimeSpan.Zero))
+                        _thread.Join();
+                }
+                catch { }
 
                 Free();
             }

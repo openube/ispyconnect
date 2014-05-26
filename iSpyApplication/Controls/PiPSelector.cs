@@ -345,43 +345,50 @@ namespace iSpyApplication.Controls
 
                 double wmulti = Convert.ToDouble(Width) / Convert.ToDouble(100);
                 double hmulti = Convert.ToDouble(Height) / Convert.ToDouble(100);
-
-                if (_configs.Count > 0)
+                if (!Enabled)
                 {
-                    foreach (var r in _configs)
+                    var d = new SolidBrush(Color.FromArgb(160,255,255,255));
+                    g.FillRectangle(d, ClientRectangle);
+                    d.Dispose();
+                }
+                else
+                {
+                    if (_configs.Count > 0)
                     {
-                        var rMod = new Rectangle(Convert.ToInt32(r.Rect.X * wmulti), Convert.ToInt32(r.Rect.Y * hmulti), Convert.ToInt32(r.Rect.Width * wmulti), Convert.ToInt32(r.Rect.Height * hmulti));
-                        g.FillRectangle(h, rMod);
-                        g.DrawRectangle(p, rMod);
+                        foreach (var r in _configs)
+                        {
+                            var rMod = new Rectangle(Convert.ToInt32(r.Rect.X * wmulti), Convert.ToInt32(r.Rect.Y * hmulti), Convert.ToInt32(r.Rect.Width * wmulti), Convert.ToInt32(r.Rect.Height * hmulti));
+                            g.FillRectangle(h, rMod);
+                            g.DrawRectangle(p, rMod);
 
-                        var n = MainForm.Cameras.FirstOrDefault(q => q.id == r.CameraID);
-                        if (n != null)
-                            g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush, Convert.ToInt32(r.Rect.X * wmulti) + 2,
-                             Convert.ToInt32(r.Rect.Y * hmulti) + 2);
+                            var n = MainForm.Cameras.FirstOrDefault(q => q.id == r.CameraID);
+                            if (n != null)
+                                g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush, Convert.ToInt32(r.Rect.X * wmulti) + 2,
+                                 Convert.ToInt32(r.Rect.Y * hmulti) + 2);
+                        }
                     }
-                }
 
-                if (_rectIndex == -1 && _bMouseDown)
-                {
-                    var p1 = new Point(Convert.ToInt32(_rectStart.X * wmulti), Convert.ToInt32(_rectStart.Y * hmulti));
-                    var p2 = new Point(Convert.ToInt32(_rectStop.X * wmulti), Convert.ToInt32(_rectStop.Y * hmulti));
+                    if (_rectIndex == -1 && _bMouseDown)
+                    {
+                        var p1 = new Point(Convert.ToInt32(_rectStart.X * wmulti), Convert.ToInt32(_rectStart.Y * hmulti));
+                        var p2 = new Point(Convert.ToInt32(_rectStop.X * wmulti), Convert.ToInt32(_rectStop.Y * hmulti));
 
-                    var ps = new[] { p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1 };
-                    g.FillPolygon(h, ps);
-                    g.DrawPolygon(p, ps);
+                        var ps = new[] { p1, new Point(p1.X, p2.Y), p2, new Point(p2.X, p1.Y), p1 };
+                        g.FillPolygon(h, ps);
+                        g.DrawPolygon(p, ps);
 
                     
-                    var n = MainForm.Cameras.FirstOrDefault(q => q.id == CurrentCameraID);
-                    if (n != null)
-                        g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush,
-                            Convert.ToInt32(_rectStart.X*wmulti) + 2,
-                            Convert.ToInt32(_rectStart.Y*hmulti) + 2);
+                        var n = MainForm.Cameras.FirstOrDefault(q => q.id == CurrentCameraID);
+                        if (n != null)
+                            g.DrawString(n.name, MainForm.Drawfont, MainForm.OverlayBrush,
+                                Convert.ToInt32(_rectStart.X*wmulti) + 2,
+                                Convert.ToInt32(_rectStart.Y*hmulti) + 2);
                     
+                    }
+
+                    if (_hoverPoint!=Point.Empty)
+                        g.FillEllipse(Brushes.DeepSkyBlue,Convert.ToInt32(_hoverPoint.X * wmulti)-5,Convert.ToInt32(_hoverPoint.Y*hmulti)-5,10,10);
                 }
-
-                if (_hoverPoint!=Point.Empty)
-                    g.FillEllipse(Brushes.DeepSkyBlue,Convert.ToInt32(_hoverPoint.X * wmulti)-5,Convert.ToInt32(_hoverPoint.Y*hmulti)-5,10,10);
-
             }
             catch
             {

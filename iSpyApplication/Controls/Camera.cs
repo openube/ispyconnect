@@ -88,7 +88,7 @@ namespace iSpyApplication.Controls
         {
             get
             {
-                if (CW.Camobject.detector.colourprocessingenabled)
+                if (CW!=null && CW.Camobject.detector.colourprocessingenabled)
                 {
                     if (_filter != null)
                         return _filter;
@@ -492,7 +492,6 @@ namespace iSpyApplication.Controls
                             bmOrig = RunPlugin(bmOrig);
                         }
 
-                        
                         //this converts the image into a windows displayable image so do it regardless
                         using (var lfu = UnmanagedImage.FromManagedImage(bmOrig))
                         {
@@ -611,11 +610,11 @@ namespace iSpyApplication.Controls
 
         }
 
-        private string _PiPConfig = "";
+        private string _piPConfig = "";
 
         public string PiPConfig
         {
-            get { return _PiPConfig; }
+            get { return _piPConfig; }
             set
             {
                 lock (_sync)
@@ -643,7 +642,7 @@ namespace iSpyApplication.Controls
                             }
                         }
                     }
-                    _PiPConfig = value;
+                    _piPConfig = value;
                 }
             }
         }
@@ -807,6 +806,8 @@ namespace iSpyApplication.Controls
                     {
                         throw new Exception("Error processing motion: "+ex.Message);
                     }
+                    
+                    MotionLevel = MotionLevel * CW.Camobject.detector.gain;
 
                     if (MotionLevel >= _alarmLevel)
                     {

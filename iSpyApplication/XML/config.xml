@@ -92,7 +92,7 @@
   <ScreensaverWakeup>false</ScreensaverWakeup>
   <Vendor></Vendor>
   <TalkMic></TalkMic>
-  <PlaybackMode>0</PlaybackMode>
+  <PlaybackMode>1</PlaybackMode>
   <JPEGQuality>90</JPEGQuality>
   <StopSavingOnStorageLimit>false</StopSavingOnStorageLimit>
   <ViewController>false</ViewController>
@@ -129,6 +129,7 @@
   <VLCFileCache>3000</VLCFileCache>
   <Referers></Referers>
   <EncryptCode></EncryptCode>
+  <Logging FileSize="100" Enabled="true" KeepDays="7"></Logging>
   <Permissions>
     <group name="Admin" featureset="1" password=""/>
   </Permissions>

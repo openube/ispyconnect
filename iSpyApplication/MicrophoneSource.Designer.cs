@@ -60,16 +60,20 @@ namespace iSpyApplication
             this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
             this.cmbFFMPEGURL = new System.Windows.Forms.ComboBox();
             this.button4 = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.numAnalyseDuration = new System.Windows.Forms.NumericUpDown();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.lblCamera = new System.Windows.Forms.Label();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.label14 = new System.Windows.Forms.Label();
+            this.ddlCloneMicrophone = new System.Windows.Forms.ComboBox();
             this.linkLabel3 = new System.Windows.Forms.LinkLabel();
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.ofd = new System.Windows.Forms.OpenFileDialog();
             this.button5 = new System.Windows.Forms.Button();
-            this.label7 = new System.Windows.Forms.Label();
-            this.numAnalyseDuration = new System.Windows.Forms.NumericUpDown();
+            this.ofd = new System.Windows.Forms.OpenFileDialog();
             this.tcAudioSource.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -81,10 +85,12 @@ namespace iSpyApplication
             this.tabPage4.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numAnalyseDuration)).BeginInit();
             this.tabPage5.SuspendLayout();
+            this.tabPage6.SuspendLayout();
+            this.tableLayoutPanel10.SuspendLayout();
             this.panel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numAnalyseDuration)).BeginInit();
             this.SuspendLayout();
             // 
             // ddlDevice
@@ -93,7 +99,7 @@ namespace iSpyApplication
             this.ddlDevice.FormattingEnabled = true;
             this.ddlDevice.Location = new System.Drawing.Point(77, 3);
             this.ddlDevice.Name = "ddlDevice";
-            this.ddlDevice.Size = new System.Drawing.Size(208, 21);
+            this.ddlDevice.Size = new System.Drawing.Size(346, 21);
             this.ddlDevice.TabIndex = 26;
             this.ddlDevice.SelectedIndexChanged += new System.EventHandler(this.DdlDeviceSelectedIndexChanged);
             // 
@@ -128,6 +134,7 @@ namespace iSpyApplication
             this.tcAudioSource.Controls.Add(this.tabPage2);
             this.tcAudioSource.Controls.Add(this.tabPage4);
             this.tcAudioSource.Controls.Add(this.tabPage5);
+            this.tcAudioSource.Controls.Add(this.tabPage6);
             this.tcAudioSource.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcAudioSource.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.tcAudioSource.Location = new System.Drawing.Point(6, 6);
@@ -142,7 +149,7 @@ namespace iSpyApplication
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage1.Size = new System.Drawing.Size(498, 293);
+            this.tabPage1.Size = new System.Drawing.Size(498, 224);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Local Device";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -189,12 +196,6 @@ namespace iSpyApplication
             // 
             this.ddlSampleRate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlSampleRate.FormattingEnabled = true;
-            this.ddlSampleRate.Items.AddRange(new object[] {
-            "8000",
-            "11025",
-            "22050",
-            "44100",
-            "48000"});
             this.ddlSampleRate.Location = new System.Drawing.Point(77, 30);
             this.ddlSampleRate.Name = "ddlSampleRate";
             this.ddlSampleRate.Size = new System.Drawing.Size(121, 21);
@@ -206,7 +207,7 @@ namespace iSpyApplication
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage3.Size = new System.Drawing.Size(498, 293);
+            this.tabPage3.Size = new System.Drawing.Size(498, 224);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "iSpy Server";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -412,7 +413,7 @@ namespace iSpyApplication
             // lblFFMPEG
             // 
             this.lblFFMPEG.AutoSize = true;
-            this.lblFFMPEG.Location = new System.Drawing.Point(134, 31);
+            this.lblFFMPEG.Location = new System.Drawing.Point(133, 31);
             this.lblFFMPEG.Name = "lblFFMPEG";
             this.lblFFMPEG.Size = new System.Drawing.Size(297, 13);
             this.lblFFMPEG.TabIndex = 54;
@@ -420,7 +421,7 @@ namespace iSpyApplication
             // 
             // btnTest
             // 
-            this.btnTest.Location = new System.Drawing.Point(134, 94);
+            this.btnTest.Location = new System.Drawing.Point(133, 94);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(75, 23);
             this.btnTest.TabIndex = 1;
@@ -433,10 +434,10 @@ namespace iSpyApplication
             this.flowLayoutPanel4.Controls.Add(this.cmbFFMPEGURL);
             this.flowLayoutPanel4.Controls.Add(this.button4);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(131, 0);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(130, 0);
             this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(355, 31);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(356, 31);
             this.flowLayoutPanel4.TabIndex = 56;
             // 
             // cmbFFMPEGURL
@@ -457,13 +458,45 @@ namespace iSpyApplication
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 70);
+            this.label7.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(109, 13);
+            this.label7.TabIndex = 87;
+            this.label7.Text = "Analyse Duration (ms)";
+            // 
+            // numAnalyseDuration
+            // 
+            this.numAnalyseDuration.Location = new System.Drawing.Point(133, 65);
+            this.numAnalyseDuration.Maximum = new decimal(new int[] {
+            8000,
+            0,
+            0,
+            0});
+            this.numAnalyseDuration.Minimum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.numAnalyseDuration.Name = "numAnalyseDuration";
+            this.numAnalyseDuration.Size = new System.Drawing.Size(95, 20);
+            this.numAnalyseDuration.TabIndex = 89;
+            this.numAnalyseDuration.Value = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            // 
             // tabPage5
             // 
             this.tabPage5.Controls.Add(this.lblCamera);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(498, 293);
+            this.tabPage5.Size = new System.Drawing.Size(498, 224);
             this.tabPage5.TabIndex = 5;
             this.tabPage5.Text = "Camera";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -476,6 +509,51 @@ namespace iSpyApplication
             this.lblCamera.Size = new System.Drawing.Size(60, 13);
             this.lblCamera.TabIndex = 0;
             this.lblCamera.Text = "No Camera";
+            // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.tableLayoutPanel10);
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Size = new System.Drawing.Size(498, 224);
+            this.tabPage6.TabIndex = 6;
+            this.tabPage6.Text = "Clone";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel10
+            // 
+            this.tableLayoutPanel10.ColumnCount = 2;
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.08434F));
+            this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 78.91566F));
+            this.tableLayoutPanel10.Controls.Add(this.label14, 0, 0);
+            this.tableLayoutPanel10.Controls.Add(this.ddlCloneMicrophone, 1, 0);
+            this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel10.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel10.Name = "tableLayoutPanel10";
+            this.tableLayoutPanel10.RowCount = 2;
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel10.Size = new System.Drawing.Size(498, 224);
+            this.tableLayoutPanel10.TabIndex = 1;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(6, 6);
+            this.label14.Margin = new System.Windows.Forms.Padding(6);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(63, 13);
+            this.label14.TabIndex = 0;
+            this.label14.Text = "Microphone";
+            // 
+            // ddlCloneMicrophone
+            // 
+            this.ddlCloneMicrophone.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ddlCloneMicrophone.FormattingEnabled = true;
+            this.ddlCloneMicrophone.Location = new System.Drawing.Point(108, 3);
+            this.ddlCloneMicrophone.Name = "ddlCloneMicrophone";
+            this.ddlCloneMicrophone.Size = new System.Drawing.Size(308, 21);
+            this.ddlCloneMicrophone.TabIndex = 1;
             // 
             // linkLabel3
             // 
@@ -534,38 +612,6 @@ namespace iSpyApplication
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 70);
-            this.label7.Margin = new System.Windows.Forms.Padding(3, 8, 3, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(109, 13);
-            this.label7.TabIndex = 87;
-            this.label7.Text = "Analyse Duration (ms)";
-            // 
-            // numAnalyseDuration
-            // 
-            this.numAnalyseDuration.Location = new System.Drawing.Point(134, 65);
-            this.numAnalyseDuration.Maximum = new decimal(new int[] {
-            8000,
-            0,
-            0,
-            0});
-            this.numAnalyseDuration.Minimum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.numAnalyseDuration.Name = "numAnalyseDuration";
-            this.numAnalyseDuration.Size = new System.Drawing.Size(95, 20);
-            this.numAnalyseDuration.TabIndex = 89;
-            this.numAnalyseDuration.Value = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            // 
             // MicrophoneSource
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -595,12 +641,15 @@ namespace iSpyApplication
             this.tableLayoutPanel5.ResumeLayout(false);
             this.tableLayoutPanel5.PerformLayout();
             this.flowLayoutPanel4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numAnalyseDuration)).EndInit();
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
+            this.tabPage6.ResumeLayout(false);
+            this.tableLayoutPanel10.ResumeLayout(false);
+            this.tableLayoutPanel10.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numAnalyseDuration)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -649,5 +698,9 @@ namespace iSpyApplication
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numAnalyseDuration;
+        private System.Windows.Forms.TabPage tabPage6;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.ComboBox ddlCloneMicrophone;
     }
 }

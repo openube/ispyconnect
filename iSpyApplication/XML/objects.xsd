@@ -260,12 +260,14 @@
                                                 <xs:attribute name="colourprocessing" type="xs:string" default=""/>
                                                 <xs:attribute name="colourprocessingenabled" type="xs:boolean" default="false"/>
                                                 <xs:attribute name="autooff" type="xs:int" default="0"/>
+                                                <xs:attribute name="gain" type="xs:float" default="10"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="recorder">
                                             <xs:complexType>
                                                 <xs:attribute name="bufferseconds" type="xs:int" use="required"/>
                                                 <xs:attribute name="inactiverecord" type="xs:int" use="required" />
+                                                <xs:attribute name="minrecordtime" type="xs:int" default="0" />
                                                 <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
                                                 <xs:attribute name="timelapse" type="xs:int" use="required" />
                                                 <xs:attribute name="timelapseframes" type="xs:int" use="required" />
@@ -471,11 +473,13 @@
                                                 <xs:attribute name="soundinterval" type="xs:int" use="required" />
                                                 <xs:attribute name="recordondetect" type="xs:boolean" use="required" />
                                                 <xs:attribute name="recordonalert" type="xs:boolean" use="required" />
+                                                <xs:attribute name="gain" type="xs:float" default="1"/>
                                             </xs:complexType>
                                         </xs:element>
                                         <xs:element name="recorder">
                                             <xs:complexType>
                                                 <xs:attribute name="inactiverecord" type="xs:int" use="required" />
+                                                <xs:attribute name="minrecordtime" type="xs:int" default="0" />
                                                 <xs:attribute name="maxrecordtime" type="xs:int" use="required" />
                                                 <xs:attribute name="trigger" type="xs:string" default=""/>
                                             </xs:complexType>

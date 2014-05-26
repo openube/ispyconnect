@@ -16,6 +16,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using AForge.Video;
 using Antiufo.Controls;
 using iSpyApplication.Audio;
@@ -144,10 +145,7 @@ namespace iSpyApplication
         private static int _pingCounter;
         private static ImageCodecInfo _encoder;
 
-        private static readonly string LogTemplate =
-            "<html><head><title>iSpy v<!--VERSION--> Log File</title><style type=\"text/css\">body,td,th,div {font-family:Verdana;font-size:10px}</style></head><body><h1>Log Start (v<!--VERSION-->): " +
-            Helper.Now.ToLongDateString() +
-            "</h1><p><table cellpadding=\"2px\"><!--CONTENT--></table></p></body></html>";
+        
 
         private static readonly string PluginLogTemplate =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?><PluginLog username=\"" + Environment.UserName +
@@ -397,6 +395,7 @@ namespace iSpyApplication
         private MenuItem menuItem31;
         private MenuItem menuItem32;
         private MenuItem menuItem33;
+        private ToolStripMenuItem gridViewsToolStripMenuItem1;
         private ToolStripMenuItem websiteToolStripMenuItem;
 
         public MainForm(bool silent, string command)
@@ -765,40 +764,7 @@ namespace iSpyApplication
             PlayerVLC = null;
         }
 
-        private void InitLogging()
-        {
-            DateTime logdate = DateTime.Now;
-
-            foreach (string s in Directory.GetFiles(Program.AppDataPath, "log_*", SearchOption.TopDirectoryOnly))
-            {
-                var fi = new FileInfo(s);
-                if (fi.CreationTime < Helper.Now.AddDays(-5))
-                    FileOperations.Delete(s);
-            }
-            NextLog = Zeropad(logdate.Day) + Zeropad(logdate.Month) + logdate.Year;
-            int i = 1;
-            if (File.Exists(Program.AppDataPath + "log_" + NextLog + ".htm"))
-            {
-                while (File.Exists(Program.AppDataPath + "log_" + NextLog + "_" + i + ".htm"))
-                    i++;
-                NextLog += "_" + i;
-            }
-            try
-            {
-                File.WriteAllText(Program.AppDataPath + "log_" + NextLog + ".htm", Helper.Now + Environment.NewLine);
-                _logging = true;
-            }
-            catch (Exception ex)
-            {
-                if (
-                    MessageBox.Show(LocRm.GetString("LogStartError").Replace("[MESSAGE]", ex.Message),
-                        LocRm.GetString("Warning"), MessageBoxButtons.YesNo) == DialogResult.No)
-                {
-                    Reallyclose = true;
-                    Close();
-                }
-            }
-        }
+       
 
         private void MainFormLoad(object sender, EventArgs e)
         {
@@ -1131,6 +1097,50 @@ namespace iSpyApplication
                                         }
                                     }
                                     break;
+                                case "permissions":
+                                    //only want to set this on install (allow them to modify)
+                                    if (Conf.FirstRun)
+                                    {
+                                        var groups = nv[1].Trim().Split('|');
+                                        var l = new List<configurationGroup>();
+                                        foreach (var g in groups)
+                                        {
+                                            if (!String.IsNullOrEmpty(g))
+                                            {
+                                                var g2 = g.Split(',');
+                                                if (g2.Length >= 3)
+                                                {
+                                                    if (!String.IsNullOrEmpty(g2[0]))
+                                                    {
+                                                        int perm;
+                                                        if (int.TryParse(g2[2], out perm))
+                                                        {
+                                                            l.Add(new configurationGroup
+                                                                  {
+                                                                      featureset = perm,
+                                                                      name = g2[0],
+                                                                      password =
+                                                                          EncDec.EncryptData(g2[1],
+                                                                              Conf.EncryptCode)
+                                                                  });
+                                                        }
+                                                    }
+                                                }
+                                            }   
+                                        }
+                                        if (l.FirstOrDefault(p => p.name.ToLower() == "admin") == null)
+                                        {
+                                            l.Add(new configurationGroup{
+                                                      featureset = 1,
+                                                      name = "Admin",
+                                                      password = ""
+                                                  });
+                                        }
+                                        if (l.Count>0)
+                                            Conf.Permissions = l.ToArray();
+
+                                    }
+                                    break;
                                 case "webserver":
                                     Webserver = nv[1].Trim().Trim('/');
                                     if (!setSecure)
@@ -1233,21 +1243,15 @@ namespace iSpyApplication
 
             if (Conf.StartupForm != "iSpy")
             {
-                configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == Conf.StartupForm);
-                if (cg != null)
-                {
-                    var gv = new GridView(this, ref cg);
-                    gv.Show();
-                }
+                ShowGridView(Conf.StartupForm);
+                
             }
 
             foreach (var cg in Conf.GridViews)
             {
                 if (cg.ShowAtStartup)
                 {
-                    var c = cg;
-                    var gv = new GridView(this, ref c);
-                    gv.Show();
+                    ShowGridView(cg.name);
                 }
             }
 
@@ -1257,6 +1261,37 @@ namespace iSpyApplication
             _updateTimer.Start();
             _houseKeepingTimer.Start();
         }
+
+        internal void ShowGridView(string name)
+        {
+            configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == name);
+            if (cg != null)
+            {
+               for(int i=0;i<_views.Count;i++)
+                {
+                    GridView g = _views[i];
+                    if (g != null && !g.IsDisposed)
+                    {
+                        if (g.Cg == cg)
+                        {
+                            g.BringToFront();
+                            g.Focus();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        _views.RemoveAt(i);
+                        i--;
+                    }
+                        
+                }
+                var gv = new GridView(this, ref cg);
+                gv.Show();
+                _views.Add(gv);
+            }
+        }
+        private List<GridView> _views = new List<GridView>();
 
         public static void LoadPlugins()
         {
@@ -1388,7 +1423,7 @@ namespace iSpyApplication
             _addFloorPlanToolStripMenuItem.Text = LocRm.GetString("AddFloorplan");
             _addMicrophoneToolStripMenuItem.Text = LocRm.GetString("Addmicrophone");
             menuItem26.Text = autoLayoutToolStripMenuItem.Text = LocRm.GetString("AutoLayout");
-            gridViewsToolStripMenuItem.Text = LocRm.GetString("GridViews");
+            gridViewsToolStripMenuItem.Text = gridViewsToolStripMenuItem1.Text = LocRm.GetString("GridViews");
             _deleteToolStripMenuItem.Text = LocRm.GetString("remove");
             _editToolStripMenuItem.Text = LocRm.GetString("Edit");
             _exitFileItem.Text = LocRm.GetString("Exit");
@@ -1624,7 +1659,7 @@ namespace iSpyApplication
 
             _pingCounter++;
 
-            if (NeedsMediaRefresh > DateTime.MinValue && NeedsMediaRefresh < Helper.Now.AddSeconds(-3))
+            if (NeedsMediaRefresh > DateTime.MinValue && NeedsMediaRefresh < Helper.Now.AddSeconds(-1))
                 LoadPreviews();
 
 
@@ -2337,7 +2372,7 @@ namespace iSpyApplication
             {
                 try
                 {
-                    _storageThread.Join();
+                    _storageThread.Join(ThreadKillDelay);
                 }
                 catch
                 {
@@ -2581,7 +2616,6 @@ namespace iSpyApplication
             foreach (var gv in Conf.GridViews)
             {
                 gridViewsToolStripMenuItem.DropDownItems.Add(gv.name, null, tsi_Click);
-
             }
             maximiseToolStripMenuItem.DropDownItems.Clear();
             foreach (Control o in _pnlCameras.Controls)
@@ -2924,6 +2958,7 @@ namespace iSpyApplication
                     _switchAllOffToolStripMenuItem.Visible = false;
                     _switchAllOnToolStripMenuItem.Visible = false;
                     viewLogFileToolStripMenuItem.Visible = false;
+                    gridViewsToolStripMenuItem1.Visible = false;
                 }
                 else
                 {
@@ -2937,6 +2972,7 @@ namespace iSpyApplication
                     _helpToolstripMenuItem.Visible = true;
                     _switchAllOffToolStripMenuItem.Visible = true;
                     _switchAllOnToolStripMenuItem.Visible = true;
+                    gridViewsToolStripMenuItem1.Visible = true;
                     viewLogFileToolStripMenuItem.Visible = true;
                 }
             }
@@ -2952,6 +2988,12 @@ namespace iSpyApplication
                 _helpToolstripMenuItem.Visible = true;
                 _switchAllOffToolStripMenuItem.Visible = true;
                 _switchAllOnToolStripMenuItem.Visible = true;
+            }
+
+            gridViewsToolStripMenuItem1.DropDownItems.Clear();
+            foreach (var gv in Conf.GridViews)
+            {
+                gridViewsToolStripMenuItem1.DropDownItems.Add(gv.name, null, tsi_Click);
             }
         }
 
@@ -4005,7 +4047,7 @@ namespace iSpyApplication
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var pb = ((PreviewBox) ContextTarget);
-            RemovePreviewBox(pb);
+            DeletePreviewBox(pb);
         }
 
         private void pTZControllerToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -4099,23 +4141,13 @@ namespace iSpyApplication
         void mi_click(object sender, EventArgs e)
         {
             var mi = (MenuItem)sender;
-            configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Text);
-            if (cg != null)
-            {
-                var gv = new GridView(this, ref cg);
-                gv.Show();
-            }
+            ShowGridView(mi.Text);
         }
         
         void tsi_Click(object sender, EventArgs e)
         {
             var mi = (ToolStripItem)sender;
-            configurationGrid cg = Conf.GridViews.FirstOrDefault(p => p.name == mi.Text);
-            if (cg != null)
-            {
-                var gv = new GridView(this, ref cg);
-                gv.Show();
-            }
+            ShowGridView(mi.Text);
         }
 
         void tsi_MaximiseClick(object sender, EventArgs e)
@@ -4251,6 +4283,7 @@ namespace iSpyApplication
             this.menuItem28 = new System.Windows.Forms.MenuItem();
             this._menuItem1 = new System.Windows.Forms.MenuItem();
             this.menuItem13 = new System.Windows.Forms.MenuItem();
+            this.menuItem33 = new System.Windows.Forms.MenuItem();
             this._exitFileItem = new System.Windows.Forms.MenuItem();
             this._menuItem36 = new System.Windows.Forms.MenuItem();
             this._menuItem37 = new System.Windows.Forms.MenuItem();
@@ -4440,7 +4473,7 @@ namespace iSpyApplication
             this.archiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuItem33 = new System.Windows.Forms.MenuItem();
+            this.gridViewsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -4510,6 +4543,12 @@ namespace iSpyApplication
             this.menuItem13.Index = 4;
             this.menuItem13.Text = "Purchase More Cameras";
             this.menuItem13.Click += new System.EventHandler(this.menuItem13_Click);
+            // 
+            // menuItem33
+            // 
+            this.menuItem33.Index = 5;
+            this.menuItem33.Text = "Lock";
+            this.menuItem33.Click += new System.EventHandler(this.menuItem33_Click);
             // 
             // _exitFileItem
             // 
@@ -5738,10 +5777,11 @@ namespace iSpyApplication
             this._showISpy100PercentOpacityToolStripMenuItem,
             this._helpToolstripMenuItem,
             this._websiteToolstripMenuItem,
+            this.gridViewsToolStripMenuItem1,
             this.viewLogFileToolStripMenuItem,
             this._exitToolStripMenuItem});
             this.ctxtTaskbar.Name = "_ctxtMnu";
-            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 246);
+            this.ctxtTaskbar.Size = new System.Drawing.Size(219, 268);
             this.ctxtTaskbar.Opening += new System.ComponentModel.CancelEventHandler(this.CtxtTaskbarOpening);
             // 
             // _unlockToolstripMenuItem
@@ -6079,11 +6119,11 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // menuItem33
+            // gridViewsToolStripMenuItem1
             // 
-            this.menuItem33.Index = 5;
-            this.menuItem33.Text = "Lock";
-            this.menuItem33.Click += new System.EventHandler(this.menuItem33_Click);
+            this.gridViewsToolStripMenuItem1.Name = "gridViewsToolStripMenuItem1";
+            this.gridViewsToolStripMenuItem1.Size = new System.Drawing.Size(218, 22);
+            this.gridViewsToolStripMenuItem1.Text = "Grid Views";
             // 
             // MainForm
             // 

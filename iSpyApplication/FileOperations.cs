@@ -121,7 +121,7 @@ namespace iSpyApplication
         }
 
         /// <summary>
-        /// Send file silently to recycle bin.  Surpress dialog, surpress errors, delete if too large.
+        /// Send file silently to recycle bin.  Supress dialog, supress errors, delete if too large.
         /// </summary>
         /// <param name="path">Location of directory or file to recycle</param>
         public static bool MoveToRecycleBin(string path)

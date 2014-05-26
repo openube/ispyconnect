@@ -74,8 +74,7 @@ namespace iSpyApplication
                 l.Add(cg);
                 MainForm.Conf.GridViews = l.ToArray();
 
-                var gv = new GridView(MainClass, ref cg);
-                gv.Show();
+                MainClass.ShowGridView(cg.name);
 
                 LoadGrids();
             }

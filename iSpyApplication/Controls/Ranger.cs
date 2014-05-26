@@ -9,9 +9,12 @@ namespace iSpyApplication.Controls
     {
         public double Maximum = 100;
         public double Minimum = 0;
+        
 
         private double _valueMin = 20;
         private double _valueMax = 100;
+        private float _gain = 10;
+
         public double ValueMin
         {
             get { return _valueMin; }
@@ -35,12 +38,22 @@ namespace iSpyApplication.Controls
                     ValueMaxChanged();
             }
         }
+        public float Gain
+        {
+            get { return _gain; }
+            set
+            {
+                _gain = value;
+                if (GainChanged != null)
+                    GainChanged();
+            }
+        }
 
         public void SetText()
         {
             txtVal1.Text = ValueMin.ToString("0.###");
             txtVal2.Text = ValueMax.ToString("0.###");
-
+            numGain.Value = (decimal) Gain;
             Refresh();
         }
 
@@ -66,6 +79,11 @@ namespace iSpyApplication.Controls
 
         public delegate void ValueMaxChangedDelegate();
         public event ValueMaxChangedDelegate ValueMaxChanged;
+
+        public delegate void GainChangedDelegate();
+        public event GainChangedDelegate GainChanged;
+
+        
 
        
         protected override void OnPaint(PaintEventArgs e)
@@ -265,6 +283,11 @@ namespace iSpyApplication.Controls
         private void txtVal1_Leave(object sender, EventArgs e)
         {
             txtVal1.Text = ValueMin.ToString("0.###");
+        }
+
+        private void numGain_ValueChanged(object sender, EventArgs e)
+        {
+            Gain = (float) numGain.Value;
         }
 
     }

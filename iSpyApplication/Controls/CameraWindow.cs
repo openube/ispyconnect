@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -55,8 +56,7 @@ namespace iSpyApplication.Controls
         private double _timeLapseFrameCount;
         private double _secondCountNew;
         private Point _mouseLoc;
-        private readonly List<FrameAction> _videoBuffer = new List<FrameAction>();
-        private readonly List<FrameAction> _writerBuffer = new List<FrameAction>();
+        public ConcurrentQueue<Helper.FrameAction> Buffer = new ConcurrentQueue<Helper.FrameAction>();
         private DateTime _errorTime = DateTime.MinValue;
         private DateTime _reconnectTime = DateTime.MinValue;
         private bool _firstFrame = true;
@@ -94,7 +94,7 @@ namespace iSpyApplication.Controls
         private bool _requestRefresh;
         private readonly StringBuilder _motionData = new StringBuilder(100000);
 
-
+        public volatile bool AbortedAudio;
         private const int ButtonCount = 8;
         private Rectangle ButtonPanel
         {
@@ -132,7 +132,7 @@ namespace iSpyApplication.Controls
         public event Delegates.ErrorHandler ErrorHandler;
         #endregion
 
-        private event EventHandler CloneCameraReconnect, CloneCameraDisabled, CloneCameraEnabled, CloneCameraReConnected;
+        private event EventHandler CameraReconnect, CameraDisabled, CameraEnabled, CameraReConnected;
         
         public bool Talking { get; set; }
         public bool IsEnabled { get; private set; }
@@ -190,20 +190,20 @@ namespace iSpyApplication.Controls
         internal Color BackgroundColor = MainForm.BackgroundColor;
         public bool Seekable;
 
-        public VolumeLevel VolumeControl
-        {
-            get
-            {
-                if (Camobject != null && Camobject.settings.micpair > -1)
-                {
-                    VolumeLevel vl = MainClass.GetVolumeLevel(Camobject.settings.micpair);
-                    if (vl != null && vl.Micobject != null)
-                        return vl;
+        public VolumeLevel VolumeControl = null;
+        //{
+        //    get
+        //    {
+        //        if (Camobject != null && Camobject.settings.micpair > -1)
+        //        {
+        //            VolumeLevel vl = MainClass.GetVolumeLevel(Camobject.settings.micpair);
+        //            if (vl != null && vl.Micobject != null)
+        //                return vl;
                     
-                }
-                return null;
-            }
-        }
+        //        }
+        //        return null;
+        //    }
+        //}
         public bool Recording
         {
             get
@@ -661,7 +661,7 @@ namespace iSpyApplication.Controls
                 if (_camera != null)
                 {
                     _camera.CW = this;
-                    ClearVideoBuffer();
+                    ClearBuffer();
                 }
             }
         }
@@ -1433,8 +1433,8 @@ namespace iSpyApplication.Controls
             
             if (Recording)
             {
-                if (_recordingTime > Camobject.recorder.maxrecordtime ||
-                    ((!MovementDetected && InactiveRecord > Camobject.recorder.inactiverecord) && !ForcedRecording))
+                if (_recordingTime > Camobject.recorder.maxrecordtime || 
+                    ((!MovementDetected && InactiveRecord > Camobject.recorder.inactiverecord) && !ForcedRecording && _recordingTime > Camobject.recorder.minrecordtime))
                     StopSaving();
             }
             
@@ -1811,8 +1811,8 @@ namespace iSpyApplication.Controls
                         if (VolumeControl != null)
                             VolumeControl.IsReconnect = true;
 
-                        if (CloneCameraReconnect != null)
-                            CloneCameraReconnect(this, EventArgs.Empty);
+                        if (CameraReconnect != null)
+                            CameraReconnect(this, EventArgs.Empty);
 
                         try
                         {
@@ -1843,8 +1843,8 @@ namespace iSpyApplication.Controls
                         }
                         
 
-                        if (CloneCameraReConnected != null)
-                            CloneCameraReConnected(this, EventArgs.Empty);
+                        if (CameraReConnected != null)
+                            CameraReConnected(this, EventArgs.Empty);
 
                         if (VolumeControl != null)
                             VolumeControl.IsReconnect = false;
@@ -2177,7 +2177,7 @@ namespace iSpyApplication.Controls
             {
                 try
                 {
-                    Program.WriterMutex.WaitOne();
+                    Program.FFMPEGMutex.WaitOne();
                     _timeLapseWriter = new VideoFileWriter();
                     _timeLapseWriter.Open(filename + CodecExtension, _videoWidth, _videoHeight, Codec,
                                           CalcBitRate(Camobject.recorder.quality), Camobject.recorder.timelapseframerate);
@@ -2194,7 +2194,14 @@ namespace iSpyApplication.Controls
                 }
                 finally
                 {
-                    Program.WriterMutex.ReleaseMutex();
+                    try
+                    {
+                        Program.FFMPEGMutex.ReleaseMutex();
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        //can happen on shutdown
+                    }
                 }
             }
             catch (Exception ex)
@@ -2215,7 +2222,7 @@ namespace iSpyApplication.Controls
 
             try
             {
-                Program.WriterMutex.WaitOne();
+                Program.FFMPEGMutex.WaitOne();
                 _timeLapseWriter.Dispose();
             }
             catch (Exception ex)
@@ -2225,7 +2232,14 @@ namespace iSpyApplication.Controls
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();
+                try
+                {
+                    Program.FFMPEGMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }
             }
 
             _timeLapseWriter = null;
@@ -2529,7 +2543,7 @@ namespace iSpyApplication.Controls
         {
             //draw detection graph
             double d = (Convert.ToDouble(rc.Width - 4) / 100.0);
-            int w = 2 + Convert.ToInt32(d * (Camera.MotionLevel * 1000));
+            int w = 2 + Convert.ToInt32(d * (Camera.MotionLevel * 100.0d));
             int ax = 2 + Convert.ToInt32(d * Camobject.detector.minsensitivity);
             int axmax = 2 + Convert.ToInt32(d * Camobject.detector.maxsensitivity);
 
@@ -2790,24 +2804,28 @@ namespace iSpyApplication.Controls
 
                 lock (_lockobject)
                 {
+                    
+                    var dt = Helper.Now.AddSeconds(0 - Camobject.recorder.bufferseconds);
                     if (!Recording)
                     {
-                        if (Camobject.recorder.bufferseconds > 0)
+                        while (Buffer.Count > 0)
                         {
-                            var dt = Helper.Now.AddSeconds(0 - Camobject.recorder.bufferseconds);
-                            while (_videoBuffer.Count > 0 && _videoBuffer[0].TimeStamp < dt)
+                            Helper.FrameAction fa;
+                            if (Buffer.TryPeek(out fa))
                             {
-                                _videoBuffer[0].Nullify();
-                                _videoBuffer.RemoveAt(0);
+                                if (fa.TimeStamp < dt)
+                                {
+                                    if (Buffer.TryDequeue(out fa))
+                                        fa.Nullify();
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-
-                            _videoBuffer.Add(new FrameAction(e.Frame, Camera.MotionLevel, Helper.Now));
                         }
                     }
-                    else
-                    {
-                        _writerBuffer.Add(new FrameAction(e.Frame, Camera.MotionLevel, Helper.Now));
-                    }
+                    Buffer.Enqueue(new Helper.FrameAction(e.Frame, Camera.MotionLevel, Helper.Now));
                 }
                 
 
@@ -2855,24 +2873,27 @@ namespace iSpyApplication.Controls
 
         public void StartSaving()
         {
-            if (Recording || Dir.StopSavingFlag || IsEdit)
+            if (Recording || Dir.StopSavingFlag || IsEdit || !Helper.HasFeature(Enums.Features.Recording))
                 return;
-
-            if (!Helper.HasFeature(Enums.Features.Recording))
-            {
-                if (ErrorHandler != null)
-                    ErrorHandler("Recording has been disabled in settings - feature set");
-                return;
-            }
-
-            if (MainForm.RecordingThreads >= MainForm.Conf.MaxRecordingThreads)
-            {
-                if (ErrorHandler != null)
-                    ErrorHandler("Skipped recording - maximum recording thread limit hit. See settings to modify the limit.");
-                return;
-            }
             lock (_lockobject)
             {
+                if (Recording)
+                    return;
+
+                if (!Helper.HasFeature(Enums.Features.Recording))
+                {
+                    if (ErrorHandler != null)
+                        ErrorHandler("Recording has been disabled in settings - feature set");
+                    return;
+                }
+
+                if (MainForm.RecordingThreads >= MainForm.Conf.MaxRecordingThreads)
+                {
+                    if (ErrorHandler != null)
+                        ErrorHandler("Skipped recording - maximum recording thread limit hit. See settings to modify the limit.");
+                    return;
+                }
+            
                 _recordingThread = new Thread(Record)
                                    {
                                        Name = "Recording Thread (" + Camobject.id + ")",
@@ -2886,389 +2907,348 @@ namespace iSpyApplication.Controls
         [HandleProcessCorruptedStateExceptions]
         private void Record()
         {
+            AbortedAudio = false;
             LogToPlugin("Recording Started");
             _stopWrite.Reset();
             MainForm.RecordingThreads++;
             string previewImage = "";
-            DateTime recordingStart = Helper.Now;
-
-            if (!String.IsNullOrEmpty(Camobject.recorder.trigger) && TopLevelControl != null)
-            {
-                string[] tid = Camobject.recorder.trigger.Split(',');
-                switch (tid[0])
-                {
-                    case "1":
-                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null && !vl.Recording)
-                            vl.RecordSwitch(true);
-                        break;
-                    case "2":
-                        CameraWindow cw = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (cw != null && !cw.Recording)
-                            cw.RecordSwitch(true);
-                        break;
-                }
-            }
-            
-            ClearWriterBuffer();
             try
             {
-
-                DateTime date = DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset));
-
-                string filename = String.Format("{0}-{1}-{2}_{3}-{4}-{5}",
-                                                date.Year, Helper.ZeroPad(date.Month), Helper.ZeroPad(date.Day),
-                                                Helper.ZeroPad(date.Hour), Helper.ZeroPad(date.Minute),
-                                                Helper.ZeroPad(date.Second));
-
-                var vc = VolumeControl;
-                if (vc != null && vc.Micobject.settings.active)
+                
+                if (!String.IsNullOrEmpty(Camobject.recorder.trigger) && TopLevelControl != null)
                 {
-                    vc.ForcedRecording = ForcedRecording;
-                    vc.StartSaving();
+                    string[] tid = Camobject.recorder.trigger.Split(',');
+                    switch (tid[0])
+                    {
+                        case "1":
+                            VolumeLevel vl = ((MainForm) TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                            if (vl != null && !vl.Recording)
+                                vl.RecordSwitch(true);
+                            break;
+                        case "2":
+                            CameraWindow cw = ((MainForm) TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                            if (cw != null && !cw.Recording)
+                                cw.RecordSwitch(true);
+                            break;
+                    }
                 }
 
-                VideoFileName = Camobject.id + "_" + filename;
-                string folder = Dir.Entry + "video\\" + Camobject.directory + "\\";
-                
-                string videopath = folder + VideoFileName + CodecExtension;
-                bool error = false;
-                double maxAlarm = 0;
-                long framecount = 0;
-                long _lastvideopts = -1, _lastaudiopts=-1;
-                //LogPluginMessage("record", videopath);
                 try
                 {
-                    if (!Directory.Exists(folder))
-                        Directory.CreateDirectory(folder);
+                    DateTime date = DateTime.Now.AddHours(Convert.ToDouble(Camobject.settings.timestampoffset));
 
+                    string filename = String.Format("{0}-{1}-{2}_{3}-{4}-{5}",
+                        date.Year, Helper.ZeroPad(date.Month), Helper.ZeroPad(date.Day),
+                        Helper.ZeroPad(date.Hour), Helper.ZeroPad(date.Minute),
+                        Helper.ZeroPad(date.Second));
+
+
+                    var vc = VolumeControl;
+                    bool bAudio = vc != null && vc.AudioSource != null && vc.Micobject.settings.active;
+
+                    if (bAudio)
+                    {
+                        vc.StartSaving();
+                        vc.ForcedRecording = ForcedRecording;
+                    }
+
+                    VideoFileName = Camobject.id + "_" + filename;
+                    string folder = Dir.Entry + "video\\" + Camobject.directory + "\\";
+
+                    string videopath = folder + VideoFileName + CodecExtension;
+                    bool error = false;
+                    double maxAlarm = 0;
+                    long lastvideopts = -1, lastaudiopts = -1;
+                    DateTime recordingStart = Helper.Now;
                     try
                     {
-                        
-                        Program.WriterMutex.WaitOne();
-                        _writer = new VideoFileWriter();
-                        if (vc == null || vc.AudioSource == null || vc.AudioSource.RecordingFormat==null)
-                            _writer.Open(videopath, _videoWidth, _videoHeight, Codec,
-                                        CalcBitRate(Camobject.recorder.quality), CodecFramerate);
-                        else
-                        {
+                        if (!Directory.Exists(folder))
+                            Directory.CreateDirectory(folder);
 
-                            _writer.Open(videopath, _videoWidth, _videoHeight, Codec,
-                                        CalcBitRate(Camobject.recorder.quality), CodecAudio, CodecFramerate,
-                                        vc.AudioSource.RecordingFormat.BitsPerSample * vc.AudioSource.RecordingFormat.SampleRate * vc.AudioSource.RecordingFormat.Channels,
-                                        vc.AudioSource.RecordingFormat.SampleRate, vc.AudioSource.RecordingFormat.Channels);
-                        }
-
-                    }
-                    catch
-                    {
-                        ForcedRecording = false;
-                        if (vc != null)
-                        {
-                            vc.ForcedRecording = false;
-                            vc.StopSaving();
-                        }
-                        throw;
-                    }
-                    finally
-                    {
-                        Program.WriterMutex.ReleaseMutex();
-                    }
-
-                    FrameAction? peakFrame = null;
-                    bool first = true;
-                    var l = _videoBuffer.OrderBy(p => p.TimeStamp).ToList();
-                    foreach (FrameAction fa in l)
-                    {
-                        if (fa.Frame != null)
-                        {
-                            using (var ms = new MemoryStream(fa.Frame))
-                            {
-                                using (var bmp = (Bitmap) Image.FromStream(ms))
-                                {
-                                    if (first)
-                                    {
-                                        recordingStart = fa.TimeStamp;
-                                        first = false;
-                                    }
-                                    var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
-                                    //Debug.WriteLine("video:"+pts);
-                                    if (pts > _lastvideopts)
-                                    {
-                                        _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
-                                        framecount++;
-                                        _lastvideopts = pts;
-                                    }
-                                }
-
-
-                                if (fa.MotionLevel > maxAlarm || peakFrame == null)
-                                {
-                                    maxAlarm = fa.MotionLevel;
-                                    peakFrame = fa;
-                                }
-                                _motionData.Append(String.Format(CultureInfo.InvariantCulture,
-                                    "{0:0.000}", Math.Min(fa.MotionLevel*1000, 100)));
-                                _motionData.Append(",");
-                                ms.Close();
-                            }
-                        }
-                    }
-                        
-                    ClearVideoBuffer();
-
-                    if (vc != null && vc.AudioBuffer != null)
-                    {
-                        foreach (VolumeLevel.AudioAction aa in vc.AudioBuffer.OrderBy(p => p.TimeStamp))
-                        {
-                            if (first)
-                            {
-                                recordingStart = aa.TimeStamp;
-                                first = false;
-                            }
-                            unsafe
-                            {
-                                fixed (byte* p = aa.Decoded)
-                                {
-                                    var pts = (long)(aa.TimeStamp - recordingStart).TotalMilliseconds;
-                                    if (pts >= _lastaudiopts)
-                                    {
-                                        _writer.WriteAudio(p, aa.Decoded.Length, pts);
-                                        _lastaudiopts = pts;
-                                    }
-                                }
-                            }
-                        }
-                        vc.ClearAudioBuffer();
-                    }
-
-                    while (!_stopWrite.WaitOne(5))
-                    {
-                        while (_writerBuffer.Count > 0 && !_stopWrite.WaitOne(0))
-                        {
-                            var fa = _writerBuffer[0];
-                            if (fa.Frame != null)
-                            {
-                                using (var ms = new MemoryStream(fa.Frame))
-                                {
-                                    if (first)
-                                    {
-                                        recordingStart = fa.TimeStamp;
-                                        first = false;
-                                    }
-                                    using (var bmp = (Bitmap) Image.FromStream(ms))
-                                    {
-                                        var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
-                                        if (pts > _lastvideopts)
-                                        {
-                                            _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
-                                            framecount++;                                            
-                                            _lastvideopts = pts;
-                                        }
-
-                                    }
-
-                                    if (fa.MotionLevel > maxAlarm || peakFrame == null)
-                                    {
-                                        maxAlarm = fa.MotionLevel;
-                                        peakFrame = fa;
-                                    }
-                                    _motionData.Append(String.Format(CultureInfo.InvariantCulture, "{0:0.000}",
-                                        Math.Min(fa.MotionLevel*1000, 100)));
-                                    _motionData.Append(",");
-                                    ms.Close();
-
-                                }
-                            }
-                            fa.Nullify();
-                            _writerBuffer.RemoveAt(0);
-                        }
-
-                        if (vc != null && vc.WriterBuffer != null)
-                        {
-                            while (vc.WriterBuffer.Count > 0 && !_stopWrite.WaitOne(0))
-                            {
-
-                                var b = vc.WriterBuffer[0];
-                                if (first)
-                                {
-                                    recordingStart = b.TimeStamp;
-                                    first = false;
-                                }
-                                unsafe
-                                {
-                                    fixed (byte* p = b.Decoded)
-                                    {
-                                        var pts = (long)(b.TimeStamp - recordingStart).TotalMilliseconds;
-                                        if (pts > _lastaudiopts)
-                                        {
-                                            _writer.WriteAudio(p, b.Decoded.Length, pts);
-                                            _lastaudiopts = pts;
-                                        }
-                                    }
-                                }
-                                b.Nullify();
-                                vc.WriterBuffer.RemoveAt(0);
-                            }
-                        }
-                    }
-
-                    if (!Directory.Exists(folder + @"thumbs\"))
-                        Directory.CreateDirectory(folder + @"thumbs\");
-
-                    if (peakFrame != null && peakFrame.Value.Frame!=null)
-                    {
+                        bool bSuccess;
                         try
                         {
-                            using (var ms = new MemoryStream(peakFrame.Value.Frame))
+
+                            Program.FFMPEGMutex.WaitOne();
+                            _writer = new VideoFileWriter();
+                            
+                            if (bAudio)
                             {
-                                using (var bmp = (Bitmap) Image.FromStream(ms))
-                                {
-                                    bmp.Save(folder + @"thumbs\" + VideoFileName + "_large.jpg", MainForm.Encoder,
-                                        MainForm.EncoderParams);
-                                    Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
-                                    using (var myThumbnail = bmp.GetThumbnailImage(96, 72, myCallback, IntPtr.Zero))
-                                    {
-                                        myThumbnail.Save(folder + @"thumbs\" + VideoFileName + ".jpg", MainForm.Encoder,
-                                            MainForm.EncoderParams);
-                                    }
-                                }
-                                previewImage = folder + @"thumbs\" + VideoFileName + ".jpg";
-                                ms.Close();
+                                bSuccess = _writer.Open(videopath, _videoWidth, _videoHeight, Codec,
+                                    CalcBitRate(Camobject.recorder.quality), CodecAudio, CodecFramerate,
+                                    vc.Micobject.settings.bits*
+                                    vc.Micobject.settings.samples*
+                                    vc.Micobject.settings.channels,
+                                    vc.Micobject.settings.samples, vc.Micobject.settings.channels);
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (ErrorHandler != null)
-                                ErrorHandler(ex.Message);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    error = true;
-                    if (ErrorHandler != null)
-                        ErrorHandler(ex.Message+" ("+ex.StackTrace+")");
-                }
-                finally
-                {
-                    if (_writer != null && _writer.IsOpen)
-                    {
-                        try
-                        {
-                            Program.WriterMutex.WaitOne();
-                            _writer.Dispose();
-                        }
-                        catch (Exception ex)
-                        {
-                            if (ErrorHandler != null)
-                                ErrorHandler(ex.Message);
+                            else
+                            {
+                                bSuccess = _writer.Open(videopath, _videoWidth, _videoHeight, Codec,
+                                    CalcBitRate(Camobject.recorder.quality), CodecFramerate);
+                            }
+
+                            if (!bSuccess)
+                            {
+                                throw new Exception("Failed to open up a video writer");
+                            }
+
                         }
                         finally
                         {
-                            Program.WriterMutex.ReleaseMutex();
+                            try
+                            {
+                                Program.FFMPEGMutex.ReleaseMutex();
+                            }
+                            catch (ObjectDisposedException)
+                            {
+                                //can happen on shutdown
+                            }
+                        }
+                       
+
+                        Helper.FrameAction? peakFrame = null;
+                        bool first = true;
+
+                        while (!_stopWrite.WaitOne(5))
+                        {
+                            Helper.FrameAction fa;
+                            if (Buffer.TryDequeue(out fa))
+                            {
+                                if (first)
+                                {
+                                    recordingStart = fa.TimeStamp;
+                                    first = false;
+                                }
+
+                                WriteFrame(fa, recordingStart, ref lastvideopts, ref maxAlarm, ref peakFrame, ref lastaudiopts);
+                            }
+                            if (bAudio)
+                            {
+                                if (vc.Buffer.TryDequeue(out fa))
+                                {
+                                    if (first)
+                                    {
+                                        recordingStart = fa.TimeStamp;
+                                        first = false;
+                                    }
+
+                                    WriteFrame(fa, recordingStart, ref lastvideopts, ref maxAlarm, ref peakFrame, ref lastaudiopts);
+                                }
+                            }
                         }
 
-                        _writer = null;
+                        if (!Directory.Exists(folder + @"thumbs\"))
+                            Directory.CreateDirectory(folder + @"thumbs\");
+
+                        if (peakFrame != null && peakFrame.Value.Content != null)
+                        {
+                            try
+                            {
+                                using (var ms = new MemoryStream(peakFrame.Value.Content))
+                                {
+                                    using (var bmp = (Bitmap) Image.FromStream(ms))
+                                    {
+                                        bmp.Save(folder + @"thumbs\" + VideoFileName + "_large.jpg", MainForm.Encoder,
+                                            MainForm.EncoderParams);
+                                        Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
+                                        using (var myThumbnail = bmp.GetThumbnailImage(96, 72, myCallback, IntPtr.Zero))
+                                        {
+                                            myThumbnail.Save(folder + @"thumbs\" + VideoFileName + ".jpg",
+                                                MainForm.Encoder,
+                                                MainForm.EncoderParams);
+                                        }
+                                    }
+                                    previewImage = folder + @"thumbs\" + VideoFileName + ".jpg";
+                                    ms.Close();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                if (ErrorHandler != null)
+                                    ErrorHandler(ex.Message+": "+ex.StackTrace);
+                            }
+                        }
                     }
-                    _recordingTime = 0;
-                    if (vc != null)
-                        vc.StopSaving();
-                }
-                if (_firstFrame)
-                {
-                    error = true;
-                }
-                if (error)
-                {
-                    try
+                    catch (Exception ex)
                     {
-                        if (File.Exists(videopath))
-                            FileOperations.Delete(videopath);
+                        error = true;
+                        if (ErrorHandler != null)
+                            ErrorHandler(ex.Message + " (" + ex.StackTrace + ")");
                     }
-                    catch
+                    finally
                     {
+                        if (_writer != null && _writer.IsOpen)
+                        {
+                            try
+                            {
+                                Program.FFMPEGMutex.WaitOne();
+                                _writer.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (ErrorHandler != null)
+                                    ErrorHandler(ex.Message);
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    Program.FFMPEGMutex.ReleaseMutex();
+                                }
+                                catch (ObjectDisposedException)
+                                {
+                                    //can happen on shutdown
+                                }
+                            }
+
+                            _writer = null;
+                        }
+                        _recordingTime = 0;
+                        if (bAudio)
+                            vc.StopSaving();
                     }
-                    MainForm.RecordingThreads--;
-                    ClearWriterBuffer();
-                    return;
-                }
-                
-
-                string path = Dir.Entry + "video\\" + Camobject.directory + "\\" +
-                              VideoFileName;
-
-                string[] fnpath = (path + CodecExtension).Split('\\');
-                string fn = fnpath[fnpath.Length - 1];
-                //var fpath = Dir.Entry + "video\\" + Camobject.directory + "\\thumbs\\";
-                var fi = new FileInfo(path + CodecExtension);
-                var dSeconds = Convert.ToInt32((Helper.Now - recordingStart).TotalSeconds);
-
-                var ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(fn));
-                bool newfile = false;
-                if (ff == null)
-                {
-                    ff = new FilesFile();
-                    newfile = true;
-                }
-
-                ff.CreatedDateTicks = DateTime.Now.Ticks;
-                ff.Filename = fn;
-                ff.MaxAlarm = Math.Min(maxAlarm * 1000, 100);
-                ff.SizeBytes = fi.Length;
-                ff.DurationSeconds = dSeconds;
-                ff.IsTimelapse = false;
-                ff.IsMergeFile = false;
-                ff.AlertData = Helper.GetMotionDataPoints(_motionData);
-                _motionData.Clear();
-                ff.TriggerLevel = (100 - Camobject.detector.minsensitivity); //adjusted
-                ff.TriggerLevelMax = (100 - Camobject.detector.maxsensitivity);
-
-                if (newfile)
-                {
-                    lock (_lockobject)
-                        _filelist.Insert(0, ff);
-
-                    MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Camobject.name, DateTime.Now.Ticks, 2,
-                                                                    Camobject.id, ff.MaxAlarm,false,false));
-                    MainForm.NeedsMediaRefresh = Helper.Now;
-                    if (Camobject.settings.cloudprovider.recordings)
+                    if (_firstFrame)
                     {
-                        CloudGateway.Upload(2, Camobject.id, path + CodecExtension);
+                        error = true;
                     }
+                    if (error)
+                    {
+                        try
+                        {
+                            if (File.Exists(videopath))
+                                FileOperations.Delete(videopath);
+                        }
+                        catch
+                        {
+                        }
+                        MainForm.RecordingThreads--;
+                        ClearBuffer();
+                        return;
+                    }
+
+
+                    string path = Dir.Entry + "video\\" + Camobject.directory + "\\" +
+                                  VideoFileName;
+
+                    string[] fnpath = (path + CodecExtension).Split('\\');
+                    string fn = fnpath[fnpath.Length - 1];
+                    //var fpath = Dir.Entry + "video\\" + Camobject.directory + "\\thumbs\\";
+                    var fi = new FileInfo(path + CodecExtension);
+                    var dSeconds = Convert.ToInt32((Helper.Now - recordingStart).TotalSeconds);
+
+                    var ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(fn));
+                    bool newfile = false;
+                    if (ff == null)
+                    {
+                        ff = new FilesFile();
+                        newfile = true;
+                    }
+
+                    ff.CreatedDateTicks = DateTime.Now.Ticks;
+                    ff.Filename = fn;
+                    ff.MaxAlarm = Math.Min(maxAlarm*100, 100);
+                    ff.SizeBytes = fi.Length;
+                    ff.DurationSeconds = dSeconds;
+                    ff.IsTimelapse = false;
+                    ff.IsMergeFile = false;
+                    ff.AlertData = Helper.GetMotionDataPoints(_motionData);
+                    _motionData.Clear();
+                    ff.TriggerLevel = (100 - Camobject.detector.minsensitivity); //adjusted
+                    ff.TriggerLevelMax = (100 - Camobject.detector.maxsensitivity);
+
+                    if (newfile)
+                    {
+                        lock (_lockobject)
+                            _filelist.Insert(0, ff);
+
+                        MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Camobject.name, DateTime.Now.Ticks, 2,
+                            Camobject.id, ff.MaxAlarm, false, false));
+                        MainForm.NeedsMediaRefresh = Helper.Now;
+                        if (Camobject.settings.cloudprovider.recordings)
+                        {
+                            CloudGateway.Upload(2, Camobject.id, path + CodecExtension);
+                        }
+                    }
+                    AbortedAudio = false;
+
+                }
+                catch (Exception ex)
+                {
+                    if (ErrorHandler != null)
+                        ErrorHandler(ex.Message);
                 }
 
+                if (!String.IsNullOrEmpty(Camobject.recorder.trigger) && TopLevelControl != null)
+                {
+                    string[] tid = Camobject.recorder.trigger.Split(',');
+                    switch (tid[0])
+                    {
+                        case "1":
+                            VolumeLevel vl = ((MainForm) TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                            if (vl != null)
+                                vl.ForcedRecording = false;
+                            break;
+                        case "2":
+                            CameraWindow cw = ((MainForm) TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                            if (cw != null)
+                                cw.ForcedRecording = false;
+                            break;
+                    }
+                }
             }
-            catch (Exception ex)
+            finally
             {
-                if (ErrorHandler != null)
-                    ErrorHandler(ex.Message);
+                MainForm.RecordingThreads--;
             }
-
-            if (!String.IsNullOrEmpty(Camobject.recorder.trigger) && TopLevelControl != null)
-            {
-                string[] tid = Camobject.recorder.trigger.Split(',');
-                switch (tid[0])
-                {
-                    case "1":
-                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null)
-                            vl.ForcedRecording = false;
-                        break;
-                    case "2":
-                        CameraWindow cw = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (cw != null)
-                            cw.ForcedRecording = false;
-                        break;
-                }
-            }
-
-            MainForm.RecordingThreads--;
             Camobject.newrecordingcount++;
 
             if (Notification != null)
                 Notification(this, new NotificationType("NewRecording", Camobject.name, previewImage));
             LogToPlugin("Recording Stopped");
+        }
+
+        private unsafe void WriteFrame(Helper.FrameAction fa, DateTime recordingStart, ref long lastvideopts, ref double maxAlarm,
+            ref Helper.FrameAction? peakFrame, ref long lastaudiopts)
+        {
+            switch (fa.FrameType)
+            {
+                case Enums.FrameType.Video:
+                    using (var ms = new MemoryStream(fa.Content))
+                    {
+                        using (var bmp = (Bitmap) Image.FromStream(ms))
+                        {
+                            var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
+                            if (pts > lastvideopts)
+                            {
+                                _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
+                                lastvideopts = pts;
+                            }
+                        }
+
+                        if (fa.Level > maxAlarm || peakFrame == null)
+                        {
+                            maxAlarm = fa.Level;
+                            peakFrame = fa;
+                        }
+                        _motionData.Append(String.Format(CultureInfo.InvariantCulture, "{0:0.000}",
+                            Math.Min(fa.Level*100, 100)));
+                        _motionData.Append(",");
+                        ms.Close();
+                    }
+                    break;
+                case Enums.FrameType.Audio:
+                    fixed (byte* p = fa.Content)
+                    {
+                        var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
+                        if (pts > lastaudiopts)
+                        {
+                            _writer.WriteAudio(p, fa.DataLength, pts);
+                            lastaudiopts = pts;
+                        }
+                    }
+                    break;
+            }
+            fa.Nullify();
         }
 
         public void CameraAlarm(object sender, EventArgs e)
@@ -4022,18 +4002,17 @@ namespace iSpyApplication.Controls
                 _errorTime = _reconnectTime = DateTime.MinValue;
                 _autoofftimer = 0;
 
-                ClearVideoBuffer();
-                ClearWriterBuffer();
+                ClearBuffer();
 
                 if (!ShuttingDown)
                     _requestRefresh = true;
 
                 LastFrame = null;
 
-                if (CloneCameraDisabled != null)
-                    CloneCameraDisabled(this, EventArgs.Empty);
+                if (CameraDisabled != null)
+                    CameraDisabled(this, EventArgs.Empty);
 
-                GC.Collect();
+                //GC.Collect();
             }
             catch (Exception ex)
             {
@@ -4044,29 +4023,19 @@ namespace iSpyApplication.Controls
 
         }
 
-        private void ClearVideoBuffer()
+        private void ClearBuffer()
         {
             lock (_lockobject)
             {
-                while (_videoBuffer.Count > 0)
+                Helper.FrameAction fa;
+                while (Buffer.TryDequeue(out fa))
                 {
-                    _videoBuffer[0].Nullify();
-                    _videoBuffer.RemoveAt(0);
+                    fa.Nullify();
                 }
             }
+            
         }
 
-        private void ClearWriterBuffer()
-        {
-            lock (_lockobject)
-            {
-                while (_writerBuffer.Count > 0)
-                {
-                    _writerBuffer[0].Nullify();
-                    _writerBuffer.RemoveAt(0);
-                }
-            }
-        }
 
         internal string SourceType
         {
@@ -4123,14 +4092,29 @@ namespace iSpyApplication.Controls
             }
         }
 
-        private bool _enabling = false;
-        private bool _disabling = false;
+        private volatile bool _enabling, _disabling;
+
+        public void SetVolumeLevel(int micid)
+        {
+            Camobject.settings.micpair = micid;
+            if (micid == -1)
+            {
+                if (VolumeControl != null)
+                    VolumeControl.CameraControl = null;
+                VolumeControl = null;
+                return;
+            }
+
+            VolumeControl = MainClass.GetVolumeLevel(micid);
+            if (VolumeControl != null)
+                VolumeControl.CameraControl = this;
+        }
 
         public void Enable()
         {
             if (_enabling)
                 return;
-            
+
             if (InvokeRequired)
             {
                 Invoke(new Delegates.EnableDelegate(Enable));
@@ -4138,452 +4122,451 @@ namespace iSpyApplication.Controls
             }
 
             lock (_lockobject)
-            {               
+            {
                 if (IsEnabled)
                     return;
                 IsEnabled = true;
             }
             _enabling = true;
+
             try
             {
-                //LastFrame = null;
-                IsReconnect = false;
-                Seekable = false;
-                IsClone = Camobject.settings.sourceindex == 10;
-                VideoSourceErrorState = false;
-                VideoSourceErrorMessage = "";
+            IsReconnect = false;
+            Seekable = false;
+            IsClone = Camobject.settings.sourceindex == 10;
+            VideoSourceErrorState = false;
+            VideoSourceErrorMessage = "";
 
-                string ckies, hdrs;
-                switch (Camobject.settings.sourceindex)
-                {
-                    case 0:
-                        ckies = Camobject.settings.cookies ?? "";
-                        ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
-                        ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
-                        ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+            string ckies, hdrs;
+            switch (Camobject.settings.sourceindex)
+            {
+                case 0:
+                    ckies = Camobject.settings.cookies ?? "";
+                    ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
+                    ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
+                    ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
 
-                        hdrs = Camobject.settings.headers ?? "";
-                        hdrs = hdrs.Replace("[USERNAME]", Camobject.settings.login);
-                        hdrs = hdrs.Replace("[PASSWORD]", Camobject.settings.password);
-                        hdrs = hdrs.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+                    hdrs = Camobject.settings.headers ?? "";
+                    hdrs = hdrs.Replace("[USERNAME]", Camobject.settings.login);
+                    hdrs = hdrs.Replace("[PASSWORD]", Camobject.settings.password);
+                    hdrs = hdrs.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
 
-                        var jpegSource = new JPEGStream2(Camobject.settings.videosourcestring)
-                                         {
-                                             Login = Camobject.settings.login,
-                                             Password = Camobject.settings.password,
-                                             ForceBasicAuthentication = Camobject.settings.forcebasic,
-                                             RequestTimeout = Camobject.settings.timeout,
-                                             UseHTTP10 = Camobject.settings.usehttp10,
-                                             HttpUserAgent = Camobject.settings.useragent,
-                                             Cookies = ckies,
-                                             Headers = hdrs
-                                         };
+                    var jpegSource = new JPEGStream2(Camobject.settings.videosourcestring)
+                                        {
+                                            Login = Camobject.settings.login,
+                                            Password = Camobject.settings.password,
+                                            ForceBasicAuthentication = Camobject.settings.forcebasic,
+                                            RequestTimeout = Camobject.settings.timeout,
+                                            UseHTTP10 = Camobject.settings.usehttp10,
+                                            HttpUserAgent = Camobject.settings.useragent,
+                                            Cookies = ckies,
+                                            Headers = hdrs
+                                        };
 
-                        OpenVideoSource(jpegSource, true);
+                    OpenVideoSource(jpegSource, true);
 
-                        if (Camobject.settings.frameinterval != 0)
-                            jpegSource.FrameInterval = Camobject.settings.frameinterval;
+                    if (Camobject.settings.frameinterval != 0)
+                        jpegSource.FrameInterval = Camobject.settings.frameinterval;
 
-                        break;
-                    case 1:
-                        ckies = Camobject.settings.cookies ?? "";
-                        ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
-                        ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
-                        ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+                    break;
+                case 1:
+                    ckies = Camobject.settings.cookies ?? "";
+                    ckies = ckies.Replace("[USERNAME]", Camobject.settings.login);
+                    ckies = ckies.Replace("[PASSWORD]", Camobject.settings.password);
+                    ckies = ckies.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
 
-                        hdrs = Camobject.settings.headers ?? "";
-                        hdrs = hdrs.Replace("[USERNAME]", Camobject.settings.login);
-                        hdrs = hdrs.Replace("[PASSWORD]", Camobject.settings.password);
-                        hdrs = hdrs.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
+                    hdrs = Camobject.settings.headers ?? "";
+                    hdrs = hdrs.Replace("[USERNAME]", Camobject.settings.login);
+                    hdrs = hdrs.Replace("[PASSWORD]", Camobject.settings.password);
+                    hdrs = hdrs.Replace("[CHANNEL]", Camobject.settings.ptzchannel);
 
-                        var mjpegSource = new MJPEGStream2(Camobject.settings.videosourcestring)
-                                          {
-                                              Login = Camobject.settings.login,
-                                              Password = Camobject.settings.password,
-                                              ForceBasicAuthentication = Camobject.settings.forcebasic,
-                                              RequestTimeout = Camobject.settings.timeout,
-                                              HttpUserAgent = Camobject.settings.useragent,
-                                              DecodeKey = Camobject.decodekey,
-                                              Cookies = ckies,
-                                              Headers = hdrs
-                                          };
-                        OpenVideoSource(mjpegSource, true);
-                        break;
-                    case 2:
-                        string url = Camobject.settings.videosourcestring;
-                        var ffmpegSource = new FFMPEGStream(url)
-                                           {
-                                               Cookies = Camobject.settings.cookies,
-                                               AnalyzeDuration = Camobject.settings.analyseduration,
-                                               Timeout = Camobject.settings.timeout,
-                                               UserAgent = Camobject.settings.useragent,
-                                               Headers = Camobject.settings.headers,
-                                               RTSPMode = Camobject.settings.rtspmode
-                                           };
-                        OpenVideoSource(ffmpegSource, true);
-                        break;
-                    case 3:
-                        string moniker = Camobject.settings.videosourcestring;
+                    var mjpegSource = new MJPEGStream2(Camobject.settings.videosourcestring)
+                                        {
+                                            Login = Camobject.settings.login,
+                                            Password = Camobject.settings.password,
+                                            ForceBasicAuthentication = Camobject.settings.forcebasic,
+                                            RequestTimeout = Camobject.settings.timeout,
+                                            HttpUserAgent = Camobject.settings.useragent,
+                                            DecodeKey = Camobject.decodekey,
+                                            Cookies = ckies,
+                                            Headers = hdrs
+                                        };
+                    OpenVideoSource(mjpegSource, true);
+                    break;
+                case 2:
+                    string url = Camobject.settings.videosourcestring;
+                    var ffmpegSource = new FFMPEGStream(url)
+                                        {
+                                            Cookies = Camobject.settings.cookies,
+                                            AnalyzeDuration = Camobject.settings.analyseduration,
+                                            Timeout = Camobject.settings.timeout,
+                                            UserAgent = Camobject.settings.useragent,
+                                            Headers = Camobject.settings.headers,
+                                            RTSPMode = Camobject.settings.rtspmode
+                                        };
+                    OpenVideoSource(ffmpegSource, true);
+                    break;
+                case 3:
+                    string moniker = Camobject.settings.videosourcestring;
 
 
-                        var videoSource = new VideoCaptureDevice(moniker);
-                        string[] wh = Camobject.resolution.Split('x');
-                        var sz = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
+                    var videoSource = new VideoCaptureDevice(moniker);
+                    string[] wh = Camobject.resolution.Split('x');
+                    var sz = new Size(Convert.ToInt32(wh[0]), Convert.ToInt32(wh[1]));
 
                         
-                        string precfg = Nv("video");
-                        bool found = false;
+                    string precfg = Nv("video");
+                    bool found = false;
 
-                        if (Nv("capturemode") != "snapshots")
+                    if (Nv("capturemode") != "snapshots")
+                    {
+                        VideoCapabilities[] videoCapabilities = videoSource.VideoCapabilities;
+                        videoSource.ProvideSnapshots = false;
+                        foreach (VideoCapabilities capabilty in videoCapabilities)
                         {
-                            VideoCapabilities[] videoCapabilities = videoSource.VideoCapabilities;
-                            videoSource.ProvideSnapshots = false;
-                            foreach (VideoCapabilities capabilty in videoCapabilities)
-                            {
 
-                                string item = string.Format(VideoSource.VideoFormatString, capabilty.FrameSize.Width,
-                                    Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
-                                if (precfg == item)
-                                {
-                                    videoSource.VideoResolution = capabilty;
-                                    found = true;
-                                    break;
-                                }
+                            string item = string.Format(VideoSource.VideoFormatString, capabilty.FrameSize.Width,
+                                Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
+                            if (precfg == item)
+                            {
+                                videoSource.VideoResolution = capabilty;
+                                found = true;
+                                break;
                             }
                         }
-                        else
+                    }
+                    else
+                    {
+                        precfg = Nv("snapshots");
+                        videoSource.ProvideSnapshots = true;
+                        VideoCapabilities[] videoCapabilities = videoSource.SnapshotCapabilities;
+                        foreach (VideoCapabilities capabilty in videoCapabilities)
                         {
-                            precfg = Nv("snapshots");
-                            videoSource.ProvideSnapshots = true;
-                            VideoCapabilities[] videoCapabilities = videoSource.SnapshotCapabilities;
-                            foreach (VideoCapabilities capabilty in videoCapabilities)
-                            {
 
-                                string item = string.Format(VideoSource.SnapshotFormatString, capabilty.FrameSize.Width,
-                                    Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
-                                if (precfg == item)
-                                {
-                                    videoSource.VideoResolution = capabilty;
-                                    found = true;
-                                    break;
-                                }
+                            string item = string.Format(VideoSource.SnapshotFormatString, capabilty.FrameSize.Width,
+                                Math.Abs(capabilty.FrameSize.Height), capabilty.AverageFrameRate, capabilty.BitCount);
+                            if (precfg == item)
+                            {
+                                videoSource.VideoResolution = capabilty;
+                                found = true;
+                                break;
                             }
+                        }
+                    }
+                    if (!found)
+                    {
+                        var vc = videoSource.VideoCapabilities.Where(p => p.FrameSize == sz).ToList();
+                        if (vc.Count > 0)
+                        {
+                            var vc2 = vc.FirstOrDefault(p => p.AverageFrameRate == Camobject.settings.framerate) ??
+                                        vc.FirstOrDefault();
+                            videoSource.VideoResolution = vc2;
+                            found = true;
                         }
                         if (!found)
                         {
-                            var vc = videoSource.VideoCapabilities.Where(p => p.FrameSize == sz).ToList();
-                            if (vc.Count > 0)
+                            //first available
+                            var vcf = videoSource.VideoCapabilities.FirstOrDefault();
+                            if (vcf != null)
+                                videoSource.VideoResolution = vcf;
+                            //else
+                            //{
+                            //    dont do this, not having an entry is ok for some video providers
+                            //    throw new Exception("Unable to find a video format for the capture device");
+                            //}
+                        }
+                    }
+
+                    if (Camobject.settings.crossbarindex != -1 && videoSource.CheckIfCrossbarAvailable())
+                    {
+                        var cbi =
+                            videoSource.AvailableCrossbarVideoInputs.FirstOrDefault(
+                                p => p.Index == Camobject.settings.crossbarindex);
+                        if (cbi != null)
+                        {
+                            videoSource.CrossbarVideoInput = cbi;
+                        }
+                    }
+
+                    OpenVideoSource(videoSource, true);
+
+
+                    break;
+                case 4:
+                    Rectangle area = Rectangle.Empty;
+                    if (!String.IsNullOrEmpty(Camobject.settings.desktoparea))
+                    {
+                        var i = System.Array.ConvertAll(Camobject.settings.desktoparea.Split(','), int.Parse);
+                        area = new Rectangle(i[0], i[1], i[2], i[3]);
+                    }
+                    var desktopSource = new DesktopStream(Convert.ToInt32(Camobject.settings.videosourcestring),
+                        area) {MousePointer = Camobject.settings.desktopmouse};
+                    if (Camobject.settings.frameinterval != 0)
+                        desktopSource.FrameInterval = Camobject.settings.frameinterval;
+                    OpenVideoSource(desktopSource, true);
+
+                    break;
+                case 5:
+                    List<String> inargs = Camobject.settings.vlcargs.Split(Environment.NewLine.ToCharArray(),
+                        StringSplitOptions.RemoveEmptyEntries)
+                        .
+                        ToList();
+                    var vlcSource = new VlcStream(Camobject.settings.videosourcestring, inargs.ToArray())
+                                    {
+                                        TimeOut
+                                            =
+                                            Camobject
+                                            .settings
+                                            .timeout
+                                    };
+
+                    OpenVideoSource(vlcSource, true);
+                    break;
+                case 6:
+                    if (XimeaSource == null || !XimeaSource.IsRunning)
+                        XimeaSource =
+                            new XimeaVideoSource(Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "device")));
+                    OpenVideoSource(XimeaSource, true);
+                    break;
+                case 7:
+                    var tw = false;
+                    try
+                    {
+                        if (!String.IsNullOrEmpty(Nv(Camobject.settings.namevaluesettings, "TripWires")))
+                            tw = Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "TripWires"));
+                        var ks = new KinectStream(Nv(Camobject.settings.namevaluesettings, "UniqueKinectId"),
+                            Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "KinectSkeleton")), tw);
+                        if (Nv(Camobject.settings.namevaluesettings, "StreamMode") != "")
+                            ks.StreamMode = Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "StreamMode"));
+                        OpenVideoSource(ks, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ErrorHandler != null)
+                            ErrorHandler(ex.Message);
+                    }
+                    break;
+                case 8:
+                    switch (Nv(Camobject.settings.namevaluesettings, "custom"))
+                    {
+                        case "Network Kinect":
+                            // open the network kinect video stream
+                            OpenVideoSource(new KinectNetworkStream(Camobject.settings.videosourcestring), true);
+                            break;
+                        default:
+                            lock (_lockobject)
                             {
-                                var vc2 = vc.FirstOrDefault(p => p.AverageFrameRate == Camobject.settings.framerate) ??
-                                          vc.FirstOrDefault();
-                                videoSource.VideoResolution = vc2;
-                                found = true;
+                                IsEnabled = false;
                             }
-                            if (!found)
+                            throw new Exception("No custom provider found for " +
+                                                Nv(Camobject.settings.namevaluesettings, "custom"));
+                    }
+                    break;
+                case 9:
+                    //there is no 9, spooky hey?
+                    break;
+                case 10:
+                    int icam;
+                    if (Int32.TryParse(Camobject.settings.videosourcestring, out icam))
+                    {
+                        var topLevelControl = (MainForm) TopLevelControl;
+                        if (topLevelControl != null)
+                        {
+                            var cw = topLevelControl.GetCameraWindow(icam);
+                            if (cw != null)
                             {
-                                //first available
-                                var vcf = videoSource.VideoCapabilities.FirstOrDefault();
-                                if (vcf != null)
-                                    videoSource.VideoResolution = vcf;
-                                //else
-                                //{
-                                //    dont do this, not having an entry is ok for some video providers
-                                //    throw new Exception("Unable to find a video format for the capture device");
-                                //}
+
+                                OpenVideoSource(cw);
                             }
                         }
 
-                        if (Camobject.settings.crossbarindex != -1 && videoSource.CheckIfCrossbarAvailable())
-                        {
-                            var cbi =
-                                videoSource.AvailableCrossbarVideoInputs.FirstOrDefault(
-                                    p => p.Index == Camobject.settings.crossbarindex);
-                            if (cbi != null)
-                            {
-                                videoSource.CrossbarVideoInput = cbi;
-                            }
-                        }
+                    }
+                    break;
+            }
 
-                        OpenVideoSource(videoSource, true);
+            if (Camera != null)
+            {
+                IMotionDetector motionDetector = null;
+                IMotionProcessing motionProcessor = null;
 
-
+                switch (Camobject.detector.type)
+                {
+                    default:
+                        motionDetector = new TwoFramesDifferenceDetector(Camobject.settings.suppressnoise);
                         break;
-                    case 4:
-                        Rectangle area = Rectangle.Empty;
-                        if (!String.IsNullOrEmpty(Camobject.settings.desktoparea))
-                        {
-                            var i = System.Array.ConvertAll(Camobject.settings.desktoparea.Split(','), int.Parse);
-                            area = new Rectangle(i[0], i[1], i[2], i[3]);
-                        }
-                        var desktopSource = new DesktopStream(Convert.ToInt32(Camobject.settings.videosourcestring),
-                            area) {MousePointer = Camobject.settings.desktopmouse};
-                        if (Camobject.settings.frameinterval != 0)
-                            desktopSource.FrameInterval = Camobject.settings.frameinterval;
-                        OpenVideoSource(desktopSource, true);
-
+                    case "Custom Frame":
+                        motionDetector = new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,
+                            Camobject.detector.keepobjectedges);
                         break;
-                    case 5:
-                        List<String> inargs = Camobject.settings.vlcargs.Split(Environment.NewLine.ToCharArray(),
-                            StringSplitOptions.RemoveEmptyEntries)
-                            .
-                            ToList();
-                        var vlcSource = new VlcStream(Camobject.settings.videosourcestring, inargs.ToArray())
-                                        {
-                                            TimeOut
-                                                =
-                                                Camobject
-                                                .settings
-                                                .timeout
-                                        };
-
-                        OpenVideoSource(vlcSource, true);
+                    case "Background Modeling":
+                        motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,
+                            Camobject.detector.keepobjectedges);
                         break;
-                    case 6:
-                        if (XimeaSource == null || !XimeaSource.IsRunning)
-                            XimeaSource =
-                                new XimeaVideoSource(Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "device")));
-                        OpenVideoSource(XimeaSource, true);
+                    case "Two Frames (Color)":
+                        motionDetector = new TwoFramesColorDifferenceDetector(Camobject.settings.suppressnoise);
                         break;
-                    case 7:
-                        var tw = false;
-                        try
-                        {
-                            if (!String.IsNullOrEmpty(Nv(Camobject.settings.namevaluesettings, "TripWires")))
-                                tw = Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "TripWires"));
-                            var ks = new KinectStream(Nv(Camobject.settings.namevaluesettings, "UniqueKinectId"),
-                                Convert.ToBoolean(Nv(Camobject.settings.namevaluesettings, "KinectSkeleton")), tw);
-                            if (Nv(Camobject.settings.namevaluesettings, "StreamMode") != "")
-                                ks.StreamMode = Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "StreamMode"));
-                            OpenVideoSource(ks, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            if (ErrorHandler != null)
-                                ErrorHandler(ex.Message);
-                        }
+                    case "Custom Frame (Color)":
+                        motionDetector = new CustomFrameColorDifferenceDetector(
+                            Camobject.settings.suppressnoise,
+                            Camobject.detector.keepobjectedges);
                         break;
-                    case 8:
-                        switch (Nv(Camobject.settings.namevaluesettings, "custom"))
-                        {
-                            case "Network Kinect":
-                                // open the network kinect video stream
-                                OpenVideoSource(new KinectNetworkStream(Camobject.settings.videosourcestring), true);
-                                break;
-                            default:
-                                lock (_lockobject)
-                                {
-                                    IsEnabled = false;
-                                }
-                                throw new Exception("No custom provider found for " +
-                                                    Nv(Camobject.settings.namevaluesettings, "custom"));
-                        }
+                    case "Background Modeling (Color)":
+                        motionDetector =
+                            new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,
+                                Camobject.detector.
+                                    keepobjectedges);
                         break;
-                    case 9:
-                        //there is no 9, spooky hey?
-                        break;
-                    case 10:
-                        int icam;
-                        if (Int32.TryParse(Camobject.settings.videosourcestring, out icam))
-                        {
-                            var topLevelControl = (MainForm) TopLevelControl;
-                            if (topLevelControl != null)
-                            {
-                                var cw = topLevelControl.GetCameraWindow(icam);
-                                if (cw != null)
-                                {
-
-                                    OpenVideoSource(cw);
-                                }
-                            }
-
-                        }
+                    case "None":
                         break;
                 }
 
-
-
-                if (Camera != null)
+                if (motionDetector != null)
                 {
-                    IMotionDetector motionDetector = null;
-                    IMotionProcessing motionProcessor = null;
-
-                    switch (Camobject.detector.type)
+                    switch (Camobject.detector.postprocessor)
                     {
-                        default:
-                            motionDetector = new TwoFramesDifferenceDetector(Camobject.settings.suppressnoise);
+                        case "Grid Processing":
+                            motionProcessor = new GridMotionAreaProcessing
+                                                {
+                                                    HighlightColor =
+                                                        ColorTranslator.FromHtml(Camobject.detector.color),
+                                                    HighlightMotionGrid = Camobject.detector.highlight
+                                                };
                             break;
-                        case "Custom Frame":
-                            motionDetector = new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,
-                                Camobject.detector.keepobjectedges);
+                        case "Object Tracking":
+                            motionProcessor = new BlobCountingObjectsProcessing
+                                                {
+                                                    HighlightColor =
+                                                        ColorTranslator.FromHtml(Camobject.detector.color),
+                                                    HighlightMotionRegions = Camobject.detector.highlight,
+                                                    MinObjectsHeight = Camobject.detector.minheight,
+                                                    MinObjectsWidth = Camobject.detector.minwidth
+                                                };
+
                             break;
-                        case "Background Modeling":
-                            motionDetector = new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,
-                                Camobject.detector.keepobjectedges);
+                        case "Border Highlighting":
+                            motionProcessor = new MotionBorderHighlighting
+                                                {
+                                                    HighlightColor =
+                                                        ColorTranslator.FromHtml(Camobject.detector.color)
+                                                };
                             break;
-                        case "Two Frames (Color)":
-                            motionDetector = new TwoFramesColorDifferenceDetector(Camobject.settings.suppressnoise);
-                            break;
-                        case "Custom Frame (Color)":
-                            motionDetector = new CustomFrameColorDifferenceDetector(
-                                Camobject.settings.suppressnoise,
-                                Camobject.detector.keepobjectedges);
-                            break;
-                        case "Background Modeling (Color)":
-                            motionDetector =
-                                new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,
-                                    Camobject.detector.
-                                        keepobjectedges);
+                        case "Area Highlighting":
+                            motionProcessor = new MotionAreaHighlighting
+                                                {
+                                                    HighlightColor =
+                                                        ColorTranslator.FromHtml(Camobject.detector.color)
+                                                };
                             break;
                         case "None":
                             break;
                     }
 
-                    if (motionDetector != null)
+                    if (Camera.MotionDetector != null)
                     {
-                        switch (Camobject.detector.postprocessor)
-                        {
-                            case "Grid Processing":
-                                motionProcessor = new GridMotionAreaProcessing
-                                                  {
-                                                      HighlightColor =
-                                                          ColorTranslator.FromHtml(Camobject.detector.color),
-                                                      HighlightMotionGrid = Camobject.detector.highlight
-                                                  };
-                                break;
-                            case "Object Tracking":
-                                motionProcessor = new BlobCountingObjectsProcessing
-                                                  {
-                                                      HighlightColor =
-                                                          ColorTranslator.FromHtml(Camobject.detector.color),
-                                                      HighlightMotionRegions = Camobject.detector.highlight,
-                                                      MinObjectsHeight = Camobject.detector.minheight,
-                                                      MinObjectsWidth = Camobject.detector.minwidth
-                                                  };
-
-                                break;
-                            case "Border Highlighting":
-                                motionProcessor = new MotionBorderHighlighting
-                                                  {
-                                                      HighlightColor =
-                                                          ColorTranslator.FromHtml(Camobject.detector.color)
-                                                  };
-                                break;
-                            case "Area Highlighting":
-                                motionProcessor = new MotionAreaHighlighting
-                                                  {
-                                                      HighlightColor =
-                                                          ColorTranslator.FromHtml(Camobject.detector.color)
-                                                  };
-                                break;
-                            case "None":
-                                break;
-                        }
-
-                        if (Camera.MotionDetector != null)
-                        {
-                            Camera.MotionDetector.Reset();
-                            Camera.MotionDetector = null;
-                        }
-
-                        Camera.MotionDetector = motionProcessor == null
-                            ? new MotionDetector(motionDetector)
-                            : new MotionDetector(motionDetector, motionProcessor);
-
-                        Camera.AlarmLevel = Helper.CalculateTrigger(Camobject.detector.minsensitivity);
-                        Camera.AlarmLevelMax = Helper.CalculateTrigger(Camobject.detector.maxsensitivity);
-                        NeedMotionZones = true;
-                    }
-                    else
-                    {
+                        Camera.MotionDetector.Reset();
                         Camera.MotionDetector = null;
                     }
 
-                    LastMovementDetected = Helper.Now;
+                    Camera.MotionDetector = motionProcessor == null
+                        ? new MotionDetector(motionDetector)
+                        : new MotionDetector(motionDetector, motionProcessor);
 
-                    if (!Camera.IsRunning)
-                    {
-                        Calibrating = true;
-                        _lastRun = Helper.Now.Ticks;
-                        Camera.Start();
-                    }
-                    if (Camera.VideoSource is XimeaVideoSource)
-                    {
-                        //need to set these after the camera starts
-                        try
-                        {
-                            XimeaSource.SetParam(PRM.IMAGE_DATA_FORMAT, IMG_FORMAT.RGB24);
-                        }
-                        catch (ApplicationException)
-                        {
-                            XimeaSource.SetParam(PRM.IMAGE_DATA_FORMAT, IMG_FORMAT.MONO8);
-                        }
-                        XimeaSource.SetParam(CameraParameter.OffsetX,
-                            Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "x")));
-                        XimeaSource.SetParam(CameraParameter.OffsetY,
-                            Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "y")));
-                        float gain;
-                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "gain"), out gain);
-                        XimeaSource.SetParam(CameraParameter.Gain, gain);
-                        float exp;
-                        float.TryParse(Nv(Camobject.settings.namevaluesettings, "exposure"), out exp);
-                        XimeaSource.SetParam(CameraParameter.Exposure, exp*1000);
-                        XimeaSource.SetParam(CameraParameter.Downsampling,
-                            Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "downsampling")));
-                        XimeaSource.SetParam(CameraParameter.Width,
-                            Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "width")));
-                        XimeaSource.SetParam(CameraParameter.Height,
-                            Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "height")));
-                        XimeaSource.FrameInterval =
-                            (int) (1000.0f/XimeaSource.GetParamFloat(CameraParameter.FramerateMax));
-                    }
-
-
-
-                    if (File.Exists(Camobject.settings.maskimage))
-                    {
-                        Camera.Mask = (Bitmap) Image.FromFile(Camobject.settings.maskimage);
-                    }
-
-
+                    Camera.AlarmLevel = Helper.CalculateTrigger(Camobject.detector.minsensitivity);
+                    Camera.AlarmLevelMax = Helper.CalculateTrigger(Camobject.detector.maxsensitivity);
+                    NeedMotionZones = true;
                 }
-                Camobject.settings.active = true;
-                UpdateFloorplans(false);
-
-                _recordingTime = 0;
-                _timeLapseTotal = _timeLapseFrameCount = 0;
-                InactiveRecord = 0;
-                MovementDetected = false;
-
-                Alerted = false;
-                PTZNavigate = false;
-                Camobject.ftp.ready = true;
-                _lastRun = Helper.Now.Ticks;
-                MainForm.NeedsSync = true;
-                ReconnectCount = 0;
-                _dtPTZLastCheck = DateTime.Now;
-                
-                _firstFrame = true;
-                _autoofftimer = 0;
-
-                ClearVideoBuffer();
-
-                if (Camera != null)
+                else
                 {
-                    Camera.ZFactor = 1;
+                    Camera.MotionDetector = null;
                 }
-                _requestRefresh = true;
+
+                LastMovementDetected = Helper.Now;
+
+                ClearBuffer();
+
+                if (!Camera.IsRunning)
+                {
+                    Calibrating = true;
+                    _lastRun = Helper.Now.Ticks;
+                    Camera.Start();
+                }
+                if (Camera.VideoSource is XimeaVideoSource)
+                {
+                    //need to set these after the camera starts
+                    try
+                    {
+                        XimeaSource.SetParam(PRM.IMAGE_DATA_FORMAT, IMG_FORMAT.RGB24);
+                    }
+                    catch (ApplicationException)
+                    {
+                        XimeaSource.SetParam(PRM.IMAGE_DATA_FORMAT, IMG_FORMAT.MONO8);
+                    }
+                    XimeaSource.SetParam(CameraParameter.OffsetX,
+                        Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "x")));
+                    XimeaSource.SetParam(CameraParameter.OffsetY,
+                        Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "y")));
+                    float gain;
+                    float.TryParse(Nv(Camobject.settings.namevaluesettings, "gain"), out gain);
+                    XimeaSource.SetParam(CameraParameter.Gain, gain);
+                    float exp;
+                    float.TryParse(Nv(Camobject.settings.namevaluesettings, "exposure"), out exp);
+                    XimeaSource.SetParam(CameraParameter.Exposure, exp*1000);
+                    XimeaSource.SetParam(CameraParameter.Downsampling,
+                        Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "downsampling")));
+                    XimeaSource.SetParam(CameraParameter.Width,
+                        Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "width")));
+                    XimeaSource.SetParam(CameraParameter.Height,
+                        Convert.ToInt32(Nv(Camobject.settings.namevaluesettings, "height")));
+                    XimeaSource.FrameInterval =
+                        (int) (1000.0f/XimeaSource.GetParamFloat(CameraParameter.FramerateMax));
+                }
 
 
 
-                if (VolumeControl != null)
-                    VolumeControl.Enable();
+                if (File.Exists(Camobject.settings.maskimage))
+                {
+                    Camera.Mask = (Bitmap) Image.FromFile(Camobject.settings.maskimage);
+                }
 
 
-                SetVideoSize();
+            }
 
-                //cloned initialisation goes here
-                if (CloneCameraEnabled != null)
-                    CloneCameraEnabled(this, EventArgs.Empty);
+            Camobject.settings.active = true;
+            UpdateFloorplans(false);
+
+            _recordingTime = 0;
+            _timeLapseTotal = _timeLapseFrameCount = 0;
+            InactiveRecord = 0;
+            MovementDetected = false;
+
+            Alerted = false;
+            PTZNavigate = false;
+            Camobject.ftp.ready = true;
+            _lastRun = Helper.Now.Ticks;
+            MainForm.NeedsSync = true;
+            ReconnectCount = 0;
+            _dtPTZLastCheck = DateTime.Now;
+                
+            _firstFrame = true;
+            _autoofftimer = 0;
+
+            if (Camera != null)
+            {
+                Camera.ZFactor = 1;
+            }
+            _requestRefresh = true;
+
+
+            SetVolumeLevel(Camobject.settings.micpair); 
+            if (VolumeControl != null)
+                VolumeControl.Enable();
+
+
+            SetVideoSize();
+
+            //cloned initialisation goes here
+            if (CameraEnabled != null)
+                CameraEnabled(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -4643,7 +4626,7 @@ namespace iSpyApplication.Controls
                 }
 
                 var m = vl.Micobject;
-                if (m != null)
+                if (m != null && m.settings.typeindex==4)
                 {
                     var c = Camera.VideoSource as ISupportsAudio;
                     if (c != null)
@@ -4657,10 +4640,8 @@ namespace iSpyApplication.Controls
 
                     m.settings.buffer = Camobject.recorder.bufferseconds;
                     m.settings.bits = 16;
-                    
+                    vl.Enable();
                 }
-
-                vl.Enable();
             }
         }
 
@@ -4737,15 +4718,15 @@ namespace iSpyApplication.Controls
 
         private void OpenVideoSource(CameraWindow cw)
         {
-            cw.CloneCameraReconnect -= CWCameraReconnect;
-            cw.CloneCameraDisabled -= CWCameraDisabled;
-            cw.CloneCameraReConnected -= CWCameraReconnected;
-            cw.CloneCameraEnabled -= CWCameraEnabled;
+            cw.CameraReconnect -= CWCameraReconnect;
+            cw.CameraDisabled -= CWCameraDisabled;
+            cw.CameraReConnected -= CWCameraReconnected;
+            cw.CameraEnabled -= CWCameraEnabled;
 
-            cw.CloneCameraReconnect += CWCameraReconnect;
-            cw.CloneCameraDisabled += CWCameraDisabled;
-            cw.CloneCameraReConnected += CWCameraReconnected;
-            cw.CloneCameraEnabled += CWCameraEnabled;
+            cw.CameraReconnect += CWCameraReconnect;
+            cw.CameraDisabled += CWCameraDisabled;
+            cw.CameraReConnected += CWCameraReconnected;
+            cw.CameraEnabled += CWCameraEnabled;
             cw.HasClones = true;
 
             bool opened = false;
@@ -4830,9 +4811,6 @@ namespace iSpyApplication.Controls
                 if (VolumeControl != null)
                     VolumeControl.IsReconnect = true;
             }
-
-
-
         }
 
         void CWCameraDisabled(object sender, EventArgs e)
@@ -4987,10 +4965,17 @@ namespace iSpyApplication.Controls
                     var c = Camera.Plugin.GetType().GetProperty("Commands");
                     if (c!=null)
                     {
-                        string commands = c.GetValue(Camera.Plugin, null).ToString();
-                        if (!String.IsNullOrEmpty(commands))
+                        try
                         {
-                            return commands.Split(',').ToList();
+                            string commands = c.GetValue(Camera.Plugin, null).ToString();
+                            if (!String.IsNullOrEmpty(commands))
+                            {
+                                return commands.Split(',').ToList();
+                            }
+                        }
+                        catch
+                        {
+                            //not initialised
                         }
                     }
                 }
@@ -5095,7 +5080,12 @@ namespace iSpyApplication.Controls
             if (Recording)
             {
                 _stopWrite.Set();
-                _recordingThread.Join();
+                try
+                {
+                    if (!_recordingThread.Join(TimeSpan.Zero))
+                        _recordingThread.Join();
+                }
+                catch { }
             }
         }
 
@@ -5203,33 +5193,6 @@ namespace iSpyApplication.Controls
 
         #endregion
 
-        #region Nested type: FrameAction
-
-        private struct FrameAction
-        {
-            public byte[] Frame;
-            public readonly double MotionLevel;
-            public readonly DateTime TimeStamp;
-
-            public FrameAction(Bitmap frame, double motionLevel, DateTime timeStamp)
-            {
-                MotionLevel = motionLevel;
-                TimeStamp = timeStamp;
-                using (var ms = new MemoryStream())
-                {
-                    frame.Save(ms, MainForm.Encoder, MainForm.EncoderParams);
-                    Frame = ms.GetBuffer();
-                }
-            }
-
-            public void Nullify()
-            {
-                Frame = null;
-            }
-
-        }
-        #endregion
-
         private void CameraWindow_Resize(object sender, EventArgs e)
         {
             SetVolumeLevelLocation();
@@ -5251,21 +5214,5 @@ namespace iSpyApplication.Controls
         }
     }
 
-    public class NotificationType : EventArgs
-    {
-        public int Objectid;
-        public int Objecttypeid;
-        public string Text;
-        public string Type;
-        public string PreviewImage;
-        public string OverrideMessage;
 
-        public NotificationType(string type, string text, string previewimage, string overrideMessage = "")
-        {
-            Type = type;
-            Text = text;
-            PreviewImage = previewimage;
-            OverrideMessage = overrideMessage;
-        }
-    }
 }

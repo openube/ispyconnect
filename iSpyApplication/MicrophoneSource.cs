@@ -2,7 +2,9 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Forms;
+using iSpyApplication.Controls;
 using iSpyApplication.Video;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using AudioFileReader = iSpy.Video.FFMPEG.AudioFileReader;
 
@@ -10,6 +12,7 @@ namespace iSpyApplication
 {
     public partial class MicrophoneSource : Form
     {
+        private object[] SampleRates = {8000, 11025, 12000, 16000, 22050, 32000, 44100, 48000};
         private readonly string _noDevices = LocRm.GetString("NoAudioDevices");
         public objectsMicrophone Mic;
 
@@ -23,11 +26,28 @@ namespace iSpyApplication
         {
             Finish();
         }
-
+        private int GetSourceIndex()
+        {
+            int sourceIndex = 0;
+            if (tcAudioSource.SelectedTab.Equals(tabPage1))
+                sourceIndex = 0;
+            if (tcAudioSource.SelectedTab.Equals(tabPage2))
+                sourceIndex = 1;
+            if (tcAudioSource.SelectedTab.Equals(tabPage3))
+                sourceIndex = 2;
+            if (tcAudioSource.SelectedTab.Equals(tabPage4))
+                sourceIndex = 3;
+            if (tcAudioSource.SelectedTab.Equals(tabPage5))
+                sourceIndex = 4;
+            if (tcAudioSource.SelectedTab.Equals(tabPage6))
+                sourceIndex = 5;
+           
+            return sourceIndex;
+        }
         private void Finish()
         {
-
-            switch (tcAudioSource.SelectedIndex)
+            int sourceIndex = GetSourceIndex();
+            switch (sourceIndex)
             {
                 case 0:
                     if (!ddlDevice.Enabled)
@@ -92,6 +112,20 @@ namespace iSpyApplication
                     }
                     Mic.settings.sourcename = cmbFFMPEGURL.Text;
                     break;
+                case 5:
+                    if (ddlCloneMicrophone.SelectedIndex > -1)
+                    {
+                        int micid = ((MainForm.ListItem2)ddlCloneMicrophone.SelectedItem).Value;
+                        Mic.settings.sourcename = micid.ToString(CultureInfo.InvariantCulture);
+                        var mic = MainForm.Microphones.First(p => p.id == micid);
+                        Mic.name = "Clone: " + mic.name;
+                    }
+                    else
+                    {
+                        MessageBox.Show(this, LocRm.GetString("SelectMicrophoneToClone"));
+                        return;
+                    }
+                    break;
             }
 
             MainForm.Conf.VLCURL = cmbVLCURL.Text.Trim();
@@ -102,25 +136,11 @@ namespace iSpyApplication
                     (MainForm.Conf.RecentVLCList + "|" + MainForm.Conf.VLCURL).Trim('|');
             }
 
-            Mic.settings.typeindex = tcAudioSource.SelectedIndex;
+            Mic.settings.typeindex = sourceIndex;
             Mic.settings.decompress = true; // chkDecompress.Checked;
             Mic.settings.vlcargs = txtVLCArgs.Text.Trim();
 
             Mic.settings.analyzeduration = (int)numAnalyseDuration.Value;
-            //int samplerate;
-            //if (Int32.TryParse(txtSampleRate.Text, out samplerate))
-            //    Mic.settings.samples = samplerate;
-
-            //int bits;
-            //if (Int32.TryParse(txtBits.Text, out bits))
-            //    Mic.settings.bits = bits;
-
-            //int channels;
-            //if (Int32.TryParse(txtChannels.Text, out channels))
-            //    Mic.settings.channels = channels;
-
-            // Mic.settings.username = txtUsername.Text;
-            // Mic.settings.password = txtPassword.Text;
 
             DialogResult = DialogResult.OK;
             Close();
@@ -145,6 +165,44 @@ namespace iSpyApplication
             return o;
         }
 
+        private void SetSourceIndex(int sourceIndex)
+        {
+            switch (sourceIndex)
+            {
+                case 0:
+                    tcAudioSource.SelectedTab = tabPage1;
+                    break;
+                case 1:
+                    tcAudioSource.SelectedTab = tabPage2;
+                    break;
+                case 2:
+                    tcAudioSource.SelectedTab = tabPage3;
+                    break;
+                case 3:
+                    tcAudioSource.SelectedTab = tabPage4;
+                    break;
+                case 4:
+                    tcAudioSource.SelectedTab = tabPage5;
+                    break;
+                case 5:
+                    tcAudioSource.SelectedTab = tabPage6;
+                    break;
+            }
+
+            if (tcAudioSource.SelectedTab == null)
+            {
+                if (tcAudioSource.TabCount == 0)
+                {
+                    MessageBox.Show(this, LocRm.GetString("CouldNotDisplayControls"));
+                    Close();
+                }
+                else
+                {
+                    tcAudioSource.SelectedIndex = 0;
+                }
+            }
+        }
+
         private void MicrophoneSourceLoad(object sender, EventArgs e)
         {
             tableLayoutPanel2.Enabled = VlcHelper.VlcInstalled;
@@ -152,17 +210,21 @@ namespace iSpyApplication
             cmbVLCURL.Text = MainForm.Conf.VLCURL;
             cmbVLCURL.Items.AddRange(ObjectList(MainForm.Conf.RecentVLCList));
             cmbFFMPEGURL.Items.AddRange(ObjectList(MainForm.Conf.RecentVLCList));
+            ddlSampleRate.Items.AddRange(SampleRates);
             try
             {
-                int i = 0, selind = -1;
+                int selind = -1;
+                
                 for (int n = 0; n < WaveIn.DeviceCount; n++)
                 {
                     ddlDevice.Items.Add(WaveIn.GetCapabilities(n).ProductName);
                     if (WaveIn.GetCapabilities(n).ProductName == Mic.settings.sourcename)
-                        selind = i;
-                    i++;
+                        selind = n;
                 }
+                
+
                 ddlDevice.Enabled = true;
+
                 if (selind > -1)
                     ddlDevice.SelectedIndex = selind;
                 else
@@ -183,40 +245,60 @@ namespace iSpyApplication
                 ddlDevice.Enabled = false;
             }
             ddlSampleRate.SelectedIndex = 0;
+            foreach (var mic in MainForm.Microphones)
+            {
+                if (mic.id != Mic.id && mic.settings.typeindex != 5) //dont allow a clone of a clone as the events get too complicated (and also it's pointless)
+                    ddlCloneMicrophone.Items.Add(new MainForm.ListItem2(mic.name, mic.id));
+            }
+
+            SetSourceIndex(Mic.settings.typeindex);
+
+            switch (Mic.settings.typeindex)
+            {
+                case 0:
+                    if (ddlDevice.Items.Count > 0)
+                    {
+                        tcAudioSource.SelectedIndex = 0;
+                        int j = 0;
+                        foreach(int s in ddlSampleRate.Items)
+                        {
+                            if (s == Mic.settings.samples)
+                                ddlSampleRate.SelectedIndex = j;
+                            j++;
+                        }
+                    }
+                    break;
+                case 1:
+                    txtNetwork.Text = Mic.settings.sourcename;
+                    break;
+                case 2:
+                    cmbVLCURL.Text = Mic.settings.sourcename;
+                    break;
+                case 3:
+                    cmbFFMPEGURL.Text = Mic.settings.sourcename;
+                    break;
+                case 4:
+                    int i;
+                    Int32.TryParse(Mic.settings.sourcename, out i);
+                    var c = MainForm.Cameras.SingleOrDefault(p => p.id == i);
+                    lblCamera.Text = c == null ? LocRm.GetString("Removed") : c.name;
+                    break;
+                case 5:
+                    int id;
+                    if (Int32.TryParse(Mic.settings.sourcename, out id))
+                    {
+                        foreach (MainForm.ListItem2 li in ddlCloneMicrophone.Items)
+                        {
+                            if (li.Value == id)
+                            {
+                                ddlCloneMicrophone.SelectedItem = li;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+            }
             
-
-            tcAudioSource.SelectedIndex = Mic.settings.typeindex;
-
-            if (Mic.settings.typeindex == 0 && ddlDevice.Items.Count > 0)
-            {
-                tcAudioSource.SelectedIndex = 0;
-                int j = 0;
-                foreach(string s in ddlSampleRate.Items)
-                {
-                    if (s == Mic.settings.samples.ToString(CultureInfo.InvariantCulture))
-                        ddlSampleRate.SelectedIndex = j;
-                    j++;
-                }
-            }
-            if (Mic.settings.typeindex == 1)
-            {
-                txtNetwork.Text = Mic.settings.sourcename;
-            }
-            if (Mic.settings.typeindex == 2)
-            {
-                cmbVLCURL.Text = Mic.settings.sourcename;
-            }
-            if (Mic.settings.typeindex==3)
-            {
-                cmbFFMPEGURL.Text = Mic.settings.sourcename;
-            }
-            if (Mic.settings.typeindex==4)
-            {
-                int i;
-                Int32.TryParse(Mic.settings.sourcename, out i);
-                var c = MainForm.Cameras.SingleOrDefault(p => p.id == i);
-                lblCamera.Text = c == null ? LocRm.GetString("Removed") : c.name;
-            }
 
             txtVLCArgs.Text = Mic.settings.vlcargs.Replace("\r\n", "\n").Replace("\n\n", "\n").Replace("\n", Environment.NewLine);
 
@@ -251,6 +333,7 @@ namespace iSpyApplication
             LocRm.SetString(tabPage5, "Camera");
             LocRm.SetString(label1,"SampleRate");
             LocRm.SetString(label7, "AnalyseDurationMS");
+            LocRm.SetString(label14, "Microphone");
 
         }
 
@@ -282,7 +365,7 @@ namespace iSpyApplication
         private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string url = MainForm.Website+"/userguide-microphones.aspx";
-            switch (tcAudioSource.SelectedIndex)
+            switch (GetSourceIndex())
             {
                 case 0:
                     url = MainForm.Website+"/userguide-microphones.aspx#1";
@@ -305,7 +388,7 @@ namespace iSpyApplication
             string res = "OK";
             try
             {
-                Program.WriterMutex.WaitOne();
+                Program.FFMPEGMutex.WaitOne();
                 var afr = new AudioFileReader();
                 string source = cmbFFMPEGURL.Text;
                 int i = source.IndexOf("://", StringComparison.Ordinal);
@@ -331,7 +414,14 @@ namespace iSpyApplication
             }
             finally
             {
-                Program.WriterMutex.ReleaseMutex();                
+                try
+                {
+                    Program.FFMPEGMutex.ReleaseMutex();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //can happen on shutdown
+                }                
             }
             MessageBox.Show(res);
             

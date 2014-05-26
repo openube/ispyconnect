@@ -298,6 +298,16 @@ namespace iSpyApplication
                 }
                 
                 Group = _conf.Permissions.First().name;
+
+                if (_conf.Logging == null)
+                {
+                    _conf.Logging = new configurationLogging
+                                    {
+                                        Enabled = true,
+                                        FileSize = _conf.LogFileSizeKB,
+                                        KeepDays = 7
+                                    };
+                }
                 return _conf;
             }
         }
@@ -687,7 +697,10 @@ namespace iSpyApplication
                 bool bAlertVlc = false;
                 int camid = 0;
                 string path2;
+                //load non clones first
                 _cameras = _cameras.OrderByDescending(p => p.settings.sourceindex != 10).ToList();
+                _microphones = _microphones.OrderByDescending(p => p.settings.typeindex != 5).ToList();
+
                 foreach (objectsCamera cam in _cameras)
                 {
                     if (cam.id >= camid)
@@ -1402,84 +1415,106 @@ namespace iSpyApplication
 
         private void RenderObjects()
         {
-
-            for (int index = 0; index < Cameras.Count; index++)
+            //the order we do this in is very important
+            try
             {
-                objectsCamera oc = Cameras[index];
-                DisplayCamera(oc);
-            }
-
-            for (int index = 0; index < Microphones.Count; index++)
-            {
-                objectsMicrophone om = Microphones[index];
-                DisplayMicrophone(om);
-            }
-
-            for (int index = 0; index < FloorPlans.Count; index++)
-            {
-                objectsFloorplan ofp = FloorPlans[index];
-                DisplayFloorPlan(ofp);
-            }
-
-            for (int index = 0; index < Cameras.Count; index++)
-            {
-                objectsCamera oc = Cameras[index];
-                var cw = GetCameraWindow(oc.id);
-                if (Conf.AutoSchedule && oc.schedule.active && oc.schedule.entries.Any())
+                for (int index = 0; index < Cameras.Count; index++)
                 {
-                    oc.settings.active = false;
-                    cw.ApplySchedule();
+                    objectsCamera oc = Cameras[index];
+                    DisplayCamera(oc);
                 }
-                else
+
+                for (int index = 0; index < Microphones.Count; index++)
                 {
-                    try
+                    objectsMicrophone om = Microphones[index];
+                    DisplayMicrophone(om);
+                }
+
+                for (int index = 0; index < FloorPlans.Count; index++)
+                {
+                    objectsFloorplan ofp = FloorPlans[index];
+                    DisplayFloorPlan(ofp);
+                }
+
+                //link em up
+                for (int index = 0; index < Cameras.Count; index++)
+                {
+                    
+                    objectsCamera oc = Cameras[index];
+                    var cw = GetCameraWindow(oc.id);
+                    if (cw != null)
                     {
-                        if (oc.settings.active)
-                            cw.Enable();
-                    }
-                    catch (Exception ex)
-                    {
-                        LogExceptionToFile(ex);
+                        cw.SetVolumeLevel(oc.settings.micpair);
                     }
                 }
-            }
-
-            for (int index = 0; index < Microphones.Count; index++)
-            {
-                objectsMicrophone om = Microphones[index];
-                var vl = GetVolumeLevel(om.id);
-                if (Conf.AutoSchedule && om.schedule.active && om.schedule.entries.Any())
+                
+                for (int index = 0; index < Cameras.Count; index++)
                 {
-                    om.settings.active = false;
-                    vl.ApplySchedule();
-                }
-                else
-                {
-                    if (om.settings.active)
-                        vl.Enable();
-                }
-            }
-
-
-            bool cam = false;
-            if (_pnlCameras.Controls.Count > 0)
-            {
-                //prevents layering issues
-                for (int index = 0; index < _pnlCameras.Controls.Count; index++)
-                {
-                    var c = _pnlCameras.Controls[index];
-                    var cw = c as CameraWindow;
-                    if (cw != null && cw.VolumeControl == null)
+                    objectsCamera oc = Cameras[index];
+                    var cw = GetCameraWindow(oc.id);
+                    if (Conf.AutoSchedule && oc.schedule.active && oc.schedule.entries.Any())
                     {
-                        cam = true;
-                        cw.BringToFront();
+                        oc.settings.active = false;
+                        cw.ApplySchedule();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            if (oc.settings.active)
+                                cw.Enable();
+                        }
+                        catch (Exception ex)
+                        {
+                            LogExceptionToFile(ex);
+                        }
                     }
                 }
-                _pnlCameras.Controls[0].Focus();
-            }
-            if (!cam)
-                flowPreview.Loading = false;
+                
+                for (int index = 0; index < Microphones.Count; index++)
+                {
+                    objectsMicrophone om = Microphones[index];
+                    var vl = GetVolumeLevel(om.id);
+                    if (Conf.AutoSchedule && om.schedule.active && om.schedule.entries.Any())
+                    {
+                        om.settings.active = false;
+                        vl.ApplySchedule();
+                    }
+                    else
+                    {
+                        if (om.settings.active)
+                            vl.Enable();
+                    }
+                }
 
+
+                bool cam = false;
+                if (_pnlCameras.Controls.Count > 0)
+                {
+                    //prevents layering issues
+                    for (int index = 0; index < _pnlCameras.Controls.Count; index++)
+                    {
+                        var c = _pnlCameras.Controls[index];
+                        var cw = c as CameraWindow;
+                        if (cw != null && cw.VolumeControl != null)
+                        {
+                            cam = true;
+                            cw.SendToBack();
+                            cw.VolumeControl.SendToBack();
+                        }
+                    }
+                    _pnlCameras.Controls[0].Focus();
+                }
+                if (!cam)
+                    flowPreview.Loading = false;
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+            finally
+            {
+            }
             NeedsSync = true;
         }
 
