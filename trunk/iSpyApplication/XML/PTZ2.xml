@@ -4960,6 +4960,7 @@ copy or delete as many lines as you need.-->
       <Make Name="DLink" Model="DCS-5020L Series" />
     </Makes>
     <CommandURL>/PANTILTCONTROL.CGI</CommandURL>
+      <POST>true</POST>
       <Commands>
         <Center>PanTiltPresetPositionMove=0</Center>
         <Left>PanSingleMoveDegree=1&amp;TiltSingleMoveDegree=1&amp;PanTiltSingleMove=3</Left>
@@ -4976,6 +4977,8 @@ copy or delete as many lines as you need.-->
         <Command Name="Position 6">PanTiltPresetPositionMove=6</Command>
         <Command Name="Position 7">PanTiltPresetPositionMove=7</Command>
         <Command Name="Position 8">PanTiltPresetPositionMove=8</Command>
+        <Command Name="IR LED ON ">/nightmodecontrol.cgi?IRLed=1</Command>
+        <Command Name="IR LED OFF">/nightmodecontrol.cgi?IRLed=0</Command>
       </ExtendedCommands>
     </Camera>
   <Camera id="190">
@@ -5174,6 +5177,94 @@ copy or delete as many lines as you need.-->
       <Command Name="Go Preset 5">/cgi-bin/gopreset.cgi?num=5</Command>
       <Command Name="Go Preset 6">/cgi-bin/gopreset.cgi?num=6</Command>
       <Command Name="Go Preset 7">/cgi-bin/gopreset.cgi?num=7</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="197">
+    <Makes>
+      <Make Name="Hengda" Model="HIP-31L2J" />
+      <Make Name="Hengda" Model="HIP-31BGP" />
+      <Make Name="Hengda" Model="HIP-31BHE" />
+    </Makes>
+    <CommandURL>/cgi-bin/hi3510/param.cgi?</CommandURL>
+    <Commands>
+      <Center>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=home</Center>
+      <Left>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=left</Left>
+      <LeftUp></LeftUp>
+      <Right>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=right</Right>
+      <RightUp></RightUp>
+      <Up>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=up</Up>
+      <Down>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=down</Down>
+      <LeftDown></LeftDown>
+      <RightDown></RightDown>
+      <Stop>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=stop</Stop>
+      <ZoomIn>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=zoomin</ZoomIn>
+      <ZoomOut>cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=zoomout</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="GO Preset 1">cmd=preset&amp;-act=goto&amp;-number=1</Command>
+      <Command Name="GO Preset 2">cmd=preset&amp;-act=goto&amp;-number=2</Command>
+      <Command Name="GO Preset 3">cmd=preset&amp;-act=goto&amp;-number=3</Command>
+      <Command Name="GO Preset 4">cmd=preset&amp;-act=goto&amp;-number=4</Command>
+      <Command Name="GO Preset 5">cmd=preset&amp;-act=goto&amp;-number=5</Command>
+      <Command Name="GO Preset 6">cmd=preset&amp;-act=goto&amp;-number=6</Command>
+      <Command Name="GO Preset 7">cmd=preset&amp;-act=goto&amp;-number=7</Command>
+      <Command Name="GO Preset 8">cmd=preset&amp;-act=goto&amp;-number=8</Command>
+      <Command Name="Set Preset 1">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=1</Command>
+      <Command Name="Set Preset 2">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=2</Command>
+      <Command Name="Set Preset 3">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=3</Command>
+      <Command Name="Set Preset 4">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=4</Command>
+      <Command Name="Set Preset 5">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=5</Command>
+      <Command Name="Set Preset 6">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=6</Command>
+      <Command Name="Set Preset 7">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=7</Command>
+      <Command Name="Set Preset 8">cmd=preset&amp;-act=set&amp;-status=1&amp;-number=8</Command>
+      <Command Name="IR Auto">cmd=setinfrared&amp;-infraredstat=auto</Command>
+      <Command Name="IR off">cmd=setinfrared&amp;-infraredstat=close</Command>
+      <Command Name="H Patrol">cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=hscan</Command>
+      <Command Name="V Patrol">cmd=ptzctrl&amp;-step=0&amp;-speed=10&amp;-act=vscan</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="198">
+    <Makes>
+      <Make Name="IPS" Model="IPS-Ki-EL" />
+    </Makes>
+    <CommandURL>/cgi-bin/hi3510/</CommandURL>
+    <Commands>
+      <Center>ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=home&amp;-speed=31</Center>
+      <Left>ptzleft.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-speed=31</Left>
+      <LeftUp>ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=upleft&amp;-speed=31</LeftUp>
+      <Right>ptzright.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-speed=31</Right>
+      <RightUp>ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=upright&amp;-speed=31</RightUp>
+      <Up>ptzup.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-speed=31</Up>
+      <Down>ptzdown.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-speed=31</Down>
+      <LeftDown>ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=downleft&amp;-speed=31</LeftDown>
+      <RightDown>ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=downright&amp;-speed=31</RightDown>
+      <Stop>ptzstop.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-speed=31</Stop>
+      <ZoomIn></ZoomIn>
+      <ZoomOut></ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="GO Preset 1">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=1</Command>
+      <Command Name="GO Preset 2">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=2</Command>
+      <Command Name="GO Preset 3">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=3</Command>
+      <Command Name="GO Preset 4">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=4</Command>
+      <Command Name="GO Preset 5">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=5</Command>
+      <Command Name="GO Preset 6">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=6</Command>
+      <Command Name="GO Preset 7">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=7</Command>
+      <Command Name="GO Preset 8">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=8</Command>
+      <Command Name="GO Preset 9">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=9</Command>
+      <Command Name="GO Preset 10">ptzgotopoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=10</Command>
+      <Command Name="Set Preset 1">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=1</Command>
+      <Command Name="Set Preset 2">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=2</Command>
+      <Command Name="Set Preset 3">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=3</Command>
+      <Command Name="Set Preset 4">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=4</Command>
+      <Command Name="Set Preset 5">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=5</Command>
+      <Command Name="Set Preset 6">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=6</Command>
+      <Command Name="Set Preset 7">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=7</Command>
+      <Command Name="Set Preset 8">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=8</Command>
+      <Command Name="Set Preset 9">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=9</Command>
+      <Command Name="Set Preset 10">ptzsetpoint.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-point=10</Command>
+      <Command Name="H Patrol">ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=hscan&amp;-speed=31</Command>
+      <Command Name="V Patrol">ptzctrl.cgi?&amp;-checkname=admin&amp;-checkpasswd=YWRtaW4%3D&amp;-chn=0&amp;-act=vscan&amp;-speed=31</Command>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>
