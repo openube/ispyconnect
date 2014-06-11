@@ -3951,7 +3951,7 @@ namespace iSpyApplication.Controls
                                     try
                                     {
                                         Camera.SignalToStop();
-                                        if (Camera.VideoSource is VideoCaptureDevice)
+                                        if (Camera.VideoSource is VideoCaptureDevice && !ShuttingDown)
                                         {
                                             Camera.VideoSource.WaitForStop();
                                         }

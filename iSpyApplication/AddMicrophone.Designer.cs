@@ -153,8 +153,8 @@ namespace iSpyApplication
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.tmrUpdateSourceDetails = new System.Windows.Forms.Timer(this.components);
             this.linkLabel4 = new System.Windows.Forms.LinkLabel();
+            this.tmrUpdateSourceDetails = new System.Windows.Forms.Timer(this.components);
             this.tcMicrophone.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1866,11 +1866,6 @@ namespace iSpyApplication
             this.flowLayoutPanel2.Size = new System.Drawing.Size(413, 39);
             this.flowLayoutPanel2.TabIndex = 64;
             // 
-            // tmrUpdateSourceDetails
-            // 
-            this.tmrUpdateSourceDetails.Interval = 2000;
-            this.tmrUpdateSourceDetails.Tick += new System.EventHandler(this.tmrUpdateSourceDetails_Tick);
-            // 
             // linkLabel4
             // 
             this.linkLabel4.AutoSize = true;
@@ -1883,6 +1878,11 @@ namespace iSpyApplication
             this.linkLabel4.TabStop = true;
             this.linkLabel4.Text = "Copy To...";
             this.linkLabel4.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel4_LinkClicked);
+            // 
+            // tmrUpdateSourceDetails
+            // 
+            this.tmrUpdateSourceDetails.Interval = 2000;
+            this.tmrUpdateSourceDetails.Tick += new System.EventHandler(this.tmrUpdateSourceDetails_Tick);
             // 
             // AddMicrophone
             // 

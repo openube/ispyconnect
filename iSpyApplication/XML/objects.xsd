@@ -398,6 +398,7 @@
                                     <xs:attribute name="ptz" type="xs:int" use="required" />
                                     <xs:attribute name="ptzentryindex" type="xs:int" default="0" />
                                     <xs:attribute name="newrecordingcount" type="xs:int" default="0"/>
+                                    <xs:attribute name="surfaceID" type="xs:int" default="0"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -563,6 +564,7 @@
                                     <xs:attribute name="width" type="xs:int" use="required" />
                                     <xs:attribute name="height" type="xs:int" use="required" />
                                     <xs:attribute name="newrecordingcount" type="xs:int" default="0"/>
+                                    <xs:attribute name="surfaceID" type="xs:int" default="0"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
@@ -610,6 +612,7 @@
                                     <xs:attribute name="fov" type="xs:int" default="90"/>
                                     <xs:attribute name="radius" type="xs:int" default="80"/>
                                     <xs:attribute name="needsupdate" type="xs:boolean" use="required" />
+                                    <xs:attribute name="surfaceID" type="xs:int" default="0"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

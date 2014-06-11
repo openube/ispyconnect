@@ -167,11 +167,14 @@ public partial class objectsCamera {
     
     private int newrecordingcountField;
     
+    private int surfaceIDField;
+    
     public objectsCamera() {
         this.rotate90Field = false;
         this.rotateModeField = "";
         this.ptzentryindexField = 0;
         this.newrecordingcountField = 0;
+        this.surfaceIDField = 0;
     }
     
     /// <remarks/>
@@ -462,6 +465,18 @@ public partial class objectsCamera {
         }
         set {
             this.newrecordingcountField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int surfaceID {
+        get {
+            return this.surfaceIDField;
+        }
+        set {
+            this.surfaceIDField = value;
         }
     }
 }
@@ -3443,8 +3458,11 @@ public partial class objectsMicrophone {
     
     private int newrecordingcountField;
     
+    private int surfaceIDField;
+    
     public objectsMicrophone() {
         this.newrecordingcountField = 0;
+        this.surfaceIDField = 0;
     }
     
     /// <remarks/>
@@ -3614,6 +3632,18 @@ public partial class objectsMicrophone {
         }
         set {
             this.newrecordingcountField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int surfaceID {
+        get {
+            return this.surfaceIDField;
+        }
+        set {
+            this.surfaceIDField = value;
         }
     }
 }
@@ -4713,9 +4743,12 @@ public partial class objectsFloorplan {
     
     private bool needsupdateField;
     
+    private int surfaceIDField;
+    
     public objectsFloorplan() {
         this.fovField = 90;
         this.radiusField = 80;
+        this.surfaceIDField = 0;
     }
     
     /// <remarks/>
@@ -4870,6 +4903,18 @@ public partial class objectsFloorplan {
         }
         set {
             this.needsupdateField = value;
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlAttributeAttribute()]
+    [System.ComponentModel.DefaultValueAttribute(0)]
+    public int surfaceID {
+        get {
+            return this.surfaceIDField;
+        }
+        set {
+            this.surfaceIDField = value;
         }
     }
 }

@@ -228,6 +228,13 @@ namespace iSpyApplication
             this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
             this.linkLabel3 = new System.Windows.Forms.LinkLabel();
             this.linkLabel4 = new System.Windows.Forms.LinkLabel();
+            this.tabPage14 = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
+            this.label66 = new System.Windows.Forms.Label();
+            this.label65 = new System.Windows.Forms.Label();
+            this.numKeepLogs = new System.Windows.Forms.NumericUpDown();
+            this.numMaxLogSize = new System.Windows.Forms.NumericUpDown();
+            this.chkEnableLogging = new System.Windows.Forms.CheckBox();
             this.cdColorChooser = new System.Windows.Forms.ColorDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.button2 = new System.Windows.Forms.Button();
@@ -235,13 +242,6 @@ namespace iSpyApplication
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.tmrJSUpdate = new System.Windows.Forms.Timer(this.components);
-            this.tabPage14 = new System.Windows.Forms.TabPage();
-            this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
-            this.label65 = new System.Windows.Forms.Label();
-            this.label66 = new System.Windows.Forms.Label();
-            this.numKeepLogs = new System.Windows.Forms.NumericUpDown();
-            this.numMaxLogSize = new System.Windows.Forms.NumericUpDown();
-            this.chkEnableLogging = new System.Windows.Forms.CheckBox();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -291,11 +291,11 @@ namespace iSpyApplication
             this.tabPage11.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel7.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
             this.tabPage14.SuspendLayout();
             this.tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numKeepLogs)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxLogSize)).BeginInit();
+            this.flowLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label3
@@ -2735,61 +2735,6 @@ namespace iSpyApplication
             this.linkLabel4.Text = "Refresh List";
             this.linkLabel4.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel4_LinkClicked);
             // 
-            // button2
-            // 
-            this.button2.AutoSize = true;
-            this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button2.Location = new System.Drawing.Point(691, 6);
-            this.button2.Margin = new System.Windows.Forms.Padding(6);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(50, 23);
-            this.button2.TabIndex = 10;
-            this.button2.Text = "Cancel";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.Button2Click);
-            // 
-            // button1
-            // 
-            this.button1.AutoSize = true;
-            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button1.Location = new System.Drawing.Point(753, 6);
-            this.button1.Margin = new System.Windows.Forms.Padding(6);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(32, 23);
-            this.button1.TabIndex = 9;
-            this.button1.Text = "OK";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1Click);
-            // 
-            // llblHelp
-            // 
-            this.llblHelp.AutoSize = true;
-            this.llblHelp.Location = new System.Drawing.Point(650, 8);
-            this.llblHelp.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.llblHelp.Name = "llblHelp";
-            this.llblHelp.Size = new System.Drawing.Size(29, 13);
-            this.llblHelp.TabIndex = 91;
-            this.llblHelp.TabStop = true;
-            this.llblHelp.Text = "Help";
-            this.llblHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblHelp_LinkClicked);
-            // 
-            // flowLayoutPanel2
-            // 
-            this.flowLayoutPanel2.Controls.Add(this.button1);
-            this.flowLayoutPanel2.Controls.Add(this.button2);
-            this.flowLayoutPanel2.Controls.Add(this.llblHelp);
-            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 633);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(791, 40);
-            this.flowLayoutPanel2.TabIndex = 92;
-            // 
-            // tmrJSUpdate
-            // 
-            this.tmrJSUpdate.Enabled = true;
-            this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
-            // 
             // tabPage14
             // 
             this.tabPage14.Controls.Add(this.tableLayoutPanel10);
@@ -2822,16 +2767,6 @@ namespace iSpyApplication
             this.tableLayoutPanel10.Size = new System.Drawing.Size(777, 140);
             this.tableLayoutPanel10.TabIndex = 0;
             // 
-            // label65
-            // 
-            this.label65.AutoSize = true;
-            this.label65.Location = new System.Drawing.Point(6, 68);
-            this.label65.Margin = new System.Windows.Forms.Padding(6);
-            this.label65.Name = "label65";
-            this.label65.Size = new System.Drawing.Size(104, 13);
-            this.label65.TabIndex = 1;
-            this.label65.Text = "Keep Logs for (days)";
-            // 
             // label66
             // 
             this.label66.AutoSize = true;
@@ -2841,6 +2776,16 @@ namespace iSpyApplication
             this.label66.Size = new System.Drawing.Size(92, 13);
             this.label66.TabIndex = 2;
             this.label66.Text = "Max Log Size (kb)";
+            // 
+            // label65
+            // 
+            this.label65.AutoSize = true;
+            this.label65.Location = new System.Drawing.Point(6, 68);
+            this.label65.Margin = new System.Windows.Forms.Padding(6);
+            this.label65.Name = "label65";
+            this.label65.Size = new System.Drawing.Size(104, 13);
+            this.label65.TabIndex = 1;
+            this.label65.Text = "Keep Logs for (days)";
             // 
             // numKeepLogs
             // 
@@ -2896,6 +2841,61 @@ namespace iSpyApplication
             this.chkEnableLogging.TabIndex = 5;
             this.chkEnableLogging.Text = "Enable Logging";
             this.chkEnableLogging.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.AutoSize = true;
+            this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button2.Location = new System.Drawing.Point(691, 6);
+            this.button2.Margin = new System.Windows.Forms.Padding(6);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(50, 23);
+            this.button2.TabIndex = 10;
+            this.button2.Text = "Cancel";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.Button2Click);
+            // 
+            // button1
+            // 
+            this.button1.AutoSize = true;
+            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button1.Location = new System.Drawing.Point(753, 6);
+            this.button1.Margin = new System.Windows.Forms.Padding(6);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(32, 23);
+            this.button1.TabIndex = 9;
+            this.button1.Text = "OK";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.Button1Click);
+            // 
+            // llblHelp
+            // 
+            this.llblHelp.AutoSize = true;
+            this.llblHelp.Location = new System.Drawing.Point(650, 8);
+            this.llblHelp.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
+            this.llblHelp.Name = "llblHelp";
+            this.llblHelp.Size = new System.Drawing.Size(29, 13);
+            this.llblHelp.TabIndex = 91;
+            this.llblHelp.TabStop = true;
+            this.llblHelp.Text = "Help";
+            this.llblHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblHelp_LinkClicked);
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.Controls.Add(this.button1);
+            this.flowLayoutPanel2.Controls.Add(this.button2);
+            this.flowLayoutPanel2.Controls.Add(this.llblHelp);
+            this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 633);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(791, 40);
+            this.flowLayoutPanel2.TabIndex = 92;
+            // 
+            // tmrJSUpdate
+            // 
+            this.tmrJSUpdate.Enabled = true;
+            this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
             // 
             // Settings
             // 
@@ -2988,13 +2988,13 @@ namespace iSpyApplication
             this.tableLayoutPanel3.PerformLayout();
             this.flowLayoutPanel7.ResumeLayout(false);
             this.flowLayoutPanel7.PerformLayout();
-            this.flowLayoutPanel2.ResumeLayout(false);
-            this.flowLayoutPanel2.PerformLayout();
             this.tabPage14.ResumeLayout(false);
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numKeepLogs)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxLogSize)).EndInit();
+            this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
