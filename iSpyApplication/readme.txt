@@ -8,3 +8,8 @@ To debug:
 copy all the av*.dll, postproc-52.dll, swscale-2.dll, swresample-0.dll and lame_enc.dll files from the ispy application directory to the bin/x86/debug directory
 
 If you get reference errors, install the latest version of ispy from ispyconnect and copy the updated dlls from the program files folder to the DLLS folder
+
+
+changes to the aforge framework can be downloaded here:
+
+http://hosting.ispyconnect.com/aforgesources.zip
