@@ -100,7 +100,6 @@ namespace iSpyApplication
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label11 = new System.Windows.Forms.Label();
-            this.mediaDirectoryEditor1 = new iSpyApplication.Controls.MediaDirectoryEditor();
             this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
             this.txtArchive = new System.Windows.Forms.TextBox();
             this.btnArchive = new System.Windows.Forms.Button();
@@ -116,7 +115,6 @@ namespace iSpyApplication
             this.txtYouTubePassword = new System.Windows.Forms.TextBox();
             this.tabPage13 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel12 = new System.Windows.Forms.TableLayoutPanel();
-            this.ftpEditor1 = new iSpyApplication.Controls.FTPEditor();
             this.label63 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
@@ -160,22 +158,10 @@ namespace iSpyApplication
             this.label31 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.jbutton1 = new iSpyApplication.Controls.jbutton();
-            this.jbutton2 = new iSpyApplication.Controls.jbutton();
-            this.jbutton3 = new iSpyApplication.Controls.jbutton();
-            this.jbutton4 = new iSpyApplication.Controls.jbutton();
-            this.jbutton5 = new iSpyApplication.Controls.jbutton();
-            this.jbutton6 = new iSpyApplication.Controls.jbutton();
-            this.jbutton7 = new iSpyApplication.Controls.jbutton();
-            this.jaxis1 = new iSpyApplication.Controls.jaxis();
-            this.jaxis2 = new iSpyApplication.Controls.jaxis();
-            this.jaxis3 = new iSpyApplication.Controls.jaxis();
             this.btnCenterAxes = new System.Windows.Forms.Button();
             this.label37 = new System.Windows.Forms.Label();
-            this.jbutton8 = new iSpyApplication.Controls.jbutton();
             this.label38 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.jbutton9 = new iSpyApplication.Controls.jbutton();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
             this.label26 = new System.Windows.Forms.Label();
             this.ddlJoystick = new System.Windows.Forms.ComboBox();
@@ -242,6 +228,20 @@ namespace iSpyApplication
             this.llblHelp = new System.Windows.Forms.LinkLabel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.tmrJSUpdate = new System.Windows.Forms.Timer(this.components);
+            this.mediaDirectoryEditor1 = new iSpyApplication.Controls.MediaDirectoryEditor();
+            this.ftpEditor1 = new iSpyApplication.Controls.FTPEditor();
+            this.jbutton1 = new iSpyApplication.Controls.jbutton();
+            this.jbutton2 = new iSpyApplication.Controls.jbutton();
+            this.jbutton3 = new iSpyApplication.Controls.jbutton();
+            this.jbutton4 = new iSpyApplication.Controls.jbutton();
+            this.jbutton5 = new iSpyApplication.Controls.jbutton();
+            this.jbutton6 = new iSpyApplication.Controls.jbutton();
+            this.jbutton7 = new iSpyApplication.Controls.jbutton();
+            this.jaxis1 = new iSpyApplication.Controls.jaxis();
+            this.jaxis2 = new iSpyApplication.Controls.jaxis();
+            this.jaxis3 = new iSpyApplication.Controls.jaxis();
+            this.jbutton8 = new iSpyApplication.Controls.jbutton();
+            this.jbutton9 = new iSpyApplication.Controls.jbutton();
             this.tcTabs.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -1217,13 +1217,6 @@ namespace iSpyApplication
             this.label11.TabIndex = 40;
             this.label11.Text = "Archive Directory";
             // 
-            // mediaDirectoryEditor1
-            // 
-            this.mediaDirectoryEditor1.Location = new System.Drawing.Point(104, 3);
-            this.mediaDirectoryEditor1.Name = "mediaDirectoryEditor1";
-            this.mediaDirectoryEditor1.Size = new System.Drawing.Size(459, 186);
-            this.mediaDirectoryEditor1.TabIndex = 39;
-            // 
             // flowLayoutPanel8
             // 
             this.tableLayoutPanel2.SetColumnSpan(this.flowLayoutPanel8, 2);
@@ -1395,14 +1388,6 @@ namespace iSpyApplication
             this.tableLayoutPanel12.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel12.Size = new System.Drawing.Size(783, 292);
             this.tableLayoutPanel12.TabIndex = 40;
-            // 
-            // ftpEditor1
-            // 
-            this.ftpEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ftpEditor1.Location = new System.Drawing.Point(81, 3);
-            this.ftpEditor1.Name = "ftpEditor1";
-            this.ftpEditor1.Size = new System.Drawing.Size(699, 286);
-            this.ftpEditor1.TabIndex = 0;
             // 
             // label63
             // 
@@ -1978,112 +1963,6 @@ namespace iSpyApplication
             this.label27.TabIndex = 1;
             this.label27.Text = "Talk";
             // 
-            // jbutton1
-            // 
-            this.jbutton1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton1.ID = 0;
-            this.jbutton1.Location = new System.Drawing.Point(154, 128);
-            this.jbutton1.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton1.Name = "jbutton1";
-            this.jbutton1.Size = new System.Drawing.Size(619, 23);
-            this.jbutton1.TabIndex = 23;
-            this.jbutton1.Load += new System.EventHandler(this.jbutton1_Load);
-            // 
-            // jbutton2
-            // 
-            this.jbutton2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton2.ID = 0;
-            this.jbutton2.Location = new System.Drawing.Point(154, 159);
-            this.jbutton2.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton2.Name = "jbutton2";
-            this.jbutton2.Size = new System.Drawing.Size(619, 23);
-            this.jbutton2.TabIndex = 24;
-            // 
-            // jbutton3
-            // 
-            this.jbutton3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton3.ID = 0;
-            this.jbutton3.Location = new System.Drawing.Point(154, 190);
-            this.jbutton3.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton3.Name = "jbutton3";
-            this.jbutton3.Size = new System.Drawing.Size(619, 23);
-            this.jbutton3.TabIndex = 25;
-            // 
-            // jbutton4
-            // 
-            this.jbutton4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton4.ID = 0;
-            this.jbutton4.Location = new System.Drawing.Point(154, 221);
-            this.jbutton4.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton4.Name = "jbutton4";
-            this.jbutton4.Size = new System.Drawing.Size(619, 23);
-            this.jbutton4.TabIndex = 26;
-            this.jbutton4.Load += new System.EventHandler(this.jbutton4_Load);
-            // 
-            // jbutton5
-            // 
-            this.jbutton5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton5.ID = 0;
-            this.jbutton5.Location = new System.Drawing.Point(154, 252);
-            this.jbutton5.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton5.Name = "jbutton5";
-            this.jbutton5.Size = new System.Drawing.Size(619, 23);
-            this.jbutton5.TabIndex = 27;
-            // 
-            // jbutton6
-            // 
-            this.jbutton6.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton6.ID = 0;
-            this.jbutton6.Location = new System.Drawing.Point(154, 314);
-            this.jbutton6.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton6.Name = "jbutton6";
-            this.jbutton6.Size = new System.Drawing.Size(619, 23);
-            this.jbutton6.TabIndex = 28;
-            // 
-            // jbutton7
-            // 
-            this.jbutton7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton7.ID = 0;
-            this.jbutton7.Location = new System.Drawing.Point(154, 345);
-            this.jbutton7.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton7.Name = "jbutton7";
-            this.jbutton7.Size = new System.Drawing.Size(619, 23);
-            this.jbutton7.TabIndex = 29;
-            // 
-            // jaxis1
-            // 
-            this.jaxis1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis1.ID = 0;
-            this.jaxis1.Invert = false;
-            this.jaxis1.Location = new System.Drawing.Point(150, 0);
-            this.jaxis1.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis1.Name = "jaxis1";
-            this.jaxis1.Size = new System.Drawing.Size(627, 31);
-            this.jaxis1.TabIndex = 30;
-            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
-            // 
-            // jaxis2
-            // 
-            this.jaxis2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis2.ID = 0;
-            this.jaxis2.Invert = false;
-            this.jaxis2.Location = new System.Drawing.Point(150, 31);
-            this.jaxis2.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis2.Name = "jaxis2";
-            this.jaxis2.Size = new System.Drawing.Size(627, 31);
-            this.jaxis2.TabIndex = 31;
-            // 
-            // jaxis3
-            // 
-            this.jaxis3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jaxis3.ID = 0;
-            this.jaxis3.Invert = false;
-            this.jaxis3.Location = new System.Drawing.Point(150, 62);
-            this.jaxis3.Margin = new System.Windows.Forms.Padding(0);
-            this.jaxis3.Name = "jaxis3";
-            this.jaxis3.Size = new System.Drawing.Size(627, 31);
-            this.jaxis3.TabIndex = 32;
-            // 
             // btnCenterAxes
             // 
             this.btnCenterAxes.AutoSize = true;
@@ -2105,16 +1984,6 @@ namespace iSpyApplication
             this.label37.TabIndex = 34;
             this.label37.Text = "Stop";
             // 
-            // jbutton8
-            // 
-            this.jbutton8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton8.ID = 0;
-            this.jbutton8.Location = new System.Drawing.Point(154, 283);
-            this.jbutton8.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton8.Name = "jbutton8";
-            this.jbutton8.Size = new System.Drawing.Size(619, 23);
-            this.jbutton8.TabIndex = 35;
-            // 
             // label38
             // 
             this.label38.AutoSize = true;
@@ -2134,16 +2003,6 @@ namespace iSpyApplication
             this.label9.Size = new System.Drawing.Size(52, 13);
             this.label9.TabIndex = 37;
             this.label9.Text = "Max/ Min";
-            // 
-            // jbutton9
-            // 
-            this.jbutton9.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.jbutton9.ID = 0;
-            this.jbutton9.Location = new System.Drawing.Point(154, 376);
-            this.jbutton9.Margin = new System.Windows.Forms.Padding(4);
-            this.jbutton9.Name = "jbutton9";
-            this.jbutton9.Size = new System.Drawing.Size(619, 23);
-            this.jbutton9.TabIndex = 38;
             // 
             // tableLayoutPanel8
             // 
@@ -2896,6 +2755,148 @@ namespace iSpyApplication
             // 
             this.tmrJSUpdate.Enabled = true;
             this.tmrJSUpdate.Tick += new System.EventHandler(this.tmrJSUpdate_Tick);
+            // 
+            // mediaDirectoryEditor1
+            // 
+            this.mediaDirectoryEditor1.Location = new System.Drawing.Point(104, 3);
+            this.mediaDirectoryEditor1.Name = "mediaDirectoryEditor1";
+            this.mediaDirectoryEditor1.Size = new System.Drawing.Size(459, 186);
+            this.mediaDirectoryEditor1.TabIndex = 39;
+            this.mediaDirectoryEditor1.Load += new System.EventHandler(this.mediaDirectoryEditor1_Load);
+            // 
+            // ftpEditor1
+            // 
+            this.ftpEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ftpEditor1.Location = new System.Drawing.Point(81, 3);
+            this.ftpEditor1.Name = "ftpEditor1";
+            this.ftpEditor1.Size = new System.Drawing.Size(699, 286);
+            this.ftpEditor1.TabIndex = 0;
+            // 
+            // jbutton1
+            // 
+            this.jbutton1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton1.ID = 0;
+            this.jbutton1.Location = new System.Drawing.Point(154, 128);
+            this.jbutton1.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton1.Name = "jbutton1";
+            this.jbutton1.Size = new System.Drawing.Size(619, 23);
+            this.jbutton1.TabIndex = 23;
+            this.jbutton1.Load += new System.EventHandler(this.jbutton1_Load);
+            // 
+            // jbutton2
+            // 
+            this.jbutton2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton2.ID = 0;
+            this.jbutton2.Location = new System.Drawing.Point(154, 159);
+            this.jbutton2.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton2.Name = "jbutton2";
+            this.jbutton2.Size = new System.Drawing.Size(619, 23);
+            this.jbutton2.TabIndex = 24;
+            // 
+            // jbutton3
+            // 
+            this.jbutton3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton3.ID = 0;
+            this.jbutton3.Location = new System.Drawing.Point(154, 190);
+            this.jbutton3.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton3.Name = "jbutton3";
+            this.jbutton3.Size = new System.Drawing.Size(619, 23);
+            this.jbutton3.TabIndex = 25;
+            // 
+            // jbutton4
+            // 
+            this.jbutton4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton4.ID = 0;
+            this.jbutton4.Location = new System.Drawing.Point(154, 221);
+            this.jbutton4.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton4.Name = "jbutton4";
+            this.jbutton4.Size = new System.Drawing.Size(619, 23);
+            this.jbutton4.TabIndex = 26;
+            this.jbutton4.Load += new System.EventHandler(this.jbutton4_Load);
+            // 
+            // jbutton5
+            // 
+            this.jbutton5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton5.ID = 0;
+            this.jbutton5.Location = new System.Drawing.Point(154, 252);
+            this.jbutton5.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton5.Name = "jbutton5";
+            this.jbutton5.Size = new System.Drawing.Size(619, 23);
+            this.jbutton5.TabIndex = 27;
+            // 
+            // jbutton6
+            // 
+            this.jbutton6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton6.ID = 0;
+            this.jbutton6.Location = new System.Drawing.Point(154, 314);
+            this.jbutton6.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton6.Name = "jbutton6";
+            this.jbutton6.Size = new System.Drawing.Size(619, 23);
+            this.jbutton6.TabIndex = 28;
+            // 
+            // jbutton7
+            // 
+            this.jbutton7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton7.ID = 0;
+            this.jbutton7.Location = new System.Drawing.Point(154, 345);
+            this.jbutton7.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton7.Name = "jbutton7";
+            this.jbutton7.Size = new System.Drawing.Size(619, 23);
+            this.jbutton7.TabIndex = 29;
+            // 
+            // jaxis1
+            // 
+            this.jaxis1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis1.ID = 0;
+            this.jaxis1.Invert = false;
+            this.jaxis1.Location = new System.Drawing.Point(150, 0);
+            this.jaxis1.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis1.Name = "jaxis1";
+            this.jaxis1.Size = new System.Drawing.Size(627, 31);
+            this.jaxis1.TabIndex = 30;
+            this.jaxis1.Load += new System.EventHandler(this.jaxis1_Load);
+            // 
+            // jaxis2
+            // 
+            this.jaxis2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis2.ID = 0;
+            this.jaxis2.Invert = false;
+            this.jaxis2.Location = new System.Drawing.Point(150, 31);
+            this.jaxis2.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis2.Name = "jaxis2";
+            this.jaxis2.Size = new System.Drawing.Size(627, 31);
+            this.jaxis2.TabIndex = 31;
+            // 
+            // jaxis3
+            // 
+            this.jaxis3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jaxis3.ID = 0;
+            this.jaxis3.Invert = false;
+            this.jaxis3.Location = new System.Drawing.Point(150, 62);
+            this.jaxis3.Margin = new System.Windows.Forms.Padding(0);
+            this.jaxis3.Name = "jaxis3";
+            this.jaxis3.Size = new System.Drawing.Size(627, 31);
+            this.jaxis3.TabIndex = 32;
+            // 
+            // jbutton8
+            // 
+            this.jbutton8.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton8.ID = 0;
+            this.jbutton8.Location = new System.Drawing.Point(154, 283);
+            this.jbutton8.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton8.Name = "jbutton8";
+            this.jbutton8.Size = new System.Drawing.Size(619, 23);
+            this.jbutton8.TabIndex = 35;
+            // 
+            // jbutton9
+            // 
+            this.jbutton9.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.jbutton9.ID = 0;
+            this.jbutton9.Location = new System.Drawing.Point(154, 376);
+            this.jbutton9.Margin = new System.Windows.Forms.Padding(4);
+            this.jbutton9.Name = "jbutton9";
+            this.jbutton9.Size = new System.Drawing.Size(619, 23);
+            this.jbutton9.TabIndex = 38;
             // 
             // Settings
             // 

@@ -196,39 +196,43 @@ namespace iSpyApplication.Video
                                 }
                                 
                             }
-                            
-                            
 
-                            var target = new Bitmap(_screenSize.Width, _screenSize.Height, PixelFormat.Format24bppRgb);
-                            using (Graphics g = Graphics.FromImage(target))
+
+
+                            using (
+                                var target = new Bitmap(_screenSize.Width, _screenSize.Height,
+                                    PixelFormat.Format24bppRgb))
                             {
-                                try
+                                using (Graphics g = Graphics.FromImage(target))
                                 {
-                                    g.CopyFromScreen(s.Bounds.X + _screenSize.X,
-                                                     s.Bounds.Y + _screenSize.Y, 0, 0,
-                                                     new Size(_screenSize.Width, _screenSize.Height));
-                                }
-                                catch(Exception ex)
-                                {
-                                    target.Dispose();
-                                    target = null;
-                                    throw new Exception("Error grabbing screen ("+ex.Message+") - disable screensaver.");
-                                    //probably remote desktop or screensaver has kicked in
+                                    try
+                                    {
+                                        g.CopyFromScreen(s.Bounds.X + _screenSize.X,
+                                            s.Bounds.Y + _screenSize.Y, 0, 0,
+                                            new Size(_screenSize.Width, _screenSize.Height));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        throw new Exception("Error grabbing screen (" + ex.Message + ") - disable screensaver.");
+                                        //probably remote desktop or screensaver has kicked in
 
+                                    }
+
+                                    if (MousePointer)
+                                    {
+                                        var cursorBounds = new Rectangle(
+                                            Cursor.Position.X - s.Bounds.X - _screenSize.X,
+                                            Cursor.Position.Y - s.Bounds.Y - _screenSize.Y, Cursors.Default.Size.Width,
+                                            Cursors.Default.Size.Height);
+                                        Cursors.Default.Draw(g, cursorBounds);
+                                    }
                                 }
 
-                                if (MousePointer)
-                                {
-                                    var cursorBounds = new Rectangle(Cursor.Position.X - s.Bounds.X - _screenSize.X, Cursor.Position.Y - s.Bounds.Y - _screenSize.Y, Cursors.Default.Size.Width, Cursors.Default.Size.Height);
-                                    Cursors.Default.Draw(g, cursorBounds);
-                                }
+                                // notify client
+                                NewFrame(this, new NewFrameEventArgs(target));
+                                // release the image
                             }
-
-                            // notify client
-                            NewFrame(this, new NewFrameEventArgs(target));
-                            // release the image
-                            target.Dispose();
-                            target = null;
+                            
                             
                         }
                     }

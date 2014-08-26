@@ -3119,7 +3119,6 @@ namespace iSpyApplication
 
             vl.Micobject.settings.accessgroups = "";
             SetNewStartPosition();
-            //vl.Enable();
             return vl;
         }
 

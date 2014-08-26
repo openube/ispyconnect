@@ -4623,6 +4623,7 @@ namespace iSpyApplication.Controls
                     vl.Micobject.alerts.active = false;
                     vl.Micobject.detector.recordonalert = false;
                     vl.Micobject.detector.recordondetect = false;
+                    SetVolumeLevel(vl.Micobject.id);
                 }
 
                 var m = vl.Micobject;

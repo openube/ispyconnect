@@ -1347,5 +1347,10 @@ namespace iSpyApplication
         {
 
         }
+
+        private void mediaDirectoryEditor1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

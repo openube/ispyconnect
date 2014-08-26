@@ -31,9 +31,9 @@ namespace iSpyApplication
             int sourceIndex = 0;
             if (tcAudioSource.SelectedTab.Equals(tabPage1))
                 sourceIndex = 0;
-            if (tcAudioSource.SelectedTab.Equals(tabPage2))
-                sourceIndex = 1;
             if (tcAudioSource.SelectedTab.Equals(tabPage3))
+                sourceIndex = 1;
+            if (tcAudioSource.SelectedTab.Equals(tabPage2))
                 sourceIndex = 2;
             if (tcAudioSource.SelectedTab.Equals(tabPage4))
                 sourceIndex = 3;
@@ -173,10 +173,10 @@ namespace iSpyApplication
                     tcAudioSource.SelectedTab = tabPage1;
                     break;
                 case 1:
-                    tcAudioSource.SelectedTab = tabPage2;
+                    tcAudioSource.SelectedTab = tabPage3;
                     break;
                 case 2:
-                    tcAudioSource.SelectedTab = tabPage3;
+                    tcAudioSource.SelectedTab = tabPage2;
                     break;
                 case 3:
                     tcAudioSource.SelectedTab = tabPage4;

@@ -3654,25 +3654,27 @@ namespace iSpyApplication
             {
                 ProcessKey("next_control");
             }
-
-            if (e.KeyCode == Keys.P && (e.Control))
+            if (!e.Alt && !e.Shift)
             {
-                ProcessKey("play");
-            }
+                if (e.KeyCode == Keys.P && (e.Control))
+                {
+                    ProcessKey("play");
+                }
 
-            if (e.KeyCode == Keys.S && e.Control)
-            {
-                ProcessKey("stop");
-            }
+                if (e.KeyCode == Keys.S && e.Control)
+                {
+                    ProcessKey("stop");
+                }
 
-            if (e.KeyCode == Keys.R && e.Control)
-            {
-                ProcessKey("record");
-            }
+                if (e.KeyCode == Keys.R && e.Control)
+                {
+                    ProcessKey("record");
+                }
 
-            if (e.KeyCode == Keys.Z && e.Control)
-            {
-                ProcessKey("zoom");
+                if (e.KeyCode == Keys.Z && e.Control)
+                {
+                    ProcessKey("zoom");
+                }
             }
             if (e.KeyCode == Keys.F4 && e.Alt)
             {

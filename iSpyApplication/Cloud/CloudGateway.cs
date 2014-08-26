@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace iSpyApplication.Cloud
 {
@@ -25,6 +26,7 @@ namespace iSpyApplication.Cloud
                     dstPath = co.settings.cloudprovider.path;
                     dstPath = dstPath.Replace("[DIR]", co.directory);
                     dstPath = dstPath.Replace("[NAME]", co.name);
+                    dstPath = dstPath.Replace("[DATE]", DateTime.Now.ToString("yyyy-MM-dd"));
                     if (srcPath.EndsWith(".jpg"))
                         dstPath = dstPath.Replace("[MEDIATYPE]", "images");
                     else

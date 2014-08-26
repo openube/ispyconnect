@@ -625,17 +625,29 @@ namespace iSpyApplication.Controls
                             }
                             _imgview = null;
                         }
-                        var img = (Bitmap)Image.FromFile(Fpobject.image);
-                        if (!Fpobject.originalsize)
+                        Bitmap img=null;
+                        try
                         {
-                            var rf = new ResizeBilinear(533, 400);
-                            _imgplan = rf.Apply(img);
-                            _imgview = (Bitmap)_imgplan.Clone();
+                            img = (Bitmap) Image.FromFile(Fpobject.image);
                         }
-                        else
+                        catch
                         {
-                            _imgplan = img;
-                            _imgview = (Bitmap)_imgplan.Clone();
+
+                            
+                        }
+                        if (img != null)
+                        {
+                            if (!Fpobject.originalsize)
+                            {
+                                var rf = new ResizeBilinear(533, 400);
+                                _imgplan = rf.Apply(img);
+                                _imgview = (Bitmap) _imgplan.Clone();
+                            }
+                            else
+                            {
+                                _imgplan = img;
+                                _imgview = (Bitmap) _imgplan.Clone();
+                            }
                         }
                         RefreshImage = false;
                     }
