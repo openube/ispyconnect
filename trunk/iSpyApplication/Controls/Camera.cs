@@ -492,8 +492,10 @@ namespace iSpyApplication.Controls
                             bmOrig = RunPlugin(bmOrig);
                         }
 
+                        var bmd = bmOrig.LockBits(new Rectangle(0, 0, bmOrig.Width, bmOrig.Height), ImageLockMode.ReadWrite, bmOrig.PixelFormat);
+
                         //this converts the image into a windows displayable image so do it regardless
-                        using (var lfu = UnmanagedImage.FromManagedImage(bmOrig))
+                        using (var lfu = new UnmanagedImage(bmd))
                         {
                             if (_motionDetector != null)
                             {
@@ -513,53 +515,26 @@ namespace iSpyApplication.Controls
 
                             if (ZFactor > 1)
                             {
-                                using (var zlfu = ZoomImage(lfu))
+                                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
+                                var f2 = new Crop(ViewRectangle);
+                                try
                                 {
-                                    bmOrig = zlfu.ToManagedImage();
-                                }
-                            }
-                            else
-                            {
-                                bmOrig = lfu.ToManagedImage();
-                            }
-
-                            //pip
-                            try
-                            {
-                                if (CW.Camobject.settings.pip.enabled)
-                                {
-                                    using (Graphics g = Graphics.FromImage(bmOrig))
+                                    using (var imgTemp = f2.Apply(lfu))
                                     {
-                                        g.CompositingMode = CompositingMode.SourceCopy;
-                                        g.CompositingQuality = CompositingQuality.HighSpeed;
-                                        g.PixelOffsetMode = PixelOffsetMode.Half;
-                                        g.SmoothingMode = SmoothingMode.None;
-                                        g.InterpolationMode = InterpolationMode.Default;
-
-                                        double wmulti = Convert.ToDouble(_width) / Convert.ToDouble(100);
-                                        double hmulti = Convert.ToDouble(_height) / Convert.ToDouble(100);
-
-                                        foreach (var pip in _PiPEntries)
-                                        {
-                                            if (pip.CW.IsEnabled)
-                                            {
-                                                var bmppip = pip.CW.LastFrame;
-                                                if (bmppip != null)
-                                                {
-                                                    g.DrawImage(bmppip, new Rectangle(Convert.ToInt32(pip.R.X * wmulti), Convert.ToInt32(pip.R.Y * hmulti), Convert.ToInt32(pip.R.Width * wmulti), Convert.ToInt32(pip.R.Height*hmulti)));
-                                                }
-                                            }
-
-                                        }
+                                        f1.Apply(imgTemp, lfu);
                                     }
                                 }
+                                catch (Exception ex)
+                                {
+                                    if (ErrorHandler != null)
+                                        ErrorHandler(ex.Message);
+                                }
                             }
-                            catch(Exception ex)
-                            {
-                                MainForm.LogExceptionToFile(ex);
-                            }
-                        }
 
+                            
+                        }
+                        bmOrig.UnlockBits(bmd);
+                        PiP(bmOrig);
                         AddTimestamp(bmOrig);                       
                     }
                 }
@@ -610,6 +585,45 @@ namespace iSpyApplication.Controls
 
         }
 
+        private void PiP(Bitmap bmp)
+        {
+            //pip
+            try
+            {
+                if (CW.Camobject.settings.pip.enabled)
+                {
+                    using (Graphics g = Graphics.FromImage(bmp))
+                    {
+                        g.CompositingMode = CompositingMode.SourceCopy;
+                        g.CompositingQuality = CompositingQuality.HighSpeed;
+                        g.PixelOffsetMode = PixelOffsetMode.Half;
+                        g.SmoothingMode = SmoothingMode.None;
+                        g.InterpolationMode = InterpolationMode.Default;
+
+                        double wmulti = Convert.ToDouble(_width) / Convert.ToDouble(100);
+                        double hmulti = Convert.ToDouble(_height) / Convert.ToDouble(100);
+
+                        foreach (var pip in _PiPEntries)
+                        {
+                            if (pip.CW.IsEnabled)
+                            {
+                                var bmppip = pip.CW.LastFrame;
+                                if (bmppip != null)
+                                {
+                                    g.DrawImage(bmppip, new Rectangle(Convert.ToInt32(pip.R.X * wmulti), Convert.ToInt32(pip.R.Y * hmulti), Convert.ToInt32(pip.R.Width * wmulti), Convert.ToInt32(pip.R.Height * hmulti)));
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+            }
+        }
+
         private string _piPConfig = "";
 
         public string PiPConfig
@@ -647,37 +661,11 @@ namespace iSpyApplication.Controls
             }
         }
         private List<PiPEntry> _PiPEntries = new List<PiPEntry>();
-        private List<PiPEntry> PiPCameras
-        {
-            get { return _PiPEntries; }
-
-        }
 
         private struct PiPEntry
         {
             public CameraWindow CW;
             public Rectangle R;
-        }
-        [HandleProcessCorruptedStateExceptions]
-        private UnmanagedImage ZoomImage(UnmanagedImage lfu)
-        {
-            if (ZFactor > 1)
-            {
-                var f1 = new ResizeNearestNeighbor(lfu.Width, lfu.Height);
-                var f2 = new Crop(ViewRectangle);
-                try
-                {
-                    lfu = f2.Apply(lfu);
-                    lfu = f1.Apply(lfu);
-                }
-                catch (Exception ex)
-                {
-                    if (ErrorHandler != null)
-                        ErrorHandler(ex.Message);
-                }
-            }
-
-            return lfu;
         }
 
         private void AddTimestamp(Bitmap bmp)

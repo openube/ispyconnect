@@ -204,9 +204,7 @@ namespace iSpyApplication.Video
                     _starting = true;
                     if (string.IsNullOrEmpty(_source))
                         throw new ArgumentException("Video source is not specified.");
-
-                    bool init = _mFactory == null;
-
+                    
                     bool file = false;
                     try
                     {
@@ -220,7 +218,7 @@ namespace iSpyApplication.Video
 
                     }
 
-                    if (init)
+                    if (_mFactory==null)
                     {
                         var args = new List<string>
                         {
@@ -235,6 +233,11 @@ namespace iSpyApplication.Video
                             args.Add("--file-caching=3000");
 
                         _mFactory = new MediaPlayerFactory(args.ToArray());
+                        
+                    }
+
+                    if (_mPlayer == null)
+                    {
                         _mPlayer = _mFactory.CreatePlayer<IVideoPlayer>();
                         _mPlayer.Events.PlayerPlaying += EventsPlayerPlaying;
                         _mPlayer.Events.TimeChanged += EventsTimeChanged;
@@ -246,7 +249,6 @@ namespace iSpyApplication.Video
                         _mPlayer.CustomRenderer.SetExceptionHandler(Handler);
                         _mPlayer.CustomAudioRenderer.SetExceptionHandler(Handler);
                     }
-
 
                     
                     if (file)
@@ -261,7 +263,7 @@ namespace iSpyApplication.Video
                     _mMedia.Events.DurationChanged += EventsDurationChanged;
                     _mMedia.Events.StateChanged += EventsStateChanged;
                     
-                    _needsSetup = true;                  
+                    _needsSetup = true;           
                     _mPlayer.CustomRenderer.SetFormat(new BitmapFormat(FormatWidth, FormatHeight, ChromaType.RV24));
 
                     _mPlayer.Open(_mMedia);
@@ -576,31 +578,44 @@ namespace iSpyApplication.Video
                 _sampleChannel = null;
             }
 
-            lock (_lock)
+            if (_mMedia != null)
             {
-                if (_mMedia != null)
-                {
-                    _mMedia.Events.DurationChanged -= EventsDurationChanged;
-                    _mMedia.Events.StateChanged -= EventsStateChanged;
-                    _mMedia.Dispose();
-                    _mMedia = null;
-                }                
-
-                if (_waveProvider != null && _waveProvider.BufferedBytes>0)
-                {
-                    try
-                    {
-                        _waveProvider.ClearBuffer();
-                    }
-                    catch (Exception ex)
-                    {
-                        string m = ex.Message;
-                    }
-                }
-                _waveProvider = null;
-
-                Listening = false;
+                _mMedia.Events.DurationChanged -= EventsDurationChanged;
+                _mMedia.Events.StateChanged -= EventsStateChanged;
             }
+            bool b = _mPlayer.IsPlaying;
+
+            if (_mPlayer != null && !b)
+            {
+                _mPlayer.Events.PlayerPlaying -= EventsPlayerPlaying;
+                _mPlayer.Events.TimeChanged -= EventsTimeChanged;
+            }
+
+            if (_mMedia != null)
+            {
+                _mMedia.Dispose();
+                _mMedia = null;
+            }
+
+            if (_mPlayer != null && !b)
+            {
+                _mPlayer.Dispose();
+                _mPlayer = null;
+            }
+            if (_waveProvider != null && _waveProvider.BufferedBytes > 0)
+            {
+                try
+                {
+                    _waveProvider.ClearBuffer();
+                }
+                catch (Exception ex)
+                {
+                    string m = ex.Message;
+                }
+            }
+            _waveProvider = null;
+
+            Listening = false;
         }
 
         private void EventsPlayerPlaying(object sender, EventArgs e)

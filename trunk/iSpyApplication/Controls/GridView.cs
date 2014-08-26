@@ -193,22 +193,16 @@ namespace iSpyApplication.Controls
         {
             lock(_objlock)
             {
-                int i = 0;
                 int del = 10;
                 if (!String.IsNullOrEmpty(Cg.ModeConfig))
                     del = Convert.ToInt32(Cg.ModeConfig.Split(',')[0]);
-
+                int i;
                 for(int k=0;k<_controls.Count;k++)
                 {
                     var c = _controls[k];
-                    if (c != null)
-                    {
-                        if (!c.Hold)
-                        {
-                            _controls[k].ObjectIDs[0].DeInit();
-                            _controls[k] = null;
-                        }
-                    }
+                    if (c == null || c.Hold) continue;
+                    _controls[k].ObjectIDs[0].DeInit();
+                    _controls[k] = null;
                 }
 
                 foreach(var cam in MainForm.Cameras)
@@ -228,6 +222,7 @@ namespace iSpyApplication.Controls
                         }
                         if (add)
                         {
+                            i = 0;
                             while (_controls[i] != null && i < _maxItems)
                                 i++;
                             if (i == _maxItems)
@@ -237,40 +232,39 @@ namespace iSpyApplication.Controls
                         }                           
                     }
                 }
-                if (i < _maxItems)
-                {
-                    foreach (var mic in MainForm.Microphones)
-                    {
-                        var ctrl = MainClass.GetVolumeLevel(mic.id);
-                        //only want to display mics without associated camera controls
-                        if (ctrl.CameraControl == null)
-                        {
 
-                            bool add = (Cg.ModeIndex == 1 && ctrl.LastSoundDetected > Helper.Now.AddSeconds(0 - del)) ||
-                                       (Cg.ModeIndex == 2 && ctrl.LastAlerted > Helper.Now.AddSeconds(0 - del));
+                foreach (var mic in MainForm.Microphones)
+                {
+                    var ctrl = MainClass.GetVolumeLevel(mic.id);
+                    //only want to display mics without associated camera controls
+                    if (ctrl.CameraControl == null)
+                    {
+
+                        bool add = (Cg.ModeIndex == 1 && ctrl.LastSoundDetected > Helper.Now.AddSeconds(0 - del)) ||
+                                    (Cg.ModeIndex == 2 && ctrl.LastAlerted > Helper.Now.AddSeconds(0 - del));
+                        if (add)
+                        {
+                            foreach (var c in _controls)
+                            {
+                                if (c!=null && c.ObjectIDs.Any(o => o.ObjectID == mic.id && o.TypeID == 1))
+                                {
+                                    add = false;
+                                }
+                            }
                             if (add)
                             {
-                                foreach (var c in _controls)
-                                {
-                                    if (c!=null && c.ObjectIDs.Any(o => o.ObjectID == mic.id && o.TypeID == 1))
-                                    {
-                                        add = false;
-                                    }
-                                }
-                                if (add)
-                                {
-                                    while (_controls[i] != null && i < _maxItems)
-                                        i++;
-                                    if (i == _maxItems)
-                                        break;
-                                    _controls[i] = new GridViewConfig(new List<GridViewItem> { new GridViewItem("", mic.id, 1, this) },1000);
-                                }
+                                i = 0;
+                                while (_controls[i] != null && i < _maxItems)
+                                    i++;
+                                if (i == _maxItems)
+                                    break;
+                                _controls[i] = new GridViewConfig(new List<GridViewItem> { new GridViewItem("", mic.id, 1, this) },1000);
                             }
                         }
                     }
                 }
 
-                
+                i = _controls.Count(p => p != null);
                 if (i == 0)
                 {
                     _cols = 1;

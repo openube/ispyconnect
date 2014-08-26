@@ -835,7 +835,6 @@
     </Compile>
     <Compile Include="Video\AlertEvents.cs" />
     <Compile Include="Video\ByteArrayUtils.cs" />
-    <Compile Include="Video\VLCStream.cs" />
     <Compile Include="Video\FFMPEGStream.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -957,6 +956,7 @@
     <Compile Include="RemoteCommands.Designer.cs">
       <DependentUpon>RemoteCommands.cs</DependentUpon>
     </Compile>
+    <Compile Include="Video\VLCStream.cs" />
     <Compile Include="ViewController.cs">
       <SubType>Form</SubType>
     </Compile>
