@@ -35,10 +35,10 @@
             this.mpcbArchive = new iSpyApplication.Controls.MediaPanelControlButton();
             this.mpcbCloud = new iSpyApplication.Controls.MediaPanelControlButton();
             this.mpcbFilter = new iSpyApplication.Controls.MediaPanelControlButton();
+            this.mpcbMerge = new iSpyApplication.Controls.MediaPanelControlButton();
             this.mpcbPrevious = new iSpyApplication.Controls.MediaPanelControlButton();
             this.lblPage = new System.Windows.Forms.Label();
             this.mpcbNext = new iSpyApplication.Controls.MediaPanelControlButton();
-            this.mpcbMerge = new iSpyApplication.Controls.MediaPanelControlButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbSelect)).BeginInit();
@@ -46,17 +46,17 @@
             ((System.ComponentModel.ISupportInitialize)(this.mpcbArchive)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbCloud)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbFilter)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.mpcbMerge)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbPrevious)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbNext)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.mpcbMerge)).BeginInit();
             this.SuspendLayout();
             // 
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.flowLayoutPanel1.Controls.Add(this.mpcbSelect);
             this.flowLayoutPanel1.Controls.Add(this.mpcbDelete);
+            this.flowLayoutPanel1.Controls.Add(this.mpcbSelect);
             this.flowLayoutPanel1.Controls.Add(this.mpcbArchive);
             this.flowLayoutPanel1.Controls.Add(this.mpcbCloud);
             this.flowLayoutPanel1.Controls.Add(this.mpcbFilter);
@@ -74,7 +74,7 @@
             // mpcbSelect
             // 
             this.mpcbSelect.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.mpcbSelect.Location = new System.Drawing.Point(0, 0);
+            this.mpcbSelect.Location = new System.Drawing.Point(30, 0);
             this.mpcbSelect.Margin = new System.Windows.Forms.Padding(0);
             this.mpcbSelect.Name = "mpcbSelect";
             this.mpcbSelect.Offset = new System.Drawing.Point(0, 0);
@@ -86,7 +86,7 @@
             // mpcbDelete
             // 
             this.mpcbDelete.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.mpcbDelete.Location = new System.Drawing.Point(30, 0);
+            this.mpcbDelete.Location = new System.Drawing.Point(0, 0);
             this.mpcbDelete.Margin = new System.Windows.Forms.Padding(0);
             this.mpcbDelete.Name = "mpcbDelete";
             this.mpcbDelete.Offset = new System.Drawing.Point(30, 0);
@@ -131,6 +131,18 @@
             this.mpcbFilter.TabStop = false;
             this.mpcbFilter.Click += new System.EventHandler(this.mpcbFilter_Click);
             // 
+            // mpcbMerge
+            // 
+            this.mpcbMerge.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.mpcbMerge.Location = new System.Drawing.Point(150, 0);
+            this.mpcbMerge.Margin = new System.Windows.Forms.Padding(0);
+            this.mpcbMerge.Name = "mpcbMerge";
+            this.mpcbMerge.Offset = new System.Drawing.Point(210, 0);
+            this.mpcbMerge.Size = new System.Drawing.Size(30, 30);
+            this.mpcbMerge.TabIndex = 14;
+            this.mpcbMerge.TabStop = false;
+            this.mpcbMerge.Click += new System.EventHandler(this.mpcbMerge_Click);
+            // 
             // mpcbPrevious
             // 
             this.mpcbPrevious.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -171,18 +183,6 @@
             this.mpcbNext.TabStop = false;
             this.mpcbNext.Click += new System.EventHandler(this.mpcbNext_Click);
             // 
-            // mpcbMerge
-            // 
-            this.mpcbMerge.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.mpcbMerge.Location = new System.Drawing.Point(150, 0);
-            this.mpcbMerge.Margin = new System.Windows.Forms.Padding(0);
-            this.mpcbMerge.Name = "mpcbMerge";
-            this.mpcbMerge.Offset = new System.Drawing.Point(210, 0);
-            this.mpcbMerge.Size = new System.Drawing.Size(30, 30);
-            this.mpcbMerge.TabIndex = 14;
-            this.mpcbMerge.TabStop = false;
-            this.mpcbMerge.Click += new System.EventHandler(this.mpcbMerge_Click);
-            // 
             // MediaPanelControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -200,9 +200,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.mpcbArchive)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbCloud)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbFilter)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.mpcbMerge)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbPrevious)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.mpcbNext)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.mpcbMerge)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

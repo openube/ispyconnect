@@ -21,7 +21,7 @@ namespace iSpyApplication.Video
         private IWebProxy _proxy;
         // received frames count
 		private int _framesReceived;
-        // recieved byte count
+        // received byte count
 		private long _bytesReceived;
         // use separate HTTP connection group or use default
 		private bool _useSeparateConnectionGroup;
@@ -34,7 +34,7 @@ namespace iSpyApplication.Video
         // if we should use basic authentication when connecting to the video source
         private bool _forceBasicAuthentication;
         private string _cookies = "";
-	    private string _userAgent = "";
+	    private string _userAgent = "Mozilla/5.0";
 	    public string Headers = "";
 
         // buffer size used to download JPEG image
@@ -430,7 +430,7 @@ namespace iSpyApplication.Video
 
 			    try
 				{
-                    // set dowbload start time
+                    // set download start time
 					DateTime start = Helper.Now;
 
 					// create request
@@ -444,6 +444,11 @@ namespace iSpyApplication.Video
                         // request with cache prevention
                         request = (HttpWebRequest) WebRequest.Create( _source + ( ( _source.IndexOf( '?' ) == -1 ) ? '?' : '&' ) + "fake=" + rand.Next( ));
 					}
+
+                    if (_userAgent != null)
+                    {
+                        request.UserAgent = _userAgent;
+                    }
 
                     // set proxy
                     if ( _proxy != null )

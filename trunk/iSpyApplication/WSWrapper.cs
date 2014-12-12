@@ -202,9 +202,12 @@ namespace iSpyApplication
             {
                 try
                 {
-                    Debug.WriteLine("WEBSERVICE CALL: ProductLatestVersionGet");
-                    r = Wsa.ProductLatestVersionGet(productId);
-                    WebsiteLive = true;
+                    //call the real website...
+                    using (var ws = new iSpyAPI())
+                    {
+                        Debug.WriteLine("WEBSERVICE CALL: ProductLatestVersionGet");
+                        r = ws.ProductLatestVersionGet(productId);
+                    }
                 }
                 catch (Exception ex)
                 {

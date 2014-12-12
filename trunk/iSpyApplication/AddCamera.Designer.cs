@@ -120,6 +120,7 @@ namespace iSpyApplication
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.label89 = new System.Windows.Forms.Label();
             this.ddlActionType = new System.Windows.Forms.ComboBox();
+            this.chkMessaging = new System.Windows.Forms.CheckBox();
             this.pnlMovement = new System.Windows.Forms.Panel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -337,6 +338,7 @@ namespace iSpyApplication
             this.chkSchedFTPEnabled = new System.Windows.Forms.CheckBox();
             this.chkSchedSaveLocalEnabled = new System.Windows.Forms.CheckBox();
             this.chkschedPTZ = new System.Windows.Forms.CheckBox();
+            this.chkScheduleMessaging = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel15 = new System.Windows.Forms.FlowLayoutPanel();
             this.button2 = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
@@ -1608,6 +1610,7 @@ namespace iSpyApplication
             // 
             this.flowLayoutPanel6.Controls.Add(this.label89);
             this.flowLayoutPanel6.Controls.Add(this.ddlActionType);
+            this.flowLayoutPanel6.Controls.Add(this.chkMessaging);
             this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel6.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel6.Margin = new System.Windows.Forms.Padding(0);
@@ -1635,6 +1638,17 @@ namespace iSpyApplication
             this.ddlActionType.Size = new System.Drawing.Size(121, 21);
             this.ddlActionType.TabIndex = 93;
             this.ddlActionType.SelectedIndexChanged += new System.EventHandler(this.ddlEventType_SelectedIndexChanged);
+            // 
+            // chkMessaging
+            // 
+            this.chkMessaging.AutoSize = true;
+            this.chkMessaging.Location = new System.Drawing.Point(169, 3);
+            this.chkMessaging.Name = "chkMessaging";
+            this.chkMessaging.Size = new System.Drawing.Size(77, 17);
+            this.chkMessaging.TabIndex = 95;
+            this.chkMessaging.Text = "Messaging";
+            this.toolTip1.SetToolTip(this.chkMessaging, "Check to enable SMS and email alerts");
+            this.chkMessaging.UseVisualStyleBackColor = true;
             // 
             // pnlMovement
             // 
@@ -4408,6 +4422,7 @@ namespace iSpyApplication
             this.flowLayoutPanel14.Controls.Add(this.chkSchedFTPEnabled);
             this.flowLayoutPanel14.Controls.Add(this.chkSchedSaveLocalEnabled);
             this.flowLayoutPanel14.Controls.Add(this.chkschedPTZ);
+            this.flowLayoutPanel14.Controls.Add(this.chkScheduleMessaging);
             this.flowLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel14.Location = new System.Drawing.Point(319, 48);
             this.flowLayoutPanel14.Name = "flowLayoutPanel14";
@@ -4506,6 +4521,19 @@ namespace iSpyApplication
             this.chkschedPTZ.TabIndex = 30;
             this.chkschedPTZ.Text = "PTZ Scheduler";
             this.chkschedPTZ.UseVisualStyleBackColor = true;
+            // 
+            // chkScheduleMessaging
+            // 
+            this.chkScheduleMessaging.AutoSize = true;
+            this.chkScheduleMessaging.Checked = true;
+            this.chkScheduleMessaging.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkScheduleMessaging.Location = new System.Drawing.Point(6, 122);
+            this.chkScheduleMessaging.Margin = new System.Windows.Forms.Padding(6);
+            this.chkScheduleMessaging.Name = "chkScheduleMessaging";
+            this.chkScheduleMessaging.Size = new System.Drawing.Size(77, 17);
+            this.chkScheduleMessaging.TabIndex = 31;
+            this.chkScheduleMessaging.Text = "Messaging";
+            this.chkScheduleMessaging.UseVisualStyleBackColor = true;
             // 
             // flowLayoutPanel15
             // 
@@ -5580,5 +5608,7 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Label label53;
         private System.Windows.Forms.LinkLabel linkLabel4;
+        private System.Windows.Forms.CheckBox chkMessaging;
+        private System.Windows.Forms.CheckBox chkScheduleMessaging;
     }
 }

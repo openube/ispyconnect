@@ -188,7 +188,6 @@ namespace iSpyApplication
                         var disource = new DirectoryInfo(Program.AppPath + @"XML\");
                         File.Copy(disource + @"config.xml", didest + @"config.xml", true);
 
-
                         using (var fs = new FileStream(Program.AppDataPath + @"XML\config.xml", FileMode.Open))
                         {
                             fs.Position = 0;
@@ -655,22 +654,34 @@ namespace iSpyApplication
 
         private static void LoadObjects(string path)
         {
+            var c = new objects();
             try
             {
-                objects c;
                 lock (ThreadLock)
                 {
                     using (var fs = new FileStream(path, FileMode.Open))
                     {
-                        var s = new XmlSerializer(typeof(objects));
+                        var s = new XmlSerializer(typeof (objects));
                         using (TextReader reader = new StreamReader(fs))
                         {
                             fs.Position = 0;
-                            c = (objects)s.Deserialize(reader);
+                            c = (objects) s.Deserialize(reader);
                         }
                     }
                 }
-
+            }
+            catch (Exception ex)
+            {
+                LogExceptionToFile(ex);
+                switch (MessageBox.Show("Error loading file ("+ex.Message+") Try again?", "Error", MessageBoxButtons.YesNo))
+                {
+                    case DialogResult.Yes:
+                        LoadObjects(path);
+                        return;
+                }
+            }
+            try
+            {
                 _cameras = c.cameras != null ? c.cameras.ToList() : new List<objectsCamera>();
                 bool addActions = c.actions == null;
                 _actions = addActions ? new List<objectsActionsEntry>() : c.actions.entries.ToList();

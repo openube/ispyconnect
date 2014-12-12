@@ -19,14 +19,30 @@ namespace iSpyApplication
 
         public void Destroy()
         {
-            if (TcpClient!=null && TcpClient.Client!=null)
-                TcpClient.Client.Close();
+            try
+            {
+                if (TcpClient != null && TcpClient.Client != null)
+                {
+                    TcpClient.Client.Close();
+                    TcpClient = null;
+                }
 
-            if (RestartableStream != null)
-                RestartableStream.Close();
-            if (Stream!=null)
-                Stream.Close();
-            Buffer = null;
+                if (RestartableStream != null)
+                {
+                    RestartableStream.Close();
+                    RestartableStream = null;
+                }
+                if (Stream != null)
+                {
+                    Stream.Close();
+                    Stream = null;
+                }
+                Buffer = null;
+            }
+            catch
+            {
+                
+            }
 
 
 

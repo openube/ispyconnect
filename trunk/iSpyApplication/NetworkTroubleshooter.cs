@@ -171,7 +171,7 @@ namespace iSpyApplication
             }
             else
             {
-                UISync.Execute(() => rtbOutput.Text += "Firewall error: " + r.ToString());
+                UISync.Execute(() => rtbOutput.Text += "Firewall error: " + r);
             }
             UISync.Execute(() => rtbOutput.Text += NL);
 

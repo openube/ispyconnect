@@ -49,7 +49,7 @@ namespace iSpyApplication.Controls
         private double _recordingTime;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
         private double _autoofftimer;
-
+        private bool _raiseStop;
         private double _timeLapse;
         private double _timeLapseFrames;
         private double _timeLapseTotal;
@@ -693,6 +693,8 @@ namespace iSpyApplication.Controls
                         s += " " + LocRm.GetString("Timelapse").ToUpper();
                     if (sched.ptz)
                         s += " " + LocRm.GetString("PTZScheduler").ToUpper();
+                    if (sched.messaging)
+                        s += " " + LocRm.GetString("Messaging").ToUpper();
                     if (!sched.active)
                         s += " (" + LocRm.GetString("Inactive").ToUpper() + ")";
 
@@ -1286,6 +1288,11 @@ namespace iSpyApplication.Controls
                     {
                         UpdateFloorplans(false);
                         FlashCounter = DateTime.MinValue;
+                        if (_raiseStop)
+                        {
+                            DoAlert("alertstopped");
+                            _raiseStop = false;
+                        }
                     }
                 }
 
@@ -1798,7 +1805,7 @@ namespace iSpyApplication.Controls
 
         private void CheckReconnectInterval(double since)
         {
-            if (Camera != null && Camera.VideoSource != null && IsEnabled && !IsClone && !IsReconnect)
+            if (Camera != null && Camera.VideoSource != null && IsEnabled && !IsClone && !IsReconnect && !VideoSourceErrorState)
             {
                 if (Camobject.settings.reconnectinterval > 0)
                 {
@@ -2909,6 +2916,7 @@ namespace iSpyApplication.Controls
         {
             AbortedAudio = false;
             LogToPlugin("Recording Started");
+            DoAlert("recordingstarted");
             _stopWrite.Reset();
             MainForm.RecordingThreads++;
             string previewImage = "";
@@ -3191,7 +3199,14 @@ namespace iSpyApplication.Controls
                         case "2":
                             CameraWindow cw = ((MainForm) TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
                             if (cw != null)
+                            {
                                 cw.ForcedRecording = false;
+                                var vc = cw.VolumeControl;
+                                if (vc != null)
+                                {
+                                    vc.ForcedRecording = false;
+                                }
+                            }
                             break;
                     }
                 }
@@ -3205,6 +3220,7 @@ namespace iSpyApplication.Controls
             if (Notification != null)
                 Notification(this, new NotificationType("NewRecording", Camobject.name, previewImage));
             LogToPlugin("Recording Stopped");
+            DoAlert("recordingstopped");
         }
 
         private unsafe void WriteFrame(Helper.FrameAction fa, DateTime recordingStart, ref long lastvideopts, ref double maxAlarm,
@@ -3218,7 +3234,7 @@ namespace iSpyApplication.Controls
                         using (var bmp = (Bitmap) Image.FromStream(ms))
                         {
                             var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
-                            if (pts > lastvideopts)
+                            if (pts >= lastvideopts)
                             {
                                 _writer.WriteVideoFrame(ResizeBitmap(bmp), pts);
                                 lastvideopts = pts;
@@ -3240,11 +3256,10 @@ namespace iSpyApplication.Controls
                     fixed (byte* p = fa.Content)
                     {
                         var pts = (long) (fa.TimeStamp - recordingStart).TotalMilliseconds;
-                        if (pts > lastaudiopts)
-                        {
-                            _writer.WriteAudio(p, fa.DataLength, pts);
-                            lastaudiopts = pts;
-                        }
+                        
+                        _writer.WriteAudio(p, fa.DataLength, pts);
+                        lastaudiopts = pts;
+                        
                     }
                     break;
             }
@@ -3354,6 +3369,7 @@ namespace iSpyApplication.Controls
                 Alerted = true;
                 UpdateFloorplans(true);
                 LastAlerted = Helper.Now;
+                _raiseStop = true;
                 RemoteCommand(this, new ThreadSafeCommand("bringtofrontcam," + Camobject.id));
                 if (Camobject.detector.recordonalert && !Recording)
                 {
@@ -3371,7 +3387,8 @@ namespace iSpyApplication.Controls
         {
             if (Notification != null)
             {
-                Notification(this, new NotificationType(mode, Camobject.name, "", ""));
+                if ("alertstopped,recordingstarted,recordingstopped".IndexOf(mode, StringComparison.Ordinal) == -1)
+                    Notification(this, new NotificationType(mode, Camobject.name, "", ""));
             }
 
             if (MainForm.Conf.ScreensaverWakeup)
@@ -3390,15 +3407,24 @@ namespace iSpyApplication.Controls
 
             using (var imageStream = new MemoryStream())
             {
-
+                byte[] rawgrab = null;
                 if (MainForm.Encoder != null && bmp!=null)
                 {
                     //  Set the quality
+                    
                     var parameters = new EncoderParameters(1);
                     parameters.Param[0] = new EncoderParameter(Encoder.Quality, Camobject.ftp.quality);
-                    bmp.Save(imageStream, MainForm.Encoder, parameters);
+                    try
+                    {
+                        bmp.Save(imageStream, MainForm.Encoder, parameters);
+                        rawgrab = imageStream.ToArray();
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                    }
                 }
-                byte[] rawgrab = imageStream.ToArray();
+                
 
                 int i = 0;
                 foreach (var ev in MainForm.Actions.Where(p => p.objectid == oid && p.objecttypeid == 2 && p.mode == mode))
@@ -3495,7 +3521,7 @@ namespace iSpyApplication.Controls
                         break;
                     case "URL":
                         {
-                            bool postgrab = Convert.ToBoolean(param2) && rawgrab.Length > 0;
+                            bool postgrab = Convert.ToBoolean(param2) && rawgrab!=null && rawgrab.Length > 0;
                             if (postgrab)
                             {
                                 const string file = "grab.jpg";
@@ -3755,37 +3781,47 @@ namespace iSpyApplication.Controls
                         break;
                     case "E":
                         {
-                            bool includeGrab = Convert.ToBoolean(param2);
+                            if (Camobject.settings.messaging)
+                            {
+                                bool includeGrab = Convert.ToBoolean(param2);
 
-                            string subject = MailMerge(MainForm.Conf.MailAlertSubject, mode, Recording, pluginmessage);
-                            string message = MailMerge(MainForm.Conf.MailAlertBody, mode, Recording, pluginmessage);
+                                string subject = MailMerge(MainForm.Conf.MailAlertSubject, mode, Recording,
+                                    pluginmessage);
+                                string message = MailMerge(MainForm.Conf.MailAlertBody, mode, Recording, pluginmessage);
 
-                            message += MainForm.Conf.AppendLinkText;
+                                message += MainForm.Conf.AppendLinkText;
 
 
-                            if (includeGrab)
-                                WsWrapper.SendAlertWithImage(param1, subject, message, rawgrab);
-                            else
-                                WsWrapper.SendAlert(param1, subject, message);
-                            
+                                if (includeGrab)
+                                    WsWrapper.SendAlertWithImage(param1, subject, message, rawgrab);
+                                else
+                                    WsWrapper.SendAlert(param1, subject, message);
+                            }
+
                         }
                         break;
                     case "SMS":
                         {
-                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
-                            if (message.Length > 160)
-                                message = message.Substring(0, 159);
+                            if (Camobject.settings.messaging)
+                            {
+                                string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
+                                if (message.Length > 160)
+                                    message = message.Substring(0, 159);
 
-                            WsWrapper.SendSms(param1, message);
+                                WsWrapper.SendSms(param1, message);
+                            }
                         }
                         break;
                     case "TM":
                         {
-                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
-                            if (message.Length > 160)
-                                message = message.Substring(0, 159);
+                            if (Camobject.settings.messaging)
+                            {
+                                string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
+                                if (message.Length > 160)
+                                    message = message.Substring(0, 159);
 
-                            WsWrapper.SendTweet(message + " " + MainForm.Webserver + "/mobile/");
+                                WsWrapper.SendTweet(message + " " + MainForm.Webserver + "/mobile/");
+                            }
                         }
                         break;
 
@@ -4104,10 +4140,12 @@ namespace iSpyApplication.Controls
                 VolumeControl = null;
                 return;
             }
-
             VolumeControl = MainClass.GetVolumeLevel(micid);
             if (VolumeControl != null)
+            {
                 VolumeControl.CameraControl = this;
+                VolumeControl.Micobject.settings.buffer = Camobject.recorder.bufferseconds;
+            }
         }
 
         public void Enable()
@@ -4557,9 +4595,12 @@ namespace iSpyApplication.Controls
             _requestRefresh = true;
 
 
-            SetVolumeLevel(Camobject.settings.micpair); 
+            SetVolumeLevel(Camobject.settings.micpair);
             if (VolumeControl != null)
+            {
+                VolumeControl.Micobject.settings.buffer = Camobject.recorder.bufferseconds;
                 VolumeControl.Enable();
+            }
 
 
             SetVideoSize();
@@ -4945,25 +4986,34 @@ namespace iSpyApplication.Controls
             {
                 Type o = Camera.Plugin.GetType();
                 //update plugin with latest list of groups
-                string groups = MainForm.Conf.Permissions.Aggregate("", (current, g) => current + (g.name + ",")).Trim(',');
 
-                if (o.GetProperty("Groups") != null)
-                    o.GetProperty("Groups").SetValue(Camera.Plugin, groups, null);
-                if (o.GetProperty("Group") != null)
-                    o.GetProperty("Group").SetValue(Camera.Plugin, MainForm.Group, null);
+                SetPluginGroups(o);
+                
 
                 var config = (string) o.GetMethod("Configure").Invoke(Camera.Plugin, null);
                 Camobject.alerts.pluginconfig = config;
             }
         }
 
+        private void SetPluginGroups(Type o)
+        {
+            string groups = MainForm.Conf.Permissions.Aggregate("", (current, g) => current + (g.name + ",")).Trim(',');
+            if (o.GetProperty("Groups") != null)
+                o.GetProperty("Groups").SetValue(Camera.Plugin, groups, null);
+            if (o.GetProperty("Group") != null)
+                o.GetProperty("Group").SetValue(Camera.Plugin, MainForm.Group, null);
+        }
+
         public List<string> PluginCommands
         {
             get
             {
-                if (Camera.Plugin!=null)
+                if (Camera!=null && Camera.Plugin!=null)
                 {
-                    var c = Camera.Plugin.GetType().GetProperty("Commands");
+                    Type o = Camera.Plugin.GetType();
+                    SetPluginGroups(o);
+
+                    var c = o.GetProperty("Commands");
                     if (c!=null)
                     {
                         try
@@ -5155,6 +5205,8 @@ namespace iSpyApplication.Controls
                     Camobject.savelocal.enabled = mostrecent.savelocalenabled;
                     Camobject.ptzschedule.active = mostrecent.ptz;
                     Camobject.alerts.active = mostrecent.alerts;
+                    Camobject.settings.messaging = mostrecent.messaging;
+
                     if (Camobject.recorder.timelapseenabled && !mostrecent.timelapseenabled)
                     {
                         CloseTimeLapseWriter();

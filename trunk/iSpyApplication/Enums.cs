@@ -73,7 +73,8 @@ namespace iSpyApplication
             Source_Clone =      33554432,
             Storage =           67108864,
             Settings =          134217728,
-            Grid_Views =        268435456
+            Grid_Views =        268435456,
+            Logs =              536870912
                                 
         }
 

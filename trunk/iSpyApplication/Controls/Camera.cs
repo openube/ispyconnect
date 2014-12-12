@@ -169,18 +169,23 @@ namespace iSpyApplication.Controls
                             Plugin = ass.CreateInstance("Plugins.Main", true);
                             if (_plugin != null)
                             {
+                                Type o = null;
                                 try
                                 {
-                                    var o = _plugin.GetType();
+                                    o = _plugin.GetType();
                                     if (o.GetProperty("WorkingDirectory") != null)
                                         o.GetProperty("WorkingDirectory").SetValue(_plugin, Program.AppDataPath, null);
                                     if (o.GetProperty("VideoSource") != null)
-                                        o.GetProperty("VideoSource").SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
+                                        o.GetProperty("VideoSource")
+                                            .SetValue(_plugin, CW.Camobject.settings.videosourcestring, null);
                                     if (o.GetProperty("Configuration") != null)
-                                        o.GetProperty("Configuration").SetValue(_plugin,CW.Camobject.alerts.pluginconfig,null);
+                                        o.GetProperty("Configuration")
+                                            .SetValue(_plugin, CW.Camobject.alerts.pluginconfig, null);
                                     if (o.GetProperty("Groups") != null)
                                     {
-                                        string groups = MainForm.Conf.Permissions.Aggregate("", (current, g) => current + (g.name + ",")).Trim(',');
+                                        string groups =
+                                            MainForm.Conf.Permissions.Aggregate("",
+                                                (current, g) => current + (g.name + ",")).Trim(',');
                                         o.GetProperty("Groups").SetValue(_plugin, groups, null);
                                     }
                                     if (o.GetProperty("Group") != null)
@@ -189,27 +194,31 @@ namespace iSpyApplication.Controls
 
                                     if (o.GetMethod("LoadConfiguration") != null)
                                         o.GetMethod("LoadConfiguration").Invoke(_plugin, null);
-                                    
-                                    if (o.GetProperty("DeviceList")!=null)
+
+                                    if (o.GetProperty("DeviceList") != null)
                                     {
                                         //used for network kinect setting syncing
                                         string dl = "";
 
                                         //build a pipe and star delimited string of all cameras that are using the kinect plugin
-                                        foreach(var oc in MainForm.Cameras)
+                                        foreach (var oc in MainForm.Cameras)
                                         {
                                             string s = oc.settings.namevaluesettings;
                                             if (!String.IsNullOrEmpty(s))
                                             {
                                                 //we're only looking for ispykinect devices
-                                                if (s.ToLower().IndexOf("custom=network kinect", StringComparison.Ordinal) != -1)
+                                                if (
+                                                    s.ToLower()
+                                                        .IndexOf("custom=network kinect", StringComparison.Ordinal) !=
+                                                    -1)
                                                 {
-                                                    dl += oc.name.Replace("*","").Replace("|","") + "|" + oc.id + "|" + oc.settings.videosourcestring + "*";
+                                                    dl += oc.name.Replace("*", "").Replace("|", "") + "|" + oc.id + "|" +
+                                                          oc.settings.videosourcestring + "*";
                                                 }
                                             }
                                         }
                                         //the ispykinect plugin takes this delimited list and uses it for copying settings
-                                        if (dl!="")
+                                        if (dl != "")
                                             o.GetProperty("DeviceList").SetValue(_plugin, dl, null);
                                     }
 
@@ -219,17 +228,32 @@ namespace iSpyApplication.Controls
                                     var l = o.GetMethod("LogExternal");
                                     if (l != null)
                                     {
-                                        l.Invoke(_plugin, new object[] { "Plugin Initialised" });
+                                        l.Invoke(_plugin, new object[] {"Plugin Initialised"});
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     //config corrupted
                                     if (ErrorHandler != null)
-                                        ErrorHandler("Error configuring plugin - trying with a blank configuration (" + ex.Message + ")");
-                    
-                                    CW.Camobject.alerts.pluginconfig = "";
-                                    _plugin.GetType().GetProperty("Configuration").SetValue(_plugin,"",null);
+                                        ErrorHandler("Error configuring plugin - trying with a blank configuration (" +
+                                                     ex.Message + ")");
+
+                                    try
+                                    {
+                                        CW.Camobject.alerts.pluginconfig = "";
+                                        if (o != null)
+                                        {
+                                            if (o.GetProperty("Configuration") != null)
+                                            {
+                                                o.GetProperty("Configuration").SetValue(_plugin, "", null);
+                                            }
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        //ignore error
+                                    }
+
                                 }
                             }
                             break;
@@ -437,7 +461,7 @@ namespace iSpyApplication.Controls
 
         private void VideoNewFrame(object sender, NewFrameEventArgs e)
         {
-            if (_requestedToStop || NewFrame==null)
+            if (_requestedToStop || NewFrame==null || e.Frame==null)
                 return;
     
             

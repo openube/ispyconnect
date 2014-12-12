@@ -276,7 +276,7 @@ namespace iSpyApplication
             }
         }
 
-        void jaxis_GetInput(object sender, EventArgs e)
+        void JaxisGetInput(object sender, EventArgs e)
         {
             jaxis1.Reset();
             jaxis2.Reset();
@@ -515,9 +515,9 @@ namespace iSpyApplication
             jbutton8.GetInput += JbuttonGetInput;
             jbutton9.GetInput += JbuttonGetInput;
 
-            jaxis1.GetInput += jaxis_GetInput;
-            jaxis2.GetInput += jaxis_GetInput;
-            jaxis3.GetInput += jaxis_GetInput;
+            jaxis1.GetInput += JaxisGetInput;
+            jaxis2.GetInput += JaxisGetInput;
+            jaxis3.GetInput += JaxisGetInput;
 
             chkGZip.Checked = MainForm.Conf.EnableGZip;
             numDisconnectNotification.Value = MainForm.Conf.DisconnectNotificationDelay;

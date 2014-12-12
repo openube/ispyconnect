@@ -509,7 +509,7 @@ namespace iSpyApplication.Server
                 var listener = (TcpListener) ar.AsyncState;
                 TcpClient myClient = listener.EndAcceptTcpClient(ar);
 
-                var endPoint = (IPEndPoint)myClient.Client.RemoteEndPoint;
+                var endPoint = (IPEndPoint) myClient.Client.RemoteEndPoint;
                 var req = new HttpRequest
                           {EndPoint = endPoint, TcpClient = myClient, Buffer = new byte[myClient.ReceiveBufferSize]};
 
@@ -528,10 +528,10 @@ namespace iSpyApplication.Server
 
                 var mySocket = myClient.Client;
 
-                if (MainForm.Conf.IPMode== "IPv6")
+                if (MainForm.Conf.IPMode == "IPv6")
                     mySocket.SetIPProtectionLevel(IPProtectionLevel.Unrestricted);
-                    
-                   
+
+
                 if (mySocket.Connected)
                 {
                     mySocket.NoDelay = true;
@@ -541,7 +541,8 @@ namespace iSpyApplication.Server
                     {
                         //make a byte array and receive data from the client                        
 
-                        if (MainForm.Conf.SSLEnabled && X509.SslCertificate != null) //Then we have the ability to make an SSL connection (SSLCertificate is a X509Certificate2 object)
+                        if (MainForm.Conf.SSLEnabled && X509.SslCertificate != null)
+                            //Then we have the ability to make an SSL connection (SSLCertificate is a X509Certificate2 object)
                         {
                             req.RestartableStream = new RestartableReadStream(req.TcpClient.GetStream());
                             req.Stream = new SslStream(req.RestartableStream, true, ClientValidationCallback);
@@ -575,12 +576,18 @@ namespace iSpyApplication.Server
                         }
                         DisconnectRequest(req);
                     }
+                    catch (IOException)
+                    {
+                        //no data (port scan?)
+                        DisconnectRequest(req);
+                    }
                 }
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 //socket closed already
             }
+            
             catch (Exception ex)
             {
                 MainForm.LogExceptionToFile(ex);
@@ -1125,23 +1132,20 @@ namespace iSpyApplication.Server
 
         private static string GetVar(string url, string var)
         {
-            url = url.ToLower();
-            var = var.ToLower();
-
-            int i = url.IndexOf("&"+ var + "=", StringComparison.Ordinal);
+            int i = url.IndexOf("&" + var + "=", StringComparison.OrdinalIgnoreCase);
             if (i == -1)
-                i = url.IndexOf("?" + var + "=", StringComparison.Ordinal);
+                i = url.IndexOf("?" + var + "=", StringComparison.OrdinalIgnoreCase);
             if (i == -1)
             {
-                i = url.IndexOf(var, StringComparison.Ordinal);
+                i = url.IndexOf(var, StringComparison.OrdinalIgnoreCase);
                 if (i == -1)
                     return "";
                 i--;
             }
 
             string txt = url.Substring(i + var.Length + 1).Trim('=');
-            if (txt.IndexOf("&", StringComparison.Ordinal) != -1)
-                txt = txt.Substring(0, txt.IndexOf("&", StringComparison.Ordinal));
+            if (txt.IndexOf("&", StringComparison.OrdinalIgnoreCase) != -1)
+                txt = txt.Substring(0, txt.IndexOf("&", StringComparison.OrdinalIgnoreCase));
 
             return txt;
         }
@@ -1698,6 +1702,33 @@ namespace iSpyApplication.Server
                     }
                     resp = "OK";
                     break;
+                case "playfile":
+                    {
+                        string filename = "";
+                        try
+                        {
+                            string subdir = Helper.GetDirectory(otid, oid);
+                            filename = Helper.GetMediaDirectory(otid, oid);
+                            switch (otid)
+                            {
+                                case 1:
+                                    filename = filename + "audio\\";
+                                    break;
+                                case 2:
+                                    break;
+                            }
+                            filename += subdir + @"\" + fn;
+                            _parent.Play(filename, oid, "");
+
+                            resp = "OK";
+                        }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                            return ex.Message;
+                        }
+                    }
+                    break;
                 case "archive":
                     resp = "Archive failed. Check storage settings.";
                 {
@@ -1909,13 +1940,23 @@ namespace iSpyApplication.Server
                             case "timelapse":
                                 int tl;
                                 int.TryParse(value, out tl);
-                                cw.Camobject.recorder.timelapse = tl;
+                                cw.Camobject.recorder.timelapse = Math.Max(tl, 1);
                                 break;
                             case "timelapseframes":
                                 int tlf;
                                 int.TryParse(value, out tlf);
-                                cw.Camobject.recorder.timelapseframes = tlf;
+                                cw.Camobject.recorder.timelapseframes = Math.Max(tlf, 1);
                                 break;
+                            case "maxframerate":
+                                int mfr;
+                                int.TryParse(value, out mfr);
+                                cw.Camobject.settings.maxframerate = Math.Max(mfr, 1);
+                                break;
+                            case "maxframeraterecord":
+                                int mfrr;
+                                int.TryParse(value, out mfrr);
+                                cw.Camobject.settings.maxframeraterecord = Math.Max(mfrr, 1); ;
+                                break;                                    
                             case "localsaving":
                                 cw.Camobject.ftp.savelocal = Convert.ToBoolean(value);
                                 break;
@@ -2785,6 +2826,20 @@ namespace iSpyApplication.Server
                                 cw.Camobject.recorder.timelapseframes + "\" onblur=\"send_changesetting(" + otid + "," +
                                 oid + "," + port + ",'timelapseframes',this.value)\"/> " +
                                 LocRm.GetString("savesAFrameEveryNSecondsn") + "</td></tr>";
+
+
+                        html += "<tr><td colspan=\"2\"><strong>" + LocRm.GetString("FrameLimits") +
+                               "</strong></td></tr>";
+
+                        html += "<tr><td>" + LocRm.GetString("Viewing") +
+                                "</td><td><input style=\"width:50px\" type=\"text\" value=\"" +
+                                cw.Camobject.settings.maxframerate + "\" onblur=\"send_changesetting(" + otid + "," +
+                                oid + "," + port + ",'maxframerate',this.value)\"/></td></tr>";
+                        html += "<tr><td>" + LocRm.GetString("Recording") +
+                                "</td><td><input style=\"width:50px\" type=\"text\" value=\"" +
+                                cw.Camobject.settings.maxframeraterecord + "\" onblur=\"send_changesetting(" + otid + "," +
+                                oid + "," + port + ",'maxframeraterecord',this.value)\"/></td></tr>";
+
 
                         html += "<tr><td colspan=\"2\"><strong>" + LocRm.GetString("SaveFramesFtp") +
                                 "</strong></td></tr>";

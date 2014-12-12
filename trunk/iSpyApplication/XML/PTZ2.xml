@@ -2070,6 +2070,7 @@
       <Make Name="Tenvis" Model="Mini319" />
       <Make Name="Tenvis" Model="PT7131W" />
       <Make Name="Vonnic" Model="C907IP" />
+      <Make Name="vstarcam" Model="F6836W"/>
       <Make Name="Wansview" Model="NC541" />
       <Make Name="Zmodo" Model="CM-I11123BK" />
     </Makes>
@@ -5291,6 +5292,54 @@ copy or delete as many lines as you need.-->
       <Command Name="action=Preset 1">ptz.cgi?action=start&amp;channel=0&amp;code=GotoPreset&amp;arg1=0&amp;arg2=1&amp;arg3=0</Command>
       <Command Name="action=Preset 2">ptz.cgi?action=start&amp;channel=0&amp;code=GotoPreset&amp;arg1=0&amp;arg2=2&amp;arg3=0</Command>
       <Command Name="action=Preset 3">ptz.cgi?action=start&amp;channel=0&amp;code=GotoPreset&amp;arg1=0&amp;arg2=3&amp;arg3=0</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="200">
+    <Makes>
+      <Make Name="Alarm.com" Model="ADC-V610PT" />
+    </Makes>
+    <CommandURL>/cgi-bin/viewer/</CommandURL>
+    <Commands>
+      <Left>camctrl.cgi?move=left</Left>
+      <LeftUp></LeftUp>
+      <Right>camctrl.cgi?move=right</Right>
+      <RightUp></RightUp>
+      <Up>camctrl.cgi?move=up</Up>
+      <Down>camctrl.cgi?move=down</Down>
+      <LeftDown></LeftDown>
+      <RightDown></RightDown>
+      <Stop></Stop>
+      <ZoomIn></ZoomIn>
+      <ZoomOut></ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Home">camctrl.cgi?move=home</Command>
+      <Command Name="Preset 1">recall.cgi?recall=0</Command>
+      <Command Name="Preset 2">recall.cgi?recall=1</Command>
+      <Command Name="Preset 3">recall.cgi?recall=2</Command>
+    </ExtendedCommands>
+  </Camera>
+  <Camera id="201">
+    <Makes>
+      <Make Name="HView" Model="HDCCTV DVR" />
+    </Makes>
+    <CommandURL>/cgi-bin/gw.cgi</CommandURL>
+    <port>60001</port>
+    <Commands>
+      <Center></Center>
+      <Left>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%222%22%20param=%220%22/%3E%3C/juan%3E</Left>
+      <Right>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%223%22%20param=%220%22/%3E%3C/juan%3E</Right>
+      <Up>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%220%22%20param=%220%22/%3E%3C/juan%3E</Up>
+      <Down>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%221%22%20param=%220%22/%3E%3C/juan%3E</Down>
+      <Stop>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2215%22%20param=%220%22/%3E%3C/juan%3E</Stop>
+      <ZoomIn>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2211%22%20param=%220%22/%3E%3C/juan%3E</ZoomIn>
+      <ZoomOut>xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2212%22%20param=%220%22/%3E%3C/juan%3E</ZoomOut>
+    </Commands>
+    <ExtendedCommands>
+      <Command Name="Iris Open">xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%229%22%20param=%220%22/%3E%3C/juan%3E</Command>
+      <Command Name="Iris Close">xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2210%22%20param=%220%22/%3E%3C/juan%3E</Command>
+      <Command Name="Focus Near">xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2214%22%20param=%220%22/%3E%3C/juan%3E</Command>
+      <Command Name="Focus Far">xml=%3Cjuan%20ver=%220%22%20squ=%22abcdef%22%20dir=%220%22%20enc=%221%22%3E%3Cptzctrl%20usr=%22[USERNAME]%22%20pwd=%22[PASSWORD]%22%20chn=%22[CHANNEL]%22%20cmd=%2213%22%20param=%220%22/%3E%3C/juan%3E</Command>
     </ExtendedCommands>
   </Camera>
 </PTZSettings2>

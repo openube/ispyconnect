@@ -165,76 +165,74 @@ namespace iSpyApplication.Video
         private void WorkerThread()
         {
             var res = ReasonToFinishPlaying.StoppedByUser;
-            while (!MainForm.Reallyclose)
+            while (!_stopEvent.WaitOne(0, false) && !MainForm.Reallyclose)
             {
                 try
                 {
                     DateTime start = Helper.Now;
-                    if (!_stopEvent.WaitOne(0, true))
+                    
+                    // increment frames counter
+                    _framesReceived++;
+
+
+                    // provide new image to clients
+                    if (NewFrame != null)
                     {
-                        // increment frames counter
-                        _framesReceived++;
 
-
-                        // provide new image to clients
-                        if (NewFrame != null)
+                        Screen s = Screen.AllScreens[_screenindex];
+                        if (_screenSize == Rectangle.Empty)
                         {
-
-                            Screen s = Screen.AllScreens[_screenindex];
-                            if (_screenSize == Rectangle.Empty)
+                            if (_area != Rectangle.Empty)
+                                _screenSize = _area;
+                            else
                             {
-                                if (_area != Rectangle.Empty)
-                                    _screenSize = _area;
-                                else
-                                {
-                                    _screenSize = s.Bounds;
-                                    //virtual clients can have odd dimensions
-                                    if (_screenSize.Width % 2 != 0)
-                                        _screenSize.Width = _screenSize.Width - 1;
-                                    if (_screenSize.Height % 2 != 0)
-                                        _screenSize.Height = _screenSize.Height - 1;    
-                                }
+                                _screenSize = s.Bounds;
+                                //virtual clients can have odd dimensions
+                                if (_screenSize.Width % 2 != 0)
+                                    _screenSize.Width = _screenSize.Width - 1;
+                                if (_screenSize.Height % 2 != 0)
+                                    _screenSize.Height = _screenSize.Height - 1;    
+                            }
                                 
-                            }
+                        }
 
 
 
-                            using (
-                                var target = new Bitmap(_screenSize.Width, _screenSize.Height,
-                                    PixelFormat.Format24bppRgb))
+                        using (
+                            var target = new Bitmap(_screenSize.Width, _screenSize.Height,
+                                PixelFormat.Format24bppRgb))
+                        {
+                            using (Graphics g = Graphics.FromImage(target))
                             {
-                                using (Graphics g = Graphics.FromImage(target))
+                                try
                                 {
-                                    try
-                                    {
-                                        g.CopyFromScreen(s.Bounds.X + _screenSize.X,
-                                            s.Bounds.Y + _screenSize.Y, 0, 0,
-                                            new Size(_screenSize.Width, _screenSize.Height));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw new Exception("Error grabbing screen (" + ex.Message + ") - disable screensaver.");
-                                        //probably remote desktop or screensaver has kicked in
+                                    g.CopyFromScreen(s.Bounds.X + _screenSize.X,
+                                        s.Bounds.Y + _screenSize.Y, 0, 0,
+                                        new Size(_screenSize.Width, _screenSize.Height));
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw new Exception("Error grabbing screen (" + ex.Message + ") - disable screensaver.");
+                                    //probably remote desktop or screensaver has kicked in
 
-                                    }
-
-                                    if (MousePointer)
-                                    {
-                                        var cursorBounds = new Rectangle(
-                                            Cursor.Position.X - s.Bounds.X - _screenSize.X,
-                                            Cursor.Position.Y - s.Bounds.Y - _screenSize.Y, Cursors.Default.Size.Width,
-                                            Cursors.Default.Size.Height);
-                                        Cursors.Default.Draw(g, cursorBounds);
-                                    }
                                 }
 
-                                // notify client
-                                NewFrame(this, new NewFrameEventArgs(target));
-                                // release the image
+                                if (MousePointer)
+                                {
+                                    var cursorBounds = new Rectangle(
+                                        Cursor.Position.X - s.Bounds.X - _screenSize.X,
+                                        Cursor.Position.Y - s.Bounds.Y - _screenSize.Y, Cursors.Default.Size.Width,
+                                        Cursors.Default.Size.Height);
+                                    Cursors.Default.Draw(g, cursorBounds);
+                                }
                             }
-                            
-                            
+
+                            // notify client
+                            NewFrame(this, new NewFrameEventArgs(target));
+                            // release the image
                         }
+                            
+                            
                     }
 
                     // wait for a while ?
@@ -242,20 +240,15 @@ namespace iSpyApplication.Video
                     {
                         // get download duration
                         TimeSpan span = Helper.Now.Subtract(start);
-                        // miliseconds to sleep
+                        // milliseconds to sleep
                         int msec = _frameInterval - (int) span.TotalMilliseconds;
-
-                        while ((msec > 0) && (_stopEvent.WaitOne(0, true) == false))
-                        {
-                            // sleeping ...
-                            Thread.Sleep((msec < 100) ? msec : 100);
-                            msec -= 100;
-                        }
+                        if ((msec > 0) && (_stopEvent.WaitOne(msec, false)))
+                            break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    MainForm.LogExceptionToFile(ex);
+                    //MainForm.LogExceptionToFile(ex);
                     // provide information to clients
                     res = ReasonToFinishPlaying.DeviceLost;
                     // wait for a while before the next try
