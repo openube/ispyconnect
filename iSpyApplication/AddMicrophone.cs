@@ -227,6 +227,8 @@ namespace iSpyApplication
             ranger1.SetText();
 
             intervalConfig1.Init(VolumeLevel);
+
+            chkMessaging.Checked = VolumeLevel.Micobject.settings.messaging;
             _loaded = true;
 
         }
@@ -437,6 +439,7 @@ namespace iSpyApplication
             VolumeLevel.Micobject.recorder.minrecordtime = (int)numMinRecord.Value;
                 
             VolumeLevel.Micobject.settings.accessgroups = txtAccessGroups.Text;
+            VolumeLevel.Micobject.settings.messaging = chkMessaging.Checked;
 
 
             if (txtDirectory.Text.Trim() == "")
@@ -698,6 +701,7 @@ namespace iSpyApplication
             sched.active = chkScheduleActive.Checked;
             sched.recordondetect = chkScheduleRecordOnDetect.Checked;
             sched.alerts = chkScheduleAlerts.Checked;
+            sched.messaging = chkScheduleMessaging.Checked;
             return true;
         }
 

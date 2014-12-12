@@ -54,6 +54,7 @@ namespace iSpyApplication
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.label89 = new System.Windows.Forms.Label();
             this.ddlActionType = new System.Windows.Forms.ComboBox();
+            this.chkMessaging = new System.Windows.Forms.CheckBox();
             this.pnlSound = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -120,6 +121,7 @@ namespace iSpyApplication
             this.chkScheduleRecordOnDetect = new System.Windows.Forms.CheckBox();
             this.chkRecordAlertSchedule = new System.Windows.Forms.CheckBox();
             this.chkScheduleAlerts = new System.Windows.Forms.CheckBox();
+            this.chkScheduleMessaging = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel15 = new System.Windows.Forms.FlowLayoutPanel();
             this.button2 = new System.Windows.Forms.Button();
             this.btnUpdate = new System.Windows.Forms.Button();
@@ -467,6 +469,7 @@ namespace iSpyApplication
             // 
             this.flowLayoutPanel1.Controls.Add(this.label89);
             this.flowLayoutPanel1.Controls.Add(this.ddlActionType);
+            this.flowLayoutPanel1.Controls.Add(this.chkMessaging);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
@@ -494,6 +497,17 @@ namespace iSpyApplication
             this.ddlActionType.Size = new System.Drawing.Size(121, 21);
             this.ddlActionType.TabIndex = 93;
             this.ddlActionType.SelectedIndexChanged += new System.EventHandler(this.ddlActionType_SelectedIndexChanged);
+            // 
+            // chkMessaging
+            // 
+            this.chkMessaging.AutoSize = true;
+            this.chkMessaging.Location = new System.Drawing.Point(169, 3);
+            this.chkMessaging.Name = "chkMessaging";
+            this.chkMessaging.Size = new System.Drawing.Size(77, 17);
+            this.chkMessaging.TabIndex = 96;
+            this.chkMessaging.Text = "Messaging";
+            this.toolTip1.SetToolTip(this.chkMessaging, "Check to enable SMS and email alerts");
+            this.chkMessaging.UseVisualStyleBackColor = true;
             // 
             // pnlSound
             // 
@@ -956,7 +970,7 @@ namespace iSpyApplication
             this.panel8.Controls.Add(this.label50);
             this.panel8.Controls.Add(this.label7);
             this.panel8.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel8.Location = new System.Drawing.Point(6, 349);
+            this.panel8.Location = new System.Drawing.Point(6, 358);
             this.panel8.Name = "panel8";
             this.panel8.Size = new System.Drawing.Size(645, 74);
             this.panel8.TabIndex = 29;
@@ -998,7 +1012,7 @@ namespace iSpyApplication
             this.tableLayoutPanel17.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
             this.tableLayoutPanel17.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 166F));
             this.tableLayoutPanel17.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
-            this.tableLayoutPanel17.Size = new System.Drawing.Size(645, 248);
+            this.tableLayoutPanel17.Size = new System.Drawing.Size(645, 257);
             this.tableLayoutPanel17.TabIndex = 28;
             // 
             // flowLayoutPanel12
@@ -1415,6 +1429,7 @@ namespace iSpyApplication
             this.flowLayoutPanel14.Controls.Add(this.chkScheduleRecordOnDetect);
             this.flowLayoutPanel14.Controls.Add(this.chkRecordAlertSchedule);
             this.flowLayoutPanel14.Controls.Add(this.chkScheduleAlerts);
+            this.flowLayoutPanel14.Controls.Add(this.chkScheduleMessaging);
             this.flowLayoutPanel14.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel14.Location = new System.Drawing.Point(325, 48);
             this.flowLayoutPanel14.Name = "flowLayoutPanel14";
@@ -1465,6 +1480,19 @@ namespace iSpyApplication
             this.chkScheduleAlerts.Text = "Alerts Enabled";
             this.chkScheduleAlerts.UseVisualStyleBackColor = true;
             // 
+            // chkScheduleMessaging
+            // 
+            this.chkScheduleMessaging.AutoSize = true;
+            this.chkScheduleMessaging.Checked = true;
+            this.chkScheduleMessaging.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkScheduleMessaging.Location = new System.Drawing.Point(224, 35);
+            this.chkScheduleMessaging.Margin = new System.Windows.Forms.Padding(6);
+            this.chkScheduleMessaging.Name = "chkScheduleMessaging";
+            this.chkScheduleMessaging.Size = new System.Drawing.Size(77, 17);
+            this.chkScheduleMessaging.TabIndex = 32;
+            this.chkScheduleMessaging.Text = "Messaging";
+            this.chkScheduleMessaging.UseVisualStyleBackColor = true;
+            // 
             // flowLayoutPanel15
             // 
             this.flowLayoutPanel15.Controls.Add(this.button2);
@@ -1474,7 +1502,7 @@ namespace iSpyApplication
             this.flowLayoutPanel15.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel15.Location = new System.Drawing.Point(325, 214);
             this.flowLayoutPanel15.Name = "flowLayoutPanel15";
-            this.flowLayoutPanel15.Size = new System.Drawing.Size(317, 31);
+            this.flowLayoutPanel15.Size = new System.Drawing.Size(317, 40);
             this.flowLayoutPanel15.TabIndex = 4;
             // 
             // button2
@@ -2088,5 +2116,7 @@ namespace iSpyApplication
         private System.Windows.Forms.NumericUpDown numMinRecord;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.LinkLabel linkLabel4;
+        private System.Windows.Forms.CheckBox chkScheduleMessaging;
+        private System.Windows.Forms.CheckBox chkMessaging;
     }
 }

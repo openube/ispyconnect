@@ -11,25 +11,19 @@ namespace iSpyApplication
             InitializeComponent();
             RenderResources();
         }
-
-        private void Button1Click(object sender, EventArgs e)
-        {
-            DoCheckPassword();
-        }
-
+        
         private void DoCheckPassword()
         {
-            foreach (var g in MainForm.Conf.Permissions)
+            var g = MainForm.Conf.Permissions.First(p => p.name == ddlAccount.SelectedItem.ToString());
+            if (txtPassword.Text == EncDec.DecryptData(g.password, MainForm.Conf.EncryptCode))
             {
-                if (txtPassword.Text == EncDec.DecryptData(g.password, MainForm.Conf.EncryptCode))
-                {
-                    if (MainForm.Group != g.name)
-                        MainForm.NeedsResourceUpdate = true;
-                    MainForm.Group = g.name;
-                    DialogResult = DialogResult.OK;
-                    Close();
-                    return;
-                }
+                if (MainForm.Group != g.name)
+                    MainForm.NeedsResourceUpdate = true;
+                MainForm.Group = g.name;
+                DialogResult = DialogResult.OK;
+                MainForm.LogMessageToFile("Login: "+g.name);
+                Close();
+                return;
             }
             
             DialogResult = DialogResult.Cancel;
@@ -47,7 +41,8 @@ namespace iSpyApplication
             
             Text = LocRm.GetString("ApplicationHasBeenLocked");
             button1.Text = LocRm.GetString("Unlock");
-            label1.Text = LocRm.GetString("UnlockPassword");
+            lblPassword.Text = LocRm.GetString("Password");
+            lblAccount.Text = LocRm.GetString("Account");
         }
 
 
@@ -61,7 +56,18 @@ namespace iSpyApplication
 
         private void CheckPassword_Shown(object sender, EventArgs e)
         {
+            foreach (var g in MainForm.Conf.Permissions)
+            {
+                ddlAccount.Items.Add(g.name);
+            }
+            ddlAccount.SelectedItem = MainForm.Group;
+
             this.Activate();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DoCheckPassword();
         }
     }
 }

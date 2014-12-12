@@ -32,7 +32,7 @@ namespace iSpyApplication
 
         private readonly object[] _processortypes = {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
-        private readonly object[] _actiontypes = {"Alert", "Connection Lost", "Reconnect"};
+        private readonly object[] _actiontypes = {"Alert", "AlertStopped", "Connection Lost", "Reconnect", "RecordingAlertStarted", "RecordingAlertStopped"};
 
         public CameraWindow CameraControl;
         public bool StartWizard;
@@ -473,6 +473,7 @@ namespace iSpyApplication
             chkUploadGrabs.Checked = CameraControl.Camobject.settings.cloudprovider.images;
             chkUploadRecordings.Checked = CameraControl.Camobject.settings.cloudprovider.recordings;
             txtCloudPath.Text = CameraControl.Camobject.settings.cloudprovider.path;
+            chkMessaging.Checked = CameraControl.Camobject.settings.messaging;
 
             LoadMediaDirectories();
             PopFTPServers();
@@ -968,9 +969,7 @@ namespace iSpyApplication
             string name = txtCameraName.Text.Trim();
             if (name == "")
                 err += LocRm.GetString("Validate_Camera_EnterName") + Environment.NewLine;
-            if (
-                MainForm.Cameras.SingleOrDefault(
-                    p => p.name.ToLower() == name.ToLower() && p.id != CameraControl.Camobject.id) != null)
+            if (MainForm.Cameras.FirstOrDefault(p => p.name.ToLower() == name.ToLower() && p.id != CameraControl.Camobject.id) != null)
                 err += LocRm.GetString("Validate_Camera_NameInUse") + Environment.NewLine;
 
             if (string.IsNullOrEmpty(CameraControl.Camobject.settings.videosourcestring))
@@ -1345,6 +1344,7 @@ namespace iSpyApplication
             CameraControl.Camobject.settings.cloudprovider.images = chkUploadGrabs.Checked;
             CameraControl.Camobject.settings.cloudprovider.recordings = chkUploadRecordings.Checked;
             CameraControl.Camobject.settings.cloudprovider.path = txtCloudPath.Text;
+            CameraControl.Camobject.settings.messaging = chkMessaging.Checked;
 
             MainForm.NeedsSync = true;
             IsNew = false;
@@ -1662,6 +1662,8 @@ namespace iSpyApplication
             sched.ftpenabled = chkSchedFTPEnabled.Checked;
             sched.savelocalenabled = chkSchedSaveLocalEnabled.Checked;
             sched.ptz = chkschedPTZ.Checked;
+            sched.messaging = chkScheduleMessaging.Checked;
+
             return true;
         }
 
@@ -2764,14 +2766,23 @@ namespace iSpyApplication
                 switch (ddlActionType.SelectedIndex)
                 {
                     case 1:
-                        at = "disconnect";
+                        at = "alertstopped";
                         break;
                     case 2:
+                        at = "disconnect";
+                        break;
+                    case 3:
                         at = "reconnect";
                         break;
+                    case 4:
+                        at = "recordingstarted";
+                        break;
+                    case 5:
+                        at = "recordingstopped";
+                        break;
+
                 }
                 
-
                 actionEditor1.Init(at,CameraControl.Camobject.id,2);
             }
         }

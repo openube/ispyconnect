@@ -136,7 +136,7 @@ namespace iSpyApplication
                     }
                     if (_lastlog.Length != LogFile.Length)
                     {
-                        string logTemplate = "<html><head><title>iSpy v<!--VERSION--> Log File</title><style type=\"text/css\">body,td,th,div {font-family:Verdana;font-size:10px}</style></head><body><h1>"+Conf.ServerName+": Log Start (v"+Application.
+                        string logTemplate = "<html><head><title>iSpy v"+ProductVersion+" Log File</title><style type=\"text/css\">body,td,th,div {font-family:Verdana;font-size:10px}</style></head><body><h1>"+Conf.ServerName+": Log Start (v"+Application.
                                                                                                           ProductVersion + " Platform: " + Program.Platform+"): " + LogStartDateTime + "</h1><p><table cellpadding=\"2px\"><!--CONTENT--></table></p></body></html>";
                         string fc = logTemplate.Replace("<!--CONTENT-->", LogFile.ToString());
                         File.WriteAllText(Program.AppDataPath + @"log_" + NextLog + ".htm", fc);

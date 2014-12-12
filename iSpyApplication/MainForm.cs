@@ -396,6 +396,7 @@ namespace iSpyApplication
         private MenuItem menuItem32;
         private MenuItem menuItem33;
         private ToolStripMenuItem gridViewsToolStripMenuItem1;
+        private ToolStripStatusLabel tsslPRO;
         private ToolStripMenuItem websiteToolStripMenuItem;
 
         public MainForm(bool silent, string command)
@@ -909,6 +910,7 @@ namespace iSpyApplication
             _fsw.EnableRaisingEvents = true;
             //GC.KeepAlive(_fsw);
 
+            tsslPRO.Visible = !Conf.Subscribed;
 
             Menu = mainMenu;
             notifyIcon1.ContextMenuStrip = ctxtTaskbar;
@@ -1590,6 +1592,7 @@ namespace iSpyApplication
 
             tssbGridViews.Visible = Helper.HasFeature(Enums.Features.Grid_Views);
             _toolStripButton4.Visible = menuItem31.Visible = Helper.HasFeature(Enums.Features.Settings);
+            menuItem2.Visible = _menuItem20.Visible = _menuItem22.Visible = Helper.HasFeature(Enums.Features.Logs);
 
             menuItem31.Text = LocRm.GetString("GridViews");
             menuItem32.Text = LocRm.GetString("Manage");
@@ -4448,6 +4451,7 @@ namespace iSpyApplication
             this._showISpy100PercentOpacityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._helpToolstripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._websiteToolstripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gridViewsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.viewLogFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this._exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
@@ -4475,7 +4479,7 @@ namespace iSpyApplication
             this.archiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gridViewsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsslPRO = new System.Windows.Forms.ToolStripStatusLabel();
             this.ctxtMainForm.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.ctxtMnu.SuspendLayout();
@@ -5855,6 +5859,12 @@ namespace iSpyApplication
             this._websiteToolstripMenuItem.Text = "&Website";
             this._websiteToolstripMenuItem.Click += new System.EventHandler(this.WebsiteToolstripMenuItemClick);
             // 
+            // gridViewsToolStripMenuItem1
+            // 
+            this.gridViewsToolStripMenuItem1.Name = "gridViewsToolStripMenuItem1";
+            this.gridViewsToolStripMenuItem1.Size = new System.Drawing.Size(218, 22);
+            this.gridViewsToolStripMenuItem1.Text = "Grid Views";
+            // 
             // viewLogFileToolStripMenuItem
             // 
             this.viewLogFileToolStripMenuItem.Name = "viewLogFileToolStripMenuItem";
@@ -5876,7 +5886,8 @@ namespace iSpyApplication
             this._tsslStats,
             this.tsslMonitor,
             this.tsslPerformance,
-            this.tsslMediaInfo});
+            this.tsslMediaInfo,
+            this.tsslPRO});
             this.statusStrip1.Location = new System.Drawing.Point(0, 700);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(887, 30);
@@ -6121,11 +6132,16 @@ namespace iSpyApplication
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // gridViewsToolStripMenuItem1
+            // tsslPRO
             // 
-            this.gridViewsToolStripMenuItem1.Name = "gridViewsToolStripMenuItem1";
-            this.gridViewsToolStripMenuItem1.Size = new System.Drawing.Size(218, 22);
-            this.gridViewsToolStripMenuItem1.Text = "Grid Views";
+            this.tsslPRO.ForeColor = System.Drawing.Color.Blue;
+            this.tsslPRO.IsLink = true;
+            this.tsslPRO.LinkColor = System.Drawing.Color.Blue;
+            this.tsslPRO.Name = "tsslPRO";
+            this.tsslPRO.Size = new System.Drawing.Size(76, 25);
+            this.tsslPRO.Text = "Get iSpy PRO";
+            this.tsslPRO.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.tsslPRO.Click += new System.EventHandler(this.tsslPRO_Click);
             // 
             // MainForm
             // 
@@ -6470,6 +6486,11 @@ namespace iSpyApplication
         {
             _locked = true;
             WindowState = FormWindowState.Minimized;
+        }
+
+        private void tsslPRO_Click(object sender, EventArgs e)
+        {
+            OpenUrl(Website + "/downloadpro.aspx");
         }
     }
 }

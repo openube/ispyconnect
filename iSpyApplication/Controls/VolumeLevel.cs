@@ -836,6 +836,8 @@ namespace iSpyApplication.Controls
                         s += " " + LocRm.GetString("Alert").ToUpper();
                     if (sched.recordondetect)
                         s += " " + LocRm.GetString("Detect").ToUpper();
+                    if (sched.messaging)
+                        s += " " + LocRm.GetString("Messaging").ToUpper();
                     if (!sched.active)
                         s += " (" + LocRm.GetString("Inactive").ToUpper() + ")";
 
@@ -2540,30 +2542,39 @@ namespace iSpyApplication.Controls
                         break;
                     case "E":
                         {
-                            string subject = MailMerge(MainForm.Conf.MailAlertSubject, mode, Recording, pluginmessage);
-                            string message = MailMerge(MainForm.Conf.MailAlertBody, mode,Recording, pluginmessage);
+                            if (Micobject.settings.messaging)
+                            {
+                                string subject = MailMerge(MainForm.Conf.MailAlertSubject, mode, Recording, pluginmessage);
+                                string message = MailMerge(MainForm.Conf.MailAlertBody, mode, Recording, pluginmessage);
 
-                            message += MainForm.Conf.AppendLinkText;
+                                message += MainForm.Conf.AppendLinkText;
 
-                            WsWrapper.SendAlert(param1, subject, message);
+                                WsWrapper.SendAlert(param1, subject, message);
+                            }
                         }
                         break;
                     case "SMS":
                         {
-                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
-                            if (message.Length > 160)
-                                message = message.Substring(0, 159);
+                            if (Micobject.settings.messaging)
+                            {
+                                string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
+                                if (message.Length > 160)
+                                    message = message.Substring(0, 159);
 
-                            WsWrapper.SendSms(param1, message);
+                                WsWrapper.SendSms(param1, message);
+                            }
                         }
                         break;
                     case "TM":
                         {
-                            string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
-                            if (message.Length > 160)
-                                message = message.Substring(0, 159);
+                            if (Micobject.settings.messaging)
+                            {
+                                string message = MailMerge(MainForm.Conf.SMSAlert, mode, Recording, pluginmessage);
+                                if (message.Length > 160)
+                                    message = message.Substring(0, 159);
 
-                            WsWrapper.SendTweet(message + " " + MainForm.Webserver + "/mobile/");
+                                WsWrapper.SendTweet(message + " " + MainForm.Webserver + "/mobile/");
+                            }
                         }
                         break;
 
@@ -2839,6 +2850,7 @@ namespace iSpyApplication.Controls
                 {
                     Micobject.detector.recordondetect = mostrecent.recordondetect;
                     Micobject.detector.recordonalert = mostrecent.recordonalert;
+                    Micobject.settings.messaging = mostrecent.messaging;
                     Micobject.alerts.active = mostrecent.alerts;
                     if (!IsEnabled)
                         Enable();
