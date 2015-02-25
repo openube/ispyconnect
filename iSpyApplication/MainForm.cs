@@ -144,7 +144,7 @@ namespace iSpyApplication
         private static ViewController _vc;
         private static int _pingCounter;
         private static ImageCodecInfo _encoder;
-
+        private static bool _needsDelete = false;
         
 
         private static readonly string PluginLogTemplate =
@@ -1758,6 +1758,17 @@ namespace iSpyApplication
                 {
                     var t = new Thread(SaveFileData) {IsBackground = true, Name = "Saving File Data"};
                     t.Start();
+                }
+
+                if (_needsDelete)
+                {
+                    _needsDelete = false;
+                    if (_tDelete == null || _tDelete.Join(TimeSpan.Zero))
+                    {
+                        _tDelete = new Thread(DeleteFiles) {IsBackground = true};
+                        _tDelete.Start();
+
+                    }
                 }
             }
             catch (Exception ex)

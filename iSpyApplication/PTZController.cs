@@ -35,6 +35,7 @@ namespace iSpyApplication
                                              };
 
         private readonly CameraWindow _cameraControl;
+        private Enums.PtzCommand _previousCommand;
         private SerialPort _serialPort;
 
         public bool IsContinuous
@@ -372,6 +373,7 @@ namespace iSpyApplication
             }
         }
 
+        
         public void SendPTZCommand(Enums.PtzCommand command, bool wait)
         {
             if (_cameraControl.Camera == null)
@@ -577,9 +579,26 @@ namespace iSpyApplication
                         SendPTZCommand(ptz.Commands.Center, wait);
                         break;
                     case Enums.PtzCommand.Stop:
+                        if (_previousCommand == Enums.PtzCommand.ZoomIn)
+                        {
+                            if (!String.IsNullOrEmpty(ptz.Commands.ZoomInStop))
+                            {
+                                SendPTZCommand(ptz.Commands.ZoomInStop, wait);
+                                break;
+                            }
+                        }
+                        if (_previousCommand == Enums.PtzCommand.ZoomOut)
+                        {
+                            if (!String.IsNullOrEmpty(ptz.Commands.ZoomOutStop))
+                            {
+                                SendPTZCommand(ptz.Commands.ZoomOutStop, wait);
+                                break;
+                            }
+                        }
                         SendPTZCommand(ptz.Commands.Stop, wait);
                         break;
                 }
+                _previousCommand = command;
             }
             else
             {

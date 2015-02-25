@@ -185,9 +185,17 @@
     <Reference Include="AForge.Video">
       <HintPath>DLLS\AForge.Video.dll</HintPath>
     </Reference>
+    <Reference Include="AForge.Video.DirectShow, Version=2.2.5.0, Culture=neutral, PublicKeyToken=61ea4348d43881b7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Video.DirectShow.dll</HintPath>
+    </Reference>
     <Reference Include="AForge.Video.Ximea, Version=2.2.3.0, Culture=neutral, PublicKeyToken=5cdcd64958730f99, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>DLLS\AForge.Video.Ximea.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Vision, Version=2.5.7.0, Culture=neutral, PublicKeyToken=b612fa915eefaa06, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>DLLS\AForge.Vision.dll</HintPath>
     </Reference>
     <Reference Include="DropNet, Version=1.8.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -1666,14 +1674,6 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AForge\Sources\Video.DirectShow\Video.DirectShow.csproj">
-      <Project>{26CD2CE7-FF63-4669-83B0-7D9C8F3408EE}</Project>
-      <Name>Video.DirectShow</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\AForge\Sources\Vision\Vision.csproj">
-      <Project>{B99CBE2E-BAAD-45D5-8A84-CAA6A2286C0B}</Project>
-      <Name>Vision</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FFMPEG\Video.FFMPEG.vcxproj">
       <Project>{FF31DD24-127D-4EB1-929C-F5738147E886}</Project>
       <Name>Video.FFMPEG</Name>

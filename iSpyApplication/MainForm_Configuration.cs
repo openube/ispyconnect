@@ -31,6 +31,7 @@ namespace iSpyApplication
         private static Color _activityColor = Color.Empty;
         private static Color _noActivityColor = Color.Empty;
         private static readonly IPAddress[] Ipv6EmptyList = { };
+        public static string[] AlertNotifications = { "alert", "disconnect", "reconnect" };
 
         public static void ReloadColors()
         {

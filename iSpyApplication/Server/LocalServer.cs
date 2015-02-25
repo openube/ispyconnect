@@ -405,11 +405,6 @@ namespace iSpyApplication.Server
             }
         }
 
-        public bool ThumbnailCallback()
-        {
-            return false;
-        }
-
         public static AutoResetEvent ClientConnected = new AutoResetEvent(false);
         private List<HttpRequest> _connectedSockets;
         private readonly object _connectedSocketsSyncHandle = new object();
@@ -1900,6 +1895,9 @@ namespace iSpyApplication.Server
                             case "accessgroups":
                                 vw.Micobject.settings.accessgroups = value;
                                 break;
+                            case "name":
+                                vw.Micobject.name = value;
+                                break;
                         }
                     }
                     else
@@ -1994,6 +1992,9 @@ namespace iSpyApplication.Server
                                 break;
                             case "accessgroups":
                                 cw.Camobject.settings.accessgroups = value;
+                                break;
+                            case "name":
+                                cw.Camobject.name = value;
                                 break;
                         }
                     }
@@ -3196,33 +3197,28 @@ namespace iSpyApplication.Server
                     {
                         using (var imageStream = new MemoryStream())
                         {
-                            bool connecting = false, offline = true;
+                            bool connecting = false;
 
                             bool disposeFrame = false;
 
-                            Bitmap img = Resources.cam_offline_large;
-                            if (cw.IsEnabled)
+                            Bitmap img = cw.LastFrame;
+                            if (img == null)
                             {
-                                offline = false;
-                                img = cw.LastFrame;
-                                if (img == null)
-                                {
-                                    connecting = true;
-                                }
-                                else
-                                {
-                                    if (cw.VideoSourceErrorState)
-                                    {
-                                        using (Graphics g2 = Graphics.FromImage(img))
-                                        {
-                                            var img2 = Resources.connecting;
-                                            g2.DrawImage(img2, img.Width - img2.Width - 2, 2, img2.Width, img2.Height);
-                                        }
-                                    }
-                                    disposeFrame = true;
-                                }
-
+                                connecting = true;
                             }
+                            else
+                            {
+                                if (cw.VideoSourceErrorState)
+                                {
+                                    using (Graphics g2 = Graphics.FromImage(img))
+                                    {
+                                        var img2 = Resources.connecting;
+                                        g2.DrawImage(img2, img.Width - img2.Width - 2, 2, img2.Width, img2.Height);
+                                    }
+                                }
+                                disposeFrame = true;
+                            }
+
                             
 
                             int w = 320, h = 240;
@@ -3232,12 +3228,8 @@ namespace iSpyApplication.Server
                                 w = 96;
                                 h = 72;
                                 if (connecting)
-                                    img = Resources.cam_connecting;
-                                if (offline)
-                                    img = Resources.cam_offline;
-
-                                if (connecting || offline)
                                 {
+                                    img = Resources.cam_connecting;
                                     img.Save(imageStream, ImageFormat.Jpeg);
                                     done = true;
                                 }
@@ -3246,8 +3238,6 @@ namespace iSpyApplication.Server
                             {
                                 if (connecting)
                                     img = Resources.cam_connecting_large;
-                                if (offline)
-                                    img = Resources.cam_offline_large;
 
                                 if (sPhysicalFilePath.IndexOf("full", StringComparison.Ordinal) != -1)
                                 {
@@ -3263,13 +3253,11 @@ namespace iSpyApplication.Server
 
                             if (!done)
                             {
-                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
-                                Image myThumbnail = img.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
-
-                                // put the image into the memory stream
-
-                                myThumbnail.Save(imageStream, ImageFormat.Jpeg);
-                                myThumbnail.Dispose();
+                                using (Image myThumbnail = img.GetThumbnailImage(w, h, null, IntPtr.Zero))
+                                {
+                                    // put the image into the memory stream
+                                    myThumbnail.Save(imageStream, ImageFormat.Jpeg);
+                                }
                             }
 
 
@@ -3283,8 +3271,7 @@ namespace iSpyApplication.Server
                             // rewind the memory stream
 
 
-                            SendHeader(sHttpVersion, "image/jpeg", (int) imageStream.Length, " 200 OK", 0,
-                                        ref req);
+                            SendHeader(sHttpVersion, "image/jpeg", (int) imageStream.Length, " 200 OK", 0, ref req);
 
                             SendToBrowser(imageContent, req);
                             if (disposeFrame)
@@ -3334,8 +3321,7 @@ namespace iSpyApplication.Server
                             int w,h;
                             
                             GetWidthHeight(size, out w, out h);
-                            Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, ThumbnailCallback,
-                                                                                       IntPtr.Zero);
+                            Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, null, IntPtr.Zero);
 
                             // put the image into the memory stream
                             using (var ms = new MemoryStream())
@@ -3418,8 +3404,7 @@ namespace iSpyApplication.Server
                         {
                             int w, h;
                             GetWidthHeight(size, out w, out h);
-                            Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, ThumbnailCallback,
-                                                                                       IntPtr.Zero);
+                            Image myThumbnail = Image.FromStream(fs).GetThumbnailImage(w, h, null, IntPtr.Zero);
 
                             // put the image into the memory stream
                             var ms = new MemoryStream();
@@ -3510,9 +3495,8 @@ namespace iSpyApplication.Server
 
                             if (!done)
                             {
-                                Image.GetThumbnailImageAbort myCallback = ThumbnailCallback;
                                 var img = (Image) fpc.ImgView.Clone();
-                                var myThumbnail = img.GetThumbnailImage(w, h, myCallback, IntPtr.Zero);
+                                var myThumbnail = img.GetThumbnailImage(w, h, null, IntPtr.Zero);
 
                                 // put the image into the memory stream
 
@@ -3912,7 +3896,7 @@ namespace iSpyApplication.Server
                     CameraWindow cw = _parent.GetCameraWindow(oc.id);
                     if (cw != null)
                     {
-                        bool onlinestatus = !(!oc.settings.active || cw.VideoSourceErrorState);
+                        bool onlinestatus = oc.settings.active;
                         bool talkconfigured = oc.settings.audiomodel != "None";
                         resp += "2," + oc.id + "," + onlinestatus.ToString().ToLower() + "," +
                                 oc.name.Replace(",", "&comma;") + "," + GetStatus(onlinestatus) + "," +
@@ -3928,7 +3912,7 @@ namespace iSpyApplication.Server
                     VolumeLevel vl = _parent.GetVolumeLevel(om.id);
                     if (vl!=null)
                     {
-                        bool onlinestatus = !(!om.settings.active || vl.AudioSourceErrorState);
+                        bool onlinestatus = om.settings.active;
                         resp += "1," + om.id + "," + onlinestatus.ToString().ToLower() + "," +
                             om.name.Replace(",", "&comma;") + "," + GetStatus(om.settings.active) + "," +
                             om.description.Replace(",", "&comma;").Replace("\n", " ") + "," +

@@ -2019,9 +2019,15 @@ namespace iSpyApplication.Controls
 
                         //  Set the quality
                         fullpath = folder + @"grabs\" + filename;
+                        
+                        if (File.Exists(fullpath))
+                        {
+                            File.Delete(fullpath);
+                        }
 
                         var parameters = new EncoderParameters(1);
                         parameters.Param[0] = new EncoderParameter(Encoder.Quality, Camobject.savelocal.quality);
+                        
                         myThumbnail.Save(fullpath, MainForm.Encoder, MainForm.EncoderParams);
                         myThumbnail.Dispose();
 
@@ -3308,13 +3314,28 @@ namespace iSpyApplication.Controls
                         }
                     }
                 }
+
+                
             }
 
-            
             if (sender is Camera)
             {
                 FlashCounter = Helper.Now.AddSeconds(10);
                 MovementDetected = true;
+                
+                if (Camera!=null && Camera.Plugin != null)
+                {
+                    var o = Camera.Plugin.GetType();
+                    var m = o.GetMethod("MotionDetect");
+                    if (m != null)
+                    {
+                        var r = (string) m.Invoke(Camera.Plugin, null);
+                        if (!String.IsNullOrEmpty(r))
+                        {
+                            ProcessAlertFromPlugin(r,"Motion Detected");
+                        }
+                    }
+                }
                 return;
             }
 
@@ -3379,15 +3400,14 @@ namespace iSpyApplication.Controls
 
             var t = new Thread(() => AlertThread(type, msg,Camobject.id)){ Name = type+" (" + Camobject.id + ")", IsBackground = false };
             t.Start();
-            
-            
         }
+
 
         private void AlertThread(string mode, string msg, int oid)
         {
             if (Notification != null)
             {
-                if ("alertstopped,recordingstarted,recordingstopped".IndexOf(mode, StringComparison.Ordinal) == -1)
+                if (MainForm.AlertNotifications.Contains(mode))
                     Notification(this, new NotificationType(mode, Camobject.name, "", ""));
             }
 
@@ -5079,51 +5099,165 @@ namespace iSpyApplication.Controls
             if (Camera.Plugin != null)
             {
                 var a = (String)Camera.Plugin.GetType().GetMethod("ProcessAlert").Invoke(Camera.Plugin, new object[] { eventArgs.Description });
-                if (!String.IsNullOrEmpty(a))
+                ProcessAlertFromPlugin(a, eventArgs.Description);
+            }
+
+        }
+
+        private void ProcessAlertFromPlugin(string a, string description)
+        {
+            if (!String.IsNullOrEmpty(a))
+            {
+                string[] actions = a.ToLower().Split(',');
+                foreach (var action in actions)
                 {
-                    string[] actions = a.ToLower().Split(',');
-                    foreach (var action in actions)
+                    if (!String.IsNullOrEmpty(action))
                     {
-                        if (!String.IsNullOrEmpty(action))
+                        switch (action)
                         {
-                            switch (action)
-                            {
-                                case "alarm":
-                                    CameraAlarm(eventArgs.Description, EventArgs.Empty);
-                                    break;
-                                case "flash":
-                                    FlashCounter = Helper.Now.AddSeconds(10);
-                                    break;
-                                case "record":
-                                    RecordSwitch(true);
-                                    break;
-                                case "stoprecord":
-                                    RecordSwitch(false);
-                                    break;
-                                default:
-                                    if (action.StartsWith("border:") && action.Length > 7)
+                            case "alarm":
+                                CameraAlarm(description, EventArgs.Empty);
+                                break;
+                            case "flash":
+                                FlashCounter = Helper.Now.AddSeconds(10);
+                                break;
+                            case "record":
+                                RecordSwitch(true);
+                                break;
+                            case "stoprecord":
+                                RecordSwitch(false);
+                                break;
+                            case "enable_motion":
+                                Calibrating = true;
+                                Camobject.detector.type = "Two Frames";
+                                SetDetector();
+                                break;
+                            case "disable_motion":
+                                Camobject.detector.type = "None";
+                                SetDetector();
+                                break;
+                            default:
+                                if (action.StartsWith("border:") && action.Length > 7)
+                                {
+                                    string col = action.Substring(7);
+                                    try
                                     {
-                                        string col = action.Substring(7);
-                                        try
-                                        {
-                                            _customColor = Color.FromArgb(Convert.ToInt32(col));
-                                            Custom = true;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            if (ErrorHandler != null)
-                                                ErrorHandler(e.Message);
-                                        }
-
+                                        _customColor = Color.FromArgb(Convert.ToInt32(col));
+                                        Custom = true;
                                     }
-                                    break;
-                            }
+                                    catch (Exception e)
+                                    {
+                                        if (ErrorHandler != null)
+                                            ErrorHandler(e.Message);
+                                    }
 
+                                }
+                                break;
                         }
+
                     }
                 }
             }
+        }
 
+        public void SetDetector()
+        {
+            if (Camera == null)
+                return;
+            Camera.MotionDetector = null;
+            switch (Camobject.detector.type)
+            {
+                case "Two Frames":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new TwoFramesDifferenceDetector(Camobject.settings.suppressnoise));
+                    SetProcessor();
+                    break;
+                case "Custom Frame":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new CustomFrameDifferenceDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
+                case "Background Modeling":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new SimpleBackgroundModelingDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
+                case "Two Frames (Color)":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new TwoFramesColorDifferenceDetector(Camobject.settings.suppressnoise));
+                    SetProcessor();
+                    break;
+                case "Custom Frame (Color)":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new CustomFrameColorDifferenceDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
+                case "Background Modeling (Color)":
+                    Camera.MotionDetector =
+                        new MotionDetector(
+                            new SimpleColorBackgroundModelingDetector(Camobject.settings.suppressnoise,Camobject.detector.keepobjectedges));
+                    SetProcessor();
+                    break;
+                case "None":
+                    break;
+            }
+            if (Camera.MotionDetector != null)
+                NeedMotionZones = true;
+        }
+
+        public void SetProcessor()
+        {
+            if (Camera == null || Camera.MotionDetector == null)
+                return;
+            Camera.MotionDetector.MotionProcessingAlgorithm = null;
+
+            switch (Camobject.detector.postprocessor)
+            {
+                case "Grid Processing":
+                    Camera.MotionDetector.MotionProcessingAlgorithm = new GridMotionAreaProcessing
+                    {
+                        HighlightColor = ColorTranslator.FromHtml(Camobject.detector.color),
+                        HighlightMotionGrid = Camobject.detector.highlight
+                    };
+                    break;
+                case "Object Tracking":
+                    Camera.MotionDetector.MotionProcessingAlgorithm = new BlobCountingObjectsProcessing
+                    {
+                        HighlightColor = ColorTranslator.FromHtml(Camobject.detector.color),
+                        HighlightMotionRegions = Camobject.detector.highlight,
+                        MinObjectsHeight = Camobject.detector.minheight,
+                        MinObjectsWidth = Camobject.detector.minwidth
+                    };
+
+                    break;
+                case "Border Highlighting":
+                    Camera.MotionDetector.MotionProcessingAlgorithm = new MotionBorderHighlighting
+                    {
+                        HighlightColor = ColorTranslator.FromHtml(Camobject.detector.color)
+                    };
+                    break;
+                case "Area Highlighting":
+                    Camera.MotionDetector.MotionProcessingAlgorithm = new MotionAreaHighlighting
+                    {
+                        HighlightColor = ColorTranslator.FromHtml(Camobject.detector.color)
+                    };
+                    break;
+                case "None":
+                    break;
+            }
+        }
+
+        public void SetMotionZones()
+        {
+            if (Camera != null && Camera.MotionDetector != null)
+            {
+                Camera.SetMotionZones(Camobject.detector.motionzones);
+            }
         }
 
         private void StopSaving()
