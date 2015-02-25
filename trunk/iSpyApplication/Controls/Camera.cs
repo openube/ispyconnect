@@ -823,7 +823,7 @@ namespace iSpyApplication.Controls
 
                     if (MotionLevel >= _alarmLevel)
                     {
-                        if (MotionLevel <= _alarmLevelMax || _alarmLevelMax >= 0.1)
+                        if (Math.Min(MotionLevel,0.99) <= _alarmLevelMax)
                         {
                             return true;
                         }
@@ -850,8 +850,6 @@ namespace iSpyApplication.Controls
         {
             _pluginTrigger = true;
         }
-
-        
 
         private Bitmap ResizeBmOrig(NewFrameEventArgs e)
         {

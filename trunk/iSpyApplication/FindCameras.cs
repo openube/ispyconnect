@@ -868,7 +868,6 @@ namespace iSpyApplication
             {
                 if (we.Response != null)
                 {
-
                     //sc = ((HttpWebResponse) we.Response).StatusCode;
                 }
             }

@@ -37,6 +37,8 @@
                     <xs:element name="Stop" type="xs:string" minOccurs="0"/>
                     <xs:element name="ZoomIn" type="xs:string" minOccurs="0"/>
                     <xs:element name="ZoomOut" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ZoomInStop" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ZoomOutStop" type="xs:string" minOccurs="0"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

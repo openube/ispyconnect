@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -13,7 +12,6 @@ using System.Windows.Forms;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Video.DirectShow.Internals;
-using AForge.Vision.Motion;
 using iSpyApplication.Audio;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
@@ -1437,105 +1435,13 @@ namespace iSpyApplication
                 if ((string) _detectortypes[ddlMotionDetector.SelectedIndex] != CameraControl.Camobject.detector.type)
                 {
                     CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
-                    SetDetector();
+                    CameraControl.SetDetector();
                 }
             }
             CameraControl.Camobject.detector.type = (string) _detectortypes[ddlMotionDetector.SelectedIndex];
         }
 
-        private void SetDetector()
-        {
-            if (CameraControl.Camera == null)
-                return;
-            CameraControl.Camera.MotionDetector = null;
-            switch (CameraControl.Camobject.detector.type)
-            {
-                case "Two Frames":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new TwoFramesDifferenceDetector(CameraControl.Camobject.settings.suppressnoise));
-                    SetProcessor();
-                    break;
-                case "Custom Frame":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new CustomFrameDifferenceDetector(CameraControl.Camobject.settings.suppressnoise,
-                                                              CameraControl.Camobject.detector.keepobjectedges));
-                    SetProcessor();
-                    break;
-                case "Background Modeling":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new SimpleBackgroundModelingDetector(CameraControl.Camobject.settings.suppressnoise,
-                                                                 CameraControl.Camobject.detector.keepobjectedges));
-                    SetProcessor();
-                    break;
-                case "Two Frames (Color)":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new TwoFramesColorDifferenceDetector(CameraControl.Camobject.settings.suppressnoise));
-                    SetProcessor();
-                    break;
-                case "Custom Frame (Color)":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new CustomFrameColorDifferenceDetector(CameraControl.Camobject.settings.suppressnoise,
-                                                              CameraControl.Camobject.detector.keepobjectedges));
-                    SetProcessor();
-                    break;
-                case "Background Modeling (Color)":
-                    CameraControl.Camera.MotionDetector =
-                        new MotionDetector(
-                            new SimpleColorBackgroundModelingDetector(CameraControl.Camobject.settings.suppressnoise,
-                                                                 CameraControl.Camobject.detector.keepobjectedges));
-                    SetProcessor();
-                    break;
-                case "None":
-                    break;
-            }
-        }
-
-        private void SetProcessor()
-        {
-            if (CameraControl.Camera == null || CameraControl.Camera.MotionDetector == null)
-                return;
-            CameraControl.Camera.MotionDetector.MotionProcessingAlgorithm = null;
-            
-            switch (CameraControl.Camobject.detector.postprocessor)
-            {
-                case "Grid Processing":
-                    CameraControl.Camera.MotionDetector.MotionProcessingAlgorithm = new GridMotionAreaProcessing
-                                   {
-                                       HighlightColor = ColorTranslator.FromHtml(CameraControl.Camobject.detector.color),
-                                       HighlightMotionGrid = CameraControl.Camobject.detector.highlight
-                                   };
-                    break;
-                case "Object Tracking":
-                    CameraControl.Camera.MotionDetector.MotionProcessingAlgorithm = new BlobCountingObjectsProcessing
-                                    {
-                                        HighlightColor = ColorTranslator.FromHtml(CameraControl.Camobject.detector.color),
-                                        HighlightMotionRegions = CameraControl.Camobject.detector.highlight,
-                                        MinObjectsHeight = CameraControl.Camobject.detector.minheight,
-                                        MinObjectsWidth = CameraControl.Camobject.detector.minwidth
-                                    };
-
-                    break;
-                case "Border Highlighting":
-                    CameraControl.Camera.MotionDetector.MotionProcessingAlgorithm = new MotionBorderHighlighting
-                                    {
-                                        HighlightColor = ColorTranslator.FromHtml(CameraControl.Camobject.detector.color)
-                                    };
-                    break;
-                case "Area Highlighting":
-                    CameraControl.Camera.MotionDetector.MotionProcessingAlgorithm = new MotionAreaHighlighting
-                                    {
-                                        HighlightColor = ColorTranslator.FromHtml(CameraControl.Camobject.detector.color)
-                                    };
-                    break;
-                case "None":
-                    break;
-            }
-        }
+        
 
         private void ChkSuppressNoiseCheckedChanged(object sender, EventArgs e)
         {
@@ -1544,7 +1450,7 @@ namespace iSpyApplication
                 if (CameraControl.Camobject.settings.suppressnoise != chkSuppressNoise.Checked)
                 {
                     CameraControl.Camobject.settings.suppressnoise = chkSuppressNoise.Checked;
-                    SetDetector();
+                    CameraControl.SetDetector();
                 }
             }
         }
@@ -1575,7 +1481,7 @@ namespace iSpyApplication
                 if ((string) _processortypes[ddlProcessor.SelectedIndex] != CameraControl.Camobject.detector.postprocessor)
                 {
                     CameraControl.Camobject.detector.postprocessor = (string) _processortypes[ddlProcessor.SelectedIndex];
-                    SetProcessor();
+                    CameraControl.SetProcessor();
                 }
             }
             CameraControl.Camobject.detector.postprocessor = (string) _processortypes[ddlProcessor.SelectedIndex];
@@ -2293,7 +2199,7 @@ namespace iSpyApplication
             {
                 if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
                 {
-                    SetDetector();
+                    CameraControl.SetDetector();
                 }
             }
             cp.Dispose();
@@ -2600,11 +2506,8 @@ namespace iSpyApplication
         private void linkLabel15_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             AreaControl.ClearRectangles();
-            if (CameraControl.Camera != null && CameraControl.Camera.MotionDetector != null)
-            {
-                CameraControl.Camera.SetMotionZones(AreaControl.MotionZones);
-            }
             CameraControl.Camobject.detector.motionzones = AreaControl.MotionZones;
+            CameraControl.SetMotionZones();            
             AreaControl.Invalidate();
         }
 
@@ -2860,7 +2763,7 @@ namespace iSpyApplication
             {
                 ddlMotionDetector.SelectedIndex = 0;
                 ddlProcessor.SelectedIndex = 1;
-                SetDetector();
+                CameraControl.SetDetector();
             }
             t.Dispose();
 

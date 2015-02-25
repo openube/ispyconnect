@@ -36,6 +36,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.numMaxItems = new System.Windows.Forms.NumericUpDown();
+            this.chkRestore = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numRemoveDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxItems)).BeginInit();
@@ -50,18 +51,20 @@
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
             this.tableLayoutPanel1.Controls.Add(this.ddlDefault, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.numRemoveDelay, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.button1, 1, 4);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.numMaxItems, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.chkRestore, 1, 3);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
+            this.tableLayoutPanel1.RowCount = 5;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(236, 120);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(238, 149);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -109,7 +112,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(95, 82);
+            this.button1.Location = new System.Drawing.Point(95, 105);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -139,11 +142,21 @@
             this.numMaxItems.Size = new System.Drawing.Size(120, 20);
             this.numMaxItems.TabIndex = 6;
             // 
+            // chkRestore
+            // 
+            this.chkRestore.AutoSize = true;
+            this.chkRestore.Location = new System.Drawing.Point(95, 82);
+            this.chkRestore.Name = "chkRestore";
+            this.chkRestore.Size = new System.Drawing.Size(92, 17);
+            this.chkRestore.TabIndex = 7;
+            this.chkRestore.Text = "Show on Alert";
+            this.chkRestore.UseVisualStyleBackColor = true;
+            // 
             // GridViewModeConfig
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(236, 120);
+            this.ClientSize = new System.Drawing.Size(238, 149);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "GridViewModeConfig";
@@ -169,5 +182,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown numMaxItems;
+        private System.Windows.Forms.CheckBox chkRestore;
     }
 }

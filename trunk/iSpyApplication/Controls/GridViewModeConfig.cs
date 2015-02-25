@@ -19,6 +19,7 @@ namespace iSpyApplication.Controls
             LocRm.SetString(label1,"DefaultCamera");
             LocRm.SetString(label2, "RemoveDelay");
             LocRm.SetString(label3, "MaxItems");
+            LocRm.SetString(chkRestore, "MaximseAndRestore");
             LocRm.SetString(button1, "OK");
         }
 
@@ -27,6 +28,7 @@ namespace iSpyApplication.Controls
             int rd = 10;
             int id = -1;
             int mi = 16;
+            bool sr = false;
             if (!String.IsNullOrEmpty(ModeConfig))
             {
                 string[] cfg = ModeConfig.Split(',');
@@ -39,6 +41,10 @@ namespace iSpyApplication.Controls
                 if (cfg.Length >= 3)
                 {
                     mi = Convert.ToInt32(cfg[2]);
+                }
+                if (cfg.Length >= 4)
+                {
+                    Boolean.TryParse(cfg[3], out sr);
                 }
             }
 
@@ -53,6 +59,7 @@ namespace iSpyApplication.Controls
             ddlDefault.SelectedIndex = j;
             numRemoveDelay.Value = rd;
             numMaxItems.Value = mi;
+            chkRestore.Checked = sr;
         }
 
         private void GridViewModeConfig_FormClosing(object sender, FormClosingEventArgs e)
@@ -75,6 +82,7 @@ namespace iSpyApplication.Controls
                 cfg += ",";
             }
             cfg += numMaxItems.Value.ToString(CultureInfo.InvariantCulture);
+            cfg += "," + chkRestore.Checked.ToString(CultureInfo.InvariantCulture);
 
             ModeConfig = cfg;
             Close();

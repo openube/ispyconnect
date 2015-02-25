@@ -23,6 +23,12 @@ namespace iSpyApplication.Controls
         public Brush OverlayBrush = new SolidBrush(Color.White);
         public Brush RecordBrush = new SolidBrush(Color.Red);
         public Brush Lgb = new SolidBrush(MainForm.VolumeLevelColor);
+        
+        private readonly Pen _pline = new Pen(Color.Gray, 2);
+        private readonly Pen _vline = new Pen(Color.Green, 2);
+        private readonly Pen _pAlert = new Pen(Color.Red, 2);
+
+        private iSpyApplication.GridView _owner;
 
         internal MainForm MainClass;
         private DateTime _lastRun = Helper.Now;
@@ -62,14 +68,12 @@ namespace iSpyApplication.Controls
         private int _overControlIndex = -1;
         
 
-        private readonly Pen _pline = new Pen(Color.Gray, 2);
-        private readonly Pen _vline = new Pen(Color.Green, 2);
-        private readonly Pen _pAlert = new Pen(Color.Red, 2);
+        
 
         #endregion
 
 
-        public GridView(MainForm main, ref configurationGrid cg)
+        public GridView(MainForm main, ref configurationGrid cg, iSpyApplication.GridView owner)
         {
             Cg = cg;
             InitializeComponent();
@@ -79,6 +83,7 @@ namespace iSpyApplication.Controls
             BorderStyle = BorderStyle.None;
             BackColor = MainForm.Conf.BackColor.ToColor();
             MainClass = main;
+            _owner = owner;
             Init();
         }
 
@@ -194,8 +199,19 @@ namespace iSpyApplication.Controls
             lock(_objlock)
             {
                 int del = 10;
+                bool sr = false;
                 if (!String.IsNullOrEmpty(Cg.ModeConfig))
-                    del = Convert.ToInt32(Cg.ModeConfig.Split(',')[0]);
+                {
+                    var cfg = Cg.ModeConfig.Split(',');
+                    if (cfg.Length > 0)
+                    {
+                        del = Convert.ToInt32(cfg[0]);
+                        if (cfg.Length >= 4)
+                        {
+                            Boolean.TryParse(cfg[3], out sr);
+                        }
+                    }
+                }
                 int i;
                 for(int k=0;k<_controls.Count;k++)
                 {
@@ -274,10 +290,20 @@ namespace iSpyApplication.Controls
                 {
                     _cols = (int) Math.Sqrt(i);
                     _rows = (int) Math.Ceiling(i/(float) _cols);
+                    if (sr)
+                    {
+                        if (_lastRestored < DateTime.UtcNow.AddSeconds(-5))
+                        {
+                            _lastRestored = DateTime.UtcNow;
+                            _owner.ShowForm();
+                        }
+                    }
                 }
             }
 
         }
+        
+        private DateTime _lastRestored = DateTime.MinValue;
 
         protected override void Dispose(bool disposing)
         {
@@ -296,7 +322,13 @@ namespace iSpyApplication.Controls
             IconBrushActive.Dispose();
             OverlayBrush.Dispose();
             RecordBrush.Dispose();
-           
+            if (_tmrUpdateList != null)
+            {
+                _tmrUpdateList.Stop();
+                _tmrUpdateList.Dispose();
+                _tmrUpdateList = null;
+            }
+
             base.Dispose(disposing);
         }
 

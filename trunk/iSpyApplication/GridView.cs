@@ -16,7 +16,7 @@ namespace iSpyApplication
         public GridView(MainForm parent, ref configurationGrid layout)
         {
             InitializeComponent();
-            _gv = new Controls.GridView(parent, ref layout);
+            _gv = new Controls.GridView(parent, ref layout, this);
             _gv.KeyDown += GridView_KeyDown;
             Controls.Add(_gv);
             _gv.Dock = DockStyle.Fill;
@@ -59,6 +59,24 @@ namespace iSpyApplication
             {
                 WindowState = FormWindowState.Maximized;
                 FormBorderStyle = FormBorderStyle.Sizable;
+            }
+        }
+
+
+        public void ShowForm()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Delegates.SimpleDelegate(ShowForm));
+                return;
+            }
+
+            Activate();
+            Visible = true;
+            if (WindowState == FormWindowState.Minimized)
+            {
+                Show();
+                WindowState = FormWindowState.Maximized;
             }
         }
 

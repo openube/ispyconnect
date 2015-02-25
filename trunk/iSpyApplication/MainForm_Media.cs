@@ -87,12 +87,7 @@ namespace iSpyApplication
                 }
             }
             flowPreview.ResumeLayout(true);
-            if (_tDelete == null || _tDelete.Join(TimeSpan.Zero))
-            {
-                _tDelete = new Thread(DeleteFiles) {IsBackground = true};
-                _tDelete.Start();
-                
-            }
+            _needsDelete = true;
         }
 
         private void DeleteFiles()
@@ -188,6 +183,7 @@ namespace iSpyApplication
             pb.Dispose();
 
             NeedsMediaRefresh = Helper.Now;
+            _needsDelete = true;
            
         }
 
