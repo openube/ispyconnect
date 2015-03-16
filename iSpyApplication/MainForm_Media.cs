@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Speech.AudioFormat;
-using System.Text;
+
 using System.Threading;
 using System.Windows.Forms;
-using Google.GData.YouTube;
 using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Properties;
@@ -63,8 +59,8 @@ namespace iSpyApplication
             }
         }
 
-        private Queue<string> _toDelete = new Queue<string>();
-        private Thread _tDelete = null;
+        private readonly Queue<string> _toDelete = new Queue<string>();
+        private Thread _tDelete;
 
         internal void MediaDeleteSelected()
         {
@@ -442,6 +438,31 @@ namespace iSpyApplication
             if (msg != "")
                 MessageBox.Show(this, msg);
             
+        }
+
+        internal void MediaUploadYouTube()
+        {
+            if (!Conf.Subscribed)
+            {
+                var ns = new NotSubscribed();
+                ns.ShowDialog(this);
+                return;
+            }
+
+            string msg = "";
+            lock (ThreadLock)
+            {
+                for (int i = 0; i < flowPreview.Controls.Count; i++)
+                {
+                    var pb = flowPreview.Controls[i] as PreviewBox;
+                    if (pb != null && pb.Selected)
+                    {
+                        msg = YouTubeUploader.Upload(pb.Oid, pb.FileName);
+                    }
+                }
+            }
+            if (msg != "")
+                MessageBox.Show(this, msg);
         }
 
 

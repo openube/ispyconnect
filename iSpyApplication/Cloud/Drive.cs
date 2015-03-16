@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -11,6 +10,7 @@ using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
 using Google.Apis.Services;
 using Google.Apis.Upload;
+using Google.Apis.Util.Store;
 using File = Google.Apis.Drive.v2.Data.File;
 
 namespace iSpyApplication.Cloud
@@ -94,29 +94,29 @@ namespace iSpyApplication.Cloud
                         ClientId = "648753488389.apps.googleusercontent.com",
                         ClientSecret = "Guvru7Ug8DrGcOupqEs6fTB1"
                     },
-                    new[] {DriveService.Scope.Drive},
-                    "user", _tCancel.Token);
+                    new[] { DriveService.Scope.Drive },
+                    "user", _tCancel.Token, new FileDataStore("Drive")).Result;
 
-                t.ContinueWith(p =>
-                               {
-                                   if (!p.IsCompleted || p.IsCanceled || p.IsFaulted) return;
-                                   var credential = t.Result;
+                _service = new DriveService(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = t,
+                    ApplicationName = "iSpy",
+                });
+                if (t != null && t.Token != null &&
+                    t.Token.RefreshToken != null)
+                {
 
-                                   _service = new DriveService(new BaseClientService.Initializer
-                                                               {
-                                                                   HttpClientInitializer = credential,
-                                                                   ApplicationName = "iSpy",
-                                                               });
-                                   if (credential != null && credential.Token != null &&
-                                       credential.Token.RefreshToken != null)
-                                   {
+                    MainForm.Conf.GoogleDriveConfig =
+                        _refreshToken = t.Token.RefreshToken;
 
-                                       MainForm.Conf.GoogleDriveConfig =
-                                           _refreshToken = credential.Token.RefreshToken;
-                                   }
-                                   _lookups = new List<LookupPair>();
-                                   _upload = new List<UploadEntry>();
-                               });
+                    _service = new DriveService(new BaseClientService.Initializer
+                    {
+                        HttpClientInitializer = t,
+                        ApplicationName = "iSpy",
+                    });
+                }
+                _lookups = new List<LookupPair>();
+                _upload = new List<UploadEntry>();
             }
             catch (Exception ex)
             {
@@ -129,10 +129,6 @@ namespace iSpyApplication.Cloud
 
         private static string GetOrCreateFolder(string path)
         {
-            if (!Authorised)
-            {
-                return "";
-            }
             var c = _lookups.FirstOrDefault(p => p.Path == path);
             if (c != null)
                 return c.ID;
@@ -200,18 +196,8 @@ namespace iSpyApplication.Cloud
             public string DestinationPath;
         }
 
-        public static bool Authorised
-        {
-            get { return Service != null; }
-        }
-
         public static string Upload(string filename, string path)
         {
-            if (!Authorised)
-            {
-                MainForm.LogMessageToFile("Authorise google drive in settings");
-                return LocRm.GetString("CloudAddSettings");
-            }
             if (UploadList.SingleOrDefault(p => p.SourceFilename == filename) != null)
                 return LocRm.GetString("FileInQueue");
 
@@ -241,7 +227,7 @@ namespace iSpyApplication.Cloud
             try
             {
                 var l = UploadList.ToList();
-                entry = l[0];//could have been cleared by Authorise
+                entry = l[0];
                 l.RemoveAt(0);
                 UploadList = l.ToList();
             }
@@ -251,71 +237,81 @@ namespace iSpyApplication.Cloud
                 return;
             }
 
-            FileInfo fi;
-            byte[] byteArray;
-            try
+            if (Service == null)
             {
-                fi = new FileInfo(entry.SourceFilename);
-                byteArray = System.IO.File.ReadAllBytes(fi.FullName);
+                if (!Authorise())
+                {
+                    _uploading = false;
+                    return;
+                }
             }
-            catch
+            if (Service != null)
             {
-                //file doesn't exist
-                Upload(null);
-                return;
-            }
-            var mt = MimeTypes.GetMimeType(fi.Extension);
 
-            var body = new File { Title = fi.Name, Description = "iSpy", MimeType = mt };
-            string fid = GetOrCreateFolder(entry.DestinationPath);
-            bool retry = fid == "";
-
-            if (!retry)
-            {
-                var stream = new MemoryStream(byteArray);
-                body.Parents = new List<ParentReference> { new ParentReference { Id = fid } }; //id of ispy directory
-                var request = Service.Files.Insert(body, stream, mt);
-                request.ProgressChanged += RequestProgressChanged;
+                FileInfo fi;
+                byte[] byteArray;
                 try
                 {
-                    var task = request.UploadAsync();
-                    task.ContinueWith(t =>
-                                      {
-                                          stream.Dispose();
-                                          Upload(null);
-                                      });
+                    fi = new FileInfo(entry.SourceFilename);
+                    byteArray = System.IO.File.ReadAllBytes(fi.FullName);
+                }
+                catch(Exception ex)
+                {
+                    //file doesn't exist
+                    MainForm.LogExceptionToFile(ex);
+                    return;
+                }
+                var mt = MimeTypes.GetMimeType(fi.Extension);
+
+                var body = new File {Title = fi.Name, Description = "iSpy", MimeType = mt};
+                string fid = GetOrCreateFolder(entry.DestinationPath);
+                
+                try
+                {
+                    using (var stream = new MemoryStream(byteArray))
+                    {
+                        body.Parents = new List<ParentReference> {new ParentReference {Id = fid}};
+                        var request = Service.Files.Insert(body, stream, mt);
+                        request.ProgressChanged += RequestProgressChanged;
+                        request.ResponseReceived += RequestResponseReceived;
+                        try
+                        {
+                            request.Upload();
+                        }
+                        catch (Exception ex)
+                        {
+                            MainForm.LogExceptionToFile(ex);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     MainForm.LogExceptionToFile(ex);
-                    //network down? - add it back into the queue and wait for next upload to try again
-
-                    retry = true;
                 }
+                Upload(null);
             }
-
-            if (retry)
-            {
-                UploadList.Add(entry);
+            else
                 _uploading = false;
-            }
+            
 
+        }
 
+        static void RequestResponseReceived(File obj)
+        {
+            string msg = "File uploaded to google drive: <a href=\"" + obj.DownloadUrl + "\">" +obj.Title + "</a>";
+            MainForm.LogMessageToFile(msg);
         }
 
         private static void RequestProgressChanged(IUploadProgress obj)
         {
             switch (obj.Status)
             {
-                case UploadStatus.Completed:
-                    MainForm.LogMessageToFile("Uploaded file to google drive");
-                    break;
                 case UploadStatus.Failed:
                     if (obj.Exception!=null)
-                        MainForm.LogErrorToFile("Upload to google drive failed ("+obj.Exception.Message+")");
+                        MainForm.LogErrorToFile("Upload to Google Drive failed ("+obj.Exception.Message+")");
                     else
                     {
-                        MainForm.LogErrorToFile("Upload to google drive failed");
+                        MainForm.LogErrorToFile("Upload to Google Drive failed");
                     }
                     break;
             }

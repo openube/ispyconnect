@@ -5,6 +5,7 @@
       <xs:sequence>
         <xs:element name="WSUsername" type="xs:string" />
         <xs:element name="WSPassword" type="xs:string" />
+        <xs:element name="WSPasswordEncrypted" type="xs:boolean" default="false"/>
         <xs:element name="ServicesEnabled" type="xs:boolean" />
         <xs:element name="ServerPort" type="xs:int" />
         <xs:element name="motion_WSActivity_iSpy" type="xs:string" />
@@ -48,6 +49,7 @@
         <xs:element name="YouTubeKey" type="xs:string" />
         <xs:element name="YouTubeCategories" type="xs:string" />
         <xs:element name="YouTubeDefaultCategory" type="xs:string" />
+        <xs:element name="YouTubeToken" type="xs:string" />
         <xs:element name="CompressorOptions" type="xs:string" />
         <xs:element name="LogFFMPEGCommands" type="xs:boolean" />
         <xs:element name="BalloonTips" type="xs:boolean" />
@@ -140,6 +142,7 @@
         <xs:element name="VLCFileCache" type="xs:int" default="3000"/>
         <xs:element name="Referers" type="xs:string" default=""/>
         <xs:element name="EncryptCode" type="xs:string" default=""/>
+        
         <xsd:element name="Logging">
           <xsd:complexType>
             <xsd:attribute name="FileSize" type="xsd:int" default="100" />
@@ -170,6 +173,7 @@
                   </xs:attribute>
                   <xs:attribute name="port" type="xs:int" default="21"/>
                   <xs:attribute name="usepassive" type="xs:boolean" default="false"/>
+                  <xs:attribute name="sftp" type="xs:boolean" default="false"/>
                   <xs:attribute name="rename" type="xs:boolean" default="false"/>
                   <xs:attribute name="ident" type="xs:string" default=""/>
                 </xs:complexType>

@@ -537,18 +537,28 @@ namespace iSpyApplication.Audio.streams
             Stop();
         }
 
+        public void Stop()
+        {
+            Stop(true);
+        }
         /// <summary>
         /// Stop video source.
         /// </summary>
         /// 
-        public void Stop()
+        public void Stop(bool requested)
         {
             if (IsRunning)
             {
                 // wait for thread stop
                 _stopping = true;
-                _stopRequested = true;
-                _stopEvent.Set();
+                _stopRequested = requested;
+                try
+                {
+                    _stopEvent.Set();
+                }
+                catch
+                {
+                }
                 if (_thread != null && !_thread.Join(MainForm.ThreadKillDelay))
                     _thread.Abort();
                 Free();

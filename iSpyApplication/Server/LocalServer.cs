@@ -229,9 +229,9 @@ namespace iSpyApplication.Server
             {
                 sMimeType = MimeTypes[sFileExt].ToString();
             }
-            catch (Exception ex)
+            catch
             {
-                MainForm.LogErrorToFile("No mime type for request " + sRequestedFile);
+                //MainForm.LogErrorToFile("No mime type for request " + sRequestedFile);
             }
 
 

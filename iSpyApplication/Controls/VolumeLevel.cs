@@ -38,12 +38,13 @@ namespace iSpyApplication.Controls
         public event EventHandler AudioDeviceEnabled, AudioDeviceDisabled, AudioDeviceReConnected;
         private long _lastRun = Helper.Now.Ticks;
         private double _secondCountNew;
-        private double _recordingTime;
+        private DateTime _recordingStartTime = DateTime.MinValue;
         private Point _mouseLoc;
         private readonly ManualResetEvent _stopWrite = new ManualResetEvent(false);
         private volatile float[] _levels;
         private readonly ToolTip _toolTipMic;
         private int _ttind = -1;
+        private int _reconnectFailCount = 0;
         private DateTime _errorTime = DateTime.MinValue;
         private DateTime _reconnectTime = DateTime.MinValue;
 
@@ -805,6 +806,7 @@ namespace iSpyApplication.Controls
                         if (AudioSourceErrorState)
                             UpdateFloorplans(false);
                         AudioSourceErrorState = false;
+                        _reconnectFailCount = 0;
                     }
                 }
                 
@@ -850,83 +852,91 @@ namespace iSpyApplication.Controls
         private double _tickThrottle;
         public void Tick()
         {
-            //time since last tick
-            var ts = new TimeSpan(Helper.Now.Ticks - _lastRun);
-            _lastRun = Helper.Now.Ticks;
-            _secondCountNew = ts.Milliseconds / 1000.0;
-
-            if (Micobject.schedule.active)
+            try
             {
-                if (CheckSchedule()) goto skip;
-            }
+                //time since last tick
+                var ts = new TimeSpan(Helper.Now.Ticks - _lastRun);
+                _lastRun = Helper.Now.Ticks;
+                _secondCountNew = ts.Milliseconds / 1000.0;
 
-            if (!IsEnabled) goto skip;
+                if (Micobject.schedule.active)
+                {
+                    if (CheckSchedule()) goto skip;
+                }
 
-            SoundDetected = SoundRecentlyDetected;
+                if (!IsEnabled) goto skip;
+
+                SoundDetected = SoundRecentlyDetected;
             
 
-            if (FlashCounter > DateTime.MinValue)
-            {
-                double iFc = (FlashCounter - Helper.Now).TotalSeconds;
-                if (SoundDetected)
+                if (FlashCounter > DateTime.MinValue)
                 {
-                    InactiveRecord = 0;
-                    if (Micobject.alerts.mode != "nosound" &&
-                        (Micobject.detector.recordondetect || Micobject.detector.recordonalert))
+                    double iFc = (FlashCounter - Helper.Now).TotalSeconds;
+                    if (SoundDetected)
                     {
-                        var cc = CameraControl;
-                        if (cc != null)
-                            cc.InactiveRecord = 0;
+                        InactiveRecord = 0;
+                        if (Micobject.alerts.mode != "nosound" &&
+                            (Micobject.detector.recordondetect || Micobject.detector.recordonalert))
+                        {
+                            var cc = CameraControl;
+                            if (cc != null)
+                                cc.InactiveRecord = 0;
+                        }
                     }
+                    if (iFc < 9)
+                        SoundDetected = false;
+
+                    if (iFc < 1)
+                    {
+                        UpdateFloorplans(false);
+                        FlashCounter = DateTime.MinValue;
+                    }
+
                 }
-                if (iFc < 9)
-                    SoundDetected = false;
-
-                if (iFc < 1)
-                {
-                    UpdateFloorplans(false);
-                    FlashCounter = DateTime.MinValue;
-                }
-
-            }
-
-            if (Recording)
-                _recordingTime += Convert.ToDouble(ts.TotalMilliseconds)/1000.0;
-
-            if (IsEnabled)
-            {
-                FlashBackground();
-            }
             
-            _tickThrottle += _secondCountNew;
-
-            if (_tickThrottle > 1 && IsEnabled) //every second
-            {
-                if (CheckReconnect()) goto skip;
-
-                CheckReconnectInterval(_tickThrottle);
-
-                CheckDisconnect();
-
-                if (Recording && !SoundDetected && !ForcedRecording)
+                if (IsEnabled)
                 {
-                    InactiveRecord += _tickThrottle;
+                    FlashBackground();
                 }
+            
+                _tickThrottle += _secondCountNew;
+
+                if (_tickThrottle > 1 && IsEnabled) //every second
+                {
+                    if (CheckReconnect()) goto skip;
+
+                    CheckReconnectInterval(_tickThrottle);
+
+                    CheckDisconnect();
+
+                    if (Recording && !SoundDetected && !ForcedRecording)
+                    {
+                        InactiveRecord += _tickThrottle;
+                    }
                 
 
-                if (_levels!=null)
-                {
-                    CheckVLCTimeStamp();
-
-                    CheckRecord();
+                    if (_levels!=null)
+                    {
+                        CheckVLCTimeStamp();
+                    }
+                    if (Helper.HasFeature(Enums.Features.Recording))
+                    {
+                        CheckRecord();
+                    }
+                    _tickThrottle = 0;
                 }
-                _tickThrottle = 0;
+
+
+                CheckAlert(_secondCountNew);
+
+                skip:
+                    ;
             }
-
-
-            CheckAlert(_secondCountNew);
-
-            skip:
+            catch (Exception ex)
+            {
+                if (ErrorHandler != null)
+                    ErrorHandler(ex.Message);
+            }
 
             if (_requestRefresh)
             {
@@ -1134,6 +1144,7 @@ namespace iSpyApplication.Controls
                                 Micobject.detector.recordondetect = entry.recordondetect;
                                 Micobject.detector.recordonalert = entry.recordonalert;
                                 Micobject.alerts.active = entry.alerts;
+                                Micobject.settings.messaging = entry.messaging;
 
                                 if (IsEnabled)
                                     Disable();
@@ -1156,6 +1167,7 @@ namespace iSpyApplication.Controls
                                     Micobject.detector.recordondetect = entry.recordondetect;
                                     Micobject.detector.recordonalert = entry.recordonalert;
                                     Micobject.alerts.active = entry.alerts;
+                                    Micobject.settings.messaging = entry.messaging;
                                     if (entry.recordonstart)
                                     {
                                         ForcedRecording = true;
@@ -1243,8 +1255,9 @@ namespace iSpyApplication.Controls
             
             if (Recording && CameraControl==null)
             {
-                if (_recordingTime > Micobject.recorder.maxrecordtime || 
-                    ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording  && _recordingTime > Micobject.recorder.minrecordtime))
+                var dur = (DateTime.UtcNow - _recordingStartTime).TotalSeconds;
+                if (dur > Micobject.recorder.maxrecordtime || 
+                    ((!SoundDetected && InactiveRecord > Micobject.recorder.inactiverecord) && !ForcedRecording  && dur > Micobject.recorder.minrecordtime))
                     StopSaving();
             }
             
@@ -1494,7 +1507,7 @@ namespace iSpyApplication.Controls
             {
                 if (Recording)
                     return;
-
+                _recordingStartTime = DateTime.UtcNow;
                 _recordingThread = new Thread(Record)
                                    {
                                        Name = "Recording Thread (" + Micobject.id + ")",
@@ -1507,181 +1520,74 @@ namespace iSpyApplication.Controls
 
         private void Record()
         {
-            _stopWrite.Reset();
-
-            if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
-            {
-                string[] tid = Micobject.recorder.trigger.Split(',');
-                switch (tid[0])
-                {
-                    case "1":
-                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null && !vl.Recording)
-                            vl.RecordSwitch(true);
-                        break;
-                    case "2":
-                        CameraWindow c = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (c != null && !c.Recording)
-                            c.RecordSwitch(true);
-                        break;
-                }
-            }
-            var cw = CameraControl;
-            //
-            if (cw != null)
-            {
-                if (cw.AbortedAudio)
-                {
-                    MainForm.LogErrorToFile(Micobject.name+": paired recording aborted as the camera is already recording");
-                    ForcedRecording = false;
-                    return;
-                }
-            }
             try
             {
+                _stopWrite.Reset();
+
+                if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
+                {
+                    string[] tid = Micobject.recorder.trigger.Split(',');
+                    switch (tid[0])
+                    {
+                        case "1":
+                            VolumeLevel vl = ((MainForm) TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                            if (vl != null && !vl.Recording)
+                                vl.RecordSwitch(true);
+                            break;
+                        case "2":
+                            CameraWindow c = ((MainForm) TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                            if (c != null && !c.Recording)
+                                c.RecordSwitch(true);
+                            break;
+                    }
+                }
+                var cw = CameraControl;
+                //
                 if (cw != null)
                 {
-                    cw.ForcedRecording = ForcedRecording;
-                    cw.StartSaving();
-                    _stopWrite.WaitOne();
+                    if (cw.AbortedAudio)
+                    {
+                        MainForm.LogErrorToFile(Micobject.name +
+                                                ": paired recording aborted as the camera is already recording");
+                        ForcedRecording = false;
+                        return;
+                    }
                 }
-                else
+                try
                 {
-                    #region mp3writer
-
-                    DateTime date = Helper.Now;
-
-                    string filename = String.Format("{0}-{1}-{2}_{3}-{4}-{5}",
-                                                    date.Year, Helper.ZeroPad(date.Month), Helper.ZeroPad(date.Day),
-                                                    Helper.ZeroPad(date.Hour), Helper.ZeroPad(date.Minute),
-                                                    Helper.ZeroPad(date.Second));
-
-                    AudioFileName = Micobject.id + "_" + filename;
-                    string folder = Dir.Entry + "audio\\" + Micobject.directory + "\\";
-                    if (!Directory.Exists(folder))
-                        Directory.CreateDirectory(folder);
-                    filename = folder + AudioFileName;
-
-                    
-                    
-                    _writer = new AudioFileWriter();
-                    try
+                    if (cw != null)
                     {
-                        Program.FFMPEGMutex.WaitOne();                       
-                        _writer.Open(filename + ".mp3", AudioCodec.MP3, AudioSource.RecordingFormat.BitsPerSample * AudioSource.RecordingFormat.SampleRate * AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate, AudioSource.RecordingFormat.Channels);                        
+                        cw.ForcedRecording = ForcedRecording;
+                        cw.StartSaving();
+                        _stopWrite.WaitOne();
                     }
-                    finally
+                    else
                     {
-                        try
-                        {
-                            Program.FFMPEGMutex.ReleaseMutex();
-                        }
-                        catch (ObjectDisposedException)
-                        {
-                            //can happen on shutdown
-                        }
-                    }
+                        #region mp3writer
 
-                    
+                        DateTime date = Helper.Now;
 
-                    double maxlevel = 0;
-                    bool first = true;
-                    DateTime recordingStart = Helper.Now;
+                        string filename = String.Format("{0}-{1}-{2}_{3}-{4}-{5}",
+                            date.Year, Helper.ZeroPad(date.Month), Helper.ZeroPad(date.Day),
+                            Helper.ZeroPad(date.Hour), Helper.ZeroPad(date.Minute),
+                            Helper.ZeroPad(date.Second));
 
-                    try
-                    {
-                        while (!_stopWrite.WaitOne(5))
-                        {
-                            Helper.FrameAction fa;
-                            while (Buffer.TryDequeue(out fa))
-                            {
-                                if (first)
-                                {
-                                    recordingStart = fa.TimeStamp;
-                                    first = false;
-                                }
+                        AudioFileName = Micobject.id + "_" + filename;
+                        string folder = Dir.Entry + "audio\\" + Micobject.directory + "\\";
+                        if (!Directory.Exists(folder))
+                            Directory.CreateDirectory(folder);
+                        filename = folder + AudioFileName;
 
 
-                                if (fa.FrameType == Enums.FrameType.Audio)
-                                {
-                                    unsafe
-                                    {
-                                        fixed (byte* p = fa.Content)
-                                        {
-                                            _writer.WriteAudio(p, fa.DataLength);
-                                        }
-                                    }
-                                    float d = Levels.Max();
-                                    _soundData.Append(String.Format(CultureInfo.InvariantCulture,
-                                        "{0:0.000}", d));
-                                    _soundData.Append(",");
-                                    if (d > maxlevel)
-                                        maxlevel = d;
-                                }
-                                fa.Nullify();
 
-                            }
-                        }
-
-
-                        FilesFile ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(AudioFileName + ".mp3"));
-                        bool newfile = false;
-                        if (ff == null)
-                        {
-                            ff = new FilesFile();
-                            newfile = true;
-                        }
-
-
-                        string[] fnpath = (filename + ".mp3").Split('\\');
-                        string fn = fnpath[fnpath.Length - 1];
-                        var fi = new FileInfo(filename + ".mp3");
-                        var dSeconds = Convert.ToInt32((Helper.Now - recordingStart).TotalSeconds);
-
-                        ff.CreatedDateTicks = DateTime.Now.Ticks;
-                        ff.Filename = fnpath[fnpath.Length - 1];
-                        ff.MaxAlarm = maxlevel;
-                        ff.SizeBytes = fi.Length;
-                        ff.DurationSeconds = dSeconds;
-                        ff.IsTimelapse = false;
-                        ff.IsMergeFile = false;
-                        ff.AlertData = Helper.GetMotionDataPoints(_soundData);
-                        _soundData.Clear();
-                        ff.TriggerLevel = Micobject.detector.minsensitivity;
-                        ff.TriggerLevelMax = Micobject.detector.maxsensitivity;
-
-                        if (newfile)
-                        {
-                            lock (_lockobject)
-                            {
-                                _filelist.Insert(0, ff);
-                            }
-
-                            MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Micobject.name,DateTime.Now.Ticks, 1, Micobject.id,ff.MaxAlarm,false,false));
-                            MainForm.NeedsMediaRefresh = Helper.Now;
-
-                        }
-
-
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ErrorHandler != null)
-                            ErrorHandler(ex.Message);           
-                    }
-
-
-                    if (_writer != null && _writer.IsOpen)
-                    {
+                        _writer = new AudioFileWriter();
                         try
                         {
                             Program.FFMPEGMutex.WaitOne();
-                            _writer.Dispose();
-                        }
-                        catch (Exception ex)
-                        {
-                            if (ErrorHandler != null)
-                                ErrorHandler(ex.Message);
+                            _writer.Open(filename + ".mp3", AudioCodec.MP3,
+                                AudioSource.RecordingFormat.BitsPerSample*AudioSource.RecordingFormat.SampleRate*
+                                AudioSource.RecordingFormat.Channels, AudioSource.RecordingFormat.SampleRate,
+                                AudioSource.RecordingFormat.Channels);
                         }
                         finally
                         {
@@ -1694,43 +1600,163 @@ namespace iSpyApplication.Controls
                                 //can happen on shutdown
                             }
                         }
+
+
+
+                        double maxlevel = 0;
+                        bool first = true;
+                        DateTime recordingStart = Helper.Now;
+
+                        try
+                        {
+                            while (!_stopWrite.WaitOne(5))
+                            {
+                                Helper.FrameAction fa;
+                                while (Buffer.TryDequeue(out fa))
+                                {
+                                    if (first)
+                                    {
+                                        recordingStart = fa.TimeStamp;
+                                        first = false;
+                                    }
+
+
+                                    if (fa.FrameType == Enums.FrameType.Audio)
+                                    {
+                                        unsafe
+                                        {
+                                            fixed (byte* p = fa.Content)
+                                            {
+                                                _writer.WriteAudio(p, fa.DataLength);
+                                            }
+                                        }
+                                        float d = Levels.Max();
+                                        _soundData.Append(String.Format(CultureInfo.InvariantCulture,
+                                            "{0:0.000}", d));
+                                        _soundData.Append(",");
+                                        if (d > maxlevel)
+                                            maxlevel = d;
+                                    }
+                                    fa.Nullify();
+
+                                }
+                            }
+
+
+                            FilesFile ff = _filelist.FirstOrDefault(p => p.Filename.EndsWith(AudioFileName + ".mp3"));
+                            bool newfile = false;
+                            if (ff == null)
+                            {
+                                ff = new FilesFile();
+                                newfile = true;
+                            }
+
+
+                            string[] fnpath = (filename + ".mp3").Split('\\');
+                            string fn = fnpath[fnpath.Length - 1];
+                            var fi = new FileInfo(filename + ".mp3");
+                            var dSeconds = Convert.ToInt32((Helper.Now - recordingStart).TotalSeconds);
+
+                            ff.CreatedDateTicks = DateTime.Now.Ticks;
+                            ff.Filename = fnpath[fnpath.Length - 1];
+                            ff.MaxAlarm = maxlevel;
+                            ff.SizeBytes = fi.Length;
+                            ff.DurationSeconds = dSeconds;
+                            ff.IsTimelapse = false;
+                            ff.IsMergeFile = false;
+                            ff.AlertData = Helper.GetMotionDataPoints(_soundData);
+                            _soundData.Clear();
+                            ff.TriggerLevel = Micobject.detector.minsensitivity;
+                            ff.TriggerLevelMax = Micobject.detector.maxsensitivity;
+
+                            if (newfile)
+                            {
+                                lock (_lockobject)
+                                {
+                                    _filelist.Insert(0, ff);
+                                }
+
+                                MainForm.MasterFileAdd(new FilePreview(fn, dSeconds, Micobject.name, DateTime.Now.Ticks,
+                                    1, Micobject.id, ff.MaxAlarm, false, false));
+                                MainForm.NeedsMediaRefresh = Helper.Now;
+
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ErrorHandler != null)
+                                ErrorHandler(ex.Message);
+                        }
+
+
+                        if (_writer != null && _writer.IsOpen)
+                        {
+                            try
+                            {
+                                Program.FFMPEGMutex.WaitOne();
+                                _writer.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (ErrorHandler != null)
+                                    ErrorHandler(ex.Message);
+                            }
+                            finally
+                            {
+                                try
+                                {
+                                    Program.FFMPEGMutex.ReleaseMutex();
+                                }
+                                catch (ObjectDisposedException)
+                                {
+                                    //can happen on shutdown
+                                }
+                            }
+                        }
+
+                        _writer = null;
+
+                        #endregion
                     }
 
-                    _writer = null;
-                    #endregion
+                    UpdateFloorplans(false);
                 }
-                _recordingTime = 0;
-                UpdateFloorplans(false);
+                catch (Exception ex)
+                {
+                    if (ErrorHandler != null)
+                        ErrorHandler(ex.Message);
+                }
+
+                if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
+                {
+                    string[] tid = Micobject.recorder.trigger.Split(',');
+                    switch (tid[0])
+                    {
+                        case "1":
+                            VolumeLevel vl = ((MainForm) TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
+                            if (vl != null)
+                                vl.RecordSwitch(false);
+                            break;
+                        case "2":
+                            CameraWindow c = ((MainForm) TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
+                            if (c != null)
+                                c.RecordSwitch(false);
+                            break;
+                    }
+                }
+
+                if (cw == null)
+                {
+                    Micobject.newrecordingcount++;
+                    if (Notification != null)
+                        Notification(this, new NotificationType("NewRecording", Micobject.name, ""));
+                }
             }
             catch (Exception ex)
             {
-                if (ErrorHandler != null)
-                    ErrorHandler(ex.Message);
-            }
-            
-            if (!String.IsNullOrEmpty(Micobject.recorder.trigger) && TopLevelControl != null)
-            {
-                string[] tid = Micobject.recorder.trigger.Split(',');
-                switch (tid[0])
-                {
-                    case "1":
-                        VolumeLevel vl = ((MainForm)TopLevelControl).GetVolumeLevel(Convert.ToInt32(tid[1]));
-                        if (vl != null)
-                            vl.RecordSwitch(false);
-                        break;
-                    case "2":
-                        CameraWindow c = ((MainForm)TopLevelControl).GetCameraWindow(Convert.ToInt32(tid[1]));
-                        if (c != null)
-                            c.RecordSwitch(false);
-                        break;
-                }
-            }
-
-            if (cw==null)
-            {
-                Micobject.newrecordingcount++;
-                if (Notification != null)
-                    Notification(this, new NotificationType("NewRecording", Micobject.name, ""));
+                MainForm.LogExceptionToFile(ex);
             }
         }
 
@@ -1845,7 +1871,6 @@ namespace iSpyApplication.Controls
                 ForcedRecording = false;
                 Alerted = false;
                 FlashCounter = DateTime.MinValue;
-                _recordingTime = 0;
                 Listening = false;
                 ReconnectCount = 0;
                 AudioSourceErrorState = false;
@@ -2071,7 +2096,6 @@ namespace iSpyApplication.Controls
                 _soundRecentlyDetected = false;
                 Alerted = false;
                 FlashCounter = DateTime.MinValue;
-                _recordingTime = 0;
                 ReconnectCount = 0;
                 Listening = false;
                 LastSoundDetected = Helper.Now;
@@ -2639,6 +2663,14 @@ namespace iSpyApplication.Controls
                 }
                 if (_errorTime == DateTime.MinValue)
                     _errorTime = Helper.Now;
+            }
+            else
+            {
+                _reconnectFailCount++;
+                if (_reconnectFailCount == 1)
+                {
+                    DoAlert("reconnectfailed");
+                }
             }
             _requestRefresh = true;
         }

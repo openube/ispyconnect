@@ -513,7 +513,7 @@ namespace iSpyApplication.Video
                         request.ProtocolVersion = HttpVersion.Version10;
 
                     // set timeout value for the request
-                    request.Timeout = _requestTimeout;
+                    request.Timeout = request.ServicePoint.ConnectionLeaseTimeout = request.ServicePoint.MaxIdleTime = _requestTimeout;
                     request.AllowAutoRedirect = true;
 
                     // set login and password
@@ -711,12 +711,23 @@ namespace iSpyApplication.Video
                     {
                         try
                         {
+                            stream.Flush();
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
                             stream.Close();
                         }
                         catch
                         {
-                            
                         }
+                        try
+                        {
+                            stream.Dispose();
+                        }
+                        catch { }
                         stream = null;
                     }
                     // close response

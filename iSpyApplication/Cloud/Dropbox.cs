@@ -161,44 +161,49 @@ namespace iSpyApplication.Cloud
                 _uploading = false;
                 return;
             }
-
-            FileInfo fi;
-            byte[] byteArray;
-            try
+            
+            if (Service == null)
             {
-                fi = new FileInfo(entry.SourceFilename);
-                byteArray = File.ReadAllBytes(fi.FullName);
+                if (!Authorise())
+                {
+                    _uploading = false;
+                    return;
+                }
             }
-            catch
+            if (Service != null)
             {
-                //file doesn't exist
-                Upload(null);
-                return;
-            }
 
-            var retry = false;
-            using (var stream = new MemoryStream(byteArray))
-            {
+                FileInfo fi;
+                byte[] byteArray;
                 try
                 {
-                    string p = "/" + entry.DestinationPath.Replace("\\", "/").Trim('/') + "/";
-                    var r = Service.UploadFile(p, fi.Name, stream);
-                    MainForm.LogMessageToFile("Uploaded to dropbox: /iSpy" + r.Path);
+                    fi = new FileInfo(entry.SourceFilename);
+                    byteArray = File.ReadAllBytes(fi.FullName);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MainForm.LogExceptionToFile(ex);
-                    retry = true;
+                    //file doesn't exist
+                    Upload(null);
+                    return;
                 }
+
+                using (var stream = new MemoryStream(byteArray))
+                {
+                    try
+                    {
+                        string p = "/" + entry.DestinationPath.Replace("\\", "/").Trim('/') + "/";
+                        var r = Service.UploadFile(p, fi.Name, stream);
+                        MainForm.LogMessageToFile("Uploaded to dropbox: /iSpy" + r.Path);
+                    }
+                    catch (Exception ex)
+                    {
+                        MainForm.LogExceptionToFile(ex);
+                    }
+                }
+                Upload(null);
             }
-
-
-            if (retry)
-            {
-                UploadList.Add(entry);
+            else
                 _uploading = false;
-            }
-            Upload(null);
 
 
         }

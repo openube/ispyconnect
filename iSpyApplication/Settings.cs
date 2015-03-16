@@ -3,12 +3,15 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Google.GData.Client;
-using Google.GData.YouTube;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
+using iSpyApplication.Cloud;
 using iSpyApplication.Server;
 using Microsoft.Win32;
 using NAudio.Wave;
@@ -96,9 +99,6 @@ namespace iSpyApplication
             MainForm.Conf.Enabled_ShowGettingStarted = chkShowGettingStarted.Checked;
             MainForm.Conf.Opacity = tbOpacity.Value;
             MainForm.Conf.OpenGrabs = chkOpenGrabs.Checked;
-            
-            MainForm.Conf.YouTubePassword = txtYouTubePassword.Text;
-            MainForm.Conf.YouTubeUsername = txtYouTubeUsername.Text;
             MainForm.Conf.BalloonTips = chkBalloon.Checked;
             MainForm.Conf.TrayIconText = txtTrayIcon.Text;
             MainForm.Conf.IPCameraTimeout = Convert.ToInt32(txtIPCameraTimeout.Value);
@@ -355,10 +355,6 @@ namespace iSpyApplication
             tbOpacity.Value = MainForm.Conf.Opacity;
             SetColors();
 
-            
-
-            txtYouTubePassword.Text = MainForm.Conf.YouTubePassword;
-            txtYouTubeUsername.Text = MainForm.Conf.YouTubeUsername;
             chkBalloon.Checked = MainForm.Conf.BalloonTips;
 
             txtIPCameraTimeout.Value = MainForm.Conf.IPCameraTimeout;
@@ -586,8 +582,6 @@ namespace iSpyApplication
             label21.Text = LocRm.GetString("TrayIconText");
             label3.Text = LocRm.GetString("MediaDirectory");
             label4.Text = "ms";
-            label5.Text = LocRm.GetString("YoutubeUsername");
-            label6.Text = LocRm.GetString("YoutubePassword");
             label7.Text = "ms";
             label8.Text = LocRm.GetString("MjpegReceiveTimeout");
             
@@ -595,7 +589,6 @@ namespace iSpyApplication
             label13.Text = LocRm.GetString("PlaybackMode");
             tabPage1.Text = LocRm.GetString("Colors");
             tabPage2.Text = LocRm.GetString("Storage");
-            tabPage3.Text = LocRm.GetString("YouTube");
             tabPage4.Text = LocRm.GetString("Timeouts");
             tabPage6.Text = LocRm.GetString("options");
             tabPage7.Text = LocRm.GetString("IPAccess");
@@ -605,7 +598,6 @@ namespace iSpyApplication
             chkAlertWindows.Text = LocRm.GetString("CreateAlertWindow");
             chkOverlay.Text = LocRm.GetString("ShowOverlayControls");
             lblPriority.Text = LocRm.GetString("Priority");
-            btnLogin.Text = LocRm.GetString("Test");
             chkInterrupt.Text = LocRm.GetString("InterruptScreensaverOnAlert");
             label23.Text = LocRm.GetString("JPEGQuality");
             llblHelp.Text = LocRm.GetString("help");
@@ -684,7 +676,6 @@ namespace iSpyApplication
             label60.Text = LocRm.GetString("SSLCertificate");
             //future
             chkSpeechRecognition.Visible = false;
-            groupBox1.Text = LocRm.GetString("YouTube");
             label63.Text = LocRm.GetString("Servers");
             chkOpenGrabs.Text = LocRm.GetString("OpenImagesAfterSaving");
             chkEnableLogging.Text = LocRm.GetString("Enable");
@@ -913,26 +904,16 @@ namespace iSpyApplication
             MainForm.OpenUrl( MainForm.Website+"/userguide-settings.aspx");
         }
 
+        private static CancellationTokenSource _tCancel;
+
+
+        
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            var service = new YouTubeService("iSpy", MainForm.Conf.YouTubeKey);
-            service.setUserCredentials(txtYouTubeUsername.Text, txtYouTubePassword.Text);
-            string token = "";
-            try
+            if (YouTubeUploader.Authorise())
             {
-                token = service.QueryClientLoginToken();
-            }
-            catch(InvalidCredentialsException)
-            {
-                MessageBox.Show(this, LocRm.GetString("LoginFailed"));
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            if (token != "")
                 MessageBox.Show(this, LocRm.GetString("LoginSuccess"));
-
+            }
         }
 
         private void chkMonitor_CheckedChanged(object sender, EventArgs e)

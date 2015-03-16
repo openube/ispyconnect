@@ -308,6 +308,10 @@ namespace iSpyApplication
                                         KeepDays = 7
                                     };
                 }
+
+                if (!String.IsNullOrEmpty(_conf.WSPassword) && _conf.WSPasswordEncrypted)
+                    _conf.WSPassword = EncDec.DecryptData(_conf.WSPassword, "582df37b-b7cc-43f7-a442-30a2b188a888");
+
                 return _conf;
             }
         }
@@ -2872,6 +2876,7 @@ namespace iSpyApplication
                 {
                     case MouseButtons.Right:
                         ContextTarget = ctrl;
+                        ctrl.Selected = true;
                         ctxtPlayer.Show(ctrl, new Point(e.X, e.Y));
                         break;
                 }
@@ -2991,7 +2996,24 @@ namespace iSpyApplication
                 {
                     try
                     {
+                        string pwd = _conf.WSPassword;
+
+                        //save the encrypted form
+                        if (!String.IsNullOrEmpty(_conf.WSPassword))
+                        {
+
+                            _conf.WSPassword = EncDec.EncryptData(_conf.WSPassword, "582df37b-b7cc-43f7-a442-30a2b188a888");
+                            _conf.WSPasswordEncrypted = true;
+                        }
+                        else
+                        {
+                            _conf.WSPassword = "";
+                            _conf.WSPasswordEncrypted = false;
+                        }
                         s.Serialize(writer, Conf);
+
+                        //revert to clear text for in memory lookups
+                        _conf.WSPassword = pwd;
                         File.WriteAllText(fileName, sb.ToString(), Encoding.UTF8);
                     }
                     catch (Exception e)

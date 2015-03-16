@@ -104,15 +104,6 @@ namespace iSpyApplication
             this.txtArchive = new System.Windows.Forms.TextBox();
             this.btnArchive = new System.Windows.Forms.Button();
             this.label12 = new System.Windows.Forms.Label();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.btnLogin = new System.Windows.Forms.Button();
-            this.txtYouTubeUsername = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.txtYouTubePassword = new System.Windows.Forms.TextBox();
             this.tabPage13 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel12 = new System.Windows.Forms.TableLayoutPanel();
             this.label63 = new System.Windows.Forms.Label();
@@ -257,10 +248,6 @@ namespace iSpyApplication
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel8.SuspendLayout();
-            this.tabPage3.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.tableLayoutPanel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabPage13.SuspendLayout();
             this.tableLayoutPanel12.SuspendLayout();
             this.tabPage4.SuspendLayout();
@@ -362,7 +349,6 @@ namespace iSpyApplication
             this.tcTabs.Controls.Add(this.tabPage6);
             this.tcTabs.Controls.Add(this.tabPage1);
             this.tcTabs.Controls.Add(this.tabPage2);
-            this.tcTabs.Controls.Add(this.tabPage3);
             this.tcTabs.Controls.Add(this.tabPage13);
             this.tcTabs.Controls.Add(this.tabPage4);
             this.tcTabs.Controls.Add(this.tabPage7);
@@ -1256,113 +1242,6 @@ namespace iSpyApplication
             this.label12.TabIndex = 2;
             this.label12.Text = "Location to archive selected clips to - do not use a location in a media director" +
     "y.";
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.AutoScroll = true;
-            this.tabPage3.Controls.Add(this.groupBox1);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(6);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage3.Size = new System.Drawing.Size(783, 604);
-            this.tabPage3.TabIndex = 4;
-            this.tabPage3.Text = "YouTube";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.tableLayoutPanel4);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(6, 6);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(3, 3, 3, 20);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(771, 145);
-            this.groupBox1.TabIndex = 10;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "YouTube";
-            // 
-            // tableLayoutPanel4
-            // 
-            this.tableLayoutPanel4.AutoSize = true;
-            this.tableLayoutPanel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel4.ColumnCount = 3;
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel4.Controls.Add(this.label5, 1, 0);
-            this.tableLayoutPanel4.Controls.Add(this.btnLogin, 2, 2);
-            this.tableLayoutPanel4.Controls.Add(this.txtYouTubeUsername, 2, 0);
-            this.tableLayoutPanel4.Controls.Add(this.label6, 1, 1);
-            this.tableLayoutPanel4.Controls.Add(this.pictureBox1, 0, 0);
-            this.tableLayoutPanel4.Controls.Add(this.txtYouTubePassword, 2, 1);
-            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 16);
-            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
-            this.tableLayoutPanel4.RowCount = 3;
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(765, 126);
-            this.tableLayoutPanel4.TabIndex = 9;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(117, 8);
-            this.label5.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(102, 13);
-            this.label5.TabIndex = 0;
-            this.label5.Text = "YouTube Username";
-            // 
-            // btnLogin
-            // 
-            this.btnLogin.Location = new System.Drawing.Point(228, 67);
-            this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(75, 23);
-            this.btnLogin.TabIndex = 5;
-            this.btnLogin.Text = "Login";
-            this.btnLogin.UseVisualStyleBackColor = true;
-            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
-            // 
-            // txtYouTubeUsername
-            // 
-            this.txtYouTubeUsername.Location = new System.Drawing.Point(231, 6);
-            this.txtYouTubeUsername.Margin = new System.Windows.Forms.Padding(6);
-            this.txtYouTubeUsername.Name = "txtYouTubeUsername";
-            this.txtYouTubeUsername.Size = new System.Drawing.Size(196, 20);
-            this.txtYouTubeUsername.TabIndex = 3;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(117, 40);
-            this.label6.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(100, 13);
-            this.label6.TabIndex = 1;
-            this.label6.Text = "YouTube Password";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = global::iSpyApplication.Properties.Resources.youtube;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.tableLayoutPanel4.SetRowSpan(this.pictureBox1, 3);
-            this.pictureBox1.Size = new System.Drawing.Size(105, 193);
-            this.pictureBox1.TabIndex = 10;
-            this.pictureBox1.TabStop = false;
-            // 
-            // txtYouTubePassword
-            // 
-            this.txtYouTubePassword.Location = new System.Drawing.Point(231, 38);
-            this.txtYouTubePassword.Margin = new System.Windows.Forms.Padding(6);
-            this.txtYouTubePassword.Name = "txtYouTubePassword";
-            this.txtYouTubePassword.PasswordChar = '*';
-            this.txtYouTubePassword.Size = new System.Drawing.Size(196, 20);
-            this.txtYouTubePassword.TabIndex = 4;
             // 
             // tabPage13
             // 
@@ -2937,12 +2816,6 @@ namespace iSpyApplication
             this.tableLayoutPanel2.PerformLayout();
             this.flowLayoutPanel8.ResumeLayout(false);
             this.flowLayoutPanel8.PerformLayout();
-            this.tabPage3.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.tableLayoutPanel4.ResumeLayout(false);
-            this.tableLayoutPanel4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabPage13.ResumeLayout(false);
             this.tableLayoutPanel12.ResumeLayout(false);
             this.tableLayoutPanel12.PerformLayout();
@@ -3019,11 +2892,6 @@ namespace iSpyApplication
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.CheckBox chkShowGettingStarted;
-        private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.TextBox txtYouTubePassword;
-        private System.Windows.Forms.TextBox txtYouTubeUsername;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox chkBalloon;
         private System.Windows.Forms.TextBox txtTrayIcon;
         private System.Windows.Forms.Label label21;
@@ -3060,12 +2928,10 @@ namespace iSpyApplication
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lblPriority;
         private System.Windows.Forms.ComboBox ddlPriority;
-        private System.Windows.Forms.Button btnLogin;
         private System.Windows.Forms.CheckBox chkInterrupt;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.NumericUpDown numJPEGQuality;
@@ -3193,8 +3059,6 @@ namespace iSpyApplication
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel9;
         private System.Windows.Forms.Button btnCert;
         private System.Windows.Forms.Label lblSSLCert;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TabPage tabPage13;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel12;
         private Controls.FTPEditor ftpEditor1;
