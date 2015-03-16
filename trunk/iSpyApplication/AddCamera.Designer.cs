@@ -120,7 +120,6 @@ namespace iSpyApplication
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.label89 = new System.Windows.Forms.Label();
             this.ddlActionType = new System.Windows.Forms.ComboBox();
-            this.chkMessaging = new System.Windows.Forms.CheckBox();
             this.pnlMovement = new System.Windows.Forms.Panel();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -135,6 +134,7 @@ namespace iSpyApplication
             this.intervalConfig1 = new iSpyApplication.Controls.IntervalConfig();
             this.panel4 = new System.Windows.Forms.Panel();
             this.chkMovement = new System.Windows.Forms.CheckBox();
+            this.chkMessaging = new System.Windows.Forms.CheckBox();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
@@ -290,9 +290,6 @@ namespace iSpyApplication
             this.tableLayoutPanel16 = new System.Windows.Forms.TableLayoutPanel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.label78 = new System.Windows.Forms.Label();
-            this.ddlCategory = new System.Windows.Forms.ComboBox();
-            this.linkLabel7 = new System.Windows.Forms.LinkLabel();
             this.label77 = new System.Windows.Forms.Label();
             this.txtTags = new System.Windows.Forms.TextBox();
             this.chkPublic = new System.Windows.Forms.CheckBox();
@@ -303,6 +300,7 @@ namespace iSpyApplication
             this.label103 = new System.Windows.Forms.Label();
             this.txtCloudPath = new System.Windows.Forms.TextBox();
             this.btnAuthorise = new System.Windows.Forms.Button();
+            this.btnAuthoriseYouTube = new System.Windows.Forms.Button();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.pnlScheduler = new System.Windows.Forms.GroupBox();
             this.panel8 = new System.Windows.Forms.Panel();
@@ -1610,7 +1608,6 @@ namespace iSpyApplication
             // 
             this.flowLayoutPanel6.Controls.Add(this.label89);
             this.flowLayoutPanel6.Controls.Add(this.ddlActionType);
-            this.flowLayoutPanel6.Controls.Add(this.chkMessaging);
             this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel6.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel6.Margin = new System.Windows.Forms.Padding(0);
@@ -1638,17 +1635,6 @@ namespace iSpyApplication
             this.ddlActionType.Size = new System.Drawing.Size(121, 21);
             this.ddlActionType.TabIndex = 93;
             this.ddlActionType.SelectedIndexChanged += new System.EventHandler(this.ddlEventType_SelectedIndexChanged);
-            // 
-            // chkMessaging
-            // 
-            this.chkMessaging.AutoSize = true;
-            this.chkMessaging.Location = new System.Drawing.Point(169, 3);
-            this.chkMessaging.Name = "chkMessaging";
-            this.chkMessaging.Size = new System.Drawing.Size(77, 17);
-            this.chkMessaging.TabIndex = 95;
-            this.chkMessaging.Text = "Messaging";
-            this.toolTip1.SetToolTip(this.chkMessaging, "Check to enable SMS and email alerts");
-            this.chkMessaging.UseVisualStyleBackColor = true;
             // 
             // pnlMovement
             // 
@@ -1804,6 +1790,7 @@ namespace iSpyApplication
             // panel4
             // 
             this.panel4.Controls.Add(this.chkMovement);
+            this.panel4.Controls.Add(this.chkMessaging);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel4.Location = new System.Drawing.Point(6, 6);
             this.panel4.Name = "panel4";
@@ -1821,6 +1808,17 @@ namespace iSpyApplication
             this.chkMovement.Text = "Alerts Enabled";
             this.chkMovement.UseVisualStyleBackColor = true;
             this.chkMovement.CheckedChanged += new System.EventHandler(this.ChkMovementCheckedChanged);
+            // 
+            // chkMessaging
+            // 
+            this.chkMessaging.AutoSize = true;
+            this.chkMessaging.Location = new System.Drawing.Point(134, 4);
+            this.chkMessaging.Name = "chkMessaging";
+            this.chkMessaging.Size = new System.Drawing.Size(77, 17);
+            this.chkMessaging.TabIndex = 95;
+            this.chkMessaging.Text = "Messaging";
+            this.toolTip1.SetToolTip(this.chkMessaging, "Check to enable SMS and email alerts");
+            this.chkMessaging.UseVisualStyleBackColor = true;
             // 
             // tabPage4
             // 
@@ -3723,7 +3721,7 @@ namespace iSpyApplication
             // 
             this.label79.AutoSize = true;
             this.label79.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label79.Location = new System.Drawing.Point(6, 289);
+            this.label79.Location = new System.Drawing.Point(6, 278);
             this.label79.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label79.Name = "label79";
             this.label79.Size = new System.Drawing.Size(301, 13);
@@ -3737,40 +3735,37 @@ namespace iSpyApplication
             this.tableLayoutPanel16.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel16.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel16.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel16.Controls.Add(this.pictureBox2, 0, 4);
+            this.tableLayoutPanel16.Controls.Add(this.pictureBox2, 0, 3);
             this.tableLayoutPanel16.Controls.Add(this.pictureBox1, 0, 0);
-            this.tableLayoutPanel16.Controls.Add(this.label78, 1, 0);
-            this.tableLayoutPanel16.Controls.Add(this.ddlCategory, 2, 0);
-            this.tableLayoutPanel16.Controls.Add(this.linkLabel7, 3, 0);
-            this.tableLayoutPanel16.Controls.Add(this.label77, 1, 1);
-            this.tableLayoutPanel16.Controls.Add(this.txtTags, 2, 1);
-            this.tableLayoutPanel16.Controls.Add(this.chkPublic, 2, 2);
-            this.tableLayoutPanel16.Controls.Add(this.chkUploadGrabs, 2, 6);
-            this.tableLayoutPanel16.Controls.Add(this.chkUploadRecordings, 2, 7);
-            this.tableLayoutPanel16.Controls.Add(this.label98, 1, 4);
-            this.tableLayoutPanel16.Controls.Add(this.ddlCloudProviders, 2, 4);
-            this.tableLayoutPanel16.Controls.Add(this.label103, 1, 5);
-            this.tableLayoutPanel16.Controls.Add(this.txtCloudPath, 2, 5);
-            this.tableLayoutPanel16.Controls.Add(this.btnAuthorise, 3, 4);
+            this.tableLayoutPanel16.Controls.Add(this.chkPublic, 2, 1);
+            this.tableLayoutPanel16.Controls.Add(this.chkUploadGrabs, 2, 5);
+            this.tableLayoutPanel16.Controls.Add(this.chkUploadRecordings, 2, 6);
+            this.tableLayoutPanel16.Controls.Add(this.label98, 1, 3);
+            this.tableLayoutPanel16.Controls.Add(this.ddlCloudProviders, 2, 3);
+            this.tableLayoutPanel16.Controls.Add(this.label103, 1, 4);
+            this.tableLayoutPanel16.Controls.Add(this.txtCloudPath, 2, 4);
+            this.tableLayoutPanel16.Controls.Add(this.btnAuthorise, 3, 3);
+            this.tableLayoutPanel16.Controls.Add(this.btnAuthoriseYouTube, 3, 0);
+            this.tableLayoutPanel16.Controls.Add(this.label77, 1, 0);
+            this.tableLayoutPanel16.Controls.Add(this.txtTags, 2, 0);
             this.tableLayoutPanel16.Dock = System.Windows.Forms.DockStyle.Top;
             this.tableLayoutPanel16.Location = new System.Drawing.Point(6, 19);
             this.tableLayoutPanel16.Name = "tableLayoutPanel16";
-            this.tableLayoutPanel16.RowCount = 8;
+            this.tableLayoutPanel16.RowCount = 7;
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 47F));
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel16.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel16.Size = new System.Drawing.Size(633, 270);
+            this.tableLayoutPanel16.Size = new System.Drawing.Size(633, 259);
             this.tableLayoutPanel16.TabIndex = 8;
             // 
             // pictureBox2
             // 
             this.pictureBox2.Image = global::iSpyApplication.Properties.Resources.Clouds;
-            this.pictureBox2.Location = new System.Drawing.Point(3, 127);
+            this.pictureBox2.Location = new System.Drawing.Point(3, 112);
             this.pictureBox2.Name = "pictureBox2";
             this.tableLayoutPanel16.SetRowSpan(this.pictureBox2, 4);
             this.pictureBox2.Size = new System.Drawing.Size(105, 118);
@@ -3782,47 +3777,15 @@ namespace iSpyApplication
             this.pictureBox1.Image = global::iSpyApplication.Properties.Resources.youtube;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.tableLayoutPanel16.SetRowSpan(this.pictureBox1, 4);
-            this.pictureBox1.Size = new System.Drawing.Size(105, 118);
+            this.tableLayoutPanel16.SetRowSpan(this.pictureBox1, 3);
+            this.pictureBox1.Size = new System.Drawing.Size(105, 103);
             this.pictureBox1.TabIndex = 11;
             this.pictureBox1.TabStop = false;
-            // 
-            // label78
-            // 
-            this.label78.AutoSize = true;
-            this.label78.Location = new System.Drawing.Point(117, 8);
-            this.label78.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.label78.Name = "label78";
-            this.label78.Size = new System.Drawing.Size(49, 13);
-            this.label78.TabIndex = 4;
-            this.label78.Text = "Category";
-            // 
-            // ddlCategory
-            // 
-            this.ddlCategory.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ddlCategory.FormattingEnabled = true;
-            this.ddlCategory.Location = new System.Drawing.Point(178, 6);
-            this.ddlCategory.Margin = new System.Windows.Forms.Padding(6);
-            this.ddlCategory.Name = "ddlCategory";
-            this.ddlCategory.Size = new System.Drawing.Size(162, 21);
-            this.ddlCategory.TabIndex = 5;
-            // 
-            // linkLabel7
-            // 
-            this.linkLabel7.AutoSize = true;
-            this.linkLabel7.Location = new System.Drawing.Point(352, 8);
-            this.linkLabel7.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
-            this.linkLabel7.Name = "linkLabel7";
-            this.linkLabel7.Size = new System.Drawing.Size(90, 13);
-            this.linkLabel7.TabIndex = 7;
-            this.linkLabel7.TabStop = true;
-            this.linkLabel7.Text = "YouTube settings";
-            this.linkLabel7.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel7LinkClicked);
             // 
             // label77
             // 
             this.label77.AutoSize = true;
-            this.label77.Location = new System.Drawing.Point(117, 39);
+            this.label77.Location = new System.Drawing.Point(117, 8);
             this.label77.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label77.Name = "label77";
             this.label77.Size = new System.Drawing.Size(31, 13);
@@ -3831,7 +3794,7 @@ namespace iSpyApplication
             // 
             // txtTags
             // 
-            this.txtTags.Location = new System.Drawing.Point(178, 37);
+            this.txtTags.Location = new System.Drawing.Point(175, 6);
             this.txtTags.Margin = new System.Windows.Forms.Padding(6);
             this.txtTags.Name = "txtTags";
             this.txtTags.Size = new System.Drawing.Size(162, 20);
@@ -3841,7 +3804,7 @@ namespace iSpyApplication
             // 
             this.chkPublic.AutoSize = true;
             this.tableLayoutPanel16.SetColumnSpan(this.chkPublic, 2);
-            this.chkPublic.Location = new System.Drawing.Point(178, 68);
+            this.chkPublic.Location = new System.Drawing.Point(175, 37);
             this.chkPublic.Margin = new System.Windows.Forms.Padding(6);
             this.chkPublic.Name = "chkPublic";
             this.chkPublic.Size = new System.Drawing.Size(343, 17);
@@ -3854,7 +3817,7 @@ namespace iSpyApplication
             // 
             this.chkUploadGrabs.AutoSize = true;
             this.tableLayoutPanel16.SetColumnSpan(this.chkUploadGrabs, 2);
-            this.chkUploadGrabs.Location = new System.Drawing.Point(178, 192);
+            this.chkUploadGrabs.Location = new System.Drawing.Point(175, 177);
             this.chkUploadGrabs.Margin = new System.Windows.Forms.Padding(6);
             this.chkUploadGrabs.Name = "chkUploadGrabs";
             this.chkUploadGrabs.Size = new System.Drawing.Size(162, 17);
@@ -3866,7 +3829,7 @@ namespace iSpyApplication
             // 
             this.chkUploadRecordings.AutoSize = true;
             this.tableLayoutPanel16.SetColumnSpan(this.chkUploadRecordings, 2);
-            this.chkUploadRecordings.Location = new System.Drawing.Point(178, 223);
+            this.chkUploadRecordings.Location = new System.Drawing.Point(175, 208);
             this.chkUploadRecordings.Margin = new System.Windows.Forms.Padding(6);
             this.chkUploadRecordings.Name = "chkUploadRecordings";
             this.chkUploadRecordings.Size = new System.Drawing.Size(182, 17);
@@ -3877,7 +3840,7 @@ namespace iSpyApplication
             // label98
             // 
             this.label98.AutoSize = true;
-            this.label98.Location = new System.Drawing.Point(117, 132);
+            this.label98.Location = new System.Drawing.Point(117, 117);
             this.label98.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label98.Name = "label98";
             this.label98.Size = new System.Drawing.Size(46, 13);
@@ -3888,7 +3851,7 @@ namespace iSpyApplication
             // 
             this.ddlCloudProviders.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlCloudProviders.FormattingEnabled = true;
-            this.ddlCloudProviders.Location = new System.Drawing.Point(178, 130);
+            this.ddlCloudProviders.Location = new System.Drawing.Point(175, 115);
             this.ddlCloudProviders.Margin = new System.Windows.Forms.Padding(6);
             this.ddlCloudProviders.Name = "ddlCloudProviders";
             this.ddlCloudProviders.Size = new System.Drawing.Size(162, 21);
@@ -3898,7 +3861,7 @@ namespace iSpyApplication
             // label103
             // 
             this.label103.AutoSize = true;
-            this.label103.Location = new System.Drawing.Point(117, 163);
+            this.label103.Location = new System.Drawing.Point(117, 148);
             this.label103.Margin = new System.Windows.Forms.Padding(6, 8, 6, 0);
             this.label103.Name = "label103";
             this.label103.Size = new System.Drawing.Size(29, 13);
@@ -3907,7 +3870,7 @@ namespace iSpyApplication
             // 
             // txtCloudPath
             // 
-            this.txtCloudPath.Location = new System.Drawing.Point(178, 161);
+            this.txtCloudPath.Location = new System.Drawing.Point(175, 146);
             this.txtCloudPath.Margin = new System.Windows.Forms.Padding(6);
             this.txtCloudPath.Name = "txtCloudPath";
             this.txtCloudPath.Size = new System.Drawing.Size(162, 20);
@@ -3915,13 +3878,23 @@ namespace iSpyApplication
             // 
             // btnAuthorise
             // 
-            this.btnAuthorise.Location = new System.Drawing.Point(349, 127);
+            this.btnAuthorise.Location = new System.Drawing.Point(346, 112);
             this.btnAuthorise.Name = "btnAuthorise";
             this.btnAuthorise.Size = new System.Drawing.Size(75, 23);
             this.btnAuthorise.TabIndex = 21;
             this.btnAuthorise.Text = "Authorise";
             this.btnAuthorise.UseVisualStyleBackColor = true;
             this.btnAuthorise.Click += new System.EventHandler(this.btnAuthorise_Click);
+            // 
+            // btnAuthoriseYouTube
+            // 
+            this.btnAuthoriseYouTube.Location = new System.Drawing.Point(346, 3);
+            this.btnAuthoriseYouTube.Name = "btnAuthoriseYouTube";
+            this.btnAuthoriseYouTube.Size = new System.Drawing.Size(75, 23);
+            this.btnAuthoriseYouTube.TabIndex = 22;
+            this.btnAuthoriseYouTube.Text = "Authorise";
+            this.btnAuthoriseYouTube.UseVisualStyleBackColor = true;
+            this.btnAuthoriseYouTube.Click += new System.EventHandler(this.btnAuthoriseYouTube_Click);
             // 
             // tabPage5
             // 
@@ -5352,15 +5325,12 @@ namespace iSpyApplication
         private System.Windows.Forms.Label label75;
         private System.Windows.Forms.ListBox lbExtended;
         private System.Windows.Forms.TabPage tabPage9;
-        private System.Windows.Forms.ComboBox ddlCategory;
-        private System.Windows.Forms.Label label78;
         private System.Windows.Forms.Label label77;
         private System.Windows.Forms.TextBox txtTags;
         private System.Windows.Forms.CheckBox chkPublic;
         private System.Windows.Forms.Label label79;
         private System.Windows.Forms.LinkLabel linkLabel6;
         private System.Windows.Forms.Label label80;
-        private System.Windows.Forms.LinkLabel linkLabel7;
         private System.Windows.Forms.Label label81;
         private System.Windows.Forms.ComboBox ddlTimestamp;
         private System.Windows.Forms.Label label11;
@@ -5610,5 +5580,6 @@ namespace iSpyApplication
         private System.Windows.Forms.LinkLabel linkLabel4;
         private System.Windows.Forms.CheckBox chkMessaging;
         private System.Windows.Forms.CheckBox chkScheduleMessaging;
+        private System.Windows.Forms.Button btnAuthoriseYouTube;
     }
 }

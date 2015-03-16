@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using System.Threading;
-using Google.GData.Extensions.Apps;
-using RestSharp.Extensions;
 
 namespace iSpyApplication.Controls
 {

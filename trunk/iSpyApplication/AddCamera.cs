@@ -13,6 +13,7 @@ using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Video.DirectShow.Internals;
 using iSpyApplication.Audio;
+using iSpyApplication.Cloud;
 using iSpyApplication.Controls;
 using iSpyApplication.Kinect;
 using iSpyApplication.Pelco;
@@ -30,7 +31,7 @@ namespace iSpyApplication
 
         private readonly object[] _processortypes = {"Grid Processing", "Object Tracking", "Border Highlighting","Area Highlighting", "None"};
 
-        private readonly object[] _actiontypes = {"Alert", "AlertStopped", "Connection Lost", "Reconnect", "RecordingAlertStarted", "RecordingAlertStopped"};
+        private readonly object[] _actiontypes = {"Alert", "AlertStopped", "Connection Lost", "Reconnect", "ReconnectFailed","RecordingAlertStarted", "RecordingAlertStopped"};
 
         public CameraWindow CameraControl;
         public bool StartWizard;
@@ -207,20 +208,6 @@ namespace iSpyApplication
             txtTags.Text = CameraControl.Camobject.settings.youtube.tags;
             chkMovement.Checked = CameraControl.Camobject.alerts.active;
             
-            var youTubeCats = MainForm.Conf.YouTubeCategories.Split(',');
-
-            int i = 0, ytcInd = 0;
-            foreach (var cat in youTubeCats)
-            {
-                ddlCategory.Items.Add(cat);
-                if (cat == CameraControl.Camobject.settings.youtube.category)
-                {
-                    ytcInd = i;
-                }
-                i++;
-            }
-            ddlCategory.SelectedIndex = ytcInd;
-
             foreach(string dt in _detectortypes)
             {
                 ddlMotionDetector.Items.Add(LocRm.GetString(dt));
@@ -699,7 +686,6 @@ namespace iSpyApplication
             label75.Text = LocRm.GetString("ExtendedCommands");
             label76.Text = LocRm.GetString("ExitThisToEnableAlertsAnd");
             label77.Text = LocRm.GetString("Tags");
-            label78.Text = LocRm.GetString("Category");
             label79.Text = LocRm.GetString("UploadViaWebsite");
             label8.Text = ":";
             label80.Text = LocRm.GetString("TipToCreateAScheduleOvern");
@@ -713,7 +699,6 @@ namespace iSpyApplication
             label6.Text = label95.Text = LocRm.GetString("MinimumDelay");
             linkLabel2.Text = LocRm.GetString("ScriptToRenderThisImageOn");
             linkLabel6.Text = LocRm.GetString("GetLatestList");
-            linkLabel7.Text = LocRm.GetString("YoutubeSettings");
             linkLabel8.Text = linkLabel14.Text = LocRm.GetString("help");
             pnlScheduler.Text = LocRm.GetString("Scheduler");
             chkLocalSaving.Text = LocRm.GetString("LocalSavingEnabled");
@@ -1265,8 +1250,6 @@ namespace iSpyApplication
             CameraControl.Camobject.recorder.timelapse = timelapsemovie;
             CameraControl.Camobject.recorder.profile = ddlProfile.SelectedIndex;
 
-            //CameraControl.Camobject.settings.youtube.autoupload = chkUploadYouTube.Checked;
-            CameraControl.Camobject.settings.youtube.category = ddlCategory.SelectedItem.ToString();
             CameraControl.Camobject.settings.youtube.@public = chkPublic.Checked;
             CameraControl.Camobject.settings.youtube.tags = txtTags.Text;
             CameraControl.Camobject.settings.maxframeraterecord = (int)numMaxFRRecording.Value;
@@ -1675,6 +1658,7 @@ namespace iSpyApplication
                     chkSchedFTPEnabled.Checked = sched.ftpenabled;
                     chkSchedSaveLocalEnabled.Checked = sched.savelocalenabled;
                     chkschedPTZ.Checked = sched.ptz;
+                    chkScheduleMessaging.Checked = sched.messaging;
                 }
             }
         }
@@ -1874,11 +1858,6 @@ namespace iSpyApplication
 
         private void TabPage9Click(object sender, EventArgs e)
         {
-        }
-
-        private void LinkLabel7LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            ShowSettings(3);
         }
 
         private void ShowSettings(int tabindex)
@@ -2472,7 +2451,7 @@ namespace iSpyApplication
         private void linkLabel13_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             string lang = MainForm.Conf.Language;
-            MainClass.ShowSettings(6,this);
+            MainClass.ShowSettings(5,this);
             if (lang != MainForm.Conf.Language)
                 RenderResources();
         }
@@ -2678,9 +2657,12 @@ namespace iSpyApplication
                         at = "reconnect";
                         break;
                     case 4:
-                        at = "recordingstarted";
+                        at = "reconnectfailed";
                         break;
                     case 5:
+                        at = "recordingstarted";
+                        break;
+                    case 6:
                         at = "recordingstopped";
                         break;
 
@@ -2702,7 +2684,7 @@ namespace iSpyApplication
 
         private void linkLabel5_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ShowSettings(4);
+            ShowSettings(3);
             PopFTPServers();
         }
 
@@ -2794,6 +2776,14 @@ namespace iSpyApplication
                 }
             }
 
+        }
+
+        private void btnAuthoriseYouTube_Click(object sender, EventArgs e)
+        {
+            if (YouTubeUploader.Authorise())
+            {
+                MessageBox.Show(this, LocRm.GetString("LoginSuccess"));
+            }
         }
 
     }

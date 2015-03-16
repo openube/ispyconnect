@@ -19,7 +19,10 @@ namespace iSpyApplication.Controls
             Server = server;
             Index = index;
             InitializeComponent();
-            lblSummary.Text = server.name;
+            if (server.sftp)
+                lblSummary.Text = "SFTP: "+server.name;
+            else
+                lblSummary.Text = server.name;
             BackColor = DefaultBackColor;
         }
 

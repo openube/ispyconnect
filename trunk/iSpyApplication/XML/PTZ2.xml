@@ -5476,7 +5476,29 @@ copy or delete as many lines as you need.-->
       <Command Name="Go Preset 8">command=45</Command>
     </ExtendedCommands>
   </Camera>
-</PTZSettings2>
+  <Camera id="205" AppendAuth="user=[USERNAME]&amp;pwd=[PASSWORD]">
+    <Makes>
+      <Make Name="Anran" Model="Anran_PTZ" />
+    </Makes>
+    <CommandURL>/dvrcmd</CommandURL>
+    <Commands>
+      <Center></Center>
+      <Left>command=ptz_req&amp;req=start&amp;param=directionleft&amp;channel=1&amp;stream=0</Left>
+      <LeftUp>command=ptz_req&amp;req=start&amp;param=directionleftup&amp;channel=1&amp;stream=0</LeftUp>
+      <Right>command=ptz_req&amp;req=start&amp;param=directionright&amp;channel=1&amp;stream=0</Right>
+      <RightUp>command=ptz_req&amp;req=start&amp;param=directionrightup&amp;channel=1&amp;stream=0</RightUp>
+      <Up>command=ptz_req&amp;req=start&amp;param=directionup&amp;channel=1&amp;stream=0</Up>
+      <Down>command=ptz_req&amp;req=start&amp;param=directiondown&amp;channel=1&amp;stream=0</Down>
+      <LeftDown>command=ptz_req&amp;req=start&amp;param=directionleftdown&amp;channel=1&amp;stream=0</LeftDown>
+      <RightDown>command=ptz_req&amp;req=start&amp;param=directionrightdown&amp;channel=1&amp;stream=0</RightDown>
+      <Stop>command=ptz_req&amp;req=stop&amp;param=directionright&amp;channel=1&amp;stream=0</Stop>
+      <ZoomIn>
+      </ZoomIn>
+      <ZoomOut>
+      </ZoomOut>
+    </Commands>
+    <ExtendedCommands/>
+  </Camera>
 </PTZSettings2>
 
 

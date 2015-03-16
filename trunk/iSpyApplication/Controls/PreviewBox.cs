@@ -143,7 +143,8 @@ namespace iSpyApplication.Controls
 
         protected override void OnMouseDoubleClick(MouseEventArgs e)
         {
-            PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
+            if (e.Button== MouseButtons.Left)
+                PlayMedia((Enums.PlaybackMode)MainForm.Conf.PlaybackMode);
         }
 
         protected override void  OnMouseClick(MouseEventArgs e)

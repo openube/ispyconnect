@@ -1,10 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
-using Google.GData.Client;
-using Google.GData.Extensions.MediaRss;
-using Google.YouTube;
+
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Services;
+using Google.Apis.Upload;
+using Google.Apis.Util.Store;
+using Google.Apis.YouTube.v3;
+using Google.Apis.YouTube.v3.Data;
+using log4net.Repository.Hierarchy;
 
 namespace iSpyApplication.Cloud
 {
@@ -28,25 +37,26 @@ namespace iSpyApplication.Cloud
         } 
 
         private static volatile bool _uploading;
+        private static readonly List<String> Uploaded = new List<string>();
+
+        public static bool Authorised
+        {
+            get { return Service != null; }
+        }
 
         public static string Upload(int objectId, string filename)
         {
-            if (string.IsNullOrEmpty(MainForm.Conf.YouTubeUsername))
-            {
-                return LocRm.GetString("YouTubeAddSettings");
-            }
             if (UploadList.SingleOrDefault(p => p.Filename == filename) != null)
                 return LocRm.GetString("FileInQueue");
 
             if (UploadList.Count >= CloudGateway.MaxUploadQueue)
                 return LocRm.GetString("UploadQueueFull");
 
-            int i = MainForm.Conf.UploadedVideos.IndexOf(filename, StringComparison.Ordinal);
-            if (i != -1)
+            if (Uploaded.FirstOrDefault(p=>p==filename)!=null)
             {
                 return LocRm.GetString("AlreadyUploaded");
             }
-
+            
             var us = new UserState(objectId, filename);
             UploadList.Add(us);
 
@@ -57,6 +67,83 @@ namespace iSpyApplication.Cloud
             }
 
             return LocRm.GetString("AddedToQueue");
+        }
+
+        private static CancellationTokenSource _tCancel;
+        private static YouTubeService _service;
+        public static YouTubeService Service
+        {
+            get
+            {
+                if (_service != null)
+                {
+                    return _service;
+                }
+                if (!String.IsNullOrEmpty(MainForm.Conf.YouTubeToken))
+                {
+                    var token = new TokenResponse { RefreshToken = MainForm.Conf.YouTubeToken };
+
+                    var credential = new UserCredential(new GoogleAuthorizationCodeFlow(
+                        new GoogleAuthorizationCodeFlow.Initializer
+                        {
+                            ClientSecrets = new ClientSecrets
+                            {
+                                ClientId = "648753488389.apps.googleusercontent.com",
+                                ClientSecret = "Guvru7Ug8DrGcOupqEs6fTB1"
+                            },
+                        }), "user", token);
+                    _service = new YouTubeService(new BaseClientService.Initializer
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = "iSpy",
+                    });
+                    return _service;
+                }
+                return null;
+            }
+        }
+
+        public static bool Authorise()
+        {
+            if (_service != null)
+            {
+                _service.Dispose();
+            }
+            _service = null;
+
+            try
+            {
+                if (_tCancel != null)
+                    _tCancel.Cancel(true);
+
+                _tCancel = new CancellationTokenSource();
+                var t = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    new ClientSecrets
+                    {
+                        ClientId = "648753488389.apps.googleusercontent.com",
+                        ClientSecret = "Guvru7Ug8DrGcOupqEs6fTB1"
+                    },
+                    new[] { YouTubeService.Scope.YoutubeUpload },
+                    "user", _tCancel.Token, new FileDataStore("YouTube.Auth.Store")).Result;
+                if (t != null && t.Token != null &&
+                   t.Token.RefreshToken != null)
+                {
+
+                    MainForm.Conf.YouTubeToken = t.Token.RefreshToken;
+                    _service = new YouTubeService(new BaseClientService.Initializer
+                    {
+                        HttpClientInitializer = t,
+                        ApplicationName = "iSpy",
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                MainForm.LogExceptionToFile(ex);
+                return false;
+
+            }
+            return true;
         }
 
         private static void Upload(object state)
@@ -72,7 +159,7 @@ namespace iSpyApplication.Cloud
             try
             {
                 var l = UploadList.ToList();
-                us = l[0];//could have been cleared by Authorise
+                us = l[0];
                 l.RemoveAt(0);
                 UploadList = l.ToList();
             }
@@ -83,76 +170,88 @@ namespace iSpyApplication.Cloud
             }
 
 
-            var settings = new YouTubeRequestSettings("iSpy", MainForm.Conf.YouTubeKey, MainForm.Conf.YouTubeUsername, MainForm.Conf.YouTubePassword);
-            var request = new YouTubeRequest(settings);
-
-            var v = new Google.YouTube.Video
-                        {
-                            Title = "iSpy: " + us.CameraData.name,
-                            Description = MainForm.Website+": free open source surveillance software: " +
-                                          us.CameraData.description
-                        };
-            if (us.CameraData == null)
+            if (Service == null)
             {
-                if (UploadList.Count > 0)
-                    Upload(null);
-                return;
-            }
-            v.Keywords = us.CameraData.settings.youtube.tags;
-            if (v.Keywords.Trim() == "")
-                v.Keywords = "ispyconnect"; //must specify at least one keyword
-            v.Tags.Add(new MediaCategory(us.CameraData.settings.youtube.category));
-            v.YouTubeEntry.Private = !us.CameraData.settings.youtube.@public;
-            v.Media.Categories.Add(new MediaCategory(us.CameraData.settings.youtube.category));
-            v.Private = !us.CameraData.settings.youtube.@public;
-            v.Author = "iSpyConnect.com - Camera Security Software (open source)";
-
-            string contentType = MediaFileSource.GetContentTypeForFileName(us.Filename);
-            v.YouTubeEntry.MediaSource = new MediaFileSource(us.Filename, contentType);
-
-            // add the upload uri to it
-            //var link =
-            //    new AtomLink("http://uploads.gdata.youtube.com/resumable/feeds/api/users/" +
-            //                 MainForm.Conf.YouTubeAccount + "/uploads") {Rel = ResumableUploader.CreateMediaRelation};
-            //v.YouTubeEntry.Links.Add(link);
-
-            bool success = false;
-            ((GDataRequestFactory)request.Service.RequestFactory).Timeout = 60 * 60 * 1000;
-            Google.YouTube.Video vCreated = null;
-            try
-            {
-                vCreated = request.Upload(v);
-                success = true;
-            }
-            catch (GDataRequestException ex1)
-            {
-                MainForm.LogErrorToFile("YouTube Uploader: " + ex1.ResponseString+" ("+ex1.Message+")");
-                if (ex1.ResponseString=="NoLinkedYouTubeAccount")
+                if (!Authorise())
                 {
-                    MainForm.LogMessageToFile(
-                        "This is because the Google account you connected has not been linked to YouTube yet. The simplest way to fix it is to simply create a YouTube channel for that account: http://www.youtube.com/create_channel");
+                    _uploading = false;
+                    return;
                 }
             }
-            catch (Exception ex)
+            if (Service != null)
             {
-                MainForm.LogExceptionToFile(ex);
+                var video = new Google.Apis.YouTube.v3.Data.Video
+                    {
+                        Snippet =
+                            new VideoSnippet
+                            {
+                                Title = "iSpy: " + us.CameraData.name,
+                                Description =
+                                    MainForm.Website + ": free open source surveillance software: " +
+                                    us.CameraData.description,
+                                Tags = us.CameraData.settings.youtube.tags.Split(','),
+                                CategoryId = "22"
+                            },
+                        Status =
+                            new VideoStatus
+                            {
+                                PrivacyStatus =
+                                    us.CameraData.settings.youtube.@public
+                                        ? "public"
+                                        : "private"
+                            }
+                    };
+
+                try
+                {
+                    using (var fileStream = new FileStream(us.Filename, FileMode.Open))
+                    {
+
+                        var videosInsertRequest = Service.Videos.Insert(video, "snippet,status", fileStream, "video/*");
+                        videosInsertRequest.ProgressChanged += VideosInsertRequestProgressChanged;
+                        videosInsertRequest.ResponseReceived += VideosInsertRequestResponseReceived;
+                        _uploaded = false;
+                        videosInsertRequest.Upload();
+                        if (_uploaded)
+                            Uploaded.Add(us.Filename);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MainForm.LogExceptionToFile(ex);
+                }
+                Upload(null);
             }
-            if (success)
+            else
             {
-
-                string msg = "YouTube video uploaded: <a href=\"http://www.youtube.com/watch?v=" + vCreated.VideoId + "\">" +
-                                vCreated.VideoId + "</a>";
-                if (vCreated.Private)
-                    msg += " (private)";
-                else
-                    msg += " (public)";
-                MainForm.LogMessageToFile(msg);
-
-                MainForm.Conf.UploadedVideos += "," + us.Filename + "|" + vCreated.VideoId;
-                if (MainForm.Conf.UploadedVideos.Length > 1000)
-                    MainForm.Conf.UploadedVideos = "";
+                _uploading = false;
             }
-            Upload(null);
+
+        }
+
+        private static bool _uploaded;
+
+        static void VideosInsertRequestProgressChanged(IUploadProgress progress)
+        {
+            switch (progress.Status)
+            {
+                case UploadStatus.Uploading:
+                    Debug.WriteLine("{0} bytes sent.", progress.BytesSent);
+                    break;
+
+                case UploadStatus.Failed:
+                    MainForm.LogMessageToFile(String.Format("Upload to YouTube failed ({0})", progress.Exception));
+                    break;
+            }
+        }
+
+        static void VideosInsertRequestResponseReceived(Google.Apis.YouTube.v3.Data.Video video)
+        {
+            string msg = "YouTube video uploaded: <a href=\"http://www.youtube.com/watch?v=" + video.Id + "\">" +
+                                video.Id + "</a>";
+            msg += " ("+video.Status.PrivacyStatus+")";
+            MainForm.LogMessageToFile(msg);
+            _uploaded = true;
         }
 
         #region Nested type: UserState

@@ -455,35 +455,35 @@ namespace iSpyApplication.Video
             //some feeds keep returning frames even when the connection is lost
             //this detects that by comparing timestamps from the eventstimechanged event
             //and signals an error if more than 8 seconds ago
-            bool q = LastFrame > DateTime.MinValue && (Helper.Now - LastFrame).TotalMilliseconds > TimeOut;
-
-            if (q && !_stopping)
+            if (LastFrame > DateTime.MinValue && (Helper.Now - LastFrame).TotalMilliseconds > TimeOut)
             {
-                if (_stopEvent != null)
-                {
-                    _stopping = true;
-                    try
-                    {
-                        _stopEvent.Set();
-                    }
-                    catch { }
-                    
-                }
+                Stop(false);
             }
         }
 
+
+        public void Stop()
+        {
+            Stop(true);
+        }
         /// <summary>
         /// Stop video source.
         /// </summary>
         /// 
-        public void Stop()
+        public void Stop(bool requested)
         {
-            if (IsRunning)
+            if (IsRunning && !_stopping)
             {
                 // wait for thread stop
                 _stopping = true;
-                _stopRequested = true;
-                _stopEvent.Set();
+                _stopRequested = requested;
+                try
+                {
+                    _stopEvent.Set();
+                }
+                catch
+                {
+                }
 
                 if (_thread != null && !_thread.Join(MainForm.ThreadKillDelay))
                     _thread.Abort();

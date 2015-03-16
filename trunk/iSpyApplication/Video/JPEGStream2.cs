@@ -460,7 +460,7 @@ namespace iSpyApplication.Video
                         request.ProtocolVersion = HttpVersion.Version10;
 
                     // set timeout value for the request
-                    request.Timeout = _requestTimeout;
+                    request.Timeout = request.ServicePoint.ConnectionLeaseTimeout = request.ServicePoint.MaxIdleTime = _requestTimeout;
                     request.AllowAutoRedirect = true;
 
 
@@ -597,10 +597,6 @@ namespace iSpyApplication.Video
                         res = ReasonToFinishPlaying.DeviceLost;
                         break;
                     }
-                    //if ( VideoSourceError != null )
-                    //{
-                    //    VideoSourceError( this, new VideoSourceErrorEventArgs( exception.Message ) );
-                    //}
                     // wait for a while before the next try
                     Thread.Sleep( 250 );
                 }
@@ -622,14 +618,25 @@ namespace iSpyApplication.Video
 					// close response stream
 					if ( stream != null )
 					{
-					    try
-					    {
-					        stream.Close();
-					    }
-					    catch
-					    {
-					        //somehow can be disposed already?
-					    }
+                        try
+                        {
+                            stream.Flush();
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            stream.Close();
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            stream.Dispose();
+                        }
+                        catch { }
 					    stream = null;
 					}
 					// close response

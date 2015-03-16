@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -98,12 +99,12 @@ namespace iSpyApplication.Controls
                         _filter = new HSLFiltering
                                       {
                                           FillColor =
-                                              new HSL(Convert.ToInt32(config[2]), float.Parse(config[5]),
-                                                      float.Parse(config[8])),
+                                              new HSL(Convert.ToInt32(config[2]), float.Parse(config[5], CultureInfo.InvariantCulture),
+                                                      float.Parse(config[8], CultureInfo.InvariantCulture)),
                                           FillOutsideRange = Convert.ToInt32(config[9])==0,
                                           Hue = new IntRange(Convert.ToInt32(config[0]), Convert.ToInt32(config[1])),
-                                          Saturation = new Range(float.Parse(config[3]), float.Parse(config[4])),
-                                          Luminance = new Range(float.Parse(config[6]), float.Parse(config[7])),
+                                          Saturation = new Range(float.Parse(config[3], CultureInfo.InvariantCulture), float.Parse(config[4], CultureInfo.InvariantCulture)),
+                                          Luminance = new Range(float.Parse(config[6], CultureInfo.InvariantCulture), float.Parse(config[7], CultureInfo.InvariantCulture)),
                                           UpdateHue = Convert.ToBoolean(config[10]),
                                           UpdateSaturation = Convert.ToBoolean(config[11]),
                                           UpdateLuminance = Convert.ToBoolean(config[12])
@@ -903,7 +904,7 @@ namespace iSpyApplication.Controls
 
         private void ApplyMask(Bitmap bmOrig)
         {
-            Graphics             g = Graphics.FromImage(bmOrig);
+            Graphics g = Graphics.FromImage(bmOrig);
             g.CompositingMode = CompositingMode.SourceOver;//.SourceCopy;
             g.CompositingQuality = CompositingQuality.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.Half;

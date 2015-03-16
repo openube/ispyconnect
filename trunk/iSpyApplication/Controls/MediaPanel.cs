@@ -77,32 +77,38 @@ namespace iSpyApplication.Controls
 
         private void MediaPanel_MouseDown(object sender, MouseEventArgs e)
         {
-            SelectStart = e.Location;
+            if (e.Button == MouseButtons.Left)
+            {
+                SelectStart = e.Location;
+            }
         }
 
         private void MediaPanel_MouseUp(object sender, MouseEventArgs e)
         {
-            if (Math.Sqrt(Math.Pow(SelectStart.X-SelectEnd.X,2)+Math.Pow(SelectStart.Y-SelectEnd.Y,2))>5)
+            if (e.Button == MouseButtons.Left)
             {
-                var r = NormRect(SelectStart, SelectEnd);
-                foreach(Control c in Controls)
+                if (Math.Sqrt(Math.Pow(SelectStart.X - SelectEnd.X, 2) + Math.Pow(SelectStart.Y - SelectEnd.Y, 2)) > 5)
                 {
-                    var pb = c as PreviewBox;
-                    if (pb != null)
+                    var r = NormRect(SelectStart, SelectEnd);
+                    foreach (Control c in Controls)
                     {
-                        if (pb.Location.X < r.X + r.Width && pb.Location.X + pb.Width > r.X &&
-                            pb.Location.Y < r.Y + r.Height && pb.Location.Y + pb.Height > r.Y)
+                        var pb = c as PreviewBox;
+                        if (pb != null)
                         {
-                            pb.Selected = true;
-                            pb.Invalidate();
+                            if (pb.Location.X < r.X + r.Width && pb.Location.X + pb.Width > r.X &&
+                                pb.Location.Y < r.Y + r.Height && pb.Location.Y + pb.Height > r.Y)
+                            {
+                                pb.Selected = true;
+                                pb.Invalidate();
+                            }
                         }
+
                     }
 
                 }
-
+                SelectStart = Point.Empty;
+                Invalidate();
             }
-            SelectStart = Point.Empty;
-            Invalidate();
         }
 
         internal Rectangle NormRect(Point p1, Point p2)
@@ -120,7 +126,7 @@ namespace iSpyApplication.Controls
 
         private void MediaPanel_MouseMove(object sender, MouseEventArgs e)
         {
-            if (SelectStart != Point.Empty)
+            if (SelectStart != Point.Empty && e.Button== MouseButtons.Left)
             {
                 SelectEnd = e.Location;
                 Invalidate();

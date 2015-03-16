@@ -12,7 +12,7 @@ namespace iSpyApplication
 {
     public partial class AddMicrophone : Form
     {
-        private readonly object[] _actiontypes = { "Alert", "Connection Lost", "Reconnect" };
+        private readonly object[] _actiontypes = { "Alert", "Connection Lost", "Reconnect", "ReconnectFailed" };
         public VolumeLevel VolumeLevel;
         private bool _loaded;
         public bool IsNew;
@@ -978,18 +978,14 @@ namespace iSpyApplication
                     case 2:
                         at = "reconnect";
                         break;
+                    case 3:
+                        at = "reconnectfailed";
+                        break;
                 }
 
 
                 actionEditor1.Init(at, VolumeLevel.Micobject.id, 1);
             }
-        }
-
-        private void button10_Click(object sender, EventArgs e)
-        {
-            var aset = new AlertSettings { MicalertSettings = VolumeLevel.Micobject.alerts };
-            aset.ShowDialog(this);
-            aset.Dispose();
         }
 
         private void linkLabel4_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
